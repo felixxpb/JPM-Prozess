@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html lang="de" data-theme="dark">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>JPM Prozess</title>
+<link rel="stylesheet" href="stil.css?v=20261017">
+<style>
+.haupt{max-width:1180px;margin:34px auto 0}
+.bereiche-wahl{display:grid;grid-template-columns:repeat(auto-fit,minmax(320px,1fr));gap:16px}
+.bereich-gross{cursor:pointer;text-align:left;font:inherit;color:inherit;padding:26px 24px 20px}
+.bereich-gross .bereich-kachel-titel{font-size:22px}
+.bereich-gross .bereich-kachel-text{font-size:14px}
+.bereich-gross[aria-expanded="true"]{border-color:var(--serie-1);box-shadow:0 0 0 2px var(--serie-1)}
+.bereich-gross:hover{border-color:var(--achse)}
+.panel{margin-top:26px}
+.panel-titel{font-size:13px;margin:0 0 12px;color:var(--text-sekundaer);text-transform:uppercase;letter-spacing:.06em;font-weight:650}
+.panel .start-raster{margin-top:0}
+</style>
+</head>
+<body>
+
+<header class="kopf">
+  <div class="kopf-zeile">
+    <div>
+      <div class="kopf-pfad">JPM Prozess</div>
+      <h1>Übersicht</h1>
+    </div>
+    <div class="kopf-knopfleiste">
+      <button id="themaSchalter" class="thema-schalter" type="button" aria-label="Hell- oder Dunkelmodus umschalten">
+        <span class="thema-hell">Hell</span><span class="thema-dunkel">Dunkel</span>
+      </button>
+    </div>
+  </div>
+  <p class="kopf-frage">Zwei Bereiche: die Länderanalyse (Struktur und Charakter je Land) und der JPM Makro-Prozess. Auf einen Bereich klicken.</p>
+</header>
+
+<main class="haupt">
+  <div class="bereiche-wahl" role="tablist" aria-label="Hauptbereiche">
+    <button class="bereich-kachel bereich-gross" id="knopfLaender" type="button" aria-expanded="false" aria-controls="panelLaender" data-ziel="laender">
+      <div class="bereich-kachel-titel">Länderanalyse</div>
+      <p class="bereich-kachel-text">Wie ist ein Land aufgebaut und wie funktioniert es? Elf Oberthemen je Land: Politik, Finanzsystem, Zentralbank, Wirtschaft und mehr. Grundlage für die Makrokontexte.</p>
+      <span class="bereich-kachel-status status-fertig">USA: 2 von 11 Oberthemen · weitere Länder folgen</span>
+    </button>
+    <button class="bereich-kachel bereich-gross" id="knopfJpm" type="button" aria-expanded="false" aria-controls="panelJpm" data-ziel="jpm">
+      <div class="bereich-kachel-titel">JPM Makro-Prozess</div>
+      <p class="bereich-kachel-text">Der Makro-Analyseprozess nach dem JPM-Ansatz in drei Schichten (Makro-Themen, Bewertung und Positionierung, Signale) plus Prozess-Werkzeuge.</p>
+      <span class="bereich-kachel-status status-offen">folgt</span>
+    </button>
+  </div>
+
+  <section class="panel" id="panelLaender" hidden aria-label="Länderanalyse">
+    <h2 class="panel-titel">Länderanalyse: Länder wählen</h2>
+    <div class="start-raster">
+    <a class="bereich-kachel" href="laender/index.html#usa">
+      <div class="bereich-kachel-titel">USA</div>
+      <p class="bereich-kachel-text">Politik und Finanz-/Kreditsystem sind online, weitere Oberthemen folgen.</p>
+      <span class="bereich-kachel-status status-fertig">2 von 11 Oberthemen</span>
+    </a>
+    <div class="bereich-kachel bereich-kachel-offen"><div class="bereich-kachel-titel">Euroraum</div><p class="bereich-kachel-text">Noch nicht begonnen.</p><span class="bereich-kachel-status status-offen">folgt</span></div>
+    <div class="bereich-kachel bereich-kachel-offen"><div class="bereich-kachel-titel">Vereinigtes Königreich</div><p class="bereich-kachel-text">Noch nicht begonnen.</p><span class="bereich-kachel-status status-offen">folgt</span></div>
+    <div class="bereich-kachel bereich-kachel-offen"><div class="bereich-kachel-titel">Japan</div><p class="bereich-kachel-text">Noch nicht begonnen.</p><span class="bereich-kachel-status status-offen">folgt</span></div>
+    <div class="bereich-kachel bereich-kachel-offen"><div class="bereich-kachel-titel">Australien</div><p class="bereich-kachel-text">Noch nicht begonnen.</p><span class="bereich-kachel-status status-offen">folgt</span></div>
+    <div class="bereich-kachel bereich-kachel-offen"><div class="bereich-kachel-titel">Kanada</div><p class="bereich-kachel-text">Noch nicht begonnen.</p><span class="bereich-kachel-status status-offen">folgt</span></div>
+    <div class="bereich-kachel bereich-kachel-offen"><div class="bereich-kachel-titel">Schweiz</div><p class="bereich-kachel-text">Noch nicht begonnen.</p><span class="bereich-kachel-status status-offen">folgt</span></div>
+    <div class="bereich-kachel bereich-kachel-offen"><div class="bereich-kachel-titel">Neuseeland</div><p class="bereich-kachel-text">Noch nicht begonnen.</p><span class="bereich-kachel-status status-offen">folgt</span></div>
+    <div class="bereich-kachel bereich-kachel-offen"><div class="bereich-kachel-titel">Norwegen</div><p class="bereich-kachel-text">Noch nicht begonnen.</p><span class="bereich-kachel-status status-offen">folgt</span></div>
+    <div class="bereich-kachel bereich-kachel-offen"><div class="bereich-kachel-titel">Schweden</div><p class="bereich-kachel-text">Noch nicht begonnen.</p><span class="bereich-kachel-status status-offen">folgt</span></div>
+    <div class="bereich-kachel bereich-kachel-offen"><div class="bereich-kachel-titel">China (Indikator)</div><p class="bereich-kachel-text">Nur als Indikator, keine eigene Länderseite.</p><span class="bereich-kachel-status status-offen">folgt</span></div>
+    </div>
+  </section>
+
+  <section class="panel" id="panelJpm" hidden aria-label="JPM Makro-Prozess">
+    <h2 class="panel-titel">JPM Makro-Prozess: Aufbau folgt</h2>
+    <div class="start-raster">
+      <div class="bereich-kachel bereich-kachel-offen"><div class="bereich-kachel-titel">Makro-Themen</div><p class="bereich-kachel-text">Erste Schicht: Wachstum, Inflation, Arbeitsmarkt, Zinsen, Plumbing und weitere Themenbereiche.</p><span class="bereich-kachel-status status-offen">folgt</span></div>
+      <div class="bereich-kachel bereich-kachel-offen"><div class="bereich-kachel-titel">Bewertung und Positionierung</div><p class="bereich-kachel-text">Zweite Schicht des JPM-Prozesses.</p><span class="bereich-kachel-status status-offen">folgt</span></div>
+      <div class="bereich-kachel bereich-kachel-offen"><div class="bereich-kachel-titel">Signale</div><p class="bereich-kachel-text">Dritte Schicht des JPM-Prozesses.</p><span class="bereich-kachel-status status-offen">folgt</span></div>
+      <div class="bereich-kachel bereich-kachel-offen"><div class="bereich-kachel-titel">Prozess-Werkzeuge</div><p class="bereich-kachel-text">Werkzeuge entlang des Prozesses.</p><span class="bereich-kachel-status status-offen">folgt</span></div>
+    </div>
+  </section>
+</main>
+
+<footer class="fuss">
+  <span>JPM Prozess · Teil des Trading Brain</span>
+</footer>
+
+<script>
+(function () {
+  "use strict";
+  var schalter = document.getElementById("themaSchalter");
+  var gespeichert = null;
+  try { gespeichert = localStorage.getItem("dashboard-thema"); } catch (e) { }
+  if (gespeichert) { document.documentElement.setAttribute("data-theme", gespeichert); }
+  schalter.addEventListener("click", function () {
+    var neu = document.documentElement.getAttribute("data-theme") === "dark" ? "light" : "dark";
+    document.documentElement.setAttribute("data-theme", neu);
+    try { localStorage.setItem("dashboard-thema", neu); } catch (e) { }
+  });
+})();
+</script>
+<script>
+(function () {
+  "use strict";
+  var knoepfe = document.querySelectorAll(".bereich-gross");
+  var panels = { laender: document.getElementById("panelLaender"), jpm: document.getElementById("panelJpm") };
+  function zeige(ziel) {
+    knoepfe.forEach(function (k) { k.setAttribute("aria-expanded", String(k.dataset.ziel === ziel)); });
+    Object.keys(panels).forEach(function (k) { panels[k].hidden = (k !== ziel); });
+    try { history.replaceState(null, "", ziel ? "#" + ziel : location.pathname + location.search); } catch (e) { }
+    if (ziel) { panels[ziel].scrollIntoView({ behavior: "smooth", block: "start" }); }
+  }
+  knoepfe.forEach(function (k) {
+    k.addEventListener("click", function () {
+      var offen = k.getAttribute("aria-expanded") === "true";
+      zeige(offen ? null : k.dataset.ziel);
+    });
+  });
+  var h = (location.hash || "").replace("#", "");
+  if (panels[h]) { zeige(h); }
+})();
+</script>
+
+<script src="einstellungen.js?v=20261017"></script>
+<script src="hintergrund.js?v=20261017"></script>
+</body>
+</html>
