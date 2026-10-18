@@ -38,8 +38,13 @@ FRED = {
 
 def fred_key():
     k = os.environ.get("FRED_API_KEY")
-    if k:
-        return k.strip()
+    if k and k.strip():
+        # Robust gegen Tippfehler beim Eintragen (Leerzeichen, "FRED_API_KEY=" davor, Anfuehrungszeichen):
+        # ein FRED-Schluessel besteht aus genau 32 Kleinbuchstaben/Ziffern.
+        m = re.search(r"[a-z0-9]{32}", k.strip().lower())
+        if not m:
+            raise ValueError("FRED_API_KEY (Secret) hat kein gueltiges Format: Laenge %d statt 32 Zeichen" % len(k.strip()))
+        return m.group(0)
     # Lokal: Schluessel aus dem Dashboard-Ordner des Trading Brain (liegt NICHT im Repository)
     pfad = os.path.join(HIER, "..", "..", "05_Dashboard", "02_Datenskripte", "zugangsdaten.txt")
     m = re.search(r"FRED_API_KEY=(\S+)", open(pfad, encoding="utf-8").read())
@@ -63,7 +68,10 @@ def lade_fred():
     for sid, start in FRED.items():
         u = ("https://api.stlouisfed.org/fred/series/observations?series_id=%s&api_key=%s"
              "&file_type=json&observation_start=%s" % (sid, key, start))
-        obs = json.loads(holen(u))["observations"]
+        try:
+            obs = json.loads(holen(u))["observations"]
+        except Exception as e:  # noqa
+            raise ValueError("FRED-Reihe %s: %s" % (sid, e))
         pts = [[o["date"], float(o["value"])] for o in obs if o["value"] not in (".", "")]
         if len(pts) > 600:  # lange Tagesreihen ausduennen, letzter Punkt bleibt
             pts = pts[::2] + ([pts[-1]] if (len(pts) - 1) % 2 else [])
