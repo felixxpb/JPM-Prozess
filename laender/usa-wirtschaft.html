@@ -1,0 +1,611 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>JPM Prozess · Länderanalyse USA · Wirtschaft und Infrastruktur</title>
+<style>
+:root{
+  --flaeche:#fcfcfb; --ebene:#f9f9f7; --text:#0b0b0b; --text2:#52514e; --stumm:#898781;
+  --raster:#e1e0d9; --achse:#c3c2b7; --rand:rgba(11,11,11,.10);
+  --c1:#2f6f9f; --c2:#6b4f8a; --c3:#3d7a56; --c4:#8a5a2b; --cb:#52514e;
+  --h1:#e6f0f7; --h2:#eee9f4; --h3:#e5f2ea; --h4:#f4ebe1; --hb:#efeee9;
+  --gut:#006300; --warn:#b97a00; --schatten:0 1px 2px rgba(11,11,11,.04),0 4px 16px rgba(11,11,11,.06);
+  color-scheme:light;
+}
+:root[data-theme="dark"]{
+  --flaeche:#1a1a19; --ebene:#0d0d0d; --text:#fff; --text2:#c3c2b7; --stumm:#898781;
+  --raster:#2c2c2a; --achse:#383835; --rand:rgba(255,255,255,.12);
+  --c1:#5fa0d3; --c2:#ab8fd0; --c3:#56b27d; --c4:#d39a5a; --cb:#c3c2b7;
+  --h1:#16222c; --h2:#221b2c; --h3:#16261d; --h4:#2a2016; --hb:#232321;
+  --gut:#0ca30c; --warn:#fab219; --schatten:none; color-scheme:dark;
+}
+*{box-sizing:border-box}
+body{margin:0;padding:0 20px 56px;background:var(--ebene);color:var(--text);font-family:system-ui,-apple-system,"Segoe UI",sans-serif;font-size:15px;line-height:1.5}
+.wrap{max-width:1280px;margin:0 auto}
+header{padding:20px 0 6px;display:flex;gap:16px;justify-content:space-between;align-items:flex-start;flex-wrap:wrap}
+h1{margin:0;font-size:21px;font-weight:650}
+.unter{color:var(--text2);font-size:13px}
+.entwurf{display:inline-block;margin-left:8px;padding:1px 8px;border-radius:99px;border:1px solid var(--warn);color:var(--warn);font-size:12px;font-weight:600;vertical-align:middle}
+.tool{font:inherit;font-size:13px;background:var(--flaeche);color:var(--text);border:1px solid var(--rand);border-radius:8px;padding:6px 12px;cursor:pointer}
+.legende{display:flex;gap:16px;flex-wrap:wrap;font-size:12px;color:var(--text2);margin:6px 0 12px}
+.pkt{width:8px;height:8px;border-radius:50%;display:inline-block;margin-right:5px}.pkt.auto{background:var(--gut)}.pkt.man{background:var(--stumm)}
+/* Kachel */
+.k{all:unset;box-sizing:border-box;display:block;width:100%;cursor:pointer;background:var(--flaeche);border:1px solid var(--rand);border-radius:9px;padding:9px 11px 8px;box-shadow:var(--schatten);transition:transform .15s,border-color .15s}
+.k:hover{transform:translateY(-1px);border-color:var(--c)}.k:focus-visible{outline:2px solid var(--c);outline-offset:2px}
+.k.aktiv{border-color:var(--c);box-shadow:0 0 0 2px var(--c)}
+.kt{display:flex;justify-content:space-between;align-items:baseline;gap:6px}
+.kn{font-size:12.5px;color:var(--text2);font-weight:600}
+.kd{font-size:11px;color:var(--stumm);white-space:nowrap}
+.kw{font-size:23px;font-weight:700;line-height:1.15;font-variant-numeric:tabular-nums;margin-top:1px}
+.ks{font-size:11.8px;color:var(--text2);display:flex;justify-content:space-between;gap:6px;align-items:center;margin-top:1px}
+.dl{white-space:nowrap}
+.spark{display:block;width:100%;height:30px;margin-top:3px}
+.c1{--c:var(--c1)}.c2{--c:var(--c2)}.c3{--c:var(--c3)}.c4{--c:var(--c4)}.cb{--c:var(--cb)}
+/* Layout */
+.band{background:var(--hb);border:1px solid var(--rand);border-radius:12px;padding:8px 10px 10px;margin-bottom:14px}
+.bandkopf{font-size:12px;font-weight:700;color:var(--text2);text-transform:uppercase;letter-spacing:.05em;margin:2px 2px 6px}
+.bandinhalt{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}
+.raster{display:grid;grid-template-columns:1fr 54px 1fr 54px 1fr 54px 1fr;align-items:stretch}
+.sp{padding:8px;border-radius:12px;display:flex;flex-direction:column;gap:9px}
+.sp.s1{background:var(--h1)}.sp.s2{background:var(--h2)}.sp.s3{background:var(--h3)}.sp.s4{background:var(--h4)}
+.spkopf{color:#fff;font-weight:700;text-align:center;padding:9px 6px;border-radius:9px;font-size:13px;background:var(--c)}
+.pill{all:unset;cursor:pointer;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;font-size:10.5px;text-align:center;color:var(--text2);padding:4px 2px}
+.pill .pf{font-size:20px;color:var(--text);line-height:1}.pill:hover,.pill.aktiv{color:var(--text)}.pill:focus-visible{outline:2px solid var(--text);border-radius:6px}
+.termine{margin-top:16px;background:var(--flaeche);border:1px solid var(--rand);border-radius:10px;padding:10px 14px;box-shadow:var(--schatten)}
+.termine h2{margin:0 0 4px;font-size:13px;color:var(--text2);text-transform:uppercase;letter-spacing:.05em}
+.termin{display:flex;gap:10px;align-items:baseline;padding:5px 0;border-top:1px solid var(--raster);font-size:13px}
+.termin:first-of-type{border-top:0}.termin .d{width:96px;font-weight:600}.termin .t{flex:1}.termin .r{color:var(--text2);white-space:nowrap}.termin.n .r{color:var(--warn);font-weight:700}
+.fuss{margin-top:6px;font-size:11.5px;color:var(--stumm)}
+/* Drawer */
+#schatten{position:fixed;inset:0;background:rgba(0,0,0,.28);opacity:0;pointer-events:none;transition:opacity .2s;z-index:20}
+#schatten.offen{opacity:1;pointer-events:auto}
+#drawer{position:fixed;top:0;right:0;height:100%;width:min(560px,100%);background:var(--flaeche);border-left:1px solid var(--rand);box-shadow:-8px 0 30px rgba(0,0,0,.18);transform:translateX(100%);transition:transform .22s ease;z-index:21;overflow-y:auto;padding:0}
+#drawer.offen{transform:none}
+.dk{position:sticky;top:0;background:var(--flaeche);border-bottom:1px solid var(--rand);border-top:4px solid var(--c);padding:14px 18px 10px;display:flex;justify-content:space-between;gap:10px;align-items:flex-start;z-index:2}
+.dk h2{margin:0;font-size:18px}.dk .gr{font-size:12px;color:var(--c);text-transform:uppercase;letter-spacing:.05em;font-weight:700}
+.zu{all:unset;cursor:pointer;font-size:22px;line-height:1;padding:2px 8px;border-radius:6px;color:var(--text2)}.zu:hover{background:var(--raster)}.zu:focus-visible{outline:2px solid var(--text)}
+.db{padding:14px 18px 40px}
+.gross{font-size:34px;font-weight:700;font-variant-numeric:tabular-nums;line-height:1.1}
+.gsub{font-size:13px;color:var(--text2);margin-bottom:8px}
+.btns{display:flex;gap:6px;margin:6px 0 4px}
+.btn{font:inherit;font-size:12px;background:var(--ebene);color:var(--text);border:1px solid var(--rand);border-radius:7px;padding:3px 10px;cursor:pointer}
+.btn[aria-pressed="true"]{background:var(--text);color:var(--flaeche);border-color:var(--text)}
+svg.chart{width:100%;height:auto;display:block;touch-action:none}
+.tip{font-size:12.5px;color:var(--text2);min-height:18px;margin-bottom:4px;font-variant-numeric:tabular-nums}
+.db h3{font-size:12px;text-transform:uppercase;letter-spacing:.05em;color:var(--text2);margin:18px 0 4px}
+.db p{margin:0 0 8px;font-size:14px}
+.db table{width:100%;border-collapse:collapse;font-size:13px}
+.db th{font-weight:600;text-align:left;color:var(--text2);font-size:11.5px;border-bottom:1px solid var(--rand);padding:3px 8px 3px 0}
+.db td{padding:5px 8px 5px 0;border-bottom:1px solid var(--raster);vertical-align:top}
+.db .hin{background:var(--ebene);border-left:3px solid var(--warn);border-radius:4px;padding:6px 10px;font-size:13px;color:var(--text2)}
+.db ul{margin:4px 0 0;padding-left:18px;font-size:13.5px}
+.db a{color:inherit}
+@media (max-width:980px){
+  .raster{grid-template-columns:1fr}.pill{display:none}.sp{margin-bottom:12px}.bandinhalt{grid-template-columns:1fr}
+}
+@media (prefers-reduced-motion:reduce){#drawer,#schatten,.k{transition:none}}
+/* Verständnis-Block */
+.versteh{background:var(--flaeche);border:1px solid var(--rand);border-radius:12px;padding:6px 18px 14px;box-shadow:var(--schatten);margin-bottom:14px}
+.versteh>h2{margin:12px 0 2px;font-size:17px}
+.versteh .lead{margin:0 0 8px;color:var(--text2);font-size:13.5px}
+.versteh details{border-top:1px solid var(--raster);padding:6px 0}
+.versteh details:first-of-type{border-top:0}
+.versteh summary{cursor:pointer;font-weight:650;font-size:14.5px;padding:4px 0;list-style:none}
+.versteh summary::-webkit-details-marker{display:none}
+.versteh summary:before{content:"▸";display:inline-block;width:18px;color:var(--text2);transition:transform .15s}
+.versteh details[open]>summary:before{transform:rotate(90deg)}
+.versteh summary:focus-visible{outline:2px solid var(--text);outline-offset:2px;border-radius:4px}
+.versteh .inh{padding:2px 0 6px 18px;font-size:14px}
+.versteh ol.kern{margin:4px 0 4px;padding-left:20px}.versteh ol.kern li{margin:3px 0}
+.fluss{display:grid;grid-template-columns:1fr 78px 1fr 78px 1fr;grid-template-rows:auto 56px auto 56px auto;align-items:center;gap:0;margin:8px 0 4px}
+.nk{all:unset;box-sizing:border-box;display:block;width:100%;cursor:pointer;background:var(--ebene);border:1px solid var(--rand);border-top:3px solid var(--c);border-radius:9px;padding:8px 10px;text-align:center;transition:transform .15s,border-color .15s}
+.nk:hover{transform:translateY(-1px);border-color:var(--c)}.nk:focus-visible{outline:2px solid var(--c);outline-offset:2px}
+.nk b{display:block;font-size:13.5px}.nk span{display:block;font-size:11.5px;color:var(--text2);margin-top:1px}
+.pf2{font-size:11px;color:var(--text2);text-align:center;line-height:1.25;padding:0 3px}
+.pf2 i{display:block;font-style:normal;font-size:18px;color:var(--text);line-height:1}
+.nk.n1{--c:var(--c1)}.nk.n2{--c:var(--c3)}.nk.n3{--c:var(--c4)}.nk.n4{--c:var(--c2)}.nk.n5{--c:var(--c2)}.nk.n6{--c:var(--c1)}.nk.n7{--c:var(--cb)}
+.bed{display:grid;grid-template-columns:repeat(2,1fr);gap:10px;margin-top:4px}
+.bed div{background:var(--ebene);border:1px solid var(--rand);border-radius:9px;padding:8px 11px;font-size:13.5px}
+.bed b{display:block;font-size:13px;margin-bottom:2px}
+.chip{display:inline-block;font-size:11.5px;border:1px solid var(--rand);border-radius:99px;padding:0 9px;margin:2px 3px 0 0;background:var(--ebene);cursor:pointer;color:var(--text)}
+.chip:hover{border-color:var(--text)}
+@media (max-width:980px){.fluss{grid-template-columns:1fr;grid-template-rows:none;gap:8px}.pf2{display:none}.bed{grid-template-columns:1fr}}
+
+.struktur{background:var(--flaeche);border:1px solid var(--rand);border-radius:12px;padding:10px 14px 14px;box-shadow:var(--schatten);margin-bottom:14px}
+.skraster{display:grid;grid-template-columns:minmax(240px,320px) 1fr;gap:18px;align-items:center}
+#kuchen{width:100%;max-width:1000px;height:auto;display:block;margin:0 auto}
+.kmitte{margin:4px 0 0}
+.leg{display:none}
+#kuchen text{font-size:14px;fill:var(--text);cursor:pointer}
+#kuchen text b,#kuchen .pz{font-weight:700;font-variant-numeric:tabular-nums}
+#kuchen text:hover{text-decoration:underline}
+#kuchen .fl{stroke:var(--achse);stroke-width:1;fill:none}
+#kuchen .gk2{font-size:12px;fill:var(--text2);cursor:default;text-transform:uppercase;letter-spacing:.05em;font-weight:700}
+#kuchen path{cursor:pointer;stroke:var(--flaeche);stroke-width:1.5;transition:opacity .15s}
+#kuchen path:hover,#kuchen path:focus{opacity:.8;outline:none}
+.leg{display:none;grid-template-columns:repeat(2,1fr);gap:3px 14px}
+.leg button{all:unset;cursor:pointer;display:flex;align-items:center;gap:8px;font-size:13px;padding:3px 6px;border-radius:6px}
+.leg button:hover,.leg button:focus-visible{background:var(--ebene);outline:none}
+.leg i{width:11px;height:11px;border-radius:3px;flex:none}
+.leg b{margin-left:auto;font-variant-numeric:tabular-nums}
+.leg .gk{grid-column:1/-1;font-size:11.5px;font-weight:700;text-transform:uppercase;letter-spacing:.05em;color:var(--text2);margin-top:6px}
+.balken{display:flex;height:44px;border-radius:9px;overflow:hidden;margin-top:6px;border:1px solid var(--rand)}
+.balken button{all:unset;cursor:pointer;display:flex;align-items:center;justify-content:center;text-align:center;font-size:13px;font-weight:700;color:#fff;overflow:hidden;white-space:nowrap}
+.balken button:hover,.balken button:focus-visible{filter:brightness(1.12);outline:none}
+.bhin{font-size:11.5px;color:var(--stumm);margin-top:6px}
+.bandinhalt{grid-template-columns:repeat(4,1fr)!important}
+@media (max-width:980px){.bandinhalt{grid-template-columns:1fr!important}}
+@media (max-width:760px){#kuchen .lbl{display:none}#kuchen{max-width:360px}.leg{display:grid;grid-template-columns:1fr;margin-top:8px}}
+
+.kreislauf svg{width:100%;height:auto;display:block}
+.kreislauf .nd{cursor:pointer}
+.kreislauf .nd rect{fill:var(--ebene);stroke:var(--c);stroke-width:2;transition:fill .15s}
+.kreislauf .nd:hover rect,.kreislauf .nd:focus rect{fill:var(--flaeche)}
+.kreislauf .nd:focus{outline:none}.kreislauf .nd:focus rect{stroke-width:3.5}
+.kreislauf .nd text{pointer-events:none}
+.kreislauf .nt{font-size:15px;font-weight:700;fill:var(--text)}
+.kreislauf .ns{font-size:11.5px;fill:var(--text2)}
+.kreislauf .mk rect{fill:var(--h2);stroke-dasharray:none}
+.kreislauf .fr{stroke:var(--c1);stroke-width:2.4;fill:none}
+.kreislauf .fg{stroke:var(--c4);stroke-width:2.2;fill:none;stroke-dasharray:6 4}
+.kreislauf .fz{stroke:var(--text2);stroke-width:1.8;fill:none}
+.kreislauf .fl2{font-size:11.5px;fill:var(--text2)}
+.kreislauf .mitte{font-size:13px;font-weight:700;fill:var(--text2);text-anchor:middle}
+.kreislauf .mitte2{font-size:11.5px;fill:var(--stumm);text-anchor:middle}
+.kl-liste{display:none}
+@media (max-width:760px){.kreislauf .nd text.ns,.kreislauf .fl2{display:none}.kl-liste{display:flex;flex-wrap:wrap;gap:6px;margin-top:8px}}
+</style>
+</head>
+<body>
+<div class="wrap">
+<header>
+  <div>
+    <a href="index.html" style="font-size:13px;color:var(--text2)">← Länderanalyse</a>
+    <h1>USA – Wirtschaft und Infrastruktur <span class="entwurf">Muster, nicht freigegeben</span></h1>
+    <div class="unter">Länderanalyse, Oberthema 4 · Daten und Fakten, keine Bewertung · Struktur: Entwurf 2026-10-19 (Review: April 2027) · Kennzahlen aktualisieren sich automatisch, das Datum steht in jeder Kachel</div>
+  </div>
+  <button class="tool" id="theme" type="button">Dunkel / Hell</button>
+</header>
+<div class="legende">
+  <span><i class="pkt auto"></i>automatisch (FRED und EIA, zweimal täglich)</span>
+  <span><i class="pkt man"></i>manuell gepflegt (Quelle und Stand in der Kachel)</span>
+  <span>Kästen im Kreislauf und Kacheln anklicken: Erklärung, Chart mit Historie, Quellen</span>
+</div>
+<section class="versteh" aria-labelledby="vt">
+  <h2 id="vt">Zuerst verstehen: Wie die US-Wirtschaft aufgebaut ist und woher ihre Leistung kommt</h2>
+  <p class="lead">Die Daten darunter sind Belege für diesen Aufbau. Der Schwerpunkt liegt auf der Struktur: wer erzeugt die Leistung, wohin fließt die Investition, wo stehen Energie und Infrastruktur. Die Kästen im Kreislauf sind anklickbar.</p>
+
+  <details open>
+    <summary>Die Grundidee in sieben Punkten</summary>
+    <div class="inh"><ol class="kern">
+      <li><b>Der Konsum trägt die Wirtschaft.</b> Rund zwei Drittel des BIP sind private Konsumausgaben. Investitionen und Staat folgen mit je etwa einem Sechstel, der Außenhandel zieht per Saldo ab (Kachel "Verwendung des BIP").</li>
+      <li><b>Dienstleistungen dominieren, die Industrie ist ein kleiner Kern.</b> Private Dienstleister erzeugen knapp drei Viertel der Wertschöpfung, Güterproduzenten (Industrie, Bau, Bergbau, Landwirtschaft) etwa ein Sechstel, der Staat gut ein Zehntel (Diagramm unten). Größter Einzelblock ist der Bereich Finanzen, Versicherung und Immobilien.</li>
+      <li><b>Produktivität und Technik treiben das Wachstum.</b> Wachstum entsteht weniger durch mehr Arbeitsstunden als durch mehr Output pro Stunde und durch Investitionen in Technik. Das FOMC nennt im September "starkes Produktivitätswachstum".</li>
+      <li><b>Technik-Investitionen prägen den aktuellen Zyklus.</b> Investitionen in Informationstechnik und Rechenzentren machen laut Schätzung von ING rund die Hälfte des BIP-Wachstums im 2. Quartal 2026 aus (Analystenschätzung, keine BEA-Zahl, Importe von Hardware mindern den Effekt).</li>
+      <li><b>Energie ist Standortvorteil und Engpass.</b> Die USA sind bei Energie insgesamt Nettoexporteur (2025: 11 Quads Rekord), bei Rohöl allein aber noch Nettoimporteur. Zugleich steigt der Strombedarf: Der Gewerbesektor, der Rechenzentren enthält, überholt laut EIA 2026 erstmals die Haushalte.</li>
+      <li><b>Infrastruktur ist geteilt und knapp finanziert.</b> Der Bund finanziert Verkehr über Zuweisungen an Bundesstaaten und Kommunen, Strom und Netze liegen überwiegend bei privaten Versorgern. Die Verkehrsinfrastruktur erhielt von ASCE 2025 die Gesamtnote C, die Investitionslücke wird auf 3,7 Bio. USD geschätzt.</li>
+      <li><b>Die Außenwirtschaft ist dauerhaft im Defizit.</b> Die USA importieren mehr Waren, als sie exportieren. Das Leistungsbilanzdefizit wird durch Kapitalzuflüsse finanziert (Verbindung zu Oberthema 2).</li>
+    </ol></div>
+  </details>
+
+  <details open>
+    <summary>Der Kreislauf (Kästen anklicken)</summary>
+    <div class="inh">
+      <div class="kreislauf" id="fluss"></div>
+      <p style="font-size:12.5px;color:var(--text2);margin:6px 0 0">Lesart: Haushalte und Unternehmen tauschen über zwei Märkte. Durchgezogen (blau) laufen die realen Ströme, nämlich Güter und Dienstleistungen zu den Haushalten sowie Arbeit, Kapital und Boden zu den Unternehmen. Gestrichelt (orange) läuft das Geld in Gegenrichtung. Staat, Finanzsektor, Ausland und Energie hängen als äußere Ringe an dem Kreislauf. Alle Kästen sind anklickbar.</p>
+    </div>
+  </details>
+
+  <details>
+    <summary>Was das bedeutet</summary>
+    <div class="inh"><div class="bed">
+      <div><b>Der Konsum ist der Hebel der Nachfrage</b>Einkommen, Beschäftigung und Kredit (Oberthemen 6, 7 und 2) bestimmen, wie viel die Haushalte ausgeben. Das erklärt, warum die Konsumquote so hoch ist.</div>
+      <div><b>Die Branchenstruktur bestimmt die Empfindlichkeit</b>Eine Wirtschaft mit hohem Dienstleistungs- und Finanzanteil reagiert anders auf Zinsen und Rohstoffpreise als eine Industriewirtschaft.</div>
+      <div><b>Investitionen bündeln sich in wenigen Feldern</b>Technik, Rechenzentren und Energieanlagen vereinen einen großen Teil des Investitionswachstums. Das macht das Wachstum abhängig von diesen Feldern.</div>
+      <div><b>Strom wird zum Engpass</b>Wachsende Rechenzentren und Elektrifizierung treffen auf Netze und Kraftwerke mit langen Bauzeiten. Regionale Preisunterschiede (zum Beispiel PJM im Osten) zeigen diesen Druck.</div>
+      <div><b>Infrastrukturmittel hängen am Gesetz</b>Die Bundesmittel für Verkehr laufen über befristete Gesetze. Der Ablauf und die Verlängerung bestimmen, wie planbar Investitionen für Bundesstaaten und Bauwirtschaft sind.</div>
+      <div><b>Das Außenhandelsdefizit ist Teil des Kreislaufs</b>Importe halten Konsum und Technik-Investitionen am Laufen, Exporte (Energie, Dienstleistungen, Agrargüter) gleichen einen Teil aus. Den Rest finanziert der Kapitalmarkt.</div>
+    </div>
+    <p style="font-size:12.5px;color:var(--text2);margin:8px 0 0">Die Wirkung auf Märkte und Währungen wird hier bewusst nicht beschrieben. Sie folgt später in der Ableitung.</p></div>
+  </details>
+</section>
+<h2 style="font-size:15px;margin:18px 0 6px">Die Daten dazu</h2>
+<div class="struktur">
+  <div class="bandkopf">Größe und Struktur: Wer erzeugt die Wirtschaftsleistung? (Anteile an der Wertschöpfung, Klick für Verlauf)</div>
+  <div class="kmitte"><svg id="kuchen" viewBox="0 0 1000 440" role="img" aria-label="Kuchendiagramm der Branchenanteile am BIP, Beschriftung links und rechts"></svg></div><div class="leg" id="leg"></div>
+  <div class="bandkopf" style="margin-top:12px">Zusammengefasst in drei Blöcken</div>
+  <div class="balken" id="balken" role="group" aria-label="Drei Blöcke der Wertschöpfung"></div>
+  <div class="bhin" id="bhin"></div>
+</div>
+<div class="band"><div class="bandkopf">Wachstum und Konjunktur</div><div class="bandinhalt" id="band"></div></div>
+<div class="raster" id="raster"></div>
+<div class="termine"><h2>Termine</h2><div id="termine"></div><div class="fuss">Termine aus den offiziellen Kalendern (BEA, EIA) und der Gesetzgebung. Weitere Termine stehen in Oberthema 1 und im Makro-Dashboard.</div></div>
+</div>
+<div id="schatten"></div>
+<aside id="drawer" role="dialog" aria-modal="true" aria-labelledby="dt" tabindex="-1"></aside>
+
+<script src="daten/usa.js?v=1"></script>
+<script>
+try{const g=localStorage.getItem("dashboard-thema");document.documentElement.dataset.theme=g||"dark"}catch(e){document.documentElement.dataset.theme="dark"}
+const DATA=(window.USA_DATEN&&window.USA_DATEN.fred)||{};
+/* ================== INHALTE ================== */
+const SP=[
+ {id:1,titel:"PRODUKTIVITÄT & INVESTITIONEN"},
+ {id:2,titel:"ENERGIE"},
+ {id:3,titel:"INFRASTRUKTUR"},
+ {id:4,titel:"AUSSENWIRTSCHAFT"}
+];
+const MD={div:1e3,dec:0,suf:" Mrd. USD"};
+const K=[
+ {id:"gdp",sp:0,titel:"Reales BIP-Wachstum (annualisiert)",s:"A191RL1Q225SBEA",f:{div:1,dec:1,suf:" %"},rhythm:"q",
+  was:"Veränderung des preisbereinigten Bruttoinlandsprodukts gegenüber dem Vorquartal, auf das Jahr hochgerechnet (BEA). Das BIP ist die Summe aller im Inland erzeugten Waren und Dienstleistungen.",
+  lage:"",rows:[],hin:"",q:"FRED A191RL1Q225SBEA (BEA); BEA Third Estimate 30.09.2026"},
+ {id:"verw",sp:0,titel:"Verwendung des BIP",kpi:["",""],auto:true,
+  was:"Wofür die Wirtschaftsleistung verwendet wird: private Konsumausgaben, private Investitionen, Staatsausgaben und der Saldo aus Exporten und Importen. Die Anteile sind aus den nominalen BEA-Werten gerechnet.",
+  lage:"",rows:[],hin:"",q:"FRED GDP, PCEC, GPDI, GCE, NETEXP (BEA), selbst gerechnet"},
+ {id:"indpro",sp:0,titel:"Industrieproduktion (Index)",s:"INDPRO",f:{div:1,dec:1,suf:""},rhythm:"m",
+  was:"Index der Produktion von Industrie, Bergbau und Versorgern (2017 = 100, Federal Reserve). Er zeigt, wie sich der Güterkern der Wirtschaft entwickelt.",
+  lage:"",rows:[],hin:"",q:"FRED INDPRO (Federal Reserve G.17)"},
+ {id:"tcu",sp:0,titel:"Kapazitätsauslastung",s:"TCU",f:{div:1,dec:1,suf:" %"},rhythm:"m",
+  was:"Anteil der vorhandenen Produktionskapazität in Industrie, Bergbau und Versorgern, der tatsächlich genutzt wird.",
+  lage:"",rows:[],hin:"",q:"FRED TCU (Federal Reserve G.17)"},
+
+ {id:"prod",sp:1,titel:"Produktivität (zum Vorjahr)",s:"OPHNFB_YOY",f:{div:1,dec:1,suf:" %"},rhythm:"q",
+  was:"Veränderung des Outputs pro Arbeitsstunde im Unternehmenssektor gegenüber dem Vorjahr (Bureau of Labor Statistics). Sie ist die wichtigste Größe für Wachstum, das nicht auf mehr Arbeitsstunden beruht.",
+  lage:"",rows:[],hin:"",q:"FRED OPHNFB (BLS), Veränderung zum Vorjahr"},
+ {id:"itinv",sp:1,titel:"Investitionen in IT-Ausrüstung",s:"A679RC1Q027SBEA",f:{div:1,dec:0,suf:" Mrd. USD"},rhythm:"q",
+  was:"Private Investitionen in Informationsverarbeitungs-Ausrüstung (Computer, Server, Netzwerktechnik), annualisiert, nominal (BEA). Rechenzentren und KI-Ausbau schlagen sich hier nieder.",
+  lage:"",rows:[],hin:"Die Zahl enthält importierte Hardware, die den Beitrag zum BIP-Wachstum mindert (Importe zählen negativ).",q:"FRED A679RC1Q027SBEA (BEA)"},
+ {id:"ki",sp:1,titel:"Technik-Beitrag zum BIP-Wachstum",kpi:["46,6 %","Schätzung ING, Ø der letzten 4 Quartale"],
+  was:"Anteil der Investitionen in Informationsverarbeitung, Rechenzentren und Software am Wachstum des BIP zum Vorjahr. Das ist eine Berechnung des Analysehauses ING, keine amtliche Zahl.",
+  lage:"Im 2. Quartal 2026 lag der Beitrag laut ING bei 50,2 %, bei strengerer Abgrenzung bei 44 %. Eine andere Schätzung (Pantheon, über einen Blog zitiert) sieht für das 1. Quartal 2026 etwa 1,5 von 2,0 Prozentpunkten Wachstum bei KI-nahen Feldern.",
+  rows:[{l:"2. Quartal 2026 (ING)",w:"50,2 %",q:"ING Think",m:"man",s:"2026-Q2"},{l:"2. Quartal 2026, strenger (ING)",w:"44 %",q:"ING Think",m:"man",s:"2026-Q2"}],
+  hin:"Analystenschätzung. Importe von Technikgütern haben sich laut ING in zwei Jahren auf 60 Mrd. USD pro Monat verdreifacht und mindern den Netto-Beitrag. Die BEA veröffentlicht keine eigene KI-Position.",q:"https://think.ing.com/opinions/how-much-is-ai-contributing-to-us-economic-growth/"},
+
+ {id:"wti",sp:2,titel:"Ölpreis WTI (Monatsdurchschnitt)",s:"MCOILWTICO",f:{div:1,dec:2,suf:" USD"},rhythm:"m",
+  was:"Monatsdurchschnitt des Preises für US-Leichtöl (West Texas Intermediate) pro Barrel.",
+  lage:"",rows:[],hin:"",q:"FRED MCOILWTICO (EIA)"},
+ {id:"hh",sp:2,titel:"Erdgaspreis Henry Hub (Monatsdurchschnitt)",s:"MHHNGSP",f:{div:1,dec:2,suf:" USD"},rhythm:"m",
+  was:"Monatsdurchschnitt des Spotpreises für US-Erdgas am Handelspunkt Henry Hub, in US-Dollar je Million Btu.",
+  lage:"",rows:[],hin:"",q:"FRED MHHNGSP (EIA)"},
+ {id:"eoel",sp:2,titel:"Rohölproduktion",kpi:["",""],auto:true,
+  was:"Förderung von Rohöl und Lease-Kondensat in den USA, in Millionen Barrel pro Tag. Die Zahlen sind Prognosen der EIA für das Gesamtjahr, vergangene Jahre sind Ist-Werte.",
+  lage:"",rows:[],hin:"Der EIA-Artikel vom 10.03.2026 nennt für 2025 13,6 Mio. b/d, die Prognosetabelle 13,66. Das ist eine Revision.",q:"EIA Short-Term Energy Outlook, Tabelle 1"},
+ {id:"enetto",sp:2,titel:"Außenhandel mit Erdöl",kpi:["",""],auto:true,
+  was:"Saldo aus Importen und Exporten von Rohöl und Ölprodukten zusammen, in Millionen Barrel pro Tag. Ein negativer Nettoimport ist ein Nettoexport. Die USA importieren weiter Rohöl, exportieren aber mehr Produkte (Benzin, Diesel) und Flüssiggase.",
+  lage:"",rows:[],hin:"Für Energie insgesamt (Öl, Gas, Kohle) sind die USA seit Jahren Nettoexporteur: 2025 Exporte 31 Quads, Importe 21 Quads, netto 11 Quads (Rekord, EIA Today in Energy 27.05.2026, manuell gepflegt).",q:"EIA Short-Term Energy Outlook, Tabelle 4a"},
+ {id:"estrom",sp:2,titel:"Stromverbrauch: Gewerbe und Haushalte",kpi:["",""],auto:true,
+  was:"Stromverbrauch der Endkunden nach Sektoren, in Milliarden Kilowattstunden. Der Gewerbesektor umfasst Büros, Handel und Rechenzentren.",
+  lage:"",rows:[],hin:"Die EIA weist Rechenzentren nicht gesondert aus. Sie sind im Gewerbesektor enthalten.",q:"EIA Short-Term Energy Outlook, Tabelle 7a"},
+ {id:"rz",sp:2,titel:"Rechenzentren: Anteil am Strom",kpi:["4,4 %","US-Strombedarf 2023, bis 2028 6,7 bis 12 % (Schätzung)"],
+  was:"Anteil der Rechenzentren am gesamten Stromverbrauch der USA. Die Zahl stammt aus einem Bericht des Lawrence Berkeley National Laboratory im Auftrag des Energieministeriums (Dezember 2024).",
+  lage:"2023 verbrauchten Rechenzentren etwa 176 Terawattstunden (4,4 %). Der Bericht erwartet 325 bis 580 TWh bis 2028 (6,7 bis 12 %), je nach Wirtschaftswachstum und Technik.",
+  rows:[{l:"Verbrauch 2014",w:"58 TWh",q:"LBNL/DOE",m:"man",s:"2024-12"},{l:"Verbrauch 2023",w:"176 TWh",q:"LBNL/DOE",m:"man",s:"2024-12"},{l:"Projektion 2028",w:"325 bis 580 TWh",q:"LBNL/DOE",m:"man",s:"2024-12"},{l:"Wachstum 2023 bis 2028",w:"13 bis 27 % pro Jahr",q:"LBNL/DOE",m:"man",s:"2024-12"}],
+  hin:"Projektion aus dem Jahr 2024, keine Messung. Aktuellere Eigenzahlen der EIA gibt es nicht. Die EIA erklärt das Gewerbewachstum 2026 mit Rechenzentren.",q:"https://energyanalysis.lbl.gov/news/berkeley-lab-report-evaluates-increase-electricity-demand-data-centers"},
+
+ {id:"bpub",sp:3,titel:"Öffentliche Bauausgaben",s:"TLPBLCONS",f:MD,rhythm:"m",
+  was:"Ausgaben für öffentliche Bauvorhaben (Straßen, Schulen, Wasser, Verkehr und weitere), annualisiert (Census Bureau).",
+  lage:"",rows:[],hin:"",q:"FRED TLPBLCONS (Census)"},
+ {id:"bhwy",sp:3,titel:"Bauausgaben Straße und Brücken",s:"TLHWYCONS",f:MD,rhythm:"m",
+  was:"Ausgaben für Straßen- und Brückenbau, annualisiert (Census Bureau), öffentlich und privat.",
+  lage:"",rows:[],hin:"",q:"FRED TLHWYCONS (Census)"},
+ {id:"bpwr",sp:3,titel:"Bauausgaben Strom und Energie",s:"TLPWRCONS",f:MD,rhythm:"m",
+  was:"Ausgaben für den Bau von Kraftwerken und Netzen, annualisiert (Census Bureau). Das ist der Teil der Infrastruktur, der überwiegend privat finanziert wird.",
+  lage:"",rows:[],hin:"",q:"FRED TLPWRCONS (Census)"},
+ {id:"iija",sp:3,titel:"Bundesmittel Verkehr (IIJA)",kpi:["bis 11.12.2026","verlängert, Neuregelung offen"],
+  was:"Das Infrastruktur-Gesetz (IIJA, 2021) regelte fünf Jahre lang die Bundesmittel für Straßen und Verkehr. Es lief am 30.09.2026 aus und wurde laut Congressional Research Service bis 11.12.2026 verlängert (H.R. 6500).",
+  lage:"Die Neuregelung, der BUILD America 250 Act (H.R. 8870, 580 Mrd. USD über fünf Jahre), passierte am 22.05.2026 den Ausschuss des Repräsentantenhauses mit 62:2. Eine Abstimmung im Plenum oder im Senat habe ich nicht gefunden.",
+  rows:[{l:"Vorschuss-Mittel (Division J)",w:"36,8 Mrd. USD pro Jahr nicht verlängert",q:"Holland & Knight, 08/2026",m:"man",s:"2026-08"},{l:"ASCE-Gesamtnote 2025",w:"C (2021: C-)",q:"ASCE",m:"man",s:"2025-03"},{l:"Investitionslücke (ASCE)",w:"3,7 Bio. USD",q:"ASCE",m:"man",s:"2025-03"},{l:"Straßen (ASCE)",w:"D+",q:"ASCE",m:"man",s:"2025-03"}],
+  hin:"Der Zeitpunkt der Unterzeichnung der Verlängerung ist nicht bestätigt (Quellen widersprechen sich zwischen August und September). Stand prüfen auf congress.gov unter H.R. 6500.",q:"https://www.hklaw.com/en/insights/publications/2026/08/stakeholder-pressure-increases-as-iija-funding-expiration-draws-nearer"},
+
+ {id:"lb",sp:4,titel:"Leistungsbilanz",s:"IEABC",f:MD,rhythm:"q",
+  was:"Saldo aus Warenhandel, Dienstleistungen, Einkommen und Übertragungen mit dem Ausland (BEA). Ein Minus heißt: Die USA geben mehr aus, als sie im Ausland einnehmen, und finanzieren die Lücke mit Kapitalzuflüssen.",
+  lage:"",rows:[],hin:"",q:"FRED IEABC (BEA)"},
+ {id:"hb",sp:4,titel:"Handelsbilanz Waren und Dienstleistungen",s:"BOPGSTB",f:{div:1e3,dec:1,suf:" Mrd. USD"},rhythm:"m",
+  was:"Exporte minus Importe von Waren und Dienstleistungen pro Monat (BEA, Census). Ein Minus ist ein Defizit.",
+  lage:"",rows:[],hin:"",q:"FRED BOPGSTB (BEA, Census)"}
+];
+const PILLEN=[
+ {t:"Strombedarf",x:"Rechenzentren und Technik-Investitionen brauchen Strom. Der Gewerbesektor wächst deshalb schneller als die Haushalte, Netze und Kraftwerke müssen folgen.",von:1,nach:2},
+ {t:"Netze, Anlagen",x:"Strom, Verkehr und Wasser sind die physische Grundlage. Ein Teil ist öffentlich finanziert, der Strombau überwiegend privat.",von:2,nach:3},
+ {t:"Handel, Kapital",x:"Energie, Technikgüter und Kapital laufen über die Grenze. Die Außenwirtschaft zeigt, wie viel die Wirtschaft aus dem Ausland braucht und was sie ausführt.",von:3,nach:4}
+];
+const TERMINE=[
+ {d:"2026-10-29",t:"BEA: nächste BIP-Veröffentlichung (laut BEA-Kalender)"},
+ {d:"2026-11-10",t:"EIA: nächste Ausgabe des Short-Term Energy Outlook (Prognosen zu Öl, Gas, Strom)"},
+ {d:"2026-12-11",t:"Ende der verlängerten Bundesmittel für Verkehr (IIJA-Verlängerung laut CRS, Neuregelung offen)"}
+];
+/* Branchenanteile (Kuchen) */
+const BR=[
+ {s:"VAPGDPFIRL",n:"Finanzen, Versicherung, Immobilien",g:"d",d:"Banken, Versicherer, Immobilien und Vermietung. Der größte Einzelblock der Wirtschaft."},
+ {s:"VAPGDPPBS",n:"Unternehmensnahe Dienstleistungen",g:"d",d:"Beratung, Recht, IT-Dienste, Forschung und Verwaltungsdienste."},
+ {s:"VAPGDPESHS",n:"Gesundheit, Bildung, Soziales",g:"d",d:"Krankenhäuser, Arztpraxen, private Bildung und soziale Dienste."},
+ {s:"VAPGDPW",n:"Großhandel",g:"d",d:"Handel zwischen Unternehmen."},
+ {s:"VAPGDPI",n:"Information",g:"d",d:"Software, Medien, Telekommunikation, Datenverarbeitung."},
+ {s:"VAPGDPR",n:"Einzelhandel",g:"d",d:"Handel mit Endkunden, stationär und online."},
+ {s:"VAPGDPAERAF",n:"Gastgewerbe, Kultur, Unterhaltung",g:"d",d:"Hotels, Restaurants, Kunst, Unterhaltung, Erholung."},
+ {s:"VAPGDPT",n:"Transport und Lagerhaltung",g:"d",d:"Straße, Schiene, Luft, Schiff, Pipelines, Lager."},
+ {s:"VAPGDPOSEG",n:"Sonstige Dienstleistungen",g:"d",d:"Reparatur, persönliche Dienste, Verbände."},
+ {s:"VAPGDPU",n:"Versorger (Strom, Gas, Wasser)",g:"d",d:"Erzeugung und Verteilung von Strom, Gas und Wasser."},
+ {s:"VAPGDPMA",n:"Industrie",g:"g",d:"Herstellung von Gütern (Fahrzeuge, Maschinen, Elektronik, Chemie, Nahrung)."},
+ {s:"VAPGDPC",n:"Bau",g:"g",d:"Wohn-, Gewerbe- und Infrastrukturbau."},
+ {s:"VAPGDPM",n:"Bergbau, Öl und Gas",g:"g",d:"Förderung von Öl, Gas, Kohle und Mineralien. Nur die Förderung, nicht die Verarbeitung."},
+ {s:"VAPGDPAFH",n:"Landwirtschaft, Forst, Fischerei",g:"g",d:"Ackerbau, Viehzucht, Forst- und Fischereiwirtschaft."},
+ {s:"VAPGDPG",n:"Staat (Bund, Länder, Kommunen)",g:"s",d:"Wertschöpfung der öffentlichen Verwaltung, Schulen, Polizei, Militär u. a. (ohne Unternehmen in Staatsbesitz)."}
+];
+const BL=[
+ {s:"VAPGDPSPI",n:"Private Dienstleister",c:"hsl(205,58%,42%)"},
+ {s:"VAPGDPGPI",n:"Güterproduzenten",c:"hsl(28,72%,46%)"},
+ {s:"VAPGDPG",n:"Staat",c:"hsl(0,0%,50%)"}
+];
+BR.forEach(b=>K.push({id:"b_"+b.s,sp:0,versteckt:true,gr:"Branchenanteil am BIP",titel:b.n+" (Anteil am BIP)",s:b.s,f:{div:1,dec:1,suf:" %"},rhythm:"q",
+ was:b.d+" Der Wert ist der Anteil dieser Branche an der gesamten Wertschöpfung der USA (BEA, GDP by Industry).",lage:"",rows:[],hin:"",q:"FRED "+b.s+" (BEA, GDP by Industry)"}));
+BL.forEach(b=>{if(!K.some(k=>k.id==="b_"+b.s))K.push({id:"b_"+b.s,sp:0,versteckt:true,gr:"Branchenanteil am BIP",titel:b.n+" (Anteil am BIP)",s:b.s,f:{div:1,dec:1,suf:" %"},rhythm:"q",
+ was:"Zusammenfassung mehrerer Branchen zu einem Block. Der Wert ist der Anteil an der gesamten Wertschöpfung der USA (BEA, GDP by Industry).",lage:"",rows:[],hin:"",q:"FRED "+b.s+" (BEA, GDP by Industry)"})});
+/* ================== LOGIK ================== */
+const $=s=>document.querySelector(s), heute=new Date(); heute.setHours(0,0,0,0);
+const esc=s=>String(s).replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+const nf=(v,d)=>new Intl.NumberFormat("de-DE",{minimumFractionDigits:d,maximumFractionDigits:d}).format(v);
+const dts=d=>{const[y,m,t]=d.split("-");return t+"."+m+"."+y};
+const tageBis=d=>Math.round((new Date(d+"T00:00:00")-heute)/86400000);
+const farbe=sp=>sp===0?"cb":"c"+sp;
+const byId={};K.forEach(k=>byId[k.id]=k);
+function fmtv(k,v){const f=k.f;return nf(v/f.div,f.dec)+f.suf}
+function letzte(k){const p=DATA[k.s];return p[p.length-1]}
+function veraenderung(k){const p=DATA[k.s];const l=p[p.length-1];
+  let ref;
+  if(k.rhythm==="q"||k.rhythm==="m"){ref=p[p.length-2]}
+  else{const lim=new Date(l[0]);lim.setDate(lim.getDate()-30);ref=[...p].reverse().find(x=>new Date(x[0])<=lim)}
+  if(!ref)return null;const dv=l[1]-ref[1];const txt=(dv>0?"▲ ":dv<0?"▼ ":"= ")+nf(Math.abs(dv)/k.f.div,k.f.dec)+(k.f.suf.includes("%")?" Pkt":k.f.suf);
+  return {txt,ref:ref[0],q:k.rhythm==="q",m:k.rhythm==="m"}}
+function spark(p,col){const n=p.slice(-Math.min(p.length,k_n(p)));const w=200,h=30;const xs=n.map(x=>x[1]);const mn=Math.min(...xs),mx=Math.max(...xs),sp=(mx-mn)||1;
+  const pts=n.map((x,i)=>(i/(n.length-1)*w).toFixed(1)+","+(h-2-(x[1]-mn)/sp*(h-4)).toFixed(1)).join(" ");
+  return '<svg class="spark" viewBox="0 0 '+w+' '+h+'" preserveAspectRatio="none" aria-hidden="true"><polyline fill="none" stroke="'+col+'" stroke-width="1.6" vector-effect="non-scaling-stroke" points="'+pts+'"/></svg>'}
+function k_n(p){return p.length>300?130:p.length>100?100:p.length>40?24:p.length}
+let tiles={}, aktiv=null, letzterFokus=null;
+function kachel(k){
+  const b=document.createElement("button");b.type="button";b.className="k "+farbe(k.sp);b.dataset.id=k.id;
+  let h='<div class="kt"><span class="kn">'+esc(k.titel)+'</span>';
+  if(k.s){const l=letzte(k);h+='<span class="kd">'+dts(l[0])+'</span></div><div class="kw">'+esc(fmtv(k,l[1]))+'</div>';
+    const v=veraenderung(k);h+='<div class="ks"><span>'+(v?esc(v.txt)+" ("+(v.q?"Vorquartal":v.m?"Vormonat":"30 Tage")+")":"")+'</span><span><i class="pkt auto"></i>auto</span></div>'+spark(DATA[k.s],"var(--c)")}
+  else{h+='<span class="kd"></span></div><div class="kw" style="font-size:20px">'+esc(k.kpi[0])+'</div><div class="ks"><span>'+esc(k.kpi[1])+'</span><span><i class="pkt '+(k.auto?'auto':'man')+'"></i>'+(k.auto?'auto':'manuell')+'</span></div>'}
+  b.innerHTML=h;b.addEventListener("click",()=>oeffnen(k.id));tiles[k.id]=b;return b}
+function bauen(){
+  K.filter(k=>k.sp===0&&!k.versteckt).forEach(k=>$("#band").appendChild(kachel(k)));
+  const r=$("#raster");
+  SP.forEach((s,i)=>{
+    const col=document.createElement("div");col.className="sp s"+s.id+" c"+s.id;
+    const hd=document.createElement("div");hd.className="spkopf";hd.textContent=s.titel;col.appendChild(hd);
+    K.filter(k=>k.sp===s.id).forEach(k=>col.appendChild(kachel(k)));r.appendChild(col);
+    if(i<3){const p=PILLEN[i];const b=document.createElement("button");b.type="button";b.className="pill";b.innerHTML='<span>'+esc(p.t)+'</span><span class="pf">⇄</span>';b.addEventListener("click",()=>pille(i));b.dataset.i=i;r.appendChild(b)}
+  });
+  const nx=TERMINE.filter(t=>!t.o).find(t=>tageBis(t.d)>=0);
+  $("#termine").innerHTML=TERMINE.map(t=>{const n=tageBis(t.d);const rest=t.o?"Datum offen":(n<0?"vorbei":n===0?"heute":"in "+n+" Tagen");return '<div class="termin'+(t===nx?" n":"")+'"><span class="d">'+(t.lab||dts(t.d))+'</span><span class="t">'+esc(t.t)+'</span><span class="r">'+rest+'</span></div>'}).join("");
+}
+/* ----- Drawer ----- */
+const dr=$("#drawer"), sh=$("#schatten");
+function oeffnen(id){const k=byId[id];aktiv=id;letzterFokus=document.activeElement;
+  Object.values(tiles).forEach(t=>t.classList.toggle("aktiv",t.dataset.id===id));
+  dr.style.setProperty("--c","var(--"+farbe(k.sp).replace("cb","cb")+")");
+  const gr=k.gr||(k.sp===0?"Wachstum und Konjunktur":SP.find(s=>s.id===k.sp).titel);
+  let h='<div class="dk"><div><div class="gr">'+esc(gr)+'</div><h2 id="dt">'+esc(k.titel)+'</h2></div><button class="zu" type="button" aria-label="Schließen">×</button></div><div class="db">';
+  if(k.s){const l=letzte(k);h+='<div class="gross">'+esc(fmtv(k,l[1]))+'</div><div class="gsub">Stand '+dts(l[0])+' · <i class="pkt auto"></i>automatisch (FRED)</div>';
+    h+='<div class="btns" role="group" aria-label="Zeitraum"></div><div class="tip" id="tip"> </div><svg class="chart" id="chart" viewBox="0 0 560 230" role="img" aria-label="Verlauf '+esc(k.titel)+'"></svg>'}
+  else{h+='<div class="gross" style="font-size:28px">'+esc(k.kpi[0])+'</div><div class="gsub">'+esc(k.kpi[1])+' · <i class="pkt '+(k.auto?'auto':'man')+'"></i>'+(k.auto?'automatisch (federalreserve.gov)':'manuell gepflegt')+'</div>'}
+  h+='<h3>Was ist das?</h3><p>'+esc(k.was)+'</p><h3>Aktuelle Lage</h3><p>'+esc(k.lage)+'</p>';
+  if(k.rows&&k.rows.length)h+='<h3>Weitere Datenpunkte</h3><table><tr><th>Datenpunkt</th><th>Wert</th><th>Quelle</th><th>Stand</th></tr>'+k.rows.map(r=>'<tr><td>'+esc(r.l)+'</td><td><b>'+esc(r.w)+'</b></td><td>'+esc(r.q)+'</td><td>'+esc(r.s)+' <i class="pkt '+(r.m==="auto"?"auto":"man")+'" title="'+(r.m==="auto"?"automatisch":"manuell")+'"></i></td></tr>').join("")+'</table>';
+  if(k.hin)h+='<h3>Hinweis</h3><div class="hin">'+esc(k.hin)+'</div>';
+  const verb=PILLEN.map((p,i)=>({p,i})).filter(({p})=>k.sp===p.von||k.sp===p.nach);
+  if(verb.length)h+='<h3>Verbindungen</h3><ul>'+verb.map(({p})=>'<li><b>'+esc(p.t)+':</b> '+esc(p.x)+'</li>').join("")+'</ul>';
+  h+='<h3>Quelle</h3><p style="font-size:13px;color:var(--text2)">'+esc(k.q)+'</p></div>';
+  dr.innerHTML=h;dr.classList.add("offen");sh.classList.add("offen");
+  dr.querySelector(".zu").addEventListener("click",schliessen);dr.focus();
+  if(k.s)chartInit(k);
+}
+function pille(i){const p=PILLEN[i];aktiv=null;letzterFokus=document.activeElement;dr.style.setProperty("--c","var(--cb)");
+  dr.innerHTML='<div class="dk"><div><div class="gr">Verbindung</div><h2 id="dt">'+esc(p.t)+'</h2></div><button class="zu" type="button" aria-label="Schließen">×</button></div><div class="db"><p>'+esc(p.x)+'</p></div>';
+  dr.classList.add("offen");sh.classList.add("offen");dr.querySelector(".zu").addEventListener("click",schliessen);dr.focus()}
+function schliessen(){dr.classList.remove("offen");sh.classList.remove("offen");Object.values(tiles).forEach(t=>t.classList.remove("aktiv"));if(letzterFokus&&letzterFokus.focus)letzterFokus.focus()}
+sh.addEventListener("click",schliessen);addEventListener("keydown",e=>{if(e.key==="Escape"&&dr.classList.contains("offen"))schliessen()});
+/* ----- Chart ----- */
+const ZR=[["3 Mon.",92],["6 Mon.",183],["1 Jahr",365],["Alles",0]];
+function chartInit(k){const box=dr.querySelector(".btns");let sel=(k.rhythm==="q"||k.rhythm==="m")?3:(k.rhythm==="w"?3:2);
+  ZR.forEach((z,i)=>{const b=document.createElement("button");b.type="button";b.className="btn";b.textContent=z[0];b.setAttribute("aria-pressed",i===sel);
+    if((k.rhythm==="q"||k.rhythm==="m")&&i<2){b.disabled=true;b.style.opacity=.4}
+    b.addEventListener("click",()=>{sel=i;[...box.children].forEach((c,j)=>c.setAttribute("aria-pressed",j===i));zeichne(k,ZR[i][1])});box.appendChild(b)});
+  zeichne(k,ZR[sel][1])}
+function zeichne(k,tage){const all=DATA[k.s];let p=all;if(tage){const lim=new Date(all[all.length-1][0]);lim.setDate(lim.getDate()-tage);p=all.filter(x=>new Date(x[0])>=lim)}
+  if(p.length<2)p=all.slice(-2);
+  const svg=$("#chart"),W=560,H=230,L=52,R=12,T=10,B=26;const ys=p.map(x=>x[1]/k.f.div);let mn=Math.min(...ys),mx=Math.max(...ys);const pad=(mx-mn||1)*.08;mn-=pad;mx+=pad;
+  const t0=new Date(p[0][0]).getTime(),t1=new Date(p[p.length-1][0]).getTime(),X=d=>L+(new Date(d).getTime()-t0)/((t1-t0)||1)*(W-L-R),Y=v=>T+(1-(v-mn)/(mx-mn))*(H-T-B);
+  let s="";for(let i=0;i<=4;i++){const v=mn+(mx-mn)*i/4,y=Y(v);s+='<line x1="'+L+'" x2="'+(W-R)+'" y1="'+y+'" y2="'+y+'" stroke="var(--raster)"/><text x="'+(L-6)+'" y="'+(y+4)+'" text-anchor="end" font-size="10.5" fill="var(--stumm)">'+nf(v,k.f.dec>1?1:k.f.dec)+'</text>'}
+  s+='<text x="'+L+'" y="'+(H-6)+'" font-size="10.5" fill="var(--stumm)">'+dts(p[0][0])+'</text><text x="'+(W-R)+'" y="'+(H-6)+'" text-anchor="end" font-size="10.5" fill="var(--stumm)">'+dts(p[p.length-1][0])+'</text>';
+  const pts=p.map(x=>X(x[0]).toFixed(1)+","+Y(x[1]/k.f.div).toFixed(1)).join(" ");
+  s+='<polyline fill="none" stroke="var(--c)" stroke-width="2" stroke-linejoin="round" points="'+pts+'"/>';
+  const lp=p[p.length-1];s+='<circle cx="'+X(lp[0])+'" cy="'+Y(lp[1]/k.f.div)+'" r="3.5" fill="var(--c)"/><line id="cv" y1="'+T+'" y2="'+(H-B)+'" stroke="var(--text)" stroke-width="1" opacity="0"/><circle id="cd" r="4" fill="var(--c)" stroke="var(--flaeche)" stroke-width="2" opacity="0"/>';
+  svg.innerHTML=s;const tip=$("#tip");tip.textContent="Mit Maus oder Finger über den Verlauf fahren, um einzelne Werte zu sehen.";
+  const mv=e=>{const r=svg.getBoundingClientRect();const x=((e.clientX-r.left)/r.width)*W;let b=0,bd=1e9;p.forEach((q,i)=>{const d=Math.abs(X(q[0])-x);if(d<bd){bd=d;b=i}});const q=p[b];
+    const cv=$("#cv"),cd=$("#cd");cv.setAttribute("x1",X(q[0]));cv.setAttribute("x2",X(q[0]));cv.setAttribute("opacity",.4);cd.setAttribute("cx",X(q[0]));cd.setAttribute("cy",Y(q[1]/k.f.div));cd.setAttribute("opacity",1);tip.textContent=dts(q[0])+": "+fmtv(k,q[1])};
+  svg.onpointermove=mv;svg.onpointerdown=mv;svg.onpointerleave=()=>{$("#cv").setAttribute("opacity",0);$("#cd").setAttribute("opacity",0)}}
+/* ================== VERSTÄNDNIS-KREISLAUF ================== */
+const NK=[
+ {id:"haushalte",n:"n6",t:"Haushalte",s:"Beschäftigung, Einkommen, Konsum",
+  was:"Haushalte bieten ihre Arbeitskraft an, erhalten Löhne und Kapitalerträge und geben das Einkommen für Güter und Dienstleistungen aus oder sparen es. Der Arbeitsmarkt wird in Oberthema 7 behandelt.",
+  zus:"Der private Konsum ist mit rund zwei Dritteln des BIP der größte Block der Nachfrage. Ersparnisse fließen über den Finanzsektor an Unternehmen, Steuern an den Staat.",
+  daten:["verw","gdp"]},
+ {id:"unternehmen",n:"n1",t:"Unternehmen",s:"Produktion und Produktivität",
+  was:"Unternehmen stellen Güter und Dienstleistungen her. Wie viel sie pro Arbeitsstunde schaffen (Produktivität), bestimmt, wie stark die Wirtschaft ohne mehr Arbeitskräfte wachsen kann.",
+  zus:"Sie zahlen Löhne, Zinsen und Gewinne an die Haushalte, beziehen Energie und Rohstoffe, nehmen Kredite auf und investieren in Technik, Bau und Anlagen.",
+  daten:["prod","indpro","tcu"]},
+ {id:"gueter",n:"n3",t:"Gütermarkt",s:"Konsum",mk:1,
+  was:"Hier treffen das Angebot der Unternehmen und die Nachfrage der Haushalte aufeinander. Auch Staat und Ausland fragen hier nach.",
+  zus:"Haushalte zahlen mit Konsumausgaben und erhalten Güter und Dienstleistungen. Der Konsum ist rund zwei Drittel des BIP.",
+  daten:["verw"],keine:""},
+ {id:"faktor",n:"n3",t:"Faktormärkte",s:"Arbeit, Kapital, Boden",mk:1,
+  was:"Hier bieten Haushalte ihre Produktionsfaktoren an: Arbeit, Kapital (Ersparnisse, Beteiligungen) und Boden. Unternehmen bezahlen dafür mit Löhnen, Zinsen, Gewinnen und Pachten.",
+  zus:"Der Arbeitsmarkt wird in Oberthema 7 vertieft, der Kreditmarkt in Oberthema 2.",
+  daten:[],keine:"Keine eigene Kachel in diesem Oberthema. Arbeitsmarkt: Oberthema 7, Kreditmarkt: Oberthema 2."},
+ {id:"staat",n:"n4",t:"Staat & Infrastruktur",s:"Steuern, Ausgaben, Verkehr, Netze",
+  was:"Der Staat erhebt Steuern, zahlt Transfers und fragt Güter nach. Der Bund finanziert Verkehr über Zuweisungen an Bundesstaaten und Kommunen. Straßen, Brücken, Wasser und öffentliche Gebäude liegen überwiegend bei Ländern und Kommunen.",
+  zus:"Infrastruktur senkt die Kosten für Unternehmen und Haushalte. Die Bundesmittel für Verkehr laufen über befristete Gesetze. Haushalt und Schulden: Oberthemen 1 und 2.",
+  daten:["bpub","bhwy","iija","b_VAPGDPG"]},
+ {id:"energie",n:"n5",t:"Energie & Rohstoffe",s:"Öl, Gas, Strom",
+  was:"Die USA fördern viel Öl und Gas und exportieren Erdgas als LNG. Der Strombedarf wächst, besonders im Gewerbesektor durch Rechenzentren.",
+  zus:"Energie ist Kostenfaktor für alle Branchen und Gegenstand der Außenwirtschaft. Strompreise unterscheiden sich stark nach Region.",
+  daten:["wti","hh","eoel","enetto","estrom","rz","bpwr"]},
+ {id:"finanz",n:"n2",t:"Finanzsektor",s:"Sparen, Kredit",
+  was:"Banken und Finanzmärkte sammeln die Ersparnisse der Haushalte und leiten sie als Kredite und Beteiligungen an Unternehmen und Staat weiter.",
+  zus:"Hier wird aus Sparen Investition. Die Struktur des Finanz- und Kreditsystems steht in Oberthema 2.",
+  daten:[],keine:"Keine eigene Kachel in diesem Oberthema. Die Struktur des Kreditsystems steht in Oberthema 2."},
+ {id:"invest",n:"n3",t:"Investitionen",s:"Technik, Bau, Anlagen",mk:1,
+  was:"Unternehmen kaufen Maschinen, Computer und Software und bauen Fabriken, Rechenzentren und Energieanlagen. Dadurch wächst die künftige Produktionskapazität.",
+  zus:"Investitionen in Technik treiben aktuell einen großen Teil des Wachstums. Sie brauchen Kredit, Strom, Netze und Bauleistungen.",
+  daten:["itinv","ki"]},
+ {id:"ausland",n:"n7",t:"Ausland",s:"Handel und Kapital",
+  was:"Die USA importieren mehr Waren, als sie exportieren (Handelsbilanzdefizit). Die Lücke finanzieren Kapitalzuflüsse. Energie und Agrargüter sind wichtige Exporte, Konsum- und Technikgüter wichtige Importe.",
+  zus:"Handelspartner und Zölle sind Thema von Oberthema 5, die Kapitalseite von Oberthema 2.",
+  daten:["lb","hb","enetto"]}
+];
+const NFARBE={n1:"--c1",n2:"--c3",n3:"--c4",n4:"--c2",n5:"--c2",n6:"--c1",n7:"--cb"};
+function flussBauen(){
+ const f=document.getElementById("fluss");if(!f)return;
+ const nk=id=>NK.find(x=>x.id===id);
+ const box=(id,x,y,w,h)=>{const n=nk(id);const c="var("+NFARBE[n.n]+")";
+  return '<g class="nd'+(n.mk?" mk":"")+'" data-id="'+id+'" tabindex="0" role="button" style="--c:'+c+'" aria-label="'+esc(n.t)+'"><rect x="'+x+'" y="'+y+'" width="'+w+'" height="'+h+'" rx="'+(n.mk?22:11)+'"/><text class="nt" x="'+(x+w/2)+'" y="'+(y+h/2-(n.mk?0:3))+'" text-anchor="middle" dominant-baseline="'+(n.mk?"middle":"auto")+'">'+esc(n.t)+'</text>'+(n.mk?'':'<text class="ns" x="'+(x+w/2)+'" y="'+(y+h/2+16)+'" text-anchor="middle">'+esc(n.s)+'</text>')+'</g>'};
+ const L=(txt,x,y,anker)=>'<text class="fl2" x="'+x+'" y="'+y+'"'+(anker?' text-anchor="'+anker+'"':'')+'>'+txt+'</text>';
+ let s='<svg viewBox="0 0 1000 610" role="img" aria-label="Wirtschaftskreislauf der USA: Haushalte, Unternehmen, Märkte, Staat, Finanzsektor, Ausland und Energie">'
+ +'<defs>'
+ +'<marker id="mr" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="var(--c1)"/></marker>'
+ +'<marker id="mg" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="var(--c4)"/></marker>'
+ +'<marker id="mz" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="var(--text2)"/></marker>'
+ +'</defs>';
+ /* Flüsse zuerst, damit die Kästen darüber liegen */
+ /* Güterstrom: Unternehmen -> Gütermarkt -> Haushalte (real) */
+ s+='<path class="fr" marker-end="url(#mr)" d="M770,262 C700,262 700,138 612,138"/><path class="fr" marker-end="url(#mr)" d="M388,138 C300,138 300,262 232,262"/>';
+ /* Konsumausgaben: Haushalte -> Gütermarkt -> Unternehmen (Geld) */
+ s+='<path class="fg" marker-end="url(#mg)" d="M232,290 C330,290 330,158 388,158"/><path class="fg" marker-end="url(#mg)" d="M612,158 C670,158 670,290 768,290"/>';
+ /* Arbeit und Kapital: Haushalte -> Faktormärkte -> Unternehmen (real) */
+ s+='<path class="fr" marker-end="url(#mr)" d="M232,315 C330,315 330,445 388,445"/><path class="fr" marker-end="url(#mr)" d="M612,445 C670,445 670,315 768,315"/>';
+ /* Löhne, Zinsen, Gewinne: Unternehmen -> Faktormärkte -> Haushalte (Geld) */
+ s+='<path class="fg" marker-end="url(#mg)" d="M770,338 C690,338 690,468 612,468"/><path class="fg" marker-end="url(#mg)" d="M388,468 C310,468 310,338 232,338"/>';
+ /* Äußere Ringe */
+ s+='<path class="fz" marker-start="url(#mz)" marker-end="url(#mz)" d="M120,240 C120,40 250,39 378,39"/>';
+ s+='<path class="fz" marker-start="url(#mz)" marker-end="url(#mz)" d="M950,240 C950,40 750,39 622,39"/>';
+ s+='<path class="fz" marker-end="url(#mz)" d="M780,145 L780,240"/>';
+ s+='<path class="fz" marker-end="url(#mz)" d="M120,350 C120,555 250,555 378,555"/>';
+ s+='<path class="fz" marker-end="url(#mz)" d="M622,545 C780,545 880,520 880,352"/>';
+ s+='<path class="fz" marker-start="url(#mz)" marker-end="url(#mz)" d="M935,352 L935,538"/>';
+ s+='<path class="fz" marker-start="url(#mz)" marker-end="url(#mz)" d="M622,572 L788,572"/>';
+ /* Beschriftung der Flüsse */
+ s+=L("Güter, Dienstleistungen",292,196,"end")+L("Konsumausgaben",338,226)+L("Arbeit, Kapital, Boden",338,384)+L("Löhne, Zinsen, Gewinne",300,410,"end");
+ s+=L("Steuern ⇄",124,150,"end")+L("Transfers",124,165,"end")+L("Steuern ⇄ Aufträge, Infrastruktur",800,26,"middle")+L("Vorleistungen",788,200)+L("Ersparnisse",236,532,"start")+L("Kapital",705,566,"middle");
+ s+=L("Exporte ⇄",943,440)+L("Importe",943,455);
+ s+='<text class="mitte" x="500" y="292">Wirtschaftskreislauf</text><text class="mitte2" x="500" y="310">blau: reale Ströme · orange gestrichelt: Geld</text>';
+ /* Kästen */
+ s+=box("staat",380,12,240,64)+box("energie",700,95,160,50)+box("haushalte",10,240,220,110)+box("unternehmen",770,240,220,110)+box("gueter",390,118,220,52)+box("faktor",390,422,220,52)+box("finanz",380,525,240,60)+box("ausland",790,540,200,56);
+ /* Investitionen als Beschriftung auf dem Kreditstrom */
+ s+=box("invest",745,492,130,34);
+ s+='</svg>';
+ f.innerHTML=s;
+ f.querySelectorAll(".nd").forEach(g=>{const h=()=>knoten(g.dataset.id);g.addEventListener("click",h);g.addEventListener("keydown",e=>{if(e.key==="Enter"||e.key===" "){e.preventDefault();h()}})});
+ const li=document.createElement("div");li.className="kl-liste";li.innerHTML=NK.map(n=>'<button type="button" class="chip" data-id="'+n.id+'">'+esc(n.t)+'</button>').join("");
+ li.querySelectorAll("button").forEach(b=>b.addEventListener("click",()=>knoten(b.dataset.id)));f.appendChild(li);
+}
+function knoten(id){const n=NK.find(x=>x.id===id);aktiv=null;letzterFokus=document.activeElement;
+  Object.values(tiles).forEach(t=>t.classList.remove("aktiv"));
+  dr.style.setProperty("--c","var("+NFARBE[n.n]+")");
+  dr.innerHTML='<div class="dk"><div><div class="gr">Baustein des Systems</div><h2 id="dt">'+esc(n.t)+'</h2></div><button class="zu" type="button" aria-label="Schließen">×</button></div><div class="db"><h3>Was ist das?</h3><p>'+esc(n.was)+'</p><h3>Wie hängt es zusammen?</h3><p>'+esc(n.zus)+'</p><h3>Wo sieht man es in den Daten?</h3><p>'+(n.daten.length?'':(n.keine||'Keine eigene Kachel hier. Die Detaildaten liegen im Makro-Dashboard.'))+n.daten.map(i=>'<button class="chip" type="button" data-t="'+i+'">'+esc(byId[i].titel)+'</button>').join("")+'</p></div>';
+  dr.classList.add("offen");sh.classList.add("offen");dr.querySelector(".zu").addEventListener("click",schliessen);
+  dr.querySelectorAll(".chip").forEach(c=>c.addEventListener("click",()=>oeffnen(c.dataset.t)));dr.focus()}
+/* Automatik: Texte und Zusatzwerte aus den Abrufdaten */
+(function(){
+ for(let i=K.length-1;i>=0;i--){if(K[i].s&&!DATA[K[i].s])K.splice(i,1)}
+ const KONTEXT={gdp:"Hintergrund: Das BEA hob die Schätzung für das 2. Quartal 2026 von 1,5 % auf 2,2 % an (Third Estimate vom 30.09.2026), das 1. Quartal auf 2,5 % (jährliche Überarbeitung).",wti:"Hintergrund: Die EIA führt den hohen Ölpreis auf Lieferausfälle im Nahen Osten (Straße von Hormus) zurück."};
+ const DYN={gdp:[["Reales BIP (Niveau, Preise von 2017)","GDPC1",0," Mrd. USD"]],"b_VAPGDPG":[["davon Bund","VAPGDPF",1," %"],["davon Länder und Kommunen","VAPGDPSL",1," %"]]};
+ K.forEach(k=>{if(!k.s)return;const p=DATA[k.s],l=p[p.length-1],q=k.rhythm==="q"||k.rhythm==="m";let ref;
+  if(q)ref=p[p.length-2];else{const lim=new Date(l[0]);lim.setDate(lim.getDate()-30);ref=[...p].reverse().find(x=>new Date(x[0])<=lim)}
+  const mx=p.reduce((a,b)=>b[1]>a[1]?b:a),mn=p.reduce((a,b)=>b[1]<a[1]?b:a);
+  k.lage="Aktuell "+fmtv(k,l[1])+" ("+dts(l[0])+"). "+(ref?(k.rhythm==="m"?"Vormonat ":"Vorquartal ")+fmtv(k,ref[1])+" ("+dts(ref[0])+"). ":"")+"Im gezeigten Zeitraum ab "+dts(p[0][0])+": Höchstwert "+fmtv(k,mx[1])+" ("+dts(mx[0])+"), Tiefstwert "+fmtv(k,mn[1])+" ("+dts(mn[0])+")."+(KONTEXT[k.id]?" "+KONTEXT[k.id]:"");
+  if(DYN[k.id]){const neu=DYN[k.id].filter(r=>DATA[r[1]]).map(r=>{const pp=DATA[r[1]],ll=pp[pp.length-1];return{l:r[0],w:nf(ll[1],r[2])+r[3],q:"FRED "+r[1],m:"auto",s:ll[0]}});
+   k.rows=(k.rows||[]).filter(r=>r.m!=="auto").concat(neu)}});
+ const last=s=>{const p=DATA[s];return p?p[p.length-1]:null};
+ const del=id=>{const i=K.findIndex(k=>k.id===id);if(i>=0)K.splice(i,1)};
+ const fz=(v,d)=>nf(v,d);
+ /* Verwendung des BIP aus den nominalen Werten */
+ const vk=byId.verw,G=last("GDP"),C=last("PCEC"),I=last("GPDI"),S=last("GCE"),N=last("NETEXP");
+ if(vk&&G&&C&&I&&S&&N){const a=v=>v[1]/G[1]*100;
+  vk.kpi=[fz(a(C),1)+" % Konsum","Anteil am BIP, "+dts(G[0])+" (Investitionen "+fz(a(I),1)+" %, Staat "+fz(a(S),1)+" %, Netto-Exporte "+fz(a(N),1)+" %)"];
+  vk.lage="Im Quartal ab "+dts(G[0])+" lag das nominale BIP bei "+fz(G[1]/1000,2)+" Bio. USD. Davon entfielen "+fz(a(C),1)+" % auf privaten Konsum, "+fz(a(I),1)+" % auf private Investitionen, "+fz(a(S),1)+" % auf Staatsausgaben (Konsum und Investitionen) und "+fz(a(N),1)+" % auf den Saldo aus Exporten und Importen.";
+  vk.rows=[["Privater Konsum",C],["Private Investitionen",I],["Staat (Konsum und Investitionen)",S],["Netto-Exporte",N]].map(r=>({l:r[0],w:fz(r[1][1]/1000,2)+" Bio. USD ("+fz(a(r[1]),1)+" %)",q:"FRED (BEA)",m:"auto",s:r[1][0]}));
+ }else del("verw");
+ /* IT-Investitionen in % des BIP */
+ const ik=byId.itinv;if(ik&&G&&last("A679RC1Q027SBEA")){const v=last("A679RC1Q027SBEA");ik.rows=[{l:"Anteil am nominalen BIP",w:fz(v[1]/G[1]*100,1)+" %",q:"FRED, gerechnet",m:"auto",s:v[0]}]}
+ /* EIA-Werte */
+ const E=window.USA_DATEN&&window.USA_DATEN.eia;
+ if(E&&E.werte){const w=E.werte,J=E.jahre,ausg=E.ausgabe,i1=1;
+  const q=(l,arr,d,suf)=>({l:l,w:J.map((j,i)=>j+": "+fz(arr[i],d)).join(" · ")+(suf||""),q:"EIA STEO "+ausg,m:"auto",s:E.ausgabe});
+  const eo=byId.eoel;eo.kpi=[fz(w.rohoel_prod[1],2)+" Mio. b/d","Rohöl "+J[1]+", EIA-Prognose ("+ausg+")"];
+  eo.lage="Die EIA erwartet für "+J[1]+" eine Rohölproduktion von "+fz(w.rohoel_prod[1],2)+" Mio. Barrel pro Tag ("+J[0]+": "+fz(w.rohoel_prod[0],2)+", "+J[2]+": "+fz(w.rohoel_prod[2],2)+").";
+  eo.rows=[q("Rohölproduktion (Mio. b/d)",w.rohoel_prod,2),q("Erdgasproduktion trocken (Mrd. Kubikfuß/Tag)",w.gas_prod,1),q("LNG-Exporte (Mrd. Kubikfuß/Tag)",w.lng_export,1),q("WTI-Preis, Jahresdurchschnitt (USD/Barrel)",w.wti,2),q("Henry-Hub-Preis, Jahresdurchschnitt (USD/MMBtu)",w.henry_hub,2)];
+  const en=byId.enetto,ex=-w.erdoel_netto_import[1];
+  en.kpi=[(ex>=0?"Nettoexport ":"Nettoimport ")+fz(Math.abs(ex),2)+" Mio. b/d","Erdöl gesamt "+J[1]+", EIA-Prognose ("+ausg+")"];
+  en.lage="Rohöl allein ist weiterhin ein Nettoimport ("+fz(w.rohoel_netto_import[1],2)+" Mio. b/d "+J[1]+"). Bei Ölprodukten und Flüssiggasen exportieren die USA mehr ("+fz(-w.produkte_netto_import[1],2)+" Mio. b/d), zusammen ergibt das einen Nettoexport von Erdöl und Flüssigkraftstoffen.";
+  en.rows=[q("Rohöl, Nettoimport (Mio. b/d)",w.rohoel_netto_import,2),q("Ölprodukte, Nettoimport (Mio. b/d, negativ = Export)",w.produkte_netto_import,2),q("Erdöl gesamt, Nettoimport (Mio. b/d, negativ = Export)",w.erdoel_netto_import,2),
+   {l:"Gesamtenergie 2025: Nettoexport",w:"11 Quads (Rekord, +20 % zu 2024)",q:"EIA Today in Energy 27.05.2026",m:"man",s:"2026-05-27"}];
+  const es=byId.estrom,g=w.strom_gewerbe,h=w.strom_haushalte;
+  es.kpi=["Gewerbe "+fz(g[1],0)+" Mrd. kWh",J[1]+": "+(g[1]>h[1]?"vor":"hinter")+" Haushalten ("+fz(h[1],0)+"), EIA-Prognose"];
+  es.lage="Der Stromverbrauch insgesamt liegt "+J[0]+" bei "+fz(w.strom_gesamt[0],0)+" und wird "+J[1]+" auf "+fz(w.strom_gesamt[1],0)+" Mrd. kWh geschätzt ("+J[2]+": "+fz(w.strom_gesamt[2],0)+"). Der Gewerbesektor "+(g[1]>h[1]?"überholt":"liegt unter")+" "+J[1]+" die Haushalte.";
+  es.rows=[q("Gesamtverbrauch (Mrd. kWh)",w.strom_gesamt,0),q("Gewerbe (Mrd. kWh)",g,0),q("Haushalte (Mrd. kWh)",h,0),q("Industrie (Mrd. kWh)",w.strom_industrie,0)];
+ }else{["eoel","enetto","estrom"].forEach(del)}
+ const D=window.USA_DATEN;if(D&&D.meta){const u=document.querySelector('.unter');u.innerHTML+=' · Datenabruf: '+D.meta.erstellt}
+})();
+/* ================== BRANCHEN-KUCHEN ================== */
+function kuchenBauen(){
+ const svg=document.getElementById("kuchen");if(!svg)return;
+ const teile=BR.map(b=>{const p=DATA[b.s];return p?{b,v:p[p.length-1][1],d:p[p.length-1][0]}:null}).filter(Boolean);
+ if(!teile.length){document.querySelector(".struktur").style.display="none";return}
+ const farbeFor=(g,i,n)=>g==="d"?"hsl(205,58%,"+(30+i*(46/Math.max(n-1,1)))+"%)":g==="g"?"hsl(28,72%,"+(36+i*(28/Math.max(n-1,1)))+"%)":"hsl(0,0%,52%)";
+ const zahl={d:teile.filter(x=>x.b.g==="d").length,g:teile.filter(x=>x.b.g==="g").length};
+ const idx={d:0,g:0,s:0};
+ teile.forEach(x=>{x.c=farbeFor(x.b.g,idx[x.b.g]++,zahl[x.b.g]||1)});
+ const sum=teile.reduce((a,x)=>a+x.v,0);let w0=-Math.PI/2;const R=150,cx=500,cy=220,H=440;
+ let pfade="";const lab={r:[],l:[]};
+ teile.forEach(x=>{const dw=x.v/sum*2*Math.PI,w1=w0+dw,wm=(w0+w1)/2;const p=(wk,r)=>[cx+r*Math.cos(wk),cy+r*Math.sin(wk)];const [x0,y0]=p(w0,R),[x1,y1]=p(w1,R);
+  const gross=dw>Math.PI?1:0;const d="M"+cx+","+cy+" L"+x0.toFixed(2)+","+y0.toFixed(2)+" A"+R+","+R+" 0 "+gross+" 1 "+x1.toFixed(2)+","+y1.toFixed(2)+" Z";
+  pfade+='<path d="'+d+'" fill="'+x.c+'" tabindex="0" role="button" data-s="'+x.b.s+'" aria-label="'+esc(x.b.n)+' '+nf(x.v,1)+' Prozent"><title>'+esc(x.b.n)+': '+nf(x.v,1)+' %</title></path>';
+  const rechts=Math.cos(wm)>=0;const a0=p(wm,R),a1=p(wm,R+22);
+  lab[rechts?"r":"l"].push({x,a0,a1,y:a1[1]});w0=w1});
+ /* Beschriftungen je Seite von oben nach unten, mit Mindestabstand */
+ const GAP=21;let linien="",texte="";
+ ["r","l"].forEach(seite=>{const arr=lab[seite].sort((m,n)=>m.y-n.y);
+  for(let i=1;i<arr.length;i++)if(arr[i].y<arr[i-1].y+GAP)arr[i].y=arr[i-1].y+GAP;
+  const ueber=arr.length?arr[arr.length-1].y-(H-14):0;if(ueber>0)arr.forEach(o=>o.y-=ueber);
+  for(let i=1;i<arr.length;i++)if(arr[i].y<arr[i-1].y+GAP)arr[i-1].y=arr[i].y-GAP;
+  const lx=seite==="r"?cx+R+58:cx-R-58;
+  arr.forEach(o=>{const x=o.x;const ex=seite==="r"?lx-8:lx+8;
+   linien+='<polyline class="fl" points="'+o.a0[0].toFixed(1)+','+o.a0[1].toFixed(1)+' '+o.a1[0].toFixed(1)+','+o.a1[1].toFixed(1)+' '+ex+','+o.y.toFixed(1)+' '+lx+','+o.y.toFixed(1)+'"/><circle cx="'+o.a0[0].toFixed(1)+'" cy="'+o.a0[1].toFixed(1)+'" r="2.2" fill="var(--text)"/>';
+   const name=esc(x.b.n),pz=nf(x.v,1)+" %";
+   texte+= seite==="r"
+    ? '<text class="lbl" data-s="'+x.b.s+'" x="'+(lx+6)+'" y="'+(o.y+4.5).toFixed(1)+'"><tspan class="pz">'+pz+'</tspan><tspan dx="8">'+name+'</tspan></text>'
+    : '<text class="lbl" data-s="'+x.b.s+'" x="'+(lx-6)+'" y="'+(o.y+4.5).toFixed(1)+'" text-anchor="end"><tspan>'+name+'</tspan><tspan dx="8" class="pz">'+pz+'</tspan></text>'})});
+ svg.innerHTML='<g class="lbl">'+linien+'</g>'+pfade+texte;
+ svg.querySelectorAll("path").forEach(pa=>{const f=()=>oeffnen("b_"+pa.dataset.s);pa.addEventListener("click",f);pa.addEventListener("keydown",e=>{if(e.key==="Enter"||e.key===" "){e.preventDefault();f()}})});
+ svg.querySelectorAll("text[data-s]").forEach(tx=>tx.addEventListener("click",()=>oeffnen("b_"+tx.dataset.s)));
+ const gl={d:"Private Dienstleister",g:"Güterproduzenten",s:"Staat"};let leg="",gl0="";
+ ["d","g","s"].forEach(g=>{leg+='<div class="gk">'+gl[g]+'</div>';teile.filter(x=>x.b.g===g).forEach(x=>{leg+='<button type="button" data-s="'+x.b.s+'"><i style="background:'+x.c+'"></i><span>'+esc(x.b.n)+'</span><b>'+nf(x.v,1)+' %</b></button>'})});
+ const L=document.getElementById("leg");L.innerHTML=leg;L.querySelectorAll("button").forEach(b=>b.addEventListener("click",()=>oeffnen("b_"+b.dataset.s)));
+ const bal=BL.map(b=>{const p=DATA[b.s];return p?{b,v:p[p.length-1][1],d:p[p.length-1][0]}:null}).filter(Boolean);
+ const B=document.getElementById("balken");B.innerHTML=bal.map(x=>'<button type="button" data-s="'+x.b.s+'" style="width:'+x.v+'%;background:'+x.b.c+'" title="'+esc(x.b.n)+'">'+esc(x.b.n)+" "+nf(x.v,1)+" %</button>").join("");
+ B.querySelectorAll("button").forEach(b=>b.addEventListener("click",()=>oeffnen("b_"+b.dataset.s)));
+ const dd=teile[0].d,ssum=bal.reduce((a,x)=>a+x.v,0);
+ document.getElementById("bhin").textContent="Stand "+dts(dd)+" (2. Quartal 2026 laut BEA, Wertschöpfung nach Branchen in % des BIP). Summe der Blöcke "+nf(ssum,1)+" %. Quelle: FRED/BEA, automatisch aktualisiert.";
+}
+flussBauen();
+
+$("#theme").addEventListener("click",()=>{const r=document.documentElement;r.dataset.theme=r.dataset.theme==="dark"?"light":"dark";try{localStorage.setItem("dashboard-thema",r.dataset.theme)}catch(e){}if(aktiv)oeffnen(aktiv)});
+bauen();kuchenBauen();
+const hh=/#(\w+)/.exec(location.hash);if(hh&&byId[hh[1]])oeffnen(hh[1]);
+</script>
+</body>
+</html>

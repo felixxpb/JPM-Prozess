@@ -3,18 +3,19 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>JPM Prozess · Länderanalyse</title>
-<link rel="stylesheet" href="../stil.css?v=20261017">
+<title>JPM Prozess</title>
+<link rel="stylesheet" href="stil.css?v=20261017">
 <style>
-.la-sektion{max-width:1180px;margin:30px auto 0}
-.la-sektion h2{font-size:15px;margin:0 0 10px;color:var(--text-sekundaer);text-transform:uppercase;letter-spacing:.05em;font-weight:650}
-.la-liste{display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:10px}
-.la-zeile{display:flex;justify-content:space-between;align-items:center;gap:10px;background:var(--flaeche);border:1px solid var(--rand);border-radius:10px;padding:11px 14px;text-decoration:none;color:inherit;font-size:14px}
-a.la-zeile:hover,a.la-zeile:focus-visible{border-color:var(--achse);outline:none}
-.la-zeile.offen{opacity:.55}
-.la-nr{color:var(--text-stumm);font-variant-numeric:tabular-nums;margin-right:8px}
-.la-stand{max-width:1180px;margin:18px auto 0;font-size:12.5px;color:var(--text-sekundaer)}
-.la-stand b{color:var(--text)}
+.haupt{max-width:1180px;margin:34px auto 0}
+.bereiche-wahl{display:grid;grid-template-columns:repeat(auto-fit,minmax(320px,1fr));gap:16px}
+.bereich-gross{cursor:pointer;text-align:left;font:inherit;color:inherit;padding:26px 24px 20px}
+.bereich-gross .bereich-kachel-titel{font-size:22px}
+.bereich-gross .bereich-kachel-text{font-size:14px}
+.bereich-gross[aria-expanded="true"]{border-color:var(--serie-1);box-shadow:0 0 0 2px var(--serie-1)}
+.bereich-gross:hover{border-color:var(--achse)}
+.panel{margin-top:26px}
+.panel-titel{font-size:13px;margin:0 0 12px;color:var(--text-sekundaer);text-transform:uppercase;letter-spacing:.06em;font-weight:650}
+.panel .start-raster{margin-top:0}
 </style>
 </head>
 <body>
@@ -22,78 +23,105 @@ a.la-zeile:hover,a.la-zeile:focus-visible{border-color:var(--achse);outline:none
 <header class="kopf">
   <div class="kopf-zeile">
     <div>
-      <a class="kopf-zurueck" href="../index.html">← Übersicht</a>
       <div class="kopf-pfad">JPM Prozess</div>
-      <h1>Länderanalyse</h1>
+      <h1>Übersicht</h1>
     </div>
-    <button id="themaSchalter" class="thema-schalter" type="button" aria-label="Hell- oder Dunkelmodus umschalten">
-      <span class="thema-hell">Hell</span><span class="thema-dunkel">Dunkel</span>
-    </button>
+    <div class="kopf-knopfleiste">
+      <button id="themaSchalter" class="thema-schalter" type="button" aria-label="Hell- oder Dunkelmodus umschalten">
+        <span class="thema-hell">Hell</span><span class="thema-dunkel">Dunkel</span>
+      </button>
+    </div>
   </div>
-  <p class="kopf-frage">Wie ist das Land aufgebaut, und wie funktioniert es? Struktur und Charakter je Land, elf feste Oberthemen. Daten und Fakten, keine Bewertung.</p>
+  <p class="kopf-frage">Zwei Bereiche: die Länderanalyse (Struktur und Charakter je Land) und der JPM Makro-Prozess. Auf einen Bereich klicken.</p>
 </header>
 
-<main class="start-raster">
-  <a class="bereich-kachel" href="#usa">
-    <div class="bereich-kachel-titel">USA</div>
-    <p class="bereich-kachel-text">Politik, Finanz- und Kreditsystem sind online. Weitere Oberthemen folgen.</p>
-    <span class="bereich-kachel-status status-fertig">2 von 11 Oberthemen</span>
-  </a>
-  <div class="bereich-kachel bereich-kachel-offen"><div class="bereich-kachel-titel">Euroraum</div><p class="bereich-kachel-text">Noch nicht begonnen.</p><span class="bereich-kachel-status status-offen">folgt</span></div>
-  <div class="bereich-kachel bereich-kachel-offen"><div class="bereich-kachel-titel">Vereinigtes Königreich</div><p class="bereich-kachel-text">Noch nicht begonnen.</p><span class="bereich-kachel-status status-offen">folgt</span></div>
-  <div class="bereich-kachel bereich-kachel-offen"><div class="bereich-kachel-titel">Japan</div><p class="bereich-kachel-text">Noch nicht begonnen.</p><span class="bereich-kachel-status status-offen">folgt</span></div>
-  <div class="bereich-kachel bereich-kachel-offen"><div class="bereich-kachel-titel">Australien</div><p class="bereich-kachel-text">Noch nicht begonnen.</p><span class="bereich-kachel-status status-offen">folgt</span></div>
-  <div class="bereich-kachel bereich-kachel-offen"><div class="bereich-kachel-titel">Kanada</div><p class="bereich-kachel-text">Noch nicht begonnen.</p><span class="bereich-kachel-status status-offen">folgt</span></div>
-  <div class="bereich-kachel bereich-kachel-offen"><div class="bereich-kachel-titel">Schweiz</div><p class="bereich-kachel-text">Noch nicht begonnen.</p><span class="bereich-kachel-status status-offen">folgt</span></div>
-  <div class="bereich-kachel bereich-kachel-offen"><div class="bereich-kachel-titel">Neuseeland</div><p class="bereich-kachel-text">Noch nicht begonnen.</p><span class="bereich-kachel-status status-offen">folgt</span></div>
-  <div class="bereich-kachel bereich-kachel-offen"><div class="bereich-kachel-titel">Norwegen</div><p class="bereich-kachel-text">Noch nicht begonnen.</p><span class="bereich-kachel-status status-offen">folgt</span></div>
-  <div class="bereich-kachel bereich-kachel-offen"><div class="bereich-kachel-titel">Schweden</div><p class="bereich-kachel-text">Noch nicht begonnen.</p><span class="bereich-kachel-status status-offen">folgt</span></div>
-  <div class="bereich-kachel bereich-kachel-offen"><div class="bereich-kachel-titel">China (Indikator)</div><p class="bereich-kachel-text">Nur als Indikator, keine eigene Länderseite. Inhalt noch festzulegen.</p><span class="bereich-kachel-status status-offen">folgt</span></div>
+<main class="haupt">
+  <div class="bereiche-wahl" role="tablist" aria-label="Hauptbereiche">
+    <button class="bereich-kachel bereich-gross" id="knopfLaender" type="button" aria-expanded="false" aria-controls="panelLaender" data-ziel="laender">
+      <div class="bereich-kachel-titel">Länderanalyse</div>
+      <p class="bereich-kachel-text">Wie ist ein Land aufgebaut und wie funktioniert es? Elf Oberthemen je Land: Politik, Finanzsystem, Zentralbank, Wirtschaft und mehr. Grundlage für die Makrokontexte.</p>
+      <span class="bereich-kachel-status status-fertig">USA: 2 von 11 Oberthemen · weitere Länder folgen</span>
+    </button>
+    <button class="bereich-kachel bereich-gross" id="knopfJpm" type="button" aria-expanded="false" aria-controls="panelJpm" data-ziel="jpm">
+      <div class="bereich-kachel-titel">JPM Makro-Prozess</div>
+      <p class="bereich-kachel-text">Der Makro-Analyseprozess nach dem JPM-Ansatz in drei Schichten (Makro-Themen, Bewertung und Positionierung, Signale) plus Prozess-Werkzeuge.</p>
+      <span class="bereich-kachel-status status-offen">folgt</span>
+    </button>
+  </div>
+
+  <section class="panel" id="panelLaender" hidden aria-label="Länderanalyse">
+    <h2 class="panel-titel">Länderanalyse: Länder wählen</h2>
+    <div class="start-raster">
+    <a class="bereich-kachel" href="laender/index.html#usa">
+      <div class="bereich-kachel-titel">USA</div>
+      <p class="bereich-kachel-text">Politik und Finanz-/Kreditsystem sind online, weitere Oberthemen folgen.</p>
+      <span class="bereich-kachel-status status-fertig">2 von 11 Oberthemen</span>
+    </a>
+    <div class="bereich-kachel bereich-kachel-offen"><div class="bereich-kachel-titel">Euroraum</div><p class="bereich-kachel-text">Noch nicht begonnen.</p><span class="bereich-kachel-status status-offen">folgt</span></div>
+    <div class="bereich-kachel bereich-kachel-offen"><div class="bereich-kachel-titel">Vereinigtes Königreich</div><p class="bereich-kachel-text">Noch nicht begonnen.</p><span class="bereich-kachel-status status-offen">folgt</span></div>
+    <div class="bereich-kachel bereich-kachel-offen"><div class="bereich-kachel-titel">Japan</div><p class="bereich-kachel-text">Noch nicht begonnen.</p><span class="bereich-kachel-status status-offen">folgt</span></div>
+    <div class="bereich-kachel bereich-kachel-offen"><div class="bereich-kachel-titel">Australien</div><p class="bereich-kachel-text">Noch nicht begonnen.</p><span class="bereich-kachel-status status-offen">folgt</span></div>
+    <div class="bereich-kachel bereich-kachel-offen"><div class="bereich-kachel-titel">Kanada</div><p class="bereich-kachel-text">Noch nicht begonnen.</p><span class="bereich-kachel-status status-offen">folgt</span></div>
+    <div class="bereich-kachel bereich-kachel-offen"><div class="bereich-kachel-titel">Schweiz</div><p class="bereich-kachel-text">Noch nicht begonnen.</p><span class="bereich-kachel-status status-offen">folgt</span></div>
+    <div class="bereich-kachel bereich-kachel-offen"><div class="bereich-kachel-titel">Neuseeland</div><p class="bereich-kachel-text">Noch nicht begonnen.</p><span class="bereich-kachel-status status-offen">folgt</span></div>
+    <div class="bereich-kachel bereich-kachel-offen"><div class="bereich-kachel-titel">Norwegen</div><p class="bereich-kachel-text">Noch nicht begonnen.</p><span class="bereich-kachel-status status-offen">folgt</span></div>
+    <div class="bereich-kachel bereich-kachel-offen"><div class="bereich-kachel-titel">Schweden</div><p class="bereich-kachel-text">Noch nicht begonnen.</p><span class="bereich-kachel-status status-offen">folgt</span></div>
+    <div class="bereich-kachel bereich-kachel-offen"><div class="bereich-kachel-titel">China (Indikator)</div><p class="bereich-kachel-text">Nur als Indikator, keine eigene Länderseite.</p><span class="bereich-kachel-status status-offen">folgt</span></div>
+    </div>
+  </section>
+
+  <section class="panel" id="panelJpm" hidden aria-label="JPM Makro-Prozess">
+    <h2 class="panel-titel">JPM Makro-Prozess: Aufbau folgt</h2>
+    <div class="start-raster">
+      <div class="bereich-kachel bereich-kachel-offen"><div class="bereich-kachel-titel">Makro-Themen</div><p class="bereich-kachel-text">Erste Schicht: Wachstum, Inflation, Arbeitsmarkt, Zinsen, Plumbing und weitere Themenbereiche.</p><span class="bereich-kachel-status status-offen">folgt</span></div>
+      <div class="bereich-kachel bereich-kachel-offen"><div class="bereich-kachel-titel">Bewertung und Positionierung</div><p class="bereich-kachel-text">Zweite Schicht des JPM-Prozesses.</p><span class="bereich-kachel-status status-offen">folgt</span></div>
+      <div class="bereich-kachel bereich-kachel-offen"><div class="bereich-kachel-titel">Signale</div><p class="bereich-kachel-text">Dritte Schicht des JPM-Prozesses.</p><span class="bereich-kachel-status status-offen">folgt</span></div>
+      <div class="bereich-kachel bereich-kachel-offen"><div class="bereich-kachel-titel">Prozess-Werkzeuge</div><p class="bereich-kachel-text">Werkzeuge entlang des Prozesses.</p><span class="bereich-kachel-status status-offen">folgt</span></div>
+    </div>
+  </section>
 </main>
 
-<section class="la-sektion" id="usa">
-  <h2>USA: die elf Oberthemen</h2>
-  <div class="la-liste">
-    <a class="la-zeile" href="usa-politik.html"><span><span class="la-nr">1</span>Politische Struktur und Politik</span><span class="bereich-kachel-status status-fertig">online</span></a>
-    <a class="la-zeile" href="usa-finanzsystem.html"><span><span class="la-nr">2</span>Finanzsystem und Kreditsystem</span><span class="bereich-kachel-status status-fertig">online</span></a>
-    <a class="la-zeile" href="usa-fed.html"><span><span class="la-nr">3</span>Zentralbank (Fed)</span><span class="bereich-kachel-status status-fertig">online</span></a>
-    <a class="la-zeile" href="usa-wirtschaft.html"><span><span class="la-nr">4</span>Wirtschaft und Infrastruktur</span><span class="bereich-kachel-status status-fertig">online</span></a>
-    <div class="la-zeile offen"><span><span class="la-nr">5</span>Handelsbeziehungen und internationale Beziehungen</span><span class="bereich-kachel-status status-offen">in Arbeit</span></div>
-    <div class="la-zeile offen"><span><span class="la-nr">6</span>Inflation</span><span class="bereich-kachel-status status-offen">folgt</span></div>
-    <div class="la-zeile offen"><span><span class="la-nr">7</span>Arbeitsmarkt</span><span class="bereich-kachel-status status-offen">folgt</span></div>
-    <div class="la-zeile offen"><span><span class="la-nr">8</span>Sentiment und Verbraucherverhalten</span><span class="bereich-kachel-status status-offen">folgt</span></div>
-    <div class="la-zeile offen"><span><span class="la-nr">9</span>Umwelt und Klima</span><span class="bereich-kachel-status status-offen">folgt</span></div>
-    <div class="la-zeile offen"><span><span class="la-nr">10</span>Gesundheitswesen</span><span class="bereich-kachel-status status-offen">folgt</span></div>
-    <div class="la-zeile offen"><span><span class="la-nr">11</span>Immobilien</span><span class="bereich-kachel-status status-offen">folgt</span></div>
-  </div>
-  <div class="la-stand" id="stand"></div>
-</section>
-
 <footer class="fuss">
-  <span>JPM Prozess · Länderanalyse: Grundlage für die Makrokontexte. Struktur wird halbjährlich geprüft, Kennzahlen aktualisieren sich automatisch.</span>
+  <span>JPM Prozess · Teil des Trading Brain</span>
 </footer>
 
-<script src="daten/usa.js?v=1"></script>
 <script>
 (function () {
   "use strict";
-  var schalter = document.getElementById("themaSchalter"), g = null;
-  try { g = localStorage.getItem("dashboard-thema"); } catch (e) { }
-  if (g) { document.documentElement.setAttribute("data-theme", g); }
+  var schalter = document.getElementById("themaSchalter");
+  var gespeichert = null;
+  try { gespeichert = localStorage.getItem("dashboard-thema"); } catch (e) { }
+  if (gespeichert) { document.documentElement.setAttribute("data-theme", gespeichert); }
   schalter.addEventListener("click", function () {
     var neu = document.documentElement.getAttribute("data-theme") === "dark" ? "light" : "dark";
     document.documentElement.setAttribute("data-theme", neu);
     try { localStorage.setItem("dashboard-thema", neu); } catch (e) { }
   });
-  var d = window.USA_DATEN, el = document.getElementById("stand");
-  if (d && d.meta) {
-    var s = d.meta.stand || {}, f = d.meta.fehler || {}, t = "Letzter Datenabruf USA: <b>" + d.meta.erstellt + "</b>";
-    t += " · FRED: " + (s.fred || "nie") + " · Wikipedia: " + (s.wikipedia || "nie");
-    var fe = Object.keys(f); if (fe.length) t += " · <b>Abruffehler bei: " + fe.join(", ") + "</b> (zuletzt guter Stand bleibt stehen)";
-    el.innerHTML = t;
-  } else { el.textContent = "Keine Abrufdaten gefunden."; }
 })();
 </script>
-<script src="../einstellungen.js?v=20261017"></script>
+<script>
+(function () {
+  "use strict";
+  var knoepfe = document.querySelectorAll(".bereich-gross");
+  var panels = { laender: document.getElementById("panelLaender"), jpm: document.getElementById("panelJpm") };
+  function zeige(ziel) {
+    knoepfe.forEach(function (k) { k.setAttribute("aria-expanded", String(k.dataset.ziel === ziel)); });
+    Object.keys(panels).forEach(function (k) { panels[k].hidden = (k !== ziel); });
+    try { history.replaceState(null, "", ziel ? "#" + ziel : location.pathname + location.search); } catch (e) { }
+    if (ziel) { panels[ziel].scrollIntoView({ behavior: "smooth", block: "start" }); }
+  }
+  knoepfe.forEach(function (k) {
+    k.addEventListener("click", function () {
+      var offen = k.getAttribute("aria-expanded") === "true";
+      zeige(offen ? null : k.dataset.ziel);
+    });
+  });
+  var h = (location.hash || "").replace("#", "");
+  if (panels[h]) { zeige(h); }
+})();
+</script>
+
+<script src="einstellungen.js?v=20261017"></script>
+<script src="hintergrund.js?v=20261017"></script>
 </body>
 </html>

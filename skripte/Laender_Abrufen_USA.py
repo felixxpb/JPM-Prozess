@@ -33,6 +33,32 @@ FRED = {
     "GFDEBTN": "2015-01-01", "GFDEGDQ188S": "2015-01-01",
     "DRTSCILM": "2015-01-01", "DRTSCLCC": "2015-01-01",
     "BAMLH0A0HYM2": "2024-10-01", "BAMLC0A0CM": "2024-10-01",
+    # Oberthema 3 (Fed)
+    "DFEDTARU": "2024-10-01", "DFEDTARL": "2024-10-01", "DFF": "2024-10-01", "IORB": "2024-10-01",
+    "UNRATE": "2022-01-01",
+    # Oberthema 4 (Wirtschaft und Infrastruktur)
+    "A191RL1Q225SBEA": "2015-01-01", "GDPC1": "2015-01-01",
+    "GDP": "2015-01-01", "PCEC": "2015-01-01", "GPDI": "2015-01-01", "GCE": "2015-01-01", "NETEXP": "2015-01-01",
+    "INDPRO": "2022-01-01", "TCU": "2022-01-01",
+    "A679RC1Q027SBEA": "2015-01-01",
+    "MCOILWTICO": "2022-01-01", "MHHNGSP": "2022-01-01", "IPG2211S": "2022-01-01",
+    "TLPBLCONS": "2022-01-01", "TLPWRCONS": "2022-01-01", "TLHWYCONS": "2022-01-01",
+    "IEABC": "2015-01-01", "BOPGSTB": "2022-01-01",
+    # Branchenanteile an der Wertschoepfung (BEA, in % des BIP, vierteljaehrlich)
+    "VAPGDPSPI": "2015-01-01", "VAPGDPGPI": "2015-01-01", "VAPGDPG": "2015-01-01",
+    "VAPGDPFIRL": "2015-01-01", "VAPGDPPBS": "2015-01-01", "VAPGDPMA": "2015-01-01",
+    "VAPGDPESHS": "2015-01-01", "VAPGDPW": "2015-01-01", "VAPGDPI": "2015-01-01",
+    "VAPGDPR": "2015-01-01", "VAPGDPC": "2015-01-01", "VAPGDPT": "2015-01-01",
+    "VAPGDPM": "2015-01-01", "VAPGDPU": "2015-01-01", "VAPGDPAFH": "2015-01-01",
+    "BOPTEXP": "2022-01-01", "BOPTIMP": "2022-01-01", "DTWEXBGS": "2024-10-01",
+    "FDHBFIN": "2015-01-01",   # Bundesschulden im Besitz von Auslaendern (Mrd. USD)
+    "VAPGDPAERAF": "2015-01-01", "VAPGDPOSEG": "2015-01-01", "VAPGDPF": "2015-01-01", "VAPGDPSL": "2015-01-01",
+}
+# Reihen mit Umrechnung: Name -> (FRED-Reihe, Umrechnung, Start). pc1 = Veraenderung zum Vorjahr in Prozent
+FRED_UMGERECHNET = {
+    "PCEPILFE_YOY": ("PCEPILFE", "pc1", "2022-01-01"),
+    "PCEPI_YOY": ("PCEPI", "pc1", "2022-01-01"),
+    "OPHNFB_YOY": ("OPHNFB", "pc1", "2018-01-01"),
 }
 
 
@@ -65,9 +91,13 @@ def holen(url, versuche=3):
 def lade_fred():
     key = fred_key()
     out = {}
-    for sid, start in FRED.items():
+    alle = {s: (s, None, st) for s, st in FRED.items()}
+    alle.update(FRED_UMGERECHNET)
+    for sid, (reihe, units, start) in alle.items():
         u = ("https://api.stlouisfed.org/fred/series/observations?series_id=%s&api_key=%s"
-             "&file_type=json&observation_start=%s" % (sid, key, start))
+             "&file_type=json&observation_start=%s" % (reihe, key, start))
+        if units:
+            u += "&units=" + units
         try:
             obs = json.loads(holen(u))["observations"]
         except Exception as e:  # noqa
@@ -173,6 +203,297 @@ def lade_wikipedia():
     return {"staaten": staaten, "reg": reg, "zaehlung": z, "senat": sen, "haus": haus}
 
 
+# ---------------------------------------------------------------- Fed (federalreserve.gov)
+FED = "https://www.federalreserve.gov"
+MONATE = {m: i + 1 for i, m in enumerate(["January", "February", "March", "April", "May", "June", "July",
+                                         "August", "September", "October", "November", "December"])}
+
+
+def fed_text(url):
+    h = holen(url)
+    t = re.sub(r"<script.*?</script>|<style.*?</style>", "", h, flags=re.S)
+    t = html.unescape(re.sub(r"\s+", " ", re.sub(r"<[^>]+>", " ", t)))
+    return h, t
+
+
+def lade_fed():
+    jahr = datetime.date.today().year
+    # 1. Mitglieder des FOMC
+    _, t = fed_text(FED + "/monetarypolicy/fomc.htm")
+    a = t.index("Committee Members")
+    b = t.index("Alternate Members", a)
+    seg = t[a + len("Committee Members"):b]
+    teile = re.findall(r"([A-Z][A-Za-z\.\' ]+?) , ([A-Za-z ]+?)(?:, (Chairman|Vice Chair))?(?= [A-Z][A-Za-z\.\']+ (?:[A-Z]\. )?[A-Z][A-Za-z\']+ ,|\s*$)", seg.strip() + " ")
+    mitglieder = [{"name": n.strip(), "ort": o.strip(), "rolle": r} for n, o, r in teile]
+    rest = t[b + len("Alternate Members"):]
+    rest = rest[:rest.index("Rotation")]
+    alt = [{"name": n.strip(), "ort": o.strip()} for n, o in re.findall(r"([A-Z][A-Za-z\.\' ]+?) , ([^,]+?)(?= [A-Z][a-z]+ (?:[A-Z]\. )?[A-Z][a-z]+ ,|\s*$)", rest.strip() + " ")]
+    board = [m for m in mitglieder if m["ort"] == "Board of Governors"]
+    chair = next((m["name"] for m in board if m["rolle"] == "Chairman"), None)
+    if len(mitglieder) != 12 or len(board) != 7 or not chair:
+        raise ValueError("FOMC-Mitglieder unplausibel: %d Mitglieder, %d Board, Vorsitz %s" % (len(mitglieder), len(board), chair))
+    # 2. Sitzungskalender
+    kh, kt = fed_text(FED + "/monetarypolicy/fomccalendars.htm")
+    a = kt.index("%d FOMC Meetings" % jahr)
+    b = kt.index("FOMC Meetings", a + 20)
+    blk = kt[a:b]
+    sitz = []
+    muster = re.compile(r"(January|February|March|April|May|June|July|August|September|October|November|December) (\d+)-(\d+)(\*?)(.*?)(?=(?:January|February|March|April|May|June|July|August|September|October|November|December) \d+-\d+|\* Meeting|$)")
+    for m in muster.finditer(blk):
+        mon = MONATE[m.group(1)]
+        d1, d2 = int(m.group(2)), int(m.group(3))
+        ende = datetime.date(jahr, mon, d2)
+        mr = re.search(r"Released (\w+) (\d+), (\d{4})", m.group(5))
+        minutes = None
+        if mr:
+            minutes = datetime.date(int(mr.group(3)), MONATE[mr.group(1)], int(mr.group(2))).isoformat()
+        sitz.append({"von": datetime.date(jahr, mon, d1).isoformat(), "bis": ende.isoformat(), "sep": bool(m.group(4)),
+                     "minutes": minutes or (ende + datetime.timedelta(days=21)).isoformat(), "minutes_geschaetzt": not minutes,
+                     "statement": "monetary%s%02d%02da.htm" % (jahr, mon, d2) in kh})
+    if len(sitz) != 8:
+        raise ValueError("FOMC-Kalender: %d statt 8 Sitzungen" % len(sitz))
+    # 3. Letzte Sitzung mit Mitteilung: Beschluss und Abstimmung
+    letzte = [s for s in sitz if s["statement"]][-1]
+    datei = "monetary%s%sa.htm" % (letzte["bis"][:4], letzte["bis"][5:7] + letzte["bis"][8:10])
+    _, st = fed_text(FED + "/newsevents/pressreleases/" + datei)
+    v = re.search(r"by a (\d+)\s*[–-]\s*(\d+) vote", st)
+    if not v:
+        raise ValueError("Abstimmung in der Mitteilung nicht gefunden")
+    beschluss = re.search(r"The Committee decided to ([^.]+)\.", st)
+    gegen = re.search(r"Voting against[^:]*: (.+?)\. ", st)
+    return {"mitglieder": mitglieder, "vorsitz": chair,
+            "sitzungen": sitz,
+            "abstimmung": {"datum": letzte["bis"], "ja": int(v.group(1)), "nein": int(v.group(2)),
+                           "beschluss": beschluss.group(1) if beschluss else "",
+                           "gegen": gegen.group(1)[:200] if gegen else "", "quelle": FED + "/newsevents/pressreleases/" + datei}}
+
+
+# ---------------------------------------------------------------- EIA (Short-Term Energy Outlook, Tabellen als PDF)
+EIA_TAB = "https://www.eia.gov/outlooks/steo/tables/pdf/%stab.pdf"
+
+
+def eia_tabelle(name):
+    import io
+    try:
+        import pypdf
+    except ImportError:
+        raise ValueError("Programmteil pypdf fehlt (pip install pypdf)")
+    req = urllib.request.Request(EIA_TAB % name, headers={"User-Agent": UA})
+    daten = urllib.request.urlopen(req, timeout=60).read()
+    return "\n".join(p.extract_text() or "" for p in pypdf.PdfReader(io.BytesIO(daten)).pages)
+
+
+def eia_zahlen(zeile):
+    return [float(x.replace(",", "")) for x in re.findall(r"-?\d[\d,]*\.?\d*", zeile.split("...")[-1] if "..." in zeile else zeile)]
+
+
+def eia_zeile(text, muster, ab=0):
+    """Findet die Zeile (oder die Folgezeile) mit den Jahreswerten 2025/2026/2027 (die letzten drei Zahlen)."""
+    zeilen = text.split("\n")
+    for i in range(ab, len(zeilen)):
+        if re.search(muster, zeilen[i]):
+            for j in (i, i + 1):
+                z = eia_zahlen(zeilen[j]) if j < len(zeilen) else []
+                if len(z) >= 12:
+                    return z[-3:], i
+            raise ValueError("EIA-Zeile ohne Zahlen: " + muster)
+    raise ValueError("EIA-Zeile nicht gefunden: " + muster)
+
+
+def lade_eia():
+    t1, t4, t5, t7 = (eia_tabelle(n) for n in ("1", "4a", "5a", "7a"))
+    m = re.search(r"Short-Term Energy Outlook\s*-\s*(\w+) (\d{4})", t1)
+    ausgabe = (m.group(1) + " " + m.group(2)) if m else ""
+    kopf = re.search(r"(\d{4}) (\d{4}) (\d{4})\s*$", t1.split("\n")[0].strip())
+    j0 = int(kopf.group(1)) if kopf else None
+    if not j0:
+        raise ValueError("EIA: Jahreskopf nicht gefunden")
+    w = {}
+    w["rohoel_prod"], _ = eia_zeile(t1, r"^Crude Oil Production")
+    w["wti"], _ = eia_zeile(t1, r"^Crude Oil West Texas")
+    w["henry_hub"], _ = eia_zeile(t1, r"^Natural Gas Henry Hub")
+    w["gas_prod"], _ = eia_zeile(t1, r"^Dry Natural Gas Production")
+    w["rohoel_netto_import"], _ = eia_zeile(t4, r"^Crude oil net imports")
+    w["produkte_netto_import"], _ = eia_zeile(t4, r"^Petroleum product net imports")
+    w["erdoel_netto_import"], _ = eia_zeile(t4, r"^Total petroleum and other liquid fuels net imports")
+    w["lng_export"], _ = eia_zeile(t5, r"^LNG gross exports")
+    w["strom_gesamt"], i = eia_zeile(t7, r"^Total consumption")
+    w["strom_haushalte"], _ = eia_zeile(t7, r"^Residential sector", i)
+    w["strom_gewerbe"], _ = eia_zeile(t7, r"^Commercial sector", i)
+    w["strom_industrie"], _ = eia_zeile(t7, r"^Industrial sector", i)
+    w["strom_erzeugung"], _ = eia_zeile(t7, r"^Electricity generation")
+    if not (3500 < w["strom_gesamt"][0] < 5500 and 10 < w["rohoel_prod"][0] < 20 and -10 < w["erdoel_netto_import"][0] < 10):
+        raise ValueError("EIA-Werte unplausibel: %s" % w["strom_gesamt"])
+    return {"ausgabe": ausgabe, "jahre": [j0, j0 + 1, j0 + 2], "werte": w, "quelle": "https://www.eia.gov/outlooks/steo/"}
+
+
+# ---------------------------------------------------------------- Handel: Federal Register (Zeitstrahl, Sanktionen)
+FR_API = "https://www.federalregister.gov/api/v1/documents.json"
+FR_FELDER = "&fields[]=title&fields[]=publication_date&fields[]=html_url&fields[]=type&fields[]=document_number&fields[]=agencies"
+TYP_DE = {"Presidential Document": "Präsidialdokument", "Notice": "Mitteilung", "Rule": "Regelung",
+          "Proposed Rule": "Regelentwurf"}
+# Titel, die nichts mit Handelspolitik zu tun haben, werden aussortiert
+FR_AUSSCHLUSS = re.compile(r"Foreign-Trade Zone|National .* (Day|Week|Month)|Agency Information Collection|Sugar|Antidumping|"
+                           r"Countervailing|Sunset Review|Low-Value|Application for|Scope Ruling|Administrative Review|Initiation of", re.I)
+FR_HANDEL = re.compile(r"tariff|duties|duty|section 232|section 301|section 122|section 338|import|trade|reciprocal|"
+                       r"agreement|USMCA|China|Canada|Mexico|IEEPA|refund|exclusion|export control", re.I)
+
+
+def fr_abfrage(bedingungen, seite_groesse=40):
+    u = FR_API + "?" + bedingungen + "&order=newest&per_page=%d" % seite_groesse + FR_FELDER
+    return json.loads(holen(u)).get("results", [])
+
+
+def lade_handel():
+    seit = "conditions[publication_date][gte]=%d-01-01" % datetime.date.today().year
+    quellen = [
+        ("Präsidialdokumente (Zölle)", "conditions[type][]=PRESDOCU&conditions[term]=tariffs&" + seit),
+        ("Präsidialdokumente (Handel)", "conditions[type][]=PRESDOCU&conditions[term]=trade&" + seit),
+        ("USTR", "conditions[agencies][]=trade-representative-office-of-united-states&" + seit),
+        ("Handelsministerium (Section 232)", "conditions[term]=%22section+232%22&conditions[agencies][]=commerce-department&" + seit),
+        ("Zoll (IEEPA-Erstattungen)", "conditions[term]=IEEPA&conditions[agencies][]=u-s-customs-and-border-protection&" + seit),
+    ]
+    ereignisse, gesehen = [], set()
+    for name, cond in quellen:
+        for x in fr_abfrage(cond):
+            titel = x["title"].strip()
+            if FR_AUSSCHLUSS.search(titel) or not FR_HANDEL.search(titel):
+                continue
+            schluessel = (x["publication_date"], re.sub(r"\W+", "", titel.lower())[:60])
+            if schluessel in gesehen:
+                continue
+            gesehen.add(schluessel)
+            ereignisse.append({"d": x["publication_date"], "titel": titel[:220], "typ": TYP_DE.get(x["type"], x["type"]),
+                               "url": x["html_url"], "nr": x["document_number"],
+                               "stelle": ", ".join(a.get("name", "") for a in x.get("agencies", [])[:2])[:120]})
+    ereignisse.sort(key=lambda e: e["d"], reverse=True)
+    if not ereignisse:
+        raise ValueError("Federal Register: keine Treffer fuer Handelspolitik")
+    # Sanktionen (OFAC), die letzten Meldungen
+    sank = []
+    for x in fr_abfrage("conditions[agencies][]=foreign-assets-control-office", 12):
+        sank.append({"d": x["publication_date"], "titel": x["title"].strip()[:200], "typ": TYP_DE.get(x["type"], x["type"]),
+                     "url": x["html_url"], "nr": x["document_number"]})
+    return {"zeitstrahl": ereignisse[:45], "sanktionen": sank, "quelle": "https://www.federalregister.gov"}
+
+
+# ---------------------------------------------------------------- Zolleinnahmen (US-Finanzministerium, Monthly Treasury Statement)
+def lade_zoll():
+    import ssl
+    u = ("https://api.fiscaldata.treasury.gov/services/api/fiscal_service/v1/accounting/mts/mts_table_4?filter="
+         + urllib.parse.quote("classification_desc:eq:Customs Duties") + "&sort=-record_date&page[size]=48")
+    ctx = ssl._create_unverified_context() if os.environ.get("LAENDER_LOKAL_SSL_EGAL") else None
+    req = urllib.request.Request(u, headers={"User-Agent": UA})
+    j = json.loads(urllib.request.urlopen(req, timeout=60, context=ctx).read().decode("utf-8"))
+    zeilen = j.get("data", [])
+    punkte = [[z["record_date"], round(float(z["current_month_gross_rcpt_amt"]) / 1e6, 1)] for z in zeilen
+              if z.get("current_month_gross_rcpt_amt") not in (None, "", "null")]
+    punkte.sort()
+    if len(punkte) < 6:
+        raise ValueError("Zolleinnahmen: zu wenige Monate")
+    fy = [round(float(z["current_fytd_gross_rcpt_amt"]) / 1e6, 1) for z in zeilen[:1]]
+    return {"monate": punkte, "fytd": fy[0] if fy else None, "einheit": "Mio. USD", "quelle": "https://fiscaldata.treasury.gov/datasets/monthly-treasury-statement/"}
+
+
+# ---------------------------------------------------------------- US Census Bureau (Warenhandel nach Land und Produktgruppe)
+CENSUS = "https://api.census.gov/data/timeseries/intltrade/"
+# Produktgruppen der Lieferketten-Karte: Liste aus (Stufe, Zolltarifnummer, Vorzeichen)
+CENSUS_GRUPPEN = {
+    "auto": [("HS2", "87", 1)],
+    "elektronik": [("HS4", c, 1) for c in ("8471", "8473", "8517", "8541", "8542")],
+    "energie": [("HS2", "27", 1)],
+    "pharma": [("HS2", "30", 1)],
+    "agrar": [("HS2", c, 1) for c in ("02", "08", "10", "12")],
+    "rohstoffe": [("HS4", c, 1) for c in ("2805", "2846", "8505", "2611", "2612", "8112")],
+    "maschinen": [("HS2", "84", 1), ("HS4", "8471", -1), ("HS4", "8473", -1)],
+}
+
+
+def census_key():
+    k = os.environ.get("CENSUS_API_KEY")
+    if k and k.strip():
+        m = re.search(r"[0-9a-f]{40}", k.strip().lower())
+        if not m:
+            raise ValueError("CENSUS_API_KEY (Secret) hat kein gueltiges Format (40 Zeichen erwartet)")
+        return m.group(0)
+    try:
+        pfad = os.path.join(HIER, "..", "..", "05_Dashboard", "02_Datenskripte", "zugangsdaten.txt")
+        m = re.search(r"CENSUS_API_KEY=([0-9a-fA-F]{40})", open(pfad, encoding="utf-8").read())
+        if m:
+            return m.group(1).lower()
+    except Exception:  # noqa
+        pass
+    raise ValueError("kein Census-Schluessel hinterlegt (Secret CENSUS_API_KEY fehlt)")
+
+
+def census_abfrage(key, richtung, stufe, code, zeit):
+    if richtung == "imp":
+        felder, kc, wm, wy = "CTY_CODE,CTY_NAME,I_COMMODITY,GEN_VAL_MO,GEN_VAL_YR", "I_COMMODITY", 3, 4
+        pfad = "imports/hs"
+    else:
+        felder, kc, wm, wy = "CTY_CODE,CTY_NAME,E_COMMODITY,ALL_VAL_MO,ALL_VAL_YR", "E_COMMODITY", 3, 4
+        pfad = "exports/hs"
+    u = "%s%s?get=%s&COMM_LVL=%s&%s=%s&time=%s&key=%s" % (CENSUS, pfad, felder, stufe, kc, code, zeit, key)
+    letzter = None
+    for _ in range(3):
+        try:
+            req = urllib.request.Request(u, headers={"User-Agent": UA})
+            roh = urllib.request.urlopen(req, timeout=120).read().decode("utf-8")
+            if not roh.strip():
+                return None
+            zeilen = json.loads(roh)
+            out = {}
+            for z in zeilen[1:]:
+                out[z[0]] = (z[1], float(z[wm] or 0), float(z[wy] or 0))
+            return out
+        except Exception as e:  # noqa
+            letzter = str(e).replace(key, "***")
+    raise ValueError("Census %s %s %s: %s" % (richtung, stufe, code, letzter))
+
+
+def lade_census():
+    key = census_key()
+    heute = datetime.date.today()
+    zeit = None
+    for monate_zurueck in range(1, 6):  # der letzte verfuegbare Monat (Veroeffentlichung etwa 5 Wochen nach Monatsende)
+        m = heute.month - monate_zurueck
+        j = heute.year
+        while m < 1:
+            m += 12
+            j -= 1
+        z = "%d-%02d" % (j, m)
+        if census_abfrage(key, "imp", "HS2", "87", z):
+            zeit = z
+            break
+    if not zeit:
+        raise ValueError("Census: kein verfuegbarer Monat gefunden")
+    cache = {}
+    gruppen = {}
+    for gid, codes in CENSUS_GRUPPEN.items():
+        gruppen[gid] = {}
+        for ri in ("imp", "exp"):
+            summe = {}
+            gesamt = [0.0, 0.0]
+            for stufe, code, vz in codes:
+                k = (ri, stufe, code)
+                if k not in cache:
+                    cache[k] = census_abfrage(key, ri, stufe, code, zeit) or {}
+                for cc, (name, mo, yr) in cache[k].items():
+                    if cc == "-":
+                        gesamt[0] += vz * mo
+                        gesamt[1] += vz * yr
+                    elif cc.isdigit() and int(cc) >= 1000:
+                        s = summe.setdefault(cc, [name, 0.0, 0.0])
+                        s[1] += vz * mo
+                        s[2] += vz * yr
+            top = sorted(summe.values(), key=lambda s: s[2], reverse=True)[:12]
+            gruppen[gid][ri] = {"gesamt": {"mo": round(gesamt[0] / 1e6, 1), "ytd": round(gesamt[1] / 1e6, 1)},
+                                "laender": [{"n": s[0], "mo": round(s[1] / 1e6, 1), "ytd": round(s[2] / 1e6, 1)} for s in top if s[2] > 0]}
+    if not gruppen["auto"]["imp"]["laender"] or gruppen["auto"]["imp"]["gesamt"]["ytd"] <= 0:
+        raise ValueError("Census-Werte unplausibel")
+    return {"zeit": zeit, "einheit": "Mio. USD", "gruppen": gruppen, "quelle": "https://www.census.gov/foreign-trade/index.html"}
+
+
 def lade_alt():
     try:
         t = open(DATEI, encoding="utf-8").read()
@@ -186,7 +507,7 @@ def main():
     neu = {"meta": {"erstellt": datetime.datetime.now(datetime.timezone.utc).strftime("%Y-%m-%d %H:%M UTC"),
                     "fehler": {}, "stand": dict(alt.get("meta", {}).get("stand", {}))}}
     heute = datetime.date.today().isoformat()
-    for name, fkt in (("fred", lade_fred), ("wikipedia", lade_wikipedia)):
+    for name, fkt in (("fred", lade_fred), ("wikipedia", lade_wikipedia), ("fed", lade_fed), ("eia", lade_eia), ("handel", lade_handel), ("zoll", lade_zoll), ("census", lade_census)):
         try:
             neu[name] = fkt()
             neu["meta"]["stand"][name] = heute
