@@ -1,0 +1,387 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>JPM Prozess · Länderanalyse USA · Finanzsystem</title>
+<style>
+:root{
+  --flaeche:#fcfcfb; --ebene:#f9f9f7; --text:#0b0b0b; --text2:#52514e; --stumm:#898781;
+  --raster:#e1e0d9; --achse:#c3c2b7; --rand:rgba(11,11,11,.10);
+  --c1:#2f6f9f; --c2:#6b4f8a; --c3:#3d7a56; --c4:#8a5a2b; --cb:#52514e;
+  --h1:#e6f0f7; --h2:#eee9f4; --h3:#e5f2ea; --h4:#f4ebe1; --hb:#efeee9;
+  --gut:#006300; --warn:#b97a00; --schatten:0 1px 2px rgba(11,11,11,.04),0 4px 16px rgba(11,11,11,.06);
+  color-scheme:light;
+}
+:root[data-theme="dark"]{
+  --flaeche:#1a1a19; --ebene:#0d0d0d; --text:#fff; --text2:#c3c2b7; --stumm:#898781;
+  --raster:#2c2c2a; --achse:#383835; --rand:rgba(255,255,255,.12);
+  --c1:#5fa0d3; --c2:#ab8fd0; --c3:#56b27d; --c4:#d39a5a; --cb:#c3c2b7;
+  --h1:#16222c; --h2:#221b2c; --h3:#16261d; --h4:#2a2016; --hb:#232321;
+  --gut:#0ca30c; --warn:#fab219; --schatten:none; color-scheme:dark;
+}
+*{box-sizing:border-box}
+body{margin:0;padding:0 20px 56px;background:var(--ebene);color:var(--text);font-family:system-ui,-apple-system,"Segoe UI",sans-serif;font-size:15px;line-height:1.5}
+.wrap{max-width:1280px;margin:0 auto}
+header{padding:20px 0 6px;display:flex;gap:16px;justify-content:space-between;align-items:flex-start;flex-wrap:wrap}
+h1{margin:0;font-size:21px;font-weight:650}
+.unter{color:var(--text2);font-size:13px}
+.entwurf{display:inline-block;margin-left:8px;padding:1px 8px;border-radius:99px;border:1px solid var(--warn);color:var(--warn);font-size:12px;font-weight:600;vertical-align:middle}
+.tool{font:inherit;font-size:13px;background:var(--flaeche);color:var(--text);border:1px solid var(--rand);border-radius:8px;padding:6px 12px;cursor:pointer}
+.legende{display:flex;gap:16px;flex-wrap:wrap;font-size:12px;color:var(--text2);margin:6px 0 12px}
+.pkt{width:8px;height:8px;border-radius:50%;display:inline-block;margin-right:5px}.pkt.auto{background:var(--gut)}.pkt.man{background:var(--stumm)}
+/* Kachel */
+.k{all:unset;box-sizing:border-box;display:block;width:100%;cursor:pointer;background:var(--flaeche);border:1px solid var(--rand);border-radius:9px;padding:9px 11px 8px;box-shadow:var(--schatten);transition:transform .15s,border-color .15s}
+.k:hover{transform:translateY(-1px);border-color:var(--c)}.k:focus-visible{outline:2px solid var(--c);outline-offset:2px}
+.k.aktiv{border-color:var(--c);box-shadow:0 0 0 2px var(--c)}
+.kt{display:flex;justify-content:space-between;align-items:baseline;gap:6px}
+.kn{font-size:12.5px;color:var(--text2);font-weight:600}
+.kd{font-size:11px;color:var(--stumm);white-space:nowrap}
+.kw{font-size:23px;font-weight:700;line-height:1.15;font-variant-numeric:tabular-nums;margin-top:1px}
+.ks{font-size:11.8px;color:var(--text2);display:flex;justify-content:space-between;gap:6px;align-items:center;margin-top:1px}
+.dl{white-space:nowrap}
+.spark{display:block;width:100%;height:30px;margin-top:3px}
+.c1{--c:var(--c1)}.c2{--c:var(--c2)}.c3{--c:var(--c3)}.c4{--c:var(--c4)}.cb{--c:var(--cb)}
+/* Layout */
+.band{background:var(--hb);border:1px solid var(--rand);border-radius:12px;padding:8px 10px 10px;margin-bottom:14px}
+.bandkopf{font-size:12px;font-weight:700;color:var(--text2);text-transform:uppercase;letter-spacing:.05em;margin:2px 2px 6px}
+.bandinhalt{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}
+.raster{display:grid;grid-template-columns:1fr 54px 1fr 54px 1fr 54px 1fr;align-items:stretch}
+.sp{padding:8px;border-radius:12px;display:flex;flex-direction:column;gap:9px}
+.sp.s1{background:var(--h1)}.sp.s2{background:var(--h2)}.sp.s3{background:var(--h3)}.sp.s4{background:var(--h4)}
+.spkopf{color:#fff;font-weight:700;text-align:center;padding:9px 6px;border-radius:9px;font-size:13px;background:var(--c)}
+.pill{all:unset;cursor:pointer;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;font-size:10.5px;text-align:center;color:var(--text2);padding:4px 2px}
+.pill .pf{font-size:20px;color:var(--text);line-height:1}.pill:hover,.pill.aktiv{color:var(--text)}.pill:focus-visible{outline:2px solid var(--text);border-radius:6px}
+.termine{margin-top:16px;background:var(--flaeche);border:1px solid var(--rand);border-radius:10px;padding:10px 14px;box-shadow:var(--schatten)}
+.termine h2{margin:0 0 4px;font-size:13px;color:var(--text2);text-transform:uppercase;letter-spacing:.05em}
+.termin{display:flex;gap:10px;align-items:baseline;padding:5px 0;border-top:1px solid var(--raster);font-size:13px}
+.termin:first-of-type{border-top:0}.termin .d{width:96px;font-weight:600}.termin .t{flex:1}.termin .r{color:var(--text2);white-space:nowrap}.termin.n .r{color:var(--warn);font-weight:700}
+.fuss{margin-top:6px;font-size:11.5px;color:var(--stumm)}
+/* Drawer */
+#schatten{position:fixed;inset:0;background:rgba(0,0,0,.28);opacity:0;pointer-events:none;transition:opacity .2s;z-index:20}
+#schatten.offen{opacity:1;pointer-events:auto}
+#drawer{position:fixed;top:0;right:0;height:100%;width:min(560px,100%);background:var(--flaeche);border-left:1px solid var(--rand);box-shadow:-8px 0 30px rgba(0,0,0,.18);transform:translateX(100%);transition:transform .22s ease;z-index:21;overflow-y:auto;padding:0}
+#drawer.offen{transform:none}
+.dk{position:sticky;top:0;background:var(--flaeche);border-bottom:1px solid var(--rand);border-top:4px solid var(--c);padding:14px 18px 10px;display:flex;justify-content:space-between;gap:10px;align-items:flex-start;z-index:2}
+.dk h2{margin:0;font-size:18px}.dk .gr{font-size:12px;color:var(--c);text-transform:uppercase;letter-spacing:.05em;font-weight:700}
+.zu{all:unset;cursor:pointer;font-size:22px;line-height:1;padding:2px 8px;border-radius:6px;color:var(--text2)}.zu:hover{background:var(--raster)}.zu:focus-visible{outline:2px solid var(--text)}
+.db{padding:14px 18px 40px}
+.gross{font-size:34px;font-weight:700;font-variant-numeric:tabular-nums;line-height:1.1}
+.gsub{font-size:13px;color:var(--text2);margin-bottom:8px}
+.btns{display:flex;gap:6px;margin:6px 0 4px}
+.btn{font:inherit;font-size:12px;background:var(--ebene);color:var(--text);border:1px solid var(--rand);border-radius:7px;padding:3px 10px;cursor:pointer}
+.btn[aria-pressed="true"]{background:var(--text);color:var(--flaeche);border-color:var(--text)}
+svg.chart{width:100%;height:auto;display:block;touch-action:none}
+.tip{font-size:12.5px;color:var(--text2);min-height:18px;margin-bottom:4px;font-variant-numeric:tabular-nums}
+.db h3{font-size:12px;text-transform:uppercase;letter-spacing:.05em;color:var(--text2);margin:18px 0 4px}
+.db p{margin:0 0 8px;font-size:14px}
+.db table{width:100%;border-collapse:collapse;font-size:13px}
+.db th{font-weight:600;text-align:left;color:var(--text2);font-size:11.5px;border-bottom:1px solid var(--rand);padding:3px 8px 3px 0}
+.db td{padding:5px 8px 5px 0;border-bottom:1px solid var(--raster);vertical-align:top}
+.db .hin{background:var(--ebene);border-left:3px solid var(--warn);border-radius:4px;padding:6px 10px;font-size:13px;color:var(--text2)}
+.db ul{margin:4px 0 0;padding-left:18px;font-size:13.5px}
+.db a{color:inherit}
+@media (max-width:980px){
+  .raster{grid-template-columns:1fr}.pill{display:none}.sp{margin-bottom:12px}.bandinhalt{grid-template-columns:1fr}
+}
+@media (prefers-reduced-motion:reduce){#drawer,#schatten,.k{transition:none}}
+/* Verständnis-Block */
+.versteh{background:var(--flaeche);border:1px solid var(--rand);border-radius:12px;padding:6px 18px 14px;box-shadow:var(--schatten);margin-bottom:14px}
+.versteh>h2{margin:12px 0 2px;font-size:17px}
+.versteh .lead{margin:0 0 8px;color:var(--text2);font-size:13.5px}
+.versteh details{border-top:1px solid var(--raster);padding:6px 0}
+.versteh details:first-of-type{border-top:0}
+.versteh summary{cursor:pointer;font-weight:650;font-size:14.5px;padding:4px 0;list-style:none}
+.versteh summary::-webkit-details-marker{display:none}
+.versteh summary:before{content:"▸";display:inline-block;width:18px;color:var(--text2);transition:transform .15s}
+.versteh details[open]>summary:before{transform:rotate(90deg)}
+.versteh summary:focus-visible{outline:2px solid var(--text);outline-offset:2px;border-radius:4px}
+.versteh .inh{padding:2px 0 6px 18px;font-size:14px}
+.versteh ol.kern{margin:4px 0 4px;padding-left:20px}.versteh ol.kern li{margin:3px 0}
+.fluss{display:grid;grid-template-columns:1fr 78px 1fr 78px 1fr;grid-template-rows:auto 56px auto 56px auto;align-items:center;gap:0;margin:8px 0 4px}
+.nk{all:unset;box-sizing:border-box;display:block;width:100%;cursor:pointer;background:var(--ebene);border:1px solid var(--rand);border-top:3px solid var(--c);border-radius:9px;padding:8px 10px;text-align:center;transition:transform .15s,border-color .15s}
+.nk:hover{transform:translateY(-1px);border-color:var(--c)}.nk:focus-visible{outline:2px solid var(--c);outline-offset:2px}
+.nk b{display:block;font-size:13.5px}.nk span{display:block;font-size:11.5px;color:var(--text2);margin-top:1px}
+.pf2{font-size:11px;color:var(--text2);text-align:center;line-height:1.25;padding:0 3px}
+.pf2 i{display:block;font-style:normal;font-size:18px;color:var(--text);line-height:1}
+.nk.n1{--c:var(--c1)}.nk.n2{--c:var(--c3)}.nk.n3{--c:var(--c4)}.nk.n4{--c:var(--c2)}.nk.n5{--c:var(--c2)}.nk.n6{--c:var(--c1)}.nk.n7{--c:var(--cb)}
+.bed{display:grid;grid-template-columns:repeat(2,1fr);gap:10px;margin-top:4px}
+.bed div{background:var(--ebene);border:1px solid var(--rand);border-radius:9px;padding:8px 11px;font-size:13.5px}
+.bed b{display:block;font-size:13px;margin-bottom:2px}
+.chip{display:inline-block;font-size:11.5px;border:1px solid var(--rand);border-radius:99px;padding:0 9px;margin:2px 3px 0 0;background:var(--ebene);cursor:pointer;color:var(--text)}
+.chip:hover{border-color:var(--text)}
+@media (max-width:980px){.fluss{grid-template-columns:1fr;grid-template-rows:none;gap:8px}.pf2{display:none}.bed{grid-template-columns:1fr}}
+</style>
+</head>
+<body>
+<div class="wrap">
+<header>
+  <div>
+    <a href="index.html" style="font-size:13px;color:var(--text2)">← Länderanalyse</a>
+    <h1>USA – Finanz- und Kreditsystem </h1>
+    <div class="unter">Länderanalyse, Oberthema 2 · Daten und Fakten, keine Bewertung · Struktur geprüft 2026-10-18 (nächster Review: April 2027) · Kennzahlen aktualisieren sich automatisch, das Datum steht in jeder Kachel</div>
+  </div>
+  <button class="tool" id="theme" type="button">Dunkel / Hell</button>
+</header>
+<div class="legende">
+  <span><i class="pkt auto"></i>automatisch (täglicher FRED-Abruf)</span>
+  <span><i class="pkt man"></i>manuell gepflegt (Text-Quellen)</span>
+  <span>Kästen im Kreislauf und Kacheln anklicken: Erklärung, Chart mit Historie, Quellen</span>
+</div>
+<section class="versteh" aria-labelledby="vt">
+  <h2 id="vt">Zuerst verstehen: Wie das Finanz- und Kreditsystem der USA aufgebaut ist</h2>
+  <p class="lead">Die Daten darunter sind Belege für diesen Aufbau. Wichtiger als jede einzelne Zahl ist, wie die Teile zusammenhängen. Die Kästen im Kreislauf sind anklickbar.</p>
+
+  <details open>
+    <summary>Die Grundidee in sechs Punkten</summary>
+    <div class="inh"><ol class="kern">
+      <li><b>Geld entsteht durch Kredit.</b> Vergibt eine Bank einen Kredit, schreibt sie dem Kunden ein Guthaben gut, das vorher nicht existierte. Die Kreditvergabe der Geschäftsbanken versorgt die Wirtschaft mit Geld (Kredit-Notiz aus deinem Material).</li>
+      <li><b>Die Fed steuert Kosten und Menge der Liquidität.</b> Über den Leitzins, die Reserven der Banken und ihre Bilanz bestimmt sie, wie teuer und wie reichlich kurzfristiges Geld im System ist.</li>
+      <li><b>Der Staat finanziert sich über Anleihen.</b> Staatsanleihen (Treasuries) sind zugleich das wichtigste sichere Anlageobjekt der Welt und die Hauptsicherheit im Geldmarkt. Dadurch hängen Staatsfinanzen, Banken und Geldmarkt eng zusammen.</li>
+      <li><b>Viel läuft über Märkte, nicht über Banken.</b> Anders als in vielen Ländern finanzieren sich US-Unternehmen und Haushalte stark über Anleihen, Verbriefungen und Fonds (Geldmarktfonds, Private Credit).</li>
+      <li><b>Der Dollar macht das System global.</b> Weltweit werden Geschäfte und Schulden in Dollar abgewickelt. Spannungen bei der Dollar-Finanzierung wirken deshalb weit über die USA hinaus.</li>
+      <li><b>Kredit schwingt in Zyklen und läuft der Wirtschaft voraus.</b> In guten Zeiten lockern Banken ihre Bedingungen (Gier-Phase), nach Stress ziehen sie Kredite zurück (Angst-Phase). Laut deinem Material zeigt sich der Kredit-Impuls etwa 9 bis 12 Monate später im BIP.</li>
+    </ol></div>
+  </details>
+
+  <details open>
+    <summary>Der Kreislauf (Kästen anklicken)</summary>
+    <div class="inh">
+      <div class="fluss" id="fluss"></div>
+      <p style="font-size:12.5px;color:var(--text2);margin:6px 0 0">Lesart: Links oben beginnt die Steuerung (Fed), rechts oben kommt das Geld in der Wirtschaft an. Unten läuft der Staat über den Anleihemarkt zurück in den Geldmarkt, wo Staatsanleihen als Sicherheit gebraucht werden. Nichtbanken und Ausland hängen an mehreren Stellen mit dran.</p>
+    </div>
+  </details>
+
+  <details>
+    <summary>Was das bedeutet</summary>
+    <div class="inh"><div class="bed">
+      <div><b>Zinsen wirken über Kredit auf die Wirtschaft</b>Höhere Zinsen verteuern Kredite, Kreditnehmer und Banken werden vorsichtiger, Nachfrage und Investitionen verlangsamen sich, mit Verzögerung (laut deinem Material etwa 9 bis 12 Monate zwischen Kredit und BIP).</div>
+      <div><b>Der Zyklus verstärkt sich selbst</b>Steigende Vermögenspreise (Immobilien, Aktien) erhöhen die Kreditvergabe, sinkende bremsen sie. Das Kreditsystem kann Auf- und Abschwünge verstärken.</div>
+      <div><b>Stress zeigt sich an bestimmten Stellen zuerst</b>Beim Geldmarkt (SOFR, Reserven, ON RRP), bei den Kreditaufschlägen, bei Zahlungsausfällen und bei den Kreditstandards der Banken (SLOOS). Diese Kacheln stehen deshalb im Band oben und in den Spalten.</div>
+      <div><b>Staatsrenditen sind die Preisbasis für alles</b>Die 10-jährige Rendite ist Referenz für Hypotheken, Unternehmenskredite und Bewertungen. Steigt sie, verteuert sich Finanzierung im ganzen System. Der Staat braucht zugleich laufend Käufer für neue Anleihen.</div>
+      <div><b>Verflechtung kann Stress weitertragen</b>Banken, Geldmarktfonds, Private Credit und ausländische Käufer sind über Kreditlinien, Sicherheiten und Anleihebestände verbunden (z. B. rund 220 Mrd. USD Bankkreditlinien an Private Credit laut FSB-Angabe).</div>
+      <div><b>Regeln bestimmen den Spielraum</b>Kapitalregeln (Basel III, eSLR) bestimmen, wie viel Bilanz Banken für Kredite und Staatsanleihen haben. Änderungen wirken deshalb auf Kredit und Anleihemarkt zugleich.</div>
+    </div>
+    <p style="font-size:12.5px;color:var(--text2);margin:8px 0 0">Die Wirkung auf Märkte und Währungen wird hier bewusst nicht beschrieben. Sie folgt später in der Ableitung.</p></div>
+  </details>
+</section>
+<h2 style="font-size:15px;margin:18px 0 6px">Die Daten dazu</h2>
+<div class="band"><div class="bandkopf">Finanzielle Bedingungen insgesamt</div><div class="bandinhalt" id="band"></div></div>
+<div class="raster" id="raster"></div>
+<div class="termine"><h2>Termine und Fristen</h2><div id="termine"></div><div class="fuss">Weitere Termine stehen in Oberthema 1 und im Makro-Dashboard.</div></div>
+</div>
+<div id="schatten"></div>
+<aside id="drawer" role="dialog" aria-modal="true" aria-labelledby="dt" tabindex="-1"></aside>
+
+<script src="daten/usa.js?v=1"></script>
+<script>
+try{const g=localStorage.getItem("dashboard-thema");document.documentElement.dataset.theme=g||"dark"}catch(e){document.documentElement.dataset.theme="dark"}
+const DATA=(window.USA_DATEN&&window.USA_DATEN.fred)||{};
+/* ================== INHALTE ================== */
+const SP=[
+ {id:1,titel:"ZENTRALBANK"},
+ {id:2,titel:"STAAT & ANLEIHEMARKT"},
+ {id:3,titel:"BANKEN"},
+ {id:4,titel:"HAUSHALTE & UNTERNEHMEN"}
+];
+const F={
+ bio:(d)=>({div:d,dec:2,suf:" Bio. USD"}),
+};
+const K=[
+ {id:"nfci",sp:0,titel:"Finanzielle Bedingungen (NFCI)",s:"NFCI",f:{div:1,dec:2,suf:""},rhythm:"w",
+  was:"Der Chicago-Fed-Index fasst über 100 Kennzahlen aus Geld-, Anleihe- und Aktienmärkten sowie dem Bankensystem zusammen. 0 entspricht dem Durchschnitt, negative Werte bedeuten lockerere, positive straffere Bedingungen als im Durchschnitt.",
+  lage:"Der Wert liegt bei -0,50 (Woche zum 09.10.2026), die Bedingungen sind laut Index also lockerer als im Durchschnitt.",
+  rows:[],hin:"",q:"FRED NFCI (Chicago Fed)"},
+ {id:"walcl",sp:1,titel:"Fed-Bilanz",s:"WALCL",f:{div:1e6,dec:2,suf:" Bio. USD"},rhythm:"w",
+  was:"Summe aller Vermögenswerte der Federal Reserve (vor allem Staatsanleihen und hypothekenbesicherte Wertpapiere). Sie zeigt, wie viel Liquidität die Fed über Käufe in das System gebracht hat.",
+  lage:"Die Bilanz liegt bei 6,76 Bio. USD (14.10.2026). Der Bilanzabbau (QT) endete am 01.12.2025. Seit Januar 2026 kauft die Fed wieder kurzlaufende Staatsanleihen (Reserve Management Purchases), um die Reserven ausreichend zu halten.",
+  rows:[],hin:"",q:"FRED WALCL; Fed Monetary Policy Report 07/2026"},
+ {id:"dgs10",sp:2,titel:"Rendite 10-jährige Staatsanleihe",s:"DGS10",f:{div:1,dec:2,suf:" %"},rhythm:"d",
+  was:"Der Zins, den der Staat für zehnjährige Kredite zahlt. Er ist die wichtigste Referenz für Kreditzinsen, Hypotheken und Bewertungen im ganzen Finanzsystem.",
+  lage:"Aktuell 5,10 % (15.10.2026), im Zeitraum seit Oktober 2024 lag das Maximum bei 5,31 %. Die Rendite stieg von etwa 4,55 % Mitte Juli auf etwa 5,00 % Mitte September.",
+  rows:[{l:"Rendite 2 Jahre",w:"4,77 %",q:"FRED DGS2",m:"auto",s:"2026-10-15"},{l:"Rendite 30 Jahre",w:"5,43 %",q:"FRED DGS30",m:"auto",s:"2026-10-15"},{l:"10J minus 2J",w:"+0,35 Prozentpunkte",q:"FRED T10Y2Y",m:"auto",s:"2026-10-16"}],
+  hin:"",q:"FRED DGS10 (Federal Reserve H.15)"},
+ {id:"t10y2y",sp:2,titel:"Zinsstruktur 10J minus 2J",s:"T10Y2Y",f:{div:1,dec:2,suf:" Prozentpunkte"},rhythm:"d",
+  was:"Der Renditeabstand zwischen zehn- und zweijährigen Staatsanleihen. Positiv heißt: Langfristzinsen liegen über den Kurzfristzinsen (normale Struktur), negativ heißt invers.",
+  lage:"Aktuell +0,35 Prozentpunkte (16.10.2026).",rows:[],hin:"",q:"FRED T10Y2Y"},
+ {id:"schuld",sp:2,titel:"Bundesschulden",s:"GFDEBTN",f:{div:1e6,dec:2,suf:" Bio. USD"},rhythm:"q",
+  was:"Gesamte ausstehende Schulden des Bundes (Public Debt). Hoher Schuldenstand bedeutet viel Anleiheangebot, das der Markt aufnehmen muss.",
+  lage:"39,46 Bio. USD im 2. Quartal 2026. Das entspricht 122,6 % des BIP (1. Quartal 2026, FRED GFDEGDQ188S).",
+  rows:[{l:"Schulden in % des BIP",w:"122,6 %",q:"FRED GFDEGDQ188S",m:"auto",s:"2026-Q1"},{l:"Defizit 2026 (CBO)",w:"ca. 1,9 Bio. USD",q:"CBO / American Action Forum",m:"man",s:"2026"},{l:"OBBBA bis 2035 (CBO)",w:"+4,7 Bio. USD",q:"CBO / American Action Forum",m:"man",s:"2026"}],
+  hin:"",q:"FRED GFDEBTN (Treasury)"},
+ {id:"standards",sp:3,titel:"Kreditstandards Unternehmenskredite",s:"DRTSCILM",f:{div:1,dec:1,suf:" % netto"},rhythm:"q",
+  was:"Quartalsumfrage der Fed unter Banken (SLOOS). Der Wert ist der Netto-Anteil der Banken, die ihre Standards für Kredite an große und mittlere Unternehmen verschärfen. Positiv = mehr Banken verschärfen, negativ = mehr lockern.",
+  lage:"0,0 % im Juli 2026 (April: 8,1 %). Bei Kreditkarten verschärften netto 6,7 % der Banken (April: 2,0 %).",
+  rows:[{l:"Kreditkarten (netto verschärfend)",w:"6,7 %",q:"FRED DRTSCLCC",m:"auto",s:"2026-07"}],hin:"",q:"FRED DRTSCILM (Fed SLOOS)"},
+ {id:"hh",sp:4,titel:"Haushaltsschulden",kpi:["4,73 %","Schulden überfällig, Q2 2026 (NY Fed)"],
+  was:"Der Bericht der New Yorker Fed zeigt Schulden aller privaten Haushalte (Hypotheken, Kreditkarten, Auto-, Studienkredite) und ihre Zahlungsstörungen.",
+  lage:"18,77 Bio. USD im 2. Quartal 2026 (-13 Mrd. USD zum Vorquartal, +383 Mrd. zum Vorjahr). Der Rückgang geht auf Hypotheken zurück und wird teils einer Meldelücke bei Servicer-Wechseln zugeschrieben. 4,73 % der Schulden sind überfällig (Vorquartal 4,76 %). Der Anteil stark notleidender Schulden stieg von 1,8 % auf 2,0 %, den höchsten Wert seit Q3 2020.",
+  rows:[{l:"Kreditkartenschulden",w:"1,263 Bio. USD (+21 Mrd.)",q:"NY Fed",m:"man",s:"2026-Q2"},{l:"Neue ernsthafte Rückstände Kreditkarten",w:"6,97 %",q:"NY Fed",m:"man",s:"2026-Q2"},{l:"Autokredite",w:"3,00 %",q:"NY Fed",m:"man",s:"2026-Q2"},{l:"Hypotheken",w:"1,52 % (Vorjahr 1,29 %)",q:"NY Fed",m:"man",s:"2026-Q2"},{l:"Studienkredite",w:"7,83 % (Vorjahr 12,88 %)",q:"NY Fed",m:"man",s:"2026-Q2"}],
+  hin:"Hypothekenwert durch Meldelücke verzerrt.",q:"https://www.newyorkfed.org/newsevents/news/research/2026/20260811"},
+ {id:"hy",sp:4,titel:"Kreditaufschlag High Yield",s:"BAMLH0A0HYM2",f:{div:1,dec:2,suf:" %"},rhythm:"d",
+  was:"Aufschlag auf die Rendite von Staatsanleihen, den Unternehmen mit schlechterer Bonität zahlen (ICE BofA Option-Adjusted Spread). Er steigt, wenn der Markt höhere Ausfallrisiken einpreist.",
+  lage:"3,23 % (15.10.2026). Im Zeitraum seit Oktober 2024 lag der Höchstwert bei 4,61 %.",
+  rows:[{l:"Investment Grade",w:"0,84 %",q:"FRED BAMLC0A0CM",m:"auto",s:"2026-10-15"}],hin:"",q:"FRED BAMLH0A0HYM2 (ICE BofA)"}
+];
+const PILLEN=[
+ {t:"Reserven, T-Bills",x:"Die Fed kauft kurzlaufende Staatsanleihen und steuert so die Reserven. Staatsanleihen sind zugleich die wichtigste Sicherheit am Geldmarkt (Repo), deshalb hängen Fed-Bilanz, Geldmarkt und Anleihemarkt zusammen. Die Geldmarkt-Details (SOFR, Reserven, ON RRP) liegen im Makro-Dashboard.",von:1,nach:2},
+ {t:"Bilanzraum der Banken",x:"Banken halten Staatsanleihen als Liquiditätsreserve. Kapitalregeln (z. B. Basel III) bestimmen, wie viel Bilanzraum sie dafür haben. Steigende Renditen verändern außerdem den Wert gehaltener Anleihen.",von:2,nach:3},
+ {t:"Kredit",x:"Banken vergeben Kredite an Haushalte und Unternehmen und finanzieren über Kreditlinien auch Nichtbanken wie Private-Credit-Fonds.",von:3,nach:4}
+];
+const TERMINE=[
+ {d:"2026-12-11",t:"Ende der Übergangsfinanzierung des Bundeshaushalts (Shutdown-Risiko)"}
+];
+/* ================== LOGIK ================== */
+const $=s=>document.querySelector(s), heute=new Date(); heute.setHours(0,0,0,0);
+const esc=s=>String(s).replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+const nf=(v,d)=>new Intl.NumberFormat("de-DE",{minimumFractionDigits:d,maximumFractionDigits:d}).format(v);
+const dts=d=>{const[y,m,t]=d.split("-");return t+"."+m+"."+y};
+const tageBis=d=>Math.round((new Date(d+"T00:00:00")-heute)/86400000);
+const farbe=sp=>sp===0?"cb":"c"+sp;
+const byId={};K.forEach(k=>byId[k.id]=k);
+function fmtv(k,v){const f=k.f;return nf(v/f.div,f.dec)+f.suf}
+function letzte(k){const p=DATA[k.s];return p[p.length-1]}
+function veraenderung(k){const p=DATA[k.s];const l=p[p.length-1];
+  let ref;
+  if(k.rhythm==="q"){ref=p[p.length-2]}
+  else{const lim=new Date(l[0]);lim.setDate(lim.getDate()-30);ref=[...p].reverse().find(x=>new Date(x[0])<=lim)}
+  if(!ref)return null;const dv=l[1]-ref[1];const txt=(dv>0?"▲ ":dv<0?"▼ ":"= ")+nf(Math.abs(dv)/k.f.div,k.f.dec)+(k.f.suf.includes("%")?" Pkt":k.f.suf);
+  return {txt,ref:ref[0],q:k.rhythm==="q"}}
+function spark(p,col){const n=p.slice(-Math.min(p.length,k_n(p)));const w=200,h=30;const xs=n.map(x=>x[1]);const mn=Math.min(...xs),mx=Math.max(...xs),sp=(mx-mn)||1;
+  const pts=n.map((x,i)=>(i/(n.length-1)*w).toFixed(1)+","+(h-2-(x[1]-mn)/sp*(h-4)).toFixed(1)).join(" ");
+  return '<svg class="spark" viewBox="0 0 '+w+' '+h+'" preserveAspectRatio="none" aria-hidden="true"><polyline fill="none" stroke="'+col+'" stroke-width="1.6" vector-effect="non-scaling-stroke" points="'+pts+'"/></svg>'}
+function k_n(p){return p.length>300?130:p.length>100?100:p.length>40?24:p.length}
+let tiles={}, aktiv=null, letzterFokus=null;
+function kachel(k){
+  const b=document.createElement("button");b.type="button";b.className="k "+farbe(k.sp);b.dataset.id=k.id;
+  let h='<div class="kt"><span class="kn">'+esc(k.titel)+'</span>';
+  if(k.s){const l=letzte(k);h+='<span class="kd">'+dts(l[0])+'</span></div><div class="kw">'+esc(fmtv(k,l[1]))+'</div>';
+    const v=veraenderung(k);h+='<div class="ks"><span>'+(v?esc(v.txt)+" ("+(v.q?"Vorquartal":"30 Tage")+")":"")+'</span><span><i class="pkt auto"></i>auto</span></div>'+spark(DATA[k.s],"var(--c)")}
+  else{h+='<span class="kd"></span></div><div class="kw" style="font-size:20px">'+esc(k.kpi[0])+'</div><div class="ks"><span>'+esc(k.kpi[1])+'</span><span><i class="pkt man"></i>manuell</span></div>'}
+  b.innerHTML=h;b.addEventListener("click",()=>oeffnen(k.id));tiles[k.id]=b;return b}
+function bauen(){
+  K.filter(k=>k.sp===0).forEach(k=>$("#band").appendChild(kachel(k)));
+  const r=$("#raster");
+  SP.forEach((s,i)=>{
+    const col=document.createElement("div");col.className="sp s"+s.id+" c"+s.id;
+    const hd=document.createElement("div");hd.className="spkopf";hd.textContent=s.titel;col.appendChild(hd);
+    K.filter(k=>k.sp===s.id).forEach(k=>col.appendChild(kachel(k)));r.appendChild(col);
+    if(i<3){const p=PILLEN[i];const b=document.createElement("button");b.type="button";b.className="pill";b.innerHTML='<span>'+esc(p.t)+'</span><span class="pf">⇄</span>';b.addEventListener("click",()=>pille(i));b.dataset.i=i;r.appendChild(b)}
+  });
+  const nx=TERMINE.filter(t=>!t.o).find(t=>tageBis(t.d)>=0);
+  $("#termine").innerHTML=TERMINE.map(t=>{const n=tageBis(t.d);const rest=t.o?"Datum offen":(n<0?"vorbei":n===0?"heute":"in "+n+" Tagen");return '<div class="termin'+(t===nx?" n":"")+'"><span class="d">'+(t.lab||dts(t.d))+'</span><span class="t">'+esc(t.t)+'</span><span class="r">'+rest+'</span></div>'}).join("");
+}
+/* ----- Drawer ----- */
+const dr=$("#drawer"), sh=$("#schatten");
+function oeffnen(id){const k=byId[id];aktiv=id;letzterFokus=document.activeElement;
+  Object.values(tiles).forEach(t=>t.classList.toggle("aktiv",t.dataset.id===id));
+  dr.style.setProperty("--c","var(--"+farbe(k.sp).replace("cb","cb")+")");
+  const gr=k.sp===0?"Finanzielle Bedingungen":SP.find(s=>s.id===k.sp).titel;
+  let h='<div class="dk"><div><div class="gr">'+esc(gr)+'</div><h2 id="dt">'+esc(k.titel)+'</h2></div><button class="zu" type="button" aria-label="Schließen">×</button></div><div class="db">';
+  if(k.s){const l=letzte(k);h+='<div class="gross">'+esc(fmtv(k,l[1]))+'</div><div class="gsub">Stand '+dts(l[0])+' · <i class="pkt auto"></i>automatisch (FRED)</div>';
+    h+='<div class="btns" role="group" aria-label="Zeitraum"></div><div class="tip" id="tip"> </div><svg class="chart" id="chart" viewBox="0 0 560 230" role="img" aria-label="Verlauf '+esc(k.titel)+'"></svg>'}
+  else{h+='<div class="gross" style="font-size:28px">'+esc(k.kpi[0])+'</div><div class="gsub">'+esc(k.kpi[1])+' · <i class="pkt man"></i>manuell gepflegt</div>'}
+  h+='<h3>Was ist das?</h3><p>'+esc(k.was)+'</p><h3>Aktuelle Lage</h3><p>'+esc(k.lage)+'</p>';
+  if(k.rows&&k.rows.length)h+='<h3>Weitere Datenpunkte</h3><table><tr><th>Datenpunkt</th><th>Wert</th><th>Quelle</th><th>Stand</th></tr>'+k.rows.map(r=>'<tr><td>'+esc(r.l)+'</td><td><b>'+esc(r.w)+'</b></td><td>'+esc(r.q)+'</td><td>'+esc(r.s)+' <i class="pkt '+(r.m==="auto"?"auto":"man")+'" title="'+(r.m==="auto"?"automatisch":"manuell")+'"></i></td></tr>').join("")+'</table>';
+  if(k.hin)h+='<h3>Hinweis</h3><div class="hin">'+esc(k.hin)+'</div>';
+  const verb=PILLEN.map((p,i)=>({p,i})).filter(({p})=>k.sp===p.von||k.sp===p.nach);
+  if(verb.length)h+='<h3>Verbindungen</h3><ul>'+verb.map(({p})=>'<li><b>'+esc(p.t)+':</b> '+esc(p.x)+'</li>').join("")+'</ul>';
+  h+='<h3>Quelle</h3><p style="font-size:13px;color:var(--text2)">'+esc(k.q)+'</p></div>';
+  dr.innerHTML=h;dr.classList.add("offen");sh.classList.add("offen");
+  dr.querySelector(".zu").addEventListener("click",schliessen);dr.focus();
+  if(k.s)chartInit(k);
+}
+function pille(i){const p=PILLEN[i];aktiv=null;letzterFokus=document.activeElement;dr.style.setProperty("--c","var(--cb)");
+  dr.innerHTML='<div class="dk"><div><div class="gr">Verbindung</div><h2 id="dt">'+esc(p.t)+'</h2></div><button class="zu" type="button" aria-label="Schließen">×</button></div><div class="db"><p>'+esc(p.x)+'</p></div>';
+  dr.classList.add("offen");sh.classList.add("offen");dr.querySelector(".zu").addEventListener("click",schliessen);dr.focus()}
+function schliessen(){dr.classList.remove("offen");sh.classList.remove("offen");Object.values(tiles).forEach(t=>t.classList.remove("aktiv"));if(letzterFokus&&letzterFokus.focus)letzterFokus.focus()}
+sh.addEventListener("click",schliessen);addEventListener("keydown",e=>{if(e.key==="Escape"&&dr.classList.contains("offen"))schliessen()});
+/* ----- Chart ----- */
+const ZR=[["3 Mon.",92],["6 Mon.",183],["1 Jahr",365],["Alles",0]];
+function chartInit(k){const box=dr.querySelector(".btns");let sel=k.rhythm==="q"?3:(k.rhythm==="w"?3:2);
+  ZR.forEach((z,i)=>{const b=document.createElement("button");b.type="button";b.className="btn";b.textContent=z[0];b.setAttribute("aria-pressed",i===sel);
+    if(k.rhythm==="q"&&i<2){b.disabled=true;b.style.opacity=.4}
+    b.addEventListener("click",()=>{sel=i;[...box.children].forEach((c,j)=>c.setAttribute("aria-pressed",j===i));zeichne(k,ZR[i][1])});box.appendChild(b)});
+  zeichne(k,ZR[sel][1])}
+function zeichne(k,tage){const all=DATA[k.s];let p=all;if(tage){const lim=new Date(all[all.length-1][0]);lim.setDate(lim.getDate()-tage);p=all.filter(x=>new Date(x[0])>=lim)}
+  if(p.length<2)p=all.slice(-2);
+  const svg=$("#chart"),W=560,H=230,L=52,R=12,T=10,B=26;const ys=p.map(x=>x[1]/k.f.div);let mn=Math.min(...ys),mx=Math.max(...ys);const pad=(mx-mn||1)*.08;mn-=pad;mx+=pad;
+  const t0=new Date(p[0][0]).getTime(),t1=new Date(p[p.length-1][0]).getTime(),X=d=>L+(new Date(d).getTime()-t0)/((t1-t0)||1)*(W-L-R),Y=v=>T+(1-(v-mn)/(mx-mn))*(H-T-B);
+  let s="";for(let i=0;i<=4;i++){const v=mn+(mx-mn)*i/4,y=Y(v);s+='<line x1="'+L+'" x2="'+(W-R)+'" y1="'+y+'" y2="'+y+'" stroke="var(--raster)"/><text x="'+(L-6)+'" y="'+(y+4)+'" text-anchor="end" font-size="10.5" fill="var(--stumm)">'+nf(v,k.f.dec>1?1:k.f.dec)+'</text>'}
+  s+='<text x="'+L+'" y="'+(H-6)+'" font-size="10.5" fill="var(--stumm)">'+dts(p[0][0])+'</text><text x="'+(W-R)+'" y="'+(H-6)+'" text-anchor="end" font-size="10.5" fill="var(--stumm)">'+dts(p[p.length-1][0])+'</text>';
+  const pts=p.map(x=>X(x[0]).toFixed(1)+","+Y(x[1]/k.f.div).toFixed(1)).join(" ");
+  s+='<polyline fill="none" stroke="var(--c)" stroke-width="2" stroke-linejoin="round" points="'+pts+'"/>';
+  const lp=p[p.length-1];s+='<circle cx="'+X(lp[0])+'" cy="'+Y(lp[1]/k.f.div)+'" r="3.5" fill="var(--c)"/><line id="cv" y1="'+T+'" y2="'+(H-B)+'" stroke="var(--text)" stroke-width="1" opacity="0"/><circle id="cd" r="4" fill="var(--c)" stroke="var(--flaeche)" stroke-width="2" opacity="0"/>';
+  svg.innerHTML=s;const tip=$("#tip");tip.textContent="Mit Maus oder Finger über den Verlauf fahren, um einzelne Werte zu sehen.";
+  const mv=e=>{const r=svg.getBoundingClientRect();const x=((e.clientX-r.left)/r.width)*W;let b=0,bd=1e9;p.forEach((q,i)=>{const d=Math.abs(X(q[0])-x);if(d<bd){bd=d;b=i}});const q=p[b];
+    const cv=$("#cv"),cd=$("#cd");cv.setAttribute("x1",X(q[0]));cv.setAttribute("x2",X(q[0]));cv.setAttribute("opacity",.4);cd.setAttribute("cx",X(q[0]));cd.setAttribute("cy",Y(q[1]/k.f.div));cd.setAttribute("opacity",1);tip.textContent=dts(q[0])+": "+fmtv(k,q[1])};
+  svg.onpointermove=mv;svg.onpointerdown=mv;svg.onpointerleave=()=>{$("#cv").setAttribute("opacity",0);$("#cd").setAttribute("opacity",0)}}
+/* ================== VERSTÄNDNIS-KREISLAUF ================== */
+const NK=[
+ {id:"fed",n:"n1",pos:[1,1],t:"Fed",s:"Zinsen und Reserven",
+  was:"Die Federal Reserve ist die Zentralbank der USA. Sie setzt den Leitzins, bestimmt über Käufe und Verkäufe von Anleihen die Menge an Reserven im Bankensystem und kann als Geldgeber in Notlagen einspringen.",
+  zus:"Sie wirkt zuerst auf den Geldmarkt (Tagesgeldzinsen, SOFR) und über ihn auf Banken und Kredite. Sie kauft zudem kurzlaufende Staatsanleihen und ist damit auch am Anleihemarkt beteiligt.",
+  daten:["walcl"]},
+ {id:"banken",n:"n2",pos:[3,1],t:"Banken",s:"Kredit und Einlagen",
+  was:"Geschäftsbanken nehmen Einlagen an und vergeben Kredite. Mit jedem Kredit entsteht neues Geld. Sie halten außerdem Staatsanleihen als Liquiditätsreserve und unterliegen Kapitalregeln.",
+  zus:"Sie geben die Konditionen der Fed an Haushalte und Unternehmen weiter. Ihre Bereitschaft zur Kreditvergabe (Kreditstandards, Ausfälle) bestimmt, wie viel Geld in der Wirtschaft ankommt.",
+  daten:["standards"]},
+ {id:"wirtschaft",n:"n3",pos:[5,1],t:"Haushalte & Unternehmen",s:"Kreditnehmer",
+  was:"Haushalte nehmen vor allem Hypotheken, Auto-, Studien- und Kreditkartenkredite auf, Unternehmen Bankkredite, Anleihen oder Private Credit. Aus Krediten wird Konsum und Investition, aus Einkommen werden Zins und Tilgung.",
+  zus:"Hier zeigt sich, ob das System trägt: Wie hoch ist die Schuldenlast, wie viele Kredite fallen aus, wie teuer ist die Finanzierung (Kreditaufschläge)?",
+  daten:["hh","hy"]},
+ {id:"geldmarkt",n:"n6",pos:[1,3],t:"Geldmarkt (Repo)",s:"Tagesgeld gegen Sicherheit",
+  was:"Am Geldmarkt leihen sich Banken, Fonds und Händler Geld über Nacht und hinterlegen dafür Staatsanleihen als Sicherheit (Repo). Der Preis dafür ist SOFR. Geldmarktfonds legen hier ihr Geld an.",
+  zus:"Er verbindet Fed, Banken und Anleihemarkt. Wird Liquidität knapp oder Sicherheit rar, zeigt sich das hier zuerst (SOFR-Ausschläge, hohe Nutzung der Fed-Fazilitäten).",
+  daten:[]},
+ {id:"anleihen",n:"n5",pos:[3,3],t:"Anleihemarkt",s:"Treasuries",
+  was:"Der Markt für US-Staatsanleihen ist der größte und liquideste Anleihemarkt der Welt. Seine Renditen sind die Referenz für fast alle anderen Zinsen.",
+  zus:"Er finanziert den Staat, liefert Sicherheiten für den Geldmarkt, dient Banken als Reserve und zieht ausländische Käufer an. Steigende Renditen verteuern Kredite im ganzen System.",
+  daten:["dgs10","t10y2y"]},
+ {id:"staat",n:"n4",pos:[5,3],t:"Staat",s:"Haushalt und Schulden",
+  was:"Das Finanzministerium finanziert Defizite durch Staatsanleihen, bei Auktionen. Der Kongress bestimmt Haushalt und Schuldenobergrenze (siehe Oberthema 1).",
+  zus:"Hohe Schulden bedeuten ein hohes Angebot neuer Anleihen, das der Markt aufnehmen muss. Steuern aus Einkommen und Gewinnen fließen zurück an den Staat.",
+  daten:["schuld"]},
+ {id:"nichtbank",n:"n7",pos:[3,5],t:"Nichtbanken & Ausland",s:"Fonds, Private Credit, Käufer",
+  was:"Neben Banken gibt es Geldmarktfonds, Hedgefonds, Versicherer, Private-Credit-Fonds, Stablecoin-Emittenten und ausländische Zentralbanken und Investoren. Sie kaufen Staatsanleihen, vergeben Kredite und stellen Liquidität bereit.",
+  zus:"Sie sind über Kreditlinien, Sicherheiten und Anleihebestände mit Banken und Geldmarkt verbunden. Spannungen bei ihnen können sich auf das System übertragen.",
+  daten:[]}
+];
+const PF=[
+ {t:"Zins, Reserven",r:"→",pos:[2,1]},{t:"Kredit",r:"→",pos:[4,1]},
+ {t:"Steuern, Auktionen",r:"→",pos:[4,3],links:true},{t:"Staatsanleihen als Sicherheit",r:"→",pos:[2,3],links:true},
+ {t:"Steuerung SOFR, ON RRP",r:"⇅",pos:[1,2]},{t:"Anleihebestände",r:"⇅",pos:[3,2]},{t:"Einkommen, Steuern",r:"⇅",pos:[5,2]},
+ {t:"Kredit, Käufe",r:"⇅",pos:[3,4]}
+];
+function flussBauen(){
+  const f=document.getElementById("fluss");if(!f)return;
+  PF.forEach(p=>{const d=document.createElement("div");d.className="pf2";d.style.gridColumn=p.pos[0];d.style.gridRow=p.pos[1];d.innerHTML="<i>"+(p.links?"←":p.r)+"</i>"+esc(p.t);f.appendChild(d)});
+  NK.forEach(n=>{const b=document.createElement("button");b.type="button";b.className="nk "+n.n;b.style.gridColumn=n.pos[0];b.style.gridRow=n.pos[1];
+    b.innerHTML="<b>"+esc(n.t)+"</b><span>"+esc(n.s)+"</span>";b.addEventListener("click",()=>knoten(n.id));f.appendChild(b)})}
+function knoten(id){const n=NK.find(x=>x.id===id);aktiv=null;letzterFokus=document.activeElement;
+  Object.values(tiles).forEach(t=>t.classList.remove("aktiv"));
+  dr.style.setProperty("--c",n.n==="n1"||n.n==="n6"?"var(--c1)":n.n==="n2"?"var(--c3)":n.n==="n3"?"var(--c4)":n.n==="n7"?"var(--cb)":"var(--c2)");
+  dr.innerHTML='<div class="dk"><div><div class="gr">Baustein des Systems</div><h2 id="dt">'+esc(n.t)+'</h2></div><button class="zu" type="button" aria-label="Schließen">×</button></div><div class="db"><h3>Was ist das?</h3><p>'+esc(n.was)+'</p><h3>Wie hängt es zusammen?</h3><p>'+esc(n.zus)+'</p><h3>Wo sieht man es in den Daten?</h3><p>'+(n.daten.length?'':'Keine eigene Kachel hier. Die Detaildaten liegen im Makro-Dashboard.')+n.daten.map(i=>'<button class="chip" type="button" data-t="'+i+'">'+esc(byId[i].titel)+'</button>').join("")+'</p></div>';
+  dr.classList.add("offen");sh.classList.add("offen");dr.querySelector(".zu").addEventListener("click",schliessen);
+  dr.querySelectorAll(".chip").forEach(c=>c.addEventListener("click",()=>oeffnen(c.dataset.t)));dr.focus()}
+/* Automatik: Texte und Zusatzwerte aus den Abrufdaten */
+(function(){
+ for(let i=K.length-1;i>=0;i--){if(K[i].s&&!DATA[K[i].s])K.splice(i,1)}
+ const KONTEXT={walcl:"Hintergrund (Stand 2026-10-17, Fed Monetary Policy Report 07/2026): Der Bilanzabbau (QT) endete am 01.12.2025. Seit Januar 2026 kauft die Fed wieder kurzlaufende Staatsanleihen."};
+ const DYN={dgs10:[["Rendite 2 Jahre","DGS2",2," %"],["Rendite 30 Jahre","DGS30",2," %"],["10J minus 2J","T10Y2Y",2," Prozentpunkte"]],schuld:[["Schulden in % des BIP","GFDEGDQ188S",1," %"]],hy:[["Investment Grade","BAMLC0A0CM",2," %"]],standards:[["Kreditkarten (netto verschärfend)","DRTSCLCC",1," % netto"]]};
+ K.forEach(k=>{if(!k.s)return;const p=DATA[k.s],l=p[p.length-1],q=k.rhythm==="q";let ref;
+  if(q)ref=p[p.length-2];else{const lim=new Date(l[0]);lim.setDate(lim.getDate()-30);ref=[...p].reverse().find(x=>new Date(x[0])<=lim)}
+  const mx=p.reduce((a,b)=>b[1]>a[1]?b:a),mn=p.reduce((a,b)=>b[1]<a[1]?b:a);
+  k.lage="Aktuell "+fmtv(k,l[1])+" ("+dts(l[0])+"). "+(ref?(q?"Vorquartal ":"Vor etwa 30 Tagen ")+fmtv(k,ref[1])+" ("+dts(ref[0])+"). ":"")+"Im gezeigten Zeitraum ab "+dts(p[0][0])+": Höchstwert "+fmtv(k,mx[1])+" ("+dts(mx[0])+"), Tiefstwert "+fmtv(k,mn[1])+" ("+dts(mn[0])+")."+(KONTEXT[k.id]?" "+KONTEXT[k.id]:"");
+  if(DYN[k.id]){const neu=DYN[k.id].filter(r=>DATA[r[1]]).map(r=>{const pp=DATA[r[1]],ll=pp[pp.length-1];return{l:r[0],w:nf(ll[1],r[2])+r[3],q:"FRED "+r[1],m:"auto",s:ll[0]}});
+   k.rows=(k.rows||[]).filter(r=>r.m!=="auto").concat(neu)}});
+ const D=window.USA_DATEN;if(D&&D.meta){const u=document.querySelector('.unter');u.innerHTML+=' · Datenabruf: '+D.meta.erstellt}
+})();
+flussBauen();
+
+$("#theme").addEventListener("click",()=>{const r=document.documentElement;r.dataset.theme=r.dataset.theme==="dark"?"light":"dark";try{localStorage.setItem("dashboard-thema",r.dataset.theme)}catch(e){}if(aktiv)oeffnen(aktiv)});
+bauen();
+const hh=/#(\w+)/.exec(location.hash);if(hh&&byId[hh[1]])oeffnen(hh[1]);
+</script>
+</body>
+</html>

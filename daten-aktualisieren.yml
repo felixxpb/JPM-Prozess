@@ -1,0 +1,55 @@
+# ============================================================================
+# Automatischer Datenabruf fuer das Projekt "JPM Prozess"
+# Gehoert ins Repository unter:  .github/workflows/daten-aktualisieren.yml
+#
+# Was der Workflow tut:
+#   1. Holt den aktuellen Stand des Repositories
+#   2. Fuehrt skripte/Laender_Abrufen_USA.py aus (FRED, Wikipedia, Fed, EIA)
+#   3. Schreibt laender/daten/usa.js zurueck ins Repository
+#   4. GitHub Pages veroeffentlicht die neue Version automatisch
+#
+# Voraussetzung: Secret FRED_API_KEY im Repository (Settings > Secrets and variables > Actions)
+# Zeiten sind UTC (Deutschland: Sommer UTC+2, Winter UTC+1).
+# ============================================================================
+
+name: Daten aktualisieren
+
+on:
+  schedule:
+    - cron: '0 5 * * *'    # morgens
+    - cron: '0 19 * * *'   # abends
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  daten-holen:
+    runs-on: ubuntu-latest
+    env:
+      FRED_API_KEY: ${{ secrets.FRED_API_KEY }}
+      CENSUS_API_KEY: ${{ secrets.CENSUS_API_KEY }}
+      LAENDER_DATEN: ${{ github.workspace }}/laender/daten
+    steps:
+      - name: Repository holen
+        uses: actions/checkout@v4
+
+      - name: PDF-Lesefunktion installieren (fuer die EIA-Tabellen)
+        continue-on-error: true
+        run: python3 -m pip install pypdf
+
+      - name: Laenderanalyse USA
+        continue-on-error: true
+        run: python3 -X utf8 skripte/Laender_Abrufen_USA.py
+
+      - name: Aktualisierte Daten zurueckschreiben
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add laender/daten
+          if git diff --cached --quiet; then
+            echo "Keine Aenderungen."
+          else
+            git commit -m "Daten automatisch aktualisiert ($(date -u '+%Y-%m-%d %H:%M') UTC)"
+            git push
+          fi
