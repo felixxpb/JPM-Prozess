@@ -161,7 +161,7 @@ svg.chart{width:100%;height:auto;display:block;touch-action:none}
 .karte .land.pt{fill:var(--achse)}
 .karte .land.us{fill:var(--c1);opacity:.55}
 .karte .bg{fill:none;stroke-linecap:round;pointer-events:none;transition:opacity .15s,stroke-width .15s}
-.karte .bg.imp{stroke:var(--c2)}.karte .bg.exp{stroke:var(--c3)}
+.karte .bg.imp{stroke:var(--ki,var(--c2))}.karte .bg.exp{stroke:var(--ke,var(--c3))}
 .karte .bg.leer{stroke-dasharray:5 4}
 .karte .hit{fill:none;stroke:transparent;stroke-width:14;cursor:pointer;pointer-events:stroke}
 .karte g.bogen:hover .bg{stroke-width:var(--bw2);opacity:1}
@@ -169,6 +169,16 @@ svg.chart{width:100%;height:auto;display:block;touch-action:none}
 .karte g.bogen:hover{opacity:1}
 .karte .pn{font-size:11px;fill:var(--text);paint-order:stroke;stroke:var(--flaeche);stroke-width:3px;pointer-events:none}
 .ktabs{display:flex;flex-wrap:wrap;gap:6px;margin:6px 0 8px}
+.kein{margin:2px 0 6px;font-size:12.5px;color:var(--text2)}
+.kein summary{cursor:pointer;display:inline-block;padding:4px 10px;border:1px solid var(--rand);border-radius:8px;color:var(--text);list-style:none}
+.kein summary::-webkit-details-marker{display:none}
+.kein[open] summary{background:var(--raster)}
+.kein .kz{display:flex;flex-wrap:wrap;gap:14px 22px;align-items:center;margin-top:8px;padding:10px 12px;border:1px solid var(--rand);border-radius:10px}
+.kein .kg{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+.kein .kg label{color:var(--text2)}
+.kein input[type=color]{width:34px;height:26px;padding:0;border:1px solid var(--rand);border-radius:6px;background:transparent;cursor:pointer}
+.kein input[type=range]{width:130px;accent-color:var(--c1)}
+.kein .kwert{min-width:3ch;color:var(--text)}
 .kmodus{display:flex;flex-wrap:wrap;gap:6px;align-items:center;margin:4px 0 4px}
 .kmodus .lbl{font-size:12px;color:var(--text2);margin-right:2px}
 .karte .bg.see,.karte .bg.luft{stroke-linejoin:round}
@@ -179,7 +189,7 @@ svg.chart{width:100%;height:auto;display:block;touch-action:none}
 .hafen .land.us{fill:var(--c1);opacity:.55}
 .hafen .hb{stroke:var(--flaeche);stroke-width:.25;opacity:.85;cursor:pointer}
 .hafen .hb:hover{opacity:1;stroke:var(--text)}
-.hafen .hb.imp{fill:var(--c2)}.hafen .hb.exp{fill:var(--c3)}
+.hafen .hb.imp{fill:var(--ki,var(--c2))}.hafen .hb.exp{fill:var(--ke,var(--c3))}
 .hafen .hn{font-size:2.1px;fill:var(--text);paint-order:stroke;stroke:var(--flaeche);stroke-width:.5px;pointer-events:none}
 .hafen .hz{display:flex;flex-wrap:wrap;gap:6px;margin:6px 0}
 .klegende{display:flex;gap:16px;flex-wrap:wrap;font-size:12px;color:var(--text2);margin:2px 0 4px}
@@ -254,7 +264,17 @@ svg.chart{width:100%;height:auto;display:block;touch-action:none}
   <div class="bandkopf">Lieferketten-Karte: Wichtigste Handelsströme nach Produktgruppe</div>
   <div class="kmodus" id="kmodus" role="group" aria-label="Verkehrsträger"><span class="lbl">Verkehrsträger:</span></div>
   <div class="ktabs" id="ktabs" role="group" aria-label="Produktgruppe"></div>
-  <div class="klegende"><span><i style="border-color:var(--c2)"></i>Importe in die USA</span><span><i style="border-color:var(--c3)"></i>Exporte aus den USA</span><span id="kstand"></span></div>
+  <div class="klegende"><span><i style="border-color:var(--ki,var(--c2))"></i>Importe in die USA</span><span><i style="border-color:var(--ke,var(--c3))"></i>Exporte aus den USA</span><span id="kstand"></span></div>
+  <details class="kein" id="kein"><summary>Pfeile anpassen</summary>
+   <div class="kz">
+    <div class="kg" role="group" aria-label="Linienstärke"><label>Linienstärke:</label>
+     <button type="button" class="btn" data-pe="wert">Nach Warenwert</button><button type="button" class="btn" data-pe="gleich">Einheitlich</button></div>
+    <div class="kg" id="kreg"><label for="kbr">Stärke (einheitlich):</label><input type="range" id="kbr" min="0.6" max="4" step="0.2"><span class="kwert" id="kbrw"></span></div>
+    <div class="kg"><label for="kfi">Farbe Importe:</label><input type="color" id="kfi"></div>
+    <div class="kg"><label for="kfe">Farbe Exporte:</label><input type="color" id="kfe"></div>
+    <div class="kg"><button type="button" class="btn" id="kreset">Zurücksetzen</button></div>
+   </div>
+  </details>
   <svg id="welt" viewBox="0 0 1000 440" role="img" aria-label="Weltkarte mit den Handelsströmen der USA"></svg>
   <div class="bhin" id="khin"></div>
   <div class="rang" id="rang"></div>
@@ -551,6 +571,29 @@ function bogenDaten(gid){
  });
  return out;
 }
+/* ---- Pfeil-Einstellungen (werden im Browser gespeichert) ---- */
+const PF_STANDARD={gleich:false,breite:1.2,ci:null,ce:null};
+let pf=Object.assign({},PF_STANDARD);
+try{const g=JSON.parse(localStorage.getItem("handelkarte-pfeile")||"null");if(g&&typeof g==="object")pf=Object.assign(pf,g)}catch(e){}
+function pfSpeichern(){try{localStorage.setItem("handelkarte-pfeile",JSON.stringify(pf))}catch(e){}}
+function pfFarbeAnwenden(){const k=document.getElementById("karte");
+ pf.ci?k.style.setProperty("--ki",pf.ci):k.style.removeProperty("--ki");
+ pf.ce?k.style.setProperty("--ke",pf.ce):k.style.removeProperty("--ke")}
+function hexVon(farbe){const c=document.createElement("canvas").getContext("2d");c.fillStyle="#000";c.fillStyle=farbe;return /^#[0-9a-f]{6}$/i.test(c.fillStyle)?c.fillStyle:"#888888"}
+function pfOberflaecheSetzen(){
+ const k=document.getElementById("karte"),cs=getComputedStyle(k);
+ document.querySelectorAll("#kein button[data-pe]").forEach(b=>b.setAttribute("aria-pressed",(b.dataset.pe==="gleich")===pf.gleich));
+ document.getElementById("kreg").style.display=pf.gleich?"":"none";
+ document.getElementById("kbr").value=pf.breite;document.getElementById("kbrw").textContent=nf(pf.breite,1);
+ document.getElementById("kfi").value=pf.ci||hexVon(cs.getPropertyValue("--c2").trim());
+ document.getElementById("kfe").value=pf.ce||hexVon(cs.getPropertyValue("--c3").trim())}
+function pfBedienung(){
+ document.querySelectorAll("#kein button[data-pe]").forEach(b=>b.addEventListener("click",()=>{pf.gleich=b.dataset.pe==="gleich";pfSpeichern();pfOberflaecheSetzen();zeichneBogen()}));
+ document.getElementById("kbr").addEventListener("input",e=>{pf.breite=+e.target.value;document.getElementById("kbrw").textContent=nf(pf.breite,1);pfSpeichern();zeichneBogen()});
+ document.getElementById("kfi").addEventListener("input",e=>{pf.ci=e.target.value;pfSpeichern();pfFarbeAnwenden()});
+ document.getElementById("kfe").addEventListener("input",e=>{pf.ce=e.target.value;pfSpeichern();pfFarbeAnwenden()});
+ document.getElementById("kreset").addEventListener("click",()=>{pf=Object.assign({},PF_STANDARD);pfSpeichern();pfFarbeAnwenden();pfOberflaecheSetzen();zeichneBogen()});
+ pfFarbeAnwenden();pfOberflaecheSetzen()}
 function karteBauen(){
  const W=window.WELT,box=document.getElementById("karte");
  if(!W){box.style.display="none";return}
@@ -563,10 +606,10 @@ function karteBauen(){
  const tabs=document.getElementById("ktabs");
  GRUPPEN.forEach(g=>{const b=document.createElement("button");b.type="button";b.className="btn";b.textContent=g.n;b.dataset.g=g.id;b.setAttribute("aria-pressed",g.id===kg);
   b.addEventListener("click",()=>{kg=g.id;[...tabs.children].forEach(c=>c.setAttribute("aria-pressed",c.dataset.g===kg));zeichneBogen()});tabs.appendChild(b)});
- let h='<defs><marker id="ai" viewBox="0 0 10 10" refX="8" refY="5" markerUnits="userSpaceOnUse" markerWidth="11" markerHeight="11" orient="auto"><path d="M0,0 L10,5 L0,10 z" fill="var(--c2)"/></marker><marker id="ae" viewBox="0 0 10 10" refX="8" refY="5" markerUnits="userSpaceOnUse" markerWidth="11" markerHeight="11" orient="auto"><path d="M0,0 L10,5 L0,10 z" fill="var(--c3)"/></marker></defs>';
+ let h='<defs><marker id="ai" viewBox="0 0 10 10" refX="8" refY="5" markerUnits="userSpaceOnUse" markerWidth="11" markerHeight="11" orient="auto"><path d="M0,0 L10,5 L0,10 z" fill="var(--ki,var(--c2))"/></marker><marker id="ae" viewBox="0 0 10 10" refX="8" refY="5" markerUnits="userSpaceOnUse" markerWidth="11" markerHeight="11" orient="auto"><path d="M0,0 L10,5 L0,10 z" fill="var(--ke,var(--c3))"/></marker></defs>';
  W.laender.forEach(l=>{h+='<path class="land'+(l.id==="840"?" us":"")+'" data-id="'+l.id+'" d="'+l.d+'"><title>'+esc(ISONAME[l.id]||(l.id==="840"?"USA":l.n))+'</title></path>'});
  h+='<g id="bogen"></g><g id="pn"></g>';svg.innerHTML=h;
- zeichneBogen();
+ pfBedienung();zeichneBogen();
 }
 function zeichneBogen(){
  const W=window.WELT,svg=document.getElementById("welt"),G=GRUPPEN.find(x=>x.id===kg);
@@ -580,7 +623,7 @@ function zeichneBogen(){
   /* Importe wölben sich nach oben, Exporte nach unten */
   if(imp&&ny>0){nx=-nx;ny=-ny}if(!imp&&ny<0){nx=-nx;ny=-ny}
   const cx=mx+nx*bul,cy=my+ny*bul;
-  const br=d.ytd?1.4+7.6*Math.sqrt(d.ytd/vmax):2.2;
+  const br=pf.gleich?pf.breite:(d.ytd?1.4+7.6*Math.sqrt(d.ytd/vmax):2.2);
   let dpath="M"+A[0]+","+A[1]+" Q"+cx.toFixed(1)+","+cy.toFixed(1)+" "+B[0]+","+B[1],form="";
   /* Seefracht: schematischer Seeweg, Luftfracht: Grosskreis (siehe seewege.js). Ohne hinterlegte Route bleibt die Bogenlinie. */
   d.via=null;
@@ -590,6 +633,7 @@ function zeichneBogen(){
   s+='<g class="bogen" data-i="'+idx+'"'+(form?' transform="translate(0,'+(imp?-1.6:1.6)+')"':'')+' style="--bw2:'+(br+1.8).toFixed(1)+'"><path class="bg '+d.ri+(form?' '+form:'')+(d.ytd?'':' leer')+'" d="'+dpath+'" stroke-width="'+br.toFixed(1)+'" marker-end="url(#'+(imp?"ai":"ae")+')"/><path class="hit" d="'+dpath+'"/></g>';
   if(!seen[d.iso]){seen[d.iso]=1;let lx=P[0]+5,ly=P[1]+14;while(plac.some(q=>Math.abs(q[0]-lx)<60&&Math.abs(q[1]-ly)<12))ly+=12;plac.push([lx,ly]);ns+='<text class="pn" x="'+lx+'" y="'+ly+'">'+esc(d.name)+'</text>'}
  });
+ const ms=pf.gleich?Math.max(5,3.5+pf.breite*2.6):11;svg.querySelectorAll("marker").forEach(m=>{m.setAttribute("markerWidth",ms.toFixed(1));m.setAttribute("markerHeight",ms.toFixed(1))});
  document.getElementById("bogen").innerHTML=s;document.getElementById("pn").innerHTML=ns;
  svg.querySelectorAll("g.bogen").forEach(g=>{const d=daten[+g.dataset.i];
   const html=()=>tipHtml(G,d);
@@ -695,7 +739,7 @@ function zeitstrahlBauen(){
 }
 flussBauen();
 
-$("#theme").addEventListener("click",()=>{const r=document.documentElement;r.dataset.theme=r.dataset.theme==="dark"?"light":"dark";try{localStorage.setItem("dashboard-thema",r.dataset.theme)}catch(e){}if(aktiv)oeffnen(aktiv)});
+$("#theme").addEventListener("click",()=>{const r=document.documentElement;r.dataset.theme=r.dataset.theme==="dark"?"light":"dark";try{localStorage.setItem("dashboard-thema",r.dataset.theme)}catch(e){}if(aktiv)oeffnen(aktiv);pfOberflaecheSetzen()});
 bauen();karteBauen();zeitstrahlBauen();
 const hh=/#(\w+)/.exec(location.hash);if(hh&&byId[hh[1]])oeffnen(hh[1]);
 </script>
