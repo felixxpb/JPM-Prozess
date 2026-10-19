@@ -161,7 +161,7 @@ svg.chart{width:100%;height:auto;display:block;touch-action:none}
 .karte .land.pt{fill:var(--achse)}
 .karte .land.us{fill:var(--c1);opacity:.55}
 .karte .bg{fill:none;stroke-linecap:round;pointer-events:none;transition:opacity .15s,stroke-width .15s}
-.karte .bg.imp{stroke:var(--c2)}.karte .bg.exp{stroke:var(--c3)}
+.karte .bg.imp{stroke:var(--ki,var(--c2))}.karte .bg.exp{stroke:var(--ke,var(--c3))}
 .karte .bg.leer{stroke-dasharray:5 4}
 .karte .hit{fill:none;stroke:transparent;stroke-width:14;cursor:pointer;pointer-events:stroke}
 .karte g.bogen:hover .bg{stroke-width:var(--bw2);opacity:1}
@@ -169,11 +169,34 @@ svg.chart{width:100%;height:auto;display:block;touch-action:none}
 .karte g.bogen:hover{opacity:1}
 .karte .pn{font-size:11px;fill:var(--text);paint-order:stroke;stroke:var(--flaeche);stroke-width:3px;pointer-events:none}
 .ktabs{display:flex;flex-wrap:wrap;gap:6px;margin:6px 0 8px}
+.kein{margin:2px 0 6px;font-size:12.5px;color:var(--text2)}
+.kein summary{cursor:pointer;display:inline-block;padding:4px 10px;border:1px solid var(--rand);border-radius:8px;color:var(--text);list-style:none}
+.kein summary::-webkit-details-marker{display:none}
+.kein[open] summary{background:var(--raster)}
+.kein .kz{display:flex;flex-wrap:wrap;gap:14px 22px;align-items:center;margin-top:8px;padding:10px 12px;border:1px solid var(--rand);border-radius:10px}
+.kein .kg{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+.kein .kg label{color:var(--text2)}
+.kein input[type=color]{width:34px;height:26px;padding:0;border:1px solid var(--rand);border-radius:6px;background:transparent;cursor:pointer}
+.kein input[type=range]{width:130px;accent-color:var(--c1)}
+.kein .kwert{min-width:3ch;color:var(--text)}
+.kmodus{display:flex;flex-wrap:wrap;gap:6px;align-items:center;margin:4px 0 4px}
+.kmodus .lbl{font-size:12px;color:var(--text2);margin-right:2px}
+.karte .bg.see,.karte .bg.luft{stroke-linejoin:round}
+.hafen{margin-top:16px;border-top:1px solid var(--rand);padding-top:12px}
+.hafen h3{font-size:14px;margin:0 0 4px}
+.hafen svg{width:100%;height:auto;display:block;background:transparent}
+.hafen .land{fill:var(--raster);stroke:var(--flaeche);stroke-width:.12}
+.hafen .land.us{fill:var(--c1);opacity:.55}
+.hafen .hb{stroke:var(--flaeche);stroke-width:.25;opacity:.85;cursor:pointer}
+.hafen .hb:hover{opacity:1;stroke:var(--text)}
+.hafen .hb.imp{fill:var(--ki,var(--c2))}.hafen .hb.exp{fill:var(--ke,var(--c3))}
+.hafen .hn{font-size:2.1px;fill:var(--text);paint-order:stroke;stroke:var(--flaeche);stroke-width:.5px;pointer-events:none}
+.hafen .hz{display:flex;flex-wrap:wrap;gap:6px;margin:6px 0}
 .klegende{display:flex;gap:16px;flex-wrap:wrap;font-size:12px;color:var(--text2);margin:2px 0 4px}
 .klegende i{display:inline-block;width:22px;height:0;border-top:3px solid;vertical-align:middle;margin-right:6px}
-.ktip{position:fixed;z-index:40;max-width:330px;background:var(--flaeche);color:var(--text);border:1px solid var(--rand);border-radius:10px;padding:9px 12px;box-shadow:0 6px 24px rgba(0,0,0,.25);font-size:12.5px;pointer-events:none;display:none}
+.ktip{position:fixed;z-index:40;max-width:380px;background:var(--flaeche);color:var(--text);border:1px solid var(--rand);border-radius:10px;padding:9px 12px;box-shadow:0 6px 24px rgba(0,0,0,.25);font-size:12.5px;pointer-events:none;display:none}
 .ktip b{display:block;font-size:13.5px;margin-bottom:3px}
-.ktip .z{display:flex;justify-content:space-between;gap:12px}.ktip .z span:first-child{color:var(--text2)}
+.ktip .z{display:flex;justify-content:space-between;gap:12px}.ktip .z span:first-child{color:var(--text2)}.ktip .z span:last-child{white-space:nowrap;text-align:right}
 .ktip .h{margin-top:5px;color:var(--text2);font-size:11.5px}
 .rang{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-top:10px}
 .rang table{width:100%;border-collapse:collapse;font-size:13px}
@@ -239,11 +262,23 @@ svg.chart{width:100%;height:auto;display:block;touch-action:none}
 
 <div class="struktur karte" id="karte">
   <div class="bandkopf">Lieferketten-Karte: Wichtigste Handelsströme nach Produktgruppe</div>
+  <div class="kmodus" id="kmodus" role="group" aria-label="Verkehrsträger"><span class="lbl">Verkehrsträger:</span></div>
   <div class="ktabs" id="ktabs" role="group" aria-label="Produktgruppe"></div>
-  <div class="klegende"><span><i style="border-color:var(--c2)"></i>Importe in die USA</span><span><i style="border-color:var(--c3)"></i>Exporte aus den USA</span><span id="kstand"></span></div>
+  <div class="klegende"><span><i style="border-color:var(--ki,var(--c2))"></i>Importe in die USA</span><span><i style="border-color:var(--ke,var(--c3))"></i>Exporte aus den USA</span><span id="kstand"></span></div>
+  <details class="kein" id="kein"><summary>Pfeile anpassen</summary>
+   <div class="kz">
+    <div class="kg" role="group" aria-label="Linienstärke"><label>Linienstärke:</label>
+     <button type="button" class="btn" data-pe="wert">Nach Warenwert</button><button type="button" class="btn" data-pe="gleich">Einheitlich</button></div>
+    <div class="kg" id="kreg"><label for="kbr">Stärke (einheitlich):</label><input type="range" id="kbr" min="0.6" max="4" step="0.2"><span class="kwert" id="kbrw"></span></div>
+    <div class="kg"><label for="kfi">Farbe Importe:</label><input type="color" id="kfi"></div>
+    <div class="kg"><label for="kfe">Farbe Exporte:</label><input type="color" id="kfe"></div>
+    <div class="kg"><button type="button" class="btn" id="kreset">Zurücksetzen</button></div>
+   </div>
+  </details>
   <svg id="welt" viewBox="0 0 1000 440" role="img" aria-label="Weltkarte mit den Handelsströmen der USA"></svg>
   <div class="bhin" id="khin"></div>
   <div class="rang" id="rang"></div>
+  <div class="hafen" id="haefen" style="display:none"></div>
 </div>
 
 <div class="struktur" id="zs">
@@ -262,8 +297,9 @@ svg.chart{width:100%;height:auto;display:block;touch-action:none}
 <div id="schatten"></div>
 <aside id="drawer" role="dialog" aria-modal="true" aria-labelledby="dt" tabindex="-1"></aside>
 
-<script src="daten/usa.js?v=1"></script>
+<script src="daten/usa.js?v=2"></script>
 <script src="welt-karte.js?v=1"></script>
+<script src="seewege.js?v=1"></script>
 <script>
 try{const g=localStorage.getItem("dashboard-thema");document.documentElement.dataset.theme=g||"dark"}catch(e){document.documentElement.dataset.theme="dark"}
 const DATA=(window.USA_DATEN&&window.USA_DATEN.fred)||{};
@@ -355,7 +391,7 @@ const TERMINE=[
  {d:"2027-01-10",t:"Angekündigtes neues Ende der Waffenruhe USA–China"}
 ];
 /* ---- Produktgruppen der Lieferketten-Karte ---- */
-const NAMEISO={"MEXICO":["484","Mexiko"],"CANADA":["124","Kanada"],"CHINA":["156","China"],"TAIWAN":["158","Taiwan"],"VIETNAM":["704","Vietnam"],"JAPAN":["392","Japan"],"KOREA, SOUTH":["410","Südkorea"],"SOUTH KOREA":["410","Südkorea"],"GERMANY":["276","Deutschland"],"IRELAND":["372","Irland"],"SWITZERLAND":["756","Schweiz"],"INDIA":["356","Indien"],"MALAYSIA":["458","Malaysia"],"UNITED KINGDOM":["826","Großbritannien"],"NETHERLANDS":["528","Niederlande"],"BRAZIL":["076","Brasilien"],"ITALY":["380","Italien"],"FRANCE":["250","Frankreich"],"THAILAND":["764","Thailand"],"SINGAPORE":["702","Singapur"],"SAUDI ARABIA":["682","Saudi-Arabien"],"COLOMBIA":["170","Kolumbien"],"ISRAEL":["376","Israel"],"AUSTRALIA":["036","Australien"],"BELGIUM":["056","Belgien"],"INDONESIA":["360","Indonesien"],"PHILIPPINES":["608","Philippinen"],"CHILE":["152","Chile"],"ARGENTINA":["032","Argentinien"],"TURKEY":["792","Türkei"],"SPAIN":["724","Spanien"],"SWEDEN":["752","Schweden"],"NORWAY":["578","Norwegen"],"RUSSIA":["643","Russland"],"UNITED ARAB EMIRATES":["784","Vereinigte Arabische Emirate"],"SOUTH AFRICA":["710","Südafrika"],"PERU":["604","Peru"],"DOMINICAN REPUBLIC":["214","Dominikanische Republik"],"ECUADOR":["218","Ecuador"],"EGYPT":["818","Ägypten"],"POLAND":["616","Polen"],"AUSTRIA":["040","Österreich"],"FINLAND":["246","Finnland"],"DENMARK":["208","Dänemark"],"HONG KONG":["344","Hongkong"],"NEW ZEALAND":["554","Neuseeland"],"CONGO (KINSHASA)":["180","Demokratische Republik Kongo"],"CONGO, DEMOCRATIC REPUBLIC OF THE CONGO":["180","Demokratische Republik Kongo"],"KAZAKHSTAN":["398","Kasachstan"],"NIGERIA":["566","Nigeria"],"GUATEMALA":["320","Guatemala"],"COSTA RICA":["188","Costa Rica"],"PANAMA":["591","Panama"],"BANGLADESH":["050","Bangladesch"],"PAKISTAN":["586","Pakistan"],"ANGOLA":["024","Angola"],"IRAQ":["368","Irak"],"KUWAIT":["414","Kuwait"],"QATAR":["634","Katar"],"LIBYA":["434","Libyen"],"ALGERIA":["012","Algerien"],"MOROCCO":["504","Marokko"],"UKRAINE":["804","Ukraine"],"ROMANIA":["642","Rumänien"],"CZECH REPUBLIC":["203","Tschechien"],"CZECHIA":["203","Tschechien"],"HUNGARY":["348","Ungarn"],"PORTUGAL":["620","Portugal"],"GREECE":["300","Griechenland"],"SLOVAKIA":["703","Slowakei"],"SLOVENIA":["705","Slowenien"],"LITHUANIA":["440","Litauen"],"ESTONIA":["233","Estland"],"LATVIA":["428","Lettland"],"BULGARIA":["100","Bulgarien"],"CROATIA":["191","Kroatien"],"LUXEMBOURG":["442","Luxemburg"],"ICELAND":["352","Island"],"CAMBODIA":["116","Kambodscha"],"SRI LANKA":["144","Sri Lanka"],"MONGOLIA":["496","Mongolei"],"CUBA":["192","Kuba"],"VENEZUELA":["862","Venezuela"],"BOLIVIA":["068","Bolivien"],"URUGUAY":["858","Uruguay"],"PARAGUAY":["600","Paraguay"],"HONDURAS":["340","Honduras"],"EL SALVADOR":["222","El Salvador"],"NICARAGUA":["558","Nicaragua"],"JAMAICA":["388","Jamaika"],"TRINIDAD AND TOBAGO":["780","Trinidad und Tobago"],"GUYANA":["328","Guyana"],"GHANA":["288","Ghana"],"KENYA":["404","Kenia"],"ETHIOPIA":["231","Äthiopien"],"TANZANIA":["834","Tansania"],"MOZAMBIQUE":["508","Mosambik"],"ZAMBIA":["894","Sambia"],"ZIMBABWE":["716","Simbabwe"],"MADAGASCAR":["450","Madagaskar"],"JORDAN":["400","Jordanien"],"OMAN":["512","Oman"],"BAHRAIN":["048","Bahrain"],"LEBANON":["422","Libanon"],"UZBEKISTAN":["860","Usbekistan"]};
+const NAMEISO={"MEXICO":["484","Mexiko"],"CANADA":["124","Kanada"],"CHINA":["156","China"],"TAIWAN":["158","Taiwan"],"VIETNAM":["704","Vietnam"],"JAPAN":["392","Japan"],"KOREA, SOUTH":["410","Südkorea"],"SOUTH KOREA":["410","Südkorea"],"GERMANY":["276","Deutschland"],"IRELAND":["372","Irland"],"SWITZERLAND":["756","Schweiz"],"INDIA":["356","Indien"],"MALAYSIA":["458","Malaysia"],"UNITED KINGDOM":["826","Großbritannien"],"NETHERLANDS":["528","Niederlande"],"BRAZIL":["076","Brasilien"],"ITALY":["380","Italien"],"FRANCE":["250","Frankreich"],"THAILAND":["764","Thailand"],"SINGAPORE":["702","Singapur"],"SAUDI ARABIA":["682","Saudi-Arabien"],"COLOMBIA":["170","Kolumbien"],"ISRAEL":["376","Israel"],"AUSTRALIA":["036","Australien"],"BELGIUM":["056","Belgien"],"INDONESIA":["360","Indonesien"],"PHILIPPINES":["608","Philippinen"],"CHILE":["152","Chile"],"ARGENTINA":["032","Argentinien"],"TURKEY":["792","Türkei"],"SPAIN":["724","Spanien"],"SWEDEN":["752","Schweden"],"NORWAY":["578","Norwegen"],"RUSSIA":["643","Russland"],"UNITED ARAB EMIRATES":["784","Vereinigte Arabische Emirate"],"SOUTH AFRICA":["710","Südafrika"],"PERU":["604","Peru"],"DOMINICAN REPUBLIC":["214","Dominikanische Republik"],"ECUADOR":["218","Ecuador"],"EGYPT":["818","Ägypten"],"POLAND":["616","Polen"],"AUSTRIA":["040","Österreich"],"FINLAND":["246","Finnland"],"DENMARK":["208","Dänemark"],"HONG KONG":["344","Hongkong"],"NEW ZEALAND":["554","Neuseeland"],"CONGO (KINSHASA)":["180","Demokratische Republik Kongo"],"CONGO, DEMOCRATIC REPUBLIC OF THE CONGO":["180","Demokratische Republik Kongo"],"KAZAKHSTAN":["398","Kasachstan"],"NIGERIA":["566","Nigeria"],"GUATEMALA":["320","Guatemala"],"COSTA RICA":["188","Costa Rica"],"PANAMA":["591","Panama"],"BANGLADESH":["050","Bangladesch"],"PAKISTAN":["586","Pakistan"],"ANGOLA":["024","Angola"],"IRAQ":["368","Irak"],"KUWAIT":["414","Kuwait"],"QATAR":["634","Katar"],"LIBYA":["434","Libyen"],"ALGERIA":["012","Algerien"],"MOROCCO":["504","Marokko"],"UKRAINE":["804","Ukraine"],"ROMANIA":["642","Rumänien"],"CZECH REPUBLIC":["203","Tschechien"],"CZECHIA":["203","Tschechien"],"HUNGARY":["348","Ungarn"],"PORTUGAL":["620","Portugal"],"GREECE":["300","Griechenland"],"SLOVAKIA":["703","Slowakei"],"SLOVENIA":["705","Slowenien"],"LITHUANIA":["440","Litauen"],"ESTONIA":["233","Estland"],"LATVIA":["428","Lettland"],"BULGARIA":["100","Bulgarien"],"CROATIA":["191","Kroatien"],"LUXEMBOURG":["442","Luxemburg"],"ICELAND":["352","Island"],"CAMBODIA":["116","Kambodscha"],"SRI LANKA":["144","Sri Lanka"],"MONGOLIA":["496","Mongolei"],"CUBA":["192","Kuba"],"VENEZUELA":["862","Venezuela"],"BOLIVIA":["068","Bolivien"],"URUGUAY":["858","Uruguay"],"PARAGUAY":["600","Paraguay"],"HONDURAS":["340","Honduras"],"EL SALVADOR":["222","El Salvador"],"NICARAGUA":["558","Nicaragua"],"JAMAICA":["388","Jamaika"],"TRINIDAD AND TOBAGO":["780","Trinidad und Tobago"],"GUYANA":["328","Guyana"],"GHANA":["288","Ghana"],"KENYA":["404","Kenia"],"ETHIOPIA":["231","Äthiopien"],"TANZANIA":["834","Tansania"],"MOZAMBIQUE":["508","Mosambik"],"ZAMBIA":["894","Sambia"],"ZIMBABWE":["716","Simbabwe"],"MADAGASCAR":["450","Madagaskar"],"JORDAN":["400","Jordanien"],"OMAN":["512","Oman"],"BAHRAIN":["048","Bahrain"],"LEBANON":["422","Libanon"],"UZBEKISTAN":["860","Usbekistan"],"GEORGIA":["268","Georgien"]};
 const ISONAME={};Object.values(NAMEISO).forEach(v=>{ISONAME[v[0]]=v[1]});
 const GRUPPEN=[
  {id:"auto",n:"Autos und Teile",codes:"HS 87 (Kraftfahrzeuge und Teile)",partner:["MEXICO","CANADA","JAPAN","GERMANY","KOREA, SOUTH"],
@@ -514,33 +550,72 @@ function liste(gid,ri){const C=censusDaten(gid);if(!C)return null;const g=C.grup
 function mrd(v){return nf(v/1000,2)+" Mrd. USD"}
 function tipShow(e,html){ktip.innerHTML=html;ktip.style.display="block";const w=ktip.offsetWidth,h=ktip.offsetHeight;let x=e.clientX+16,y=e.clientY+16;if(x+w>innerWidth-8)x=e.clientX-w-16;if(y+h>innerHeight-8)y=e.clientY-h-16;ktip.style.left=Math.max(8,x)+"px";ktip.style.top=Math.max(8,y)+"px"}
 function tipHide(){ktip.style.display="none"}
+let vm="alle";
+const MNAME={alle:"alle Verkehrsträger",see:"Seefracht",luft:"Luftfracht"};
+const mw=(x)=>vm==="see"?x.sy:vm==="luft"?x.ly:x.ytd;
+const mm=(x)=>vm==="see"?x.sm:vm==="luft"?x.lm:x.mo;
+const msuf=()=>vm==="alle"?"":" ("+MNAME[vm]+")";
 function bogenDaten(gid){
  const G=GRUPPEN.find(x=>x.id===gid),out=[];
  ["imp","exp"].forEach(ri=>{
-  const L=liste(gid,ri);
-  if(L){L.laender.slice(0,8).forEach((x,i)=>{const m=NAMEISO[x.n.toUpperCase()];if(m)out.push({ri,iso:m[0],name:m[1],ytd:x.ytd,mo:x.mo,rang:i+1,anteil:L.gesamt&&L.gesamt.ytd?x.ytd/L.gesamt.ytd*100:null,gesamt:L.gesamt})})}
+  let L=liste(gid,ri);
+  /* Seefracht/Luftfracht brauchen die neuen Felder (sy/ly) im Datenabruf; sonst zeigt die Karte vorerst nur die Beziehung */
+  if(L&&vm!=="alle"&&L.laender[0].sy===undefined)L=null;
+  if(L){
+   const gesM=L.gesamt?(vm==="see"?L.gesamt.sy:vm==="luft"?L.gesamt.ly:L.gesamt.ytd):null,gesMo=L.gesamt?(vm==="see"?L.gesamt.sm:vm==="luft"?L.gesamt.lm:L.gesamt.mo):null;
+   const zeilen=L.laender.filter(x=>NAMEISO[x.n.toUpperCase()]&&mw(x)>0).sort((a,b)=>mw(b)-mw(a)).slice(0,8);
+   zeilen.forEach((x,i)=>{const m=NAMEISO[x.n.toUpperCase()];
+    out.push({ri,iso:m[0],name:m[1],ytd:mw(x),mo:mm(x),rang:i+1,anteil:gesM?mw(x)/gesM*100:null,gesamt:{ytd:gesM,mo:gesMo},
+     modeAnteil:(vm!=="alle"&&x.ytd>0)?mw(x)/x.ytd*100:null})})}
   else G.partner.forEach((n,i)=>{const m=NAMEISO[n];if(m)out.push({ri,iso:m[0],name:m[1],ytd:null,mo:null,rang:i+1,anteil:null,gesamt:null})});
  });
  return out;
 }
+/* ---- Pfeil-Einstellungen (werden im Browser gespeichert) ---- */
+const PF_STANDARD={gleich:false,breite:1.2,ci:null,ce:null};
+let pf=Object.assign({},PF_STANDARD);
+try{const g=JSON.parse(localStorage.getItem("handelkarte-pfeile")||"null");if(g&&typeof g==="object")pf=Object.assign(pf,g)}catch(e){}
+function pfSpeichern(){try{localStorage.setItem("handelkarte-pfeile",JSON.stringify(pf))}catch(e){}}
+function pfFarbeAnwenden(){const k=document.getElementById("karte");
+ pf.ci?k.style.setProperty("--ki",pf.ci):k.style.removeProperty("--ki");
+ pf.ce?k.style.setProperty("--ke",pf.ce):k.style.removeProperty("--ke")}
+function hexVon(farbe){const c=document.createElement("canvas").getContext("2d");c.fillStyle="#000";c.fillStyle=farbe;return /^#[0-9a-f]{6}$/i.test(c.fillStyle)?c.fillStyle:"#888888"}
+function pfOberflaecheSetzen(){
+ const k=document.getElementById("karte"),cs=getComputedStyle(k);
+ document.querySelectorAll("#kein button[data-pe]").forEach(b=>b.setAttribute("aria-pressed",(b.dataset.pe==="gleich")===pf.gleich));
+ document.getElementById("kreg").style.display=pf.gleich?"":"none";
+ document.getElementById("kbr").value=pf.breite;document.getElementById("kbrw").textContent=nf(pf.breite,1);
+ document.getElementById("kfi").value=pf.ci||hexVon(cs.getPropertyValue("--c2").trim());
+ document.getElementById("kfe").value=pf.ce||hexVon(cs.getPropertyValue("--c3").trim())}
+function pfBedienung(){
+ document.querySelectorAll("#kein button[data-pe]").forEach(b=>b.addEventListener("click",()=>{pf.gleich=b.dataset.pe==="gleich";pfSpeichern();pfOberflaecheSetzen();zeichneBogen()}));
+ document.getElementById("kbr").addEventListener("input",e=>{pf.breite=+e.target.value;document.getElementById("kbrw").textContent=nf(pf.breite,1);pfSpeichern();zeichneBogen()});
+ document.getElementById("kfi").addEventListener("input",e=>{pf.ci=e.target.value;pfSpeichern();pfFarbeAnwenden()});
+ document.getElementById("kfe").addEventListener("input",e=>{pf.ce=e.target.value;pfSpeichern();pfFarbeAnwenden()});
+ document.getElementById("kreset").addEventListener("click",()=>{pf=Object.assign({},PF_STANDARD);pfSpeichern();pfFarbeAnwenden();pfOberflaecheSetzen();zeichneBogen()});
+ pfFarbeAnwenden();pfOberflaecheSetzen()}
 function karteBauen(){
  const W=window.WELT,box=document.getElementById("karte");
  if(!W){box.style.display="none";return}
  const svg=document.getElementById("welt");svg.setAttribute("viewBox","0 0 "+W.b+" "+W.h);
  const hm=/g=(\w+)/.exec(location.hash);if(hm&&GRUPPEN.some(x=>x.id===hm[1]))kg=hm[1];
+ const mh=/m=(\w+)/.exec(location.hash);if(mh&&MNAME[mh[1]])vm=mh[1];
+ const mod=document.getElementById("kmodus");
+ [["alle","Alle"],["see","Seefracht"],["luft","Luftfracht"]].forEach(([id,n])=>{const b=document.createElement("button");b.type="button";b.className="btn";b.textContent=n;b.dataset.m=id;b.setAttribute("aria-pressed",id===vm);
+  b.addEventListener("click",()=>{vm=id;[...mod.querySelectorAll("button")].forEach(c=>c.setAttribute("aria-pressed",c.dataset.m===vm));zeichneBogen()});mod.appendChild(b)});
  const tabs=document.getElementById("ktabs");
  GRUPPEN.forEach(g=>{const b=document.createElement("button");b.type="button";b.className="btn";b.textContent=g.n;b.dataset.g=g.id;b.setAttribute("aria-pressed",g.id===kg);
   b.addEventListener("click",()=>{kg=g.id;[...tabs.children].forEach(c=>c.setAttribute("aria-pressed",c.dataset.g===kg));zeichneBogen()});tabs.appendChild(b)});
- let h='<defs><marker id="ai" viewBox="0 0 10 10" refX="8" refY="5" markerUnits="userSpaceOnUse" markerWidth="11" markerHeight="11" orient="auto"><path d="M0,0 L10,5 L0,10 z" fill="var(--c2)"/></marker><marker id="ae" viewBox="0 0 10 10" refX="8" refY="5" markerUnits="userSpaceOnUse" markerWidth="11" markerHeight="11" orient="auto"><path d="M0,0 L10,5 L0,10 z" fill="var(--c3)"/></marker></defs>';
+ let h='<defs><marker id="ai" viewBox="0 0 10 10" refX="8" refY="5" markerUnits="userSpaceOnUse" markerWidth="11" markerHeight="11" orient="auto"><path d="M0,0 L10,5 L0,10 z" fill="var(--ki,var(--c2))"/></marker><marker id="ae" viewBox="0 0 10 10" refX="8" refY="5" markerUnits="userSpaceOnUse" markerWidth="11" markerHeight="11" orient="auto"><path d="M0,0 L10,5 L0,10 z" fill="var(--ke,var(--c3))"/></marker></defs>';
  W.laender.forEach(l=>{h+='<path class="land'+(l.id==="840"?" us":"")+'" data-id="'+l.id+'" d="'+l.d+'"><title>'+esc(ISONAME[l.id]||(l.id==="840"?"USA":l.n))+'</title></path>'});
  h+='<g id="bogen"></g><g id="pn"></g>';svg.innerHTML=h;
- zeichneBogen();
+ pfBedienung();zeichneBogen();
 }
 function zeichneBogen(){
  const W=window.WELT,svg=document.getElementById("welt"),G=GRUPPEN.find(x=>x.id===kg);
  const U=W.punkte["840"],daten=bogenDaten(kg),vmax=Math.max(1,...daten.map(d=>d.ytd||0));
  svg.querySelectorAll(".land").forEach(p=>p.classList.toggle("pt",daten.some(d=>d.iso===p.dataset.id)));
- let s="",ns="";const seen={},plac=[];
+ let s="",ns="";const seen={},plac=[],ohneRoute={};
  daten.forEach((d,idx)=>{const P=W.punkte[d.iso];if(!P)return;
   const imp=d.ri==="imp",A=imp?P:U,B=imp?U:P;
   const mx=(A[0]+B[0])/2,my=(A[1]+B[1])/2,dx=B[0]-A[0],dy=B[1]-A[1],len=Math.hypot(dx,dy)||1;
@@ -548,27 +623,42 @@ function zeichneBogen(){
   /* Importe wölben sich nach oben, Exporte nach unten */
   if(imp&&ny>0){nx=-nx;ny=-ny}if(!imp&&ny<0){nx=-nx;ny=-ny}
   const cx=mx+nx*bul,cy=my+ny*bul;
-  const br=d.ytd?1.4+7.6*Math.sqrt(d.ytd/vmax):2.2;
-  const dpath="M"+A[0]+","+A[1]+" Q"+cx.toFixed(1)+","+cy.toFixed(1)+" "+B[0]+","+B[1];
-  s+='<g class="bogen" data-i="'+idx+'" style="--bw2:'+(br+1.8).toFixed(1)+'"><path class="bg '+d.ri+(d.ytd?'':' leer')+'" d="'+dpath+'" stroke-width="'+br.toFixed(1)+'" marker-end="url(#'+(imp?"ai":"ae")+')"/><path class="hit" d="'+dpath+'"/></g>';
+  const br=pf.gleich?pf.breite:(d.ytd?1.4+7.6*Math.sqrt(d.ytd/vmax):2.2);
+  let dpath="M"+A[0]+","+A[1]+" Q"+cx.toFixed(1)+","+cy.toFixed(1)+" "+B[0]+","+B[1],form="";
+  /* Seefracht: schematischer Seeweg, Luftfracht: Grosskreis (siehe seewege.js). Ohne hinterlegte Route bleibt die Bogenlinie. */
+  d.via=null;
+  if(vm!=="alle"&&window.SEE&&SEE.bereit()){
+   const r=vm==="see"?SEE.see(d.iso,G.id,!imp):SEE.luft(d.iso,!imp);
+   if(r){dpath=r.pfad;form=vm;if(r.via)d.via=r.hafen}else ohneRoute[d.name]=1}
+  s+='<g class="bogen" data-i="'+idx+'"'+(form?' transform="translate(0,'+(imp?-1.6:1.6)+')"':'')+' style="--bw2:'+(br+1.8).toFixed(1)+'"><path class="bg '+d.ri+(form?' '+form:'')+(d.ytd?'':' leer')+'" d="'+dpath+'" stroke-width="'+br.toFixed(1)+'" marker-end="url(#'+(imp?"ai":"ae")+')"/><path class="hit" d="'+dpath+'"/></g>';
   if(!seen[d.iso]){seen[d.iso]=1;let lx=P[0]+5,ly=P[1]+14;while(plac.some(q=>Math.abs(q[0]-lx)<60&&Math.abs(q[1]-ly)<12))ly+=12;plac.push([lx,ly]);ns+='<text class="pn" x="'+lx+'" y="'+ly+'">'+esc(d.name)+'</text>'}
  });
+ const ms=pf.gleich?Math.max(5,3.5+pf.breite*2.6):11;svg.querySelectorAll("marker").forEach(m=>{m.setAttribute("markerWidth",ms.toFixed(1));m.setAttribute("markerHeight",ms.toFixed(1))});
  document.getElementById("bogen").innerHTML=s;document.getElementById("pn").innerHTML=ns;
  svg.querySelectorAll("g.bogen").forEach(g=>{const d=daten[+g.dataset.i];
   const html=()=>tipHtml(G,d);
   g.addEventListener("mouseenter",e=>tipShow(e,html()));g.addEventListener("mousemove",e=>tipShow(e,html()));g.addEventListener("mouseleave",tipHide);
   g.addEventListener("click",()=>lieferDetail(G,d))});
  const C=window.USA_DATEN&&window.USA_DATEN.census;
- document.getElementById("kstand").textContent=C&&C.zeit?"Daten: US Census Bureau, Warenhandel kumuliert Januar bis "+["","Januar","Februar","März","April","Mai","Juni","Juli","August","September","Oktober","November","Dezember"][+C.zeit.slice(5)]+" "+C.zeit.slice(0,4):"Handelsvolumen folgt mit dem Census-Abruf: Linien zeigen vorerst nur die Beziehung";
- document.getElementById("khin").textContent=G.n+": "+G.codes+". "+G.hin;
- rangBauen(G);
+ const gr=C&&C.gruppen&&C.gruppen[G.id],neuDaten=!gr||!gr.imp.laender.length||gr.imp.laender[0].sy!==undefined;
+ document.getElementById("kstand").textContent=C&&C.zeit?"Daten: US Census Bureau, Warenhandel kumuliert Januar bis "+["","Januar","Februar","März","April","Mai","Juni","Juli","August","September","Oktober","November","Dezember"][+C.zeit.slice(5)]+" "+C.zeit.slice(0,4)+(vm==="alle"?"":" · nur "+MNAME[vm]):"Handelsvolumen folgt mit dem Census-Abruf: Linien zeigen vorerst nur die Beziehung";
+ const MHIN={alle:"Die Linien verbinden die Länder schematisch, sie zeigen keine Transportwege. Mit „Seefracht“ und „Luftfracht“ erscheinen Routen.",
+  see:"Seefracht: Die Linien zeigen schematische Hauptseewege (Pazifik, Suezkanal, Atlantik, Karibik), keine echten Schiffspositionen; tatsächliche Fahrten können abweichen, zum Beispiel über das Kap der Guten Hoffnung statt durch den Suezkanal. Ziel ist je nach Herkunft die Westküste (Los Angeles) oder die Ostküste (New York); Energie läuft über den Golf (Houston), aus und nach Ostasien über den Panamakanal. Mexiko endet am Golf, Kanada an der Ostküste. Importe und Exporte auf demselben Weg sind leicht versetzt gezeichnet. Länder ohne Seehafen (Schweiz, Slowakei, Paraguay, Bolivien) laufen über den üblichen Nachbarhafen. Liniendicke = Warenwert per Schiff laut Census (Vessel Value); Lkw, Bahn und Pipeline fehlen.",
+  luft:"Luftfracht: Die Linien sind Großkreise (kürzeste Verbindung auf der Erdkugel) zwischen dem wichtigsten Frachtflughafen des Partnerlands und einem großen US-Frachtflughafen (New York, Los Angeles, Miami, Chicago, Dallas), schematisch und keine echten Flüge. Liniendicke = Warenwert per Flugzeug laut Census (Air Value)."};
+ let hint=G.n+": "+G.codes+". "+G.hin+" "+MHIN[vm];
+ if(vm!=="alle"&&!neuDaten)hint+=" Die Werte je Verkehrsträger kommen mit dem nächsten Datenabruf (die Linien zeigen bis dahin nur die Beziehung).";
+ const fehlt=Object.keys(ohneRoute);if(fehlt.length)hint+=" Ohne hinterlegte Route (Bogenlinie): "+fehlt.join(", ")+".";
+ document.getElementById("khin").textContent=hint;
+ rangBauen(G);haefenBauen(G);
 }
 function tipHtml(G,d){
  const rt=d.ri==="imp"?d.name+" → USA (Import)":"USA → "+d.name+" (Export)";
  let h='<b>'+esc(rt)+'</b><div class="z"><span>Produktgruppe</span><span>'+esc(G.n)+'</span></div>';
- if(d.ytd!=null){h+='<div class="z"><span>Volumen seit Jahresbeginn</span><span><b style="display:inline;font-size:12.5px">'+mrd(d.ytd)+'</b></span></div>';
+ if(d.ytd!=null){h+='<div class="z"><span>Volumen seit Jahresbeginn'+msuf()+'</span><span><b style="display:inline;font-size:12.5px">'+mrd(d.ytd)+'</b></span></div>';
   if(d.mo!=null)h+='<div class="z"><span>Letzter Monat</span><span>'+mrd(d.mo)+'</span></div>';
-  if(d.anteil!=null)h+='<div class="z"><span>Anteil an den '+(d.ri==="imp"?"Importen":"Exporten")+' dieser Gruppe</span><span>'+nf(d.anteil,1)+' %</span></div>';
+  if(d.anteil!=null)h+='<div class="z"><span>Anteil an den '+(d.ri==="imp"?"Importen":"Exporten")+' dieser Gruppe'+msuf()+'</span><span>'+nf(d.anteil,1)+' %</span></div>';
+  if(d.modeAnteil!=null)h+='<div class="z"><span>'+MNAME[vm]+' am Gesamtwert dieser Verbindung</span><span>'+nf(d.modeAnteil,1)+' %</span></div>';
+  if(d.via)h+='<div class="z"><span>Route über</span><span>'+esc(d.via)+'</span></div>';
   h+='<div class="z"><span>Rang</span><span>'+d.rang+'</span></div>'}
  else h+='<div class="z"><span>Volumen</span><span>folgt (Census-Abruf)</span></div>';
  h+='<div class="h">'+esc(G.hin)+'</div><div class="h">Klick für Details</div>';return h}
@@ -577,17 +667,58 @@ function lieferDetail(G,d){
  dr.style.setProperty("--c",imp?"var(--c2)":"var(--c3)");
  const rt=imp?d.name+" → USA (Import)":"USA → "+d.name+" (Export)";
  let h='<div class="dk"><div><div class="gr">Lieferkette · '+esc(G.n)+'</div><h2 id="dt">'+esc(rt)+'</h2></div><button class="zu" type="button" aria-label="Schließen">×</button></div><div class="db">';
- if(d.ytd!=null){h+='<div class="gross">'+mrd(d.ytd)+'</div><div class="gsub">seit Jahresbeginn, Census Bureau · <i class="pkt auto"></i>automatisch</div>';
-  h+='<table><tr><th>Datenpunkt</th><th>Wert</th></tr>'+(d.mo!=null?'<tr><td>Letzter Monat</td><td><b>'+mrd(d.mo)+'</b></td></tr>':'')+(d.anteil!=null?'<tr><td>Anteil an den '+(imp?'Importen':'Exporten')+' der Gruppe</td><td><b>'+nf(d.anteil,1)+' %</b></td></tr>':'')+'<tr><td>Rang unter den Partnern der Gruppe</td><td><b>'+d.rang+'</b></td></tr>'+(d.gesamt?'<tr><td>Gesamt der Gruppe seit Jahresbeginn</td><td><b>'+mrd(d.gesamt.ytd)+'</b></td></tr>':'')+'</table>'}
+ if(d.ytd!=null){h+='<div class="gross">'+mrd(d.ytd)+'</div><div class="gsub">seit Jahresbeginn'+msuf()+', Census Bureau · <i class="pkt auto"></i>automatisch</div>';
+  h+='<table><tr><th>Datenpunkt</th><th>Wert</th></tr>'+(d.via?'<tr><td>Route über (kein eigener Seehafen)</td><td><b>'+esc(d.via)+'</b></td></tr>':'')+(d.mo!=null?'<tr><td>Letzter Monat</td><td><b>'+mrd(d.mo)+'</b></td></tr>':'')+(d.modeAnteil!=null?'<tr><td>'+MNAME[vm]+' am Gesamtwert dieser Verbindung</td><td><b>'+nf(d.modeAnteil,1)+' %</b></td></tr>':'')+(d.anteil!=null?'<tr><td>Anteil an den '+(imp?'Importen':'Exporten')+' der Gruppe'+msuf()+'</td><td><b>'+nf(d.anteil,1)+' %</b></td></tr>':'')+'<tr><td>Rang unter den Partnern der Gruppe</td><td><b>'+d.rang+'</b></td></tr>'+(d.gesamt&&d.gesamt.ytd?'<tr><td>Gesamt der Gruppe seit Jahresbeginn'+msuf()+'</td><td><b>'+mrd(d.gesamt.ytd)+'</b></td></tr>':'')+'</table>'}
  else h+='<div class="gross" style="font-size:24px">Volumen folgt</div><div class="gsub">Das Handelsvolumen kommt aus dem Census-Abruf, sobald der Schlüssel eingerichtet ist.</div>';
  h+='<h3>Was gehört zu dieser Lieferkette?</h3><p>'+esc(G.n)+': '+esc(G.codes)+'.</p><h3>Hinweis</h3><div class="hin">'+esc(G.hin)+'</div><h3>Quelle</h3><p style="font-size:13px;color:var(--text2)">US Census Bureau, International Trade (Warenhandel nach Zolltarifnummer und Land). Hinweise: Zahlen in laufenden US-Dollar, Lieferung nach Ursprungsland (Import) bzw. Bestimmungsland (Export).</p></div>';
  dr.innerHTML=h;dr.classList.add("offen");sh.classList.add("offen");dr.querySelector(".zu").addEventListener("click",schliessen);dr.focus();tipHide()}
 function rangBauen(G){
  const el=document.getElementById("rang");
- const spalte=(ri,titel)=>{const L=liste(G.id,ri);
+ const spalte=(ri,titel)=>{let L=liste(G.id,ri);if(L&&vm!=="alle"&&L.laender[0].sy===undefined)L=null;
   if(!L)return '<div><table><tr><th colspan="3">'+titel+'</th></tr><tr><td colspan="3" style="color:var(--text2)">Rangliste folgt mit dem Census-Abruf.</td></tr></table></div>';
-  return '<div><table><tr><th>'+titel+'</th><th>Mrd. USD</th><th>Anteil</th></tr>'+L.laender.slice(0,8).map(x=>{const m=NAMEISO[x.n.toUpperCase()];return '<tr><td>'+esc(m?m[1]:x.n)+'</td><td>'+nf(x.ytd/1000,2)+'</td><td>'+(L.gesamt&&L.gesamt.ytd?nf(x.ytd/L.gesamt.ytd*100,1)+' %':'')+'</td></tr>'}).join("")+'</table></div>'};
- el.innerHTML=spalte("imp","Größte Lieferländer (Import)")+spalte("exp","Größte Abnehmerländer (Export)")}
+  const ges=L.gesamt?(vm==="see"?L.gesamt.sy:vm==="luft"?L.gesamt.ly:L.gesamt.ytd):0;
+  const zl=L.laender.filter(x=>mw(x)>0).sort((a,b)=>mw(b)-mw(a)).slice(0,8);
+  return '<div><table><tr><th>'+titel+'</th><th>Mrd. USD</th><th>Anteil</th></tr>'+zl.map(x=>{const m=NAMEISO[x.n.toUpperCase()];return '<tr><td>'+esc(m?m[1]:x.n)+'</td><td>'+nf(mw(x)/1000,2)+'</td><td>'+(ges?nf(mw(x)/ges*100,1)+' %':'')+'</td></tr>'}).join("")+'</table></div>'};
+ const sf=vm==="alle"?"":" · "+MNAME[vm];
+ el.innerHTML=spalte("imp","Größte Lieferländer (Import)"+sf)+spalte("exp","Größte Abnehmerländer (Export)"+sf)}
+/* ================== HAFENANSICHT (nur Seefracht) ================== */
+let hri="imp";
+function titelHafen(n){return String(n).toLowerCase().replace(/(^|[ \-(])([a-z])/g,(m,a,b)=>a+b.toUpperCase()).replace(/, ([A-Za-z]{2})$/,(m,s)=>", "+s.toUpperCase())}
+function haefenBauen(G){
+ const box=document.getElementById("haefen");
+ if(vm!=="see"){box.style.display="none";box.innerHTML="";return}
+ box.style.display="";
+ const C=window.USA_DATEN&&window.USA_DATEN.census,H=C&&C.haefen&&C.haefen[G.id];
+ if(!H||!H.imp||!H.exp){box.innerHTML='<h3>Häfen: wichtigste US-Seehäfen dieser Produktgruppe</h3><p class="bhin">Die Hafendaten kommen mit dem nächsten Datenabruf (US Census Bureau, Warenhandel nach Hafen).</p>';return}
+ const W=window.WELT;
+ const liste_=H[hri].liste.filter(x=>x.n&&x.sy>0).slice(0,10),ges=H[hri].gesamt.sy,vmax=Math.max(1,...liste_.map(x=>x.sy));
+ let svg="";
+ if(W&&window.SEE&&SEE.bereit()){
+  const ecken=[[-127,50.4],[-66,50.4],[-127,24.2],[-66,24.2],[-96,50.4],[-96,24.2]].map(q=>SEE.proj(q[0],q[1]));
+  const x0=Math.min(...ecken.map(q=>q[0]))-1,x1=Math.max(...ecken.map(q=>q[0]))+1,y0=Math.min(...ecken.map(q=>q[1]))-1,y1=Math.max(...ecken.map(q=>q[1]))+1;
+  svg='<svg viewBox="'+x0.toFixed(1)+' '+y0.toFixed(1)+' '+(x1-x0).toFixed(1)+' '+(y1-y0).toFixed(1)+'" role="img" aria-label="Karte der wichtigsten US-Seehäfen">';
+  ["840","124","484","192","044","388"].forEach(id=>{const l=W.laender.find(z=>z.id===id);if(l)svg+='<path class="land'+(id==="840"?" us":"")+'" d="'+l.d+'"/>'});
+  const plac=[];let lab="";
+  const radius=x=>.9+4.2*Math.sqrt(x.sy/vmax);
+  liste_.forEach((x,i)=>{const ll=SEE.hafen(x.n);if(!ll)return;const p=SEE.proj(ll[0],ll[1]);if(p[0]<x0||p[0]>x1||p[1]<y0||p[1]>y1)return;
+   svg+='<circle class="hb '+hri+'" data-i="'+i+'" cx="'+p[0].toFixed(2)+'" cy="'+p[1].toFixed(2)+'" r="'+radius(x).toFixed(2)+'"/>'});
+  /* Beschriftung der groessten Haefen, Ueberlappungen vermeiden */
+  liste_.slice(0,8).forEach(x=>{const ll=SEE.hafen(x.n);if(!ll)return;const p=SEE.proj(ll[0],ll[1]);if(p[0]<x0||p[0]>x1||p[1]<y0||p[1]>y1)return;
+   const r=radius(x),west=ll[0]<-100,name=titelHafen(x.n).split(",")[0],w=name.length*1.15;
+   const lx=west?p[0]-r-.6:p[0]+r+.6;let ly=p[1]+.7,n=0;
+   while(n<12&&plac.some(q=>Math.abs(q[1]-ly)<2.4&&Math.abs(q[0]-lx)<Math.max(q[2],w)+1)){ly+=2.5;n++}
+   plac.push([lx,ly,w]);lab+='<text class="hn" x="'+lx.toFixed(2)+'" y="'+ly.toFixed(2)+'" text-anchor="'+(west?"end":"start")+'">'+esc(name)+'</text>'});
+  svg+=lab+'</svg>'}
+ const tabelle=(ri,titel)=>{const L=H[ri],g=L.gesamt.sy;return '<div><table><tr><th>'+titel+'</th><th>Mrd. USD</th><th>Anteil</th></tr>'+L.liste.filter(x=>x.n).slice(0,10).map((x,i)=>'<tr><td>'+(i+1)+'. '+esc(titelHafen(x.n))+'</td><td>'+nf(x.sy/1000,2)+'</td><td>'+(g?nf(x.sy/g*100,1)+' %':'')+'</td></tr>').join("")+'</table></div>'};
+ box.innerHTML='<h3>Häfen: wichtigste US-Seehäfen dieser Produktgruppe</h3>'
+  +'<div class="hz" role="group" aria-label="Richtung der Karte"><button type="button" class="btn" data-r="imp" aria-pressed="'+(hri==="imp")+'">Karte: Import (Ankunftshäfen)</button><button type="button" class="btn" data-r="exp" aria-pressed="'+(hri==="exp")+'">Karte: Export (Abgangshäfen)</button></div>'
+  +svg+'<div class="rang">'+tabelle("imp","Import: Ankunftshäfen")+tabelle("exp","Export: Abgangshäfen")+'</div>'
+  +'<div class="bhin">Blasengröße = Warenwert per Schiff seit Jahresbeginn (Census, Hafen der Entladung bzw. Beladung). Anteile beziehen sich auf alle Seefracht-Importe bzw. -Exporte dieser Produktgruppe. Census-Hafenbezirke können mehrere Terminals umfassen (zum Beispiel „Carquinez Strait“ = Häfen in der Bucht von San Francisco); der Wert ist der Warenwert laut Zollerklärung, nicht Tonnen oder Container. Häfen außerhalb des Kartenausschnitts (Alaska, Hawaii, Puerto Rico) stehen nur in der Liste.</div>';
+ box.querySelectorAll("button[data-r]").forEach(b=>b.addEventListener("click",()=>{hri=b.dataset.r;haefenBauen(G)}));
+ box.querySelectorAll("circle.hb").forEach(c=>{const x=liste_[+c.dataset.i];
+  const html=()=>'<b>'+esc(titelHafen(x.n))+'</b><div class="z"><span>Produktgruppe</span><span>'+esc(G.n)+'</span></div><div class="z"><span>'+(hri==="imp"?"Import":"Export")+' per Schiff seit Jahresbeginn</span><span><b style="display:inline;font-size:12.5px">'+mrd(x.sy)+'</b></span></div><div class="z"><span>Letzter Monat</span><span>'+mrd(x.sm)+'</span></div><div class="z"><span>Anteil an der Seefracht der Gruppe</span><span>'+(ges?nf(x.sy/ges*100,1)+' %':'')+'</span></div><div class="z"><span>Rang</span><span>'+(+c.dataset.i+1)+'</span></div>';
+  c.addEventListener("mouseenter",e=>tipShow(e,html()));c.addEventListener("mousemove",e=>tipShow(e,html()));c.addEventListener("mouseleave",tipHide)});
+}
 /* ================== ZEITSTRAHL ================== */
 let zsKat="Alle",zsAnz=14;
 function zsEreignisse(){
@@ -608,7 +739,7 @@ function zeitstrahlBauen(){
 }
 flussBauen();
 
-$("#theme").addEventListener("click",()=>{const r=document.documentElement;r.dataset.theme=r.dataset.theme==="dark"?"light":"dark";try{localStorage.setItem("dashboard-thema",r.dataset.theme)}catch(e){}if(aktiv)oeffnen(aktiv)});
+$("#theme").addEventListener("click",()=>{const r=document.documentElement;r.dataset.theme=r.dataset.theme==="dark"?"light":"dark";try{localStorage.setItem("dashboard-thema",r.dataset.theme)}catch(e){}if(aktiv)oeffnen(aktiv);pfOberflaecheSetzen()});
 bauen();karteBauen();zeitstrahlBauen();
 const hh=/#(\w+)/.exec(location.hash);if(hh&&byId[hh[1]])oeffnen(hh[1]);
 </script>
