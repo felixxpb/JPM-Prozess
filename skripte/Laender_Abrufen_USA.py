@@ -426,13 +426,17 @@ def census_key():
     raise ValueError("kein Census-Schluessel hinterlegt (Secret CENSUS_API_KEY fehlt)")
 
 
-def census_abfrage(key, richtung, stufe, code, zeit):
+def census_abfrage(key, richtung, stufe, code, zeit, hafen=False):
+    """Holt Wert gesamt, per Schiff (VES) und per Flugzeug (AIR), je Land (hafen=False) oder je Hafen (hafen=True).
+    Rueckgabe: {Schluessel: (Name, mo, yr, schiff_mo, schiff_yr, luft_mo, luft_yr)}  (Werte in USD)"""
     if richtung == "imp":
-        felder, kc, wm, wy = "CTY_CODE,CTY_NAME,I_COMMODITY,GEN_VAL_MO,GEN_VAL_YR", "I_COMMODITY", 3, 4
-        pfad = "imports/hs"
+        tot, kc, pfad = "GEN_VAL", "I_COMMODITY", "imports/"
     else:
-        felder, kc, wm, wy = "CTY_CODE,CTY_NAME,E_COMMODITY,ALL_VAL_MO,ALL_VAL_YR", "E_COMMODITY", 3, 4
-        pfad = "exports/hs"
+        tot, kc, pfad = "ALL_VAL", "E_COMMODITY", "exports/"
+    pfad += "porths" if hafen else "hs"
+    sk = "PORT" if hafen else "CTY_CODE"
+    sn = "PORT_NAME" if hafen else "CTY_NAME"
+    felder = "%s,%s,%s,%s_MO,%s_YR,VES_VAL_MO,VES_VAL_YR,AIR_VAL_MO,AIR_VAL_YR" % (sk, sn, kc, tot, tot)
     u = "%s%s?get=%s&COMM_LVL=%s&%s=%s&time=%s&key=%s" % (CENSUS, pfad, felder, stufe, kc, code, zeit, key)
     letzter = None
     for _ in range(3):
@@ -442,13 +446,37 @@ def census_abfrage(key, richtung, stufe, code, zeit):
             if not roh.strip():
                 return None
             zeilen = json.loads(roh)
+            kopf = zeilen[0]
+            ix = [kopf.index(n) for n in (sk, sn, tot + "_MO", tot + "_YR", "VES_VAL_MO", "VES_VAL_YR", "AIR_VAL_MO", "AIR_VAL_YR")]
             out = {}
             for z in zeilen[1:]:
-                out[z[0]] = (z[1], float(z[wm] or 0), float(z[wy] or 0))
+                out[z[ix[0]]] = (z[ix[1]],) + tuple(float(z[i] or 0) for i in ix[2:])
             return out
         except Exception as e:  # noqa
             letzter = str(e).replace(key, "***")
     raise ValueError("Census %s %s %s: %s" % (richtung, stufe, code, letzter))
+
+
+def census_summiere(cache, codes, ri, key, zeit, hafen):
+    """Summiert die Zolltarifnummern einer Produktgruppe (mit Vorzeichen). Rueckgabe (gesamt, {id: [name, 6 Werte]})"""
+    summe, gesamt = {}, [0.0] * 6
+    for stufe, code, vz in codes:
+        k = (ri, stufe, code, hafen)
+        if k not in cache:
+            cache[k] = census_abfrage(key, ri, stufe, code, zeit, hafen) or {}
+        for cc, v in cache[k].items():
+            if cc == "-":
+                for i in range(6):
+                    gesamt[i] += vz * v[1 + i]
+            elif hafen or (cc.isdigit() and int(cc) >= 1000):
+                s = summe.setdefault(cc, [v[0]] + [0.0] * 6)
+                for i in range(6):
+                    s[1 + i] += vz * v[1 + i]
+    return gesamt, summe
+
+
+def m(v):
+    return round(v / 1e6, 1)
 
 
 def lade_census():
@@ -456,42 +484,45 @@ def lade_census():
     heute = datetime.date.today()
     zeit = None
     for monate_zurueck in range(1, 6):  # der letzte verfuegbare Monat (Veroeffentlichung etwa 5 Wochen nach Monatsende)
-        m = heute.month - monate_zurueck
+        mm = heute.month - monate_zurueck
         j = heute.year
-        while m < 1:
-            m += 12
+        while mm < 1:
+            mm += 12
             j -= 1
-        z = "%d-%02d" % (j, m)
+        z = "%d-%02d" % (j, mm)
         if census_abfrage(key, "imp", "HS2", "87", z):
             zeit = z
             break
     if not zeit:
         raise ValueError("Census: kein verfuegbarer Monat gefunden")
-    cache = {}
-    gruppen = {}
+    cache, gruppen, haefen, haefen_fehler = {}, {}, {}, None
     for gid, codes in CENSUS_GRUPPEN.items():
-        gruppen[gid] = {}
+        gruppen[gid], haefen[gid] = {}, {}
         for ri in ("imp", "exp"):
-            summe = {}
-            gesamt = [0.0, 0.0]
-            for stufe, code, vz in codes:
-                k = (ri, stufe, code)
-                if k not in cache:
-                    cache[k] = census_abfrage(key, ri, stufe, code, zeit) or {}
-                for cc, (name, mo, yr) in cache[k].items():
-                    if cc == "-":
-                        gesamt[0] += vz * mo
-                        gesamt[1] += vz * yr
-                    elif cc.isdigit() and int(cc) >= 1000:
-                        s = summe.setdefault(cc, [name, 0.0, 0.0])
-                        s[1] += vz * mo
-                        s[2] += vz * yr
+            gesamt, summe = census_summiere(cache, codes, ri, key, zeit, False)
             top = sorted(summe.values(), key=lambda s: s[2], reverse=True)[:12]
-            gruppen[gid][ri] = {"gesamt": {"mo": round(gesamt[0] / 1e6, 1), "ytd": round(gesamt[1] / 1e6, 1)},
-                                "laender": [{"n": s[0], "mo": round(s[1] / 1e6, 1), "ytd": round(s[2] / 1e6, 1)} for s in top if s[2] > 0]}
+            gruppen[gid][ri] = {
+                "gesamt": {"mo": m(gesamt[0]), "ytd": m(gesamt[1]), "sm": m(gesamt[2]), "sy": m(gesamt[3]), "lm": m(gesamt[4]), "ly": m(gesamt[5])},
+                "laender": [{"n": s[0], "mo": m(s[1]), "ytd": m(s[2]), "sm": m(s[3]), "sy": m(s[4]), "lm": m(s[5]), "ly": m(s[6])} for s in top if s[2] > 0]}
     if not gruppen["auto"]["imp"]["laender"] or gruppen["auto"]["imp"]["gesamt"]["ytd"] <= 0:
         raise ValueError("Census-Werte unplausibel")
-    return {"zeit": zeit, "einheit": "Mio. USD", "gruppen": gruppen, "quelle": "https://www.census.gov/foreign-trade/index.html"}
+    # Haefen und Flughaefen (nur Zusatz: faellt er aus, bleiben die Laenderdaten erhalten)
+    try:
+        for gid, codes in CENSUS_GRUPPEN.items():
+            for ri in ("imp", "exp"):
+                gesamt, summe = census_summiere(cache, codes, ri, key, zeit, True)
+                top = sorted(summe.values(), key=lambda s: s[4], reverse=True)[:12]
+                haefen[gid][ri] = {
+                    "gesamt": {"sm": m(gesamt[2]), "sy": m(gesamt[3])},
+                    "liste": [{"n": s[0], "sm": m(s[3]), "sy": m(s[4]), "ty": m(s[2]), "ly": m(s[6])} for s in top if s[4] > 0]}
+        if not haefen["auto"]["imp"]["liste"]:
+            raise ValueError("Hafen-Werte unplausibel")
+    except Exception as e:  # noqa
+        haefen, haefen_fehler = None, str(e).replace(key, "***")[:200]
+    out = {"zeit": zeit, "einheit": "Mio. USD", "gruppen": gruppen, "haefen": haefen, "quelle": "https://www.census.gov/foreign-trade/index.html"}
+    if haefen_fehler:
+        out["haefen_fehler"] = haefen_fehler
+    return out
 
 
 def lade_alt():
