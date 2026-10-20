@@ -38,6 +38,17 @@ FRED = {
     "UNRATE": "2022-01-01",
     # Oberthema 6 (Inflation): Erwartungen (Michigan 1 Jahr, Breakeven 5J/10J, 5J-in-5J)
     "MICH": "2022-01-01", "T5YIE": "2024-10-01", "T10YIE": "2024-10-01", "T5YIFR": "2024-10-01",
+    # Oberthema 7 (Arbeitsmarkt): Beschaeftigte nach Branche (CES, in Tausend, ab 2019 fuer den Vergleich mit Feb 2020)
+    "PAYEMS": "2019-01-01", "USPRIV": "2019-01-01", "USGOOD": "2019-01-01", "USGOVT": "2019-01-01",
+    "USMINE": "2019-01-01", "USCONS": "2019-01-01", "MANEMP": "2019-01-01", "DMANEMP": "2019-01-01", "NDMANEMP": "2019-01-01",
+    "USTPU": "2019-01-01", "USWTRADE": "2019-01-01", "USTRADE": "2019-01-01", "CES4300000001": "2019-01-01", "CES4422000001": "2019-01-01",
+    "USINFO": "2019-01-01", "USFIRE": "2019-01-01", "USPBS": "2019-01-01", "USEHS": "2019-01-01",
+    "CES6561000001": "2019-01-01", "CES6562000001": "2019-01-01", "USLAH": "2019-01-01", "USSERV": "2019-01-01",
+    "CES9091000001": "2019-01-01", "CES9092000001": "2019-01-01", "CES9093000001": "2019-01-01",
+    # Arbeitslosigkeit, Angebot, Nachfrage nach Arbeit
+    "U6RATE": "2022-01-01", "CIVPART": "2022-01-01", "LNS11300060": "2022-01-01", "LNS12300060": "2022-01-01", "LNS13025703": "2022-01-01",
+    "JTSJOL": "2022-01-01", "JTSQUR": "2022-01-01", "JTSHIR": "2022-01-01", "JTSLDL": "2022-01-01",
+    "ICSA": "2024-10-01", "CCSA": "2024-10-01",
     # Oberthema 4 (Wirtschaft und Infrastruktur)
     "A191RL1Q225SBEA": "2015-01-01", "GDPC1": "2015-01-01",
     "GDP": "2015-01-01", "PCEC": "2015-01-01", "GPDI": "2015-01-01", "GCE": "2015-01-01", "NETEXP": "2015-01-01",
@@ -70,6 +81,8 @@ FRED_UMGERECHNET = {
     "CPIENGSL_YOY": ("CPIENGSL", "pc1", "2022-01-01"),              # Energie
     "CPIUFDSL_YOY": ("CPIUFDSL", "pc1", "2022-01-01"),              # Nahrungsmittel
     "CES0500000003_YOY": ("CES0500000003", "pc1", "2022-01-01"),    # Stundenlohn privater Sektor
+    "PAYEMS_CHG": ("PAYEMS", "chg", "2022-01-01"),                   # Beschaeftigtenaenderung zum Vormonat (Tausend)
+    "ECIWAG_YOY": ("ECIWAG", "pc1", "2022-01-01"),                   # Employment Cost Index Loehne, zum Vorjahr
 }
 
 
