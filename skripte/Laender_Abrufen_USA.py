@@ -36,6 +36,8 @@ FRED = {
     # Oberthema 3 (Fed)
     "DFEDTARU": "2024-10-01", "DFEDTARL": "2024-10-01", "DFF": "2024-10-01", "IORB": "2024-10-01",
     "UNRATE": "2022-01-01",
+    # Oberthema 6 (Inflation): Erwartungen (Michigan 1 Jahr, Breakeven 5J/10J, 5J-in-5J)
+    "MICH": "2022-01-01", "T5YIE": "2024-10-01", "T10YIE": "2024-10-01", "T5YIFR": "2024-10-01",
     # Oberthema 4 (Wirtschaft und Infrastruktur)
     "A191RL1Q225SBEA": "2015-01-01", "GDPC1": "2015-01-01",
     "GDP": "2015-01-01", "PCEC": "2015-01-01", "GPDI": "2015-01-01", "GCE": "2015-01-01", "NETEXP": "2015-01-01",
@@ -59,6 +61,15 @@ FRED_UMGERECHNET = {
     "PCEPILFE_YOY": ("PCEPILFE", "pc1", "2022-01-01"),
     "PCEPI_YOY": ("PCEPI", "pc1", "2022-01-01"),
     "OPHNFB_YOY": ("OPHNFB", "pc1", "2018-01-01"),
+    # Oberthema 6 (Inflation)
+    "CPIAUCSL_YOY": ("CPIAUCSL", "pc1", "2022-01-01"),
+    "CPILFESL_YOY": ("CPILFESL", "pc1", "2022-01-01"),
+    "PPIFIS_YOY": ("PPIFIS", "pc1", "2022-01-01"),
+    "PPIFES_YOY": ("PPIFES", "pc1", "2022-01-01"),
+    "CUSR0000SAH1_YOY": ("CUSR0000SAH1", "pc1", "2022-01-01"),     # Wohnen (Shelter-nahe Reihe: Housing)
+    "CPIENGSL_YOY": ("CPIENGSL", "pc1", "2022-01-01"),              # Energie
+    "CPIUFDSL_YOY": ("CPIUFDSL", "pc1", "2022-01-01"),              # Nahrungsmittel
+    "CES0500000003_YOY": ("CES0500000003", "pc1", "2022-01-01"),    # Stundenlohn privater Sektor
 }
 
 
