@@ -1,0 +1,554 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>JPM Prozess · Länderanalyse USA · Arbeitsmarkt</title>
+<style>
+:root{
+  --flaeche:#fcfcfb; --ebene:#f9f9f7; --text:#0b0b0b; --text2:#52514e; --stumm:#898781;
+  --raster:#e1e0d9; --achse:#c3c2b7; --rand:rgba(11,11,11,.10);
+  --c1:#2f6f9f; --c2:#6b4f8a; --c3:#3d7a56; --c4:#8a5a2b; --cb:#52514e;
+  --h1:#e6f0f7; --h2:#eee9f4; --h3:#e5f2ea; --h4:#f4ebe1; --hb:#efeee9;
+  --gut:#006300; --warn:#b97a00; --schatten:0 1px 2px rgba(11,11,11,.04),0 4px 16px rgba(11,11,11,.06);
+  color-scheme:light;
+}
+:root[data-theme="dark"]{
+  --flaeche:#1a1a19; --ebene:#0d0d0d; --text:#fff; --text2:#c3c2b7; --stumm:#898781;
+  --raster:#2c2c2a; --achse:#383835; --rand:rgba(255,255,255,.12);
+  --c1:#5fa0d3; --c2:#ab8fd0; --c3:#56b27d; --c4:#d39a5a; --cb:#c3c2b7;
+  --h1:#16222c; --h2:#221b2c; --h3:#16261d; --h4:#2a2016; --hb:#232321;
+  --gut:#0ca30c; --warn:#fab219; --schatten:none; color-scheme:dark;
+}
+*{box-sizing:border-box}
+body{margin:0;padding:0 20px 56px;background:var(--ebene);color:var(--text);font-family:system-ui,-apple-system,"Segoe UI",sans-serif;font-size:15px;line-height:1.5}
+.wrap{max-width:1280px;margin:0 auto}
+header{padding:20px 0 6px;display:flex;gap:16px;justify-content:space-between;align-items:flex-start;flex-wrap:wrap}
+h1{margin:0;font-size:21px;font-weight:650}
+.unter{color:var(--text2);font-size:13px}
+.entwurf{display:inline-block;margin-left:8px;padding:1px 8px;border-radius:99px;border:1px solid var(--warn);color:var(--warn);font-size:12px;font-weight:600;vertical-align:middle}
+.tool{font:inherit;font-size:13px;background:var(--flaeche);color:var(--text);border:1px solid var(--rand);border-radius:8px;padding:6px 12px;cursor:pointer}
+.legende{display:flex;gap:16px;flex-wrap:wrap;font-size:12px;color:var(--text2);margin:6px 0 12px}
+.pkt{width:8px;height:8px;border-radius:50%;display:inline-block;margin-right:5px}.pkt.auto{background:var(--gut)}.pkt.man{background:var(--stumm)}
+/* Kachel */
+.k{all:unset;box-sizing:border-box;display:block;width:100%;cursor:pointer;background:var(--flaeche);border:1px solid var(--rand);border-radius:9px;padding:9px 11px 8px;box-shadow:var(--schatten);transition:transform .15s,border-color .15s}
+.k:hover{transform:translateY(-1px);border-color:var(--c)}.k:focus-visible{outline:2px solid var(--c);outline-offset:2px}
+.k.aktiv{border-color:var(--c);box-shadow:0 0 0 2px var(--c)}
+.kt{display:flex;justify-content:space-between;align-items:baseline;gap:6px}
+.kn{font-size:12.5px;color:var(--text2);font-weight:600}
+.kd{font-size:11px;color:var(--stumm);white-space:nowrap}
+.kw{font-size:23px;font-weight:700;line-height:1.15;font-variant-numeric:tabular-nums;margin-top:1px}
+.ks{font-size:11.8px;color:var(--text2);display:flex;justify-content:space-between;gap:6px;align-items:center;margin-top:1px}
+.dl{white-space:nowrap}
+.spark{display:block;width:100%;height:30px;margin-top:3px}
+.c1{--c:var(--c1)}.c2{--c:var(--c2)}.c3{--c:var(--c3)}.c4{--c:var(--c4)}.cb{--c:var(--cb)}
+/* Layout */
+.band{background:var(--hb);border:1px solid var(--rand);border-radius:12px;padding:8px 10px 10px;margin-bottom:14px}
+.bandkopf{font-size:12px;font-weight:700;color:var(--text2);text-transform:uppercase;letter-spacing:.05em;margin:2px 2px 6px}
+.bandinhalt{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}
+.raster{display:grid;grid-template-columns:1fr 54px 1fr 54px 1fr 54px 1fr;align-items:stretch}
+.sp{padding:8px;border-radius:12px;display:flex;flex-direction:column;gap:9px}
+.sp.s1{background:var(--h1)}.sp.s2{background:var(--h2)}.sp.s3{background:var(--h3)}.sp.s4{background:var(--h4)}
+.spkopf{color:#fff;font-weight:700;text-align:center;padding:9px 6px;border-radius:9px;font-size:13px;background:var(--c)}
+.pill{all:unset;cursor:pointer;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;font-size:10.5px;text-align:center;color:var(--text2);padding:4px 2px}
+.pill .pf{font-size:20px;color:var(--text);line-height:1}.pill:hover,.pill.aktiv{color:var(--text)}.pill:focus-visible{outline:2px solid var(--text);border-radius:6px}
+.termine{margin-top:16px;background:var(--flaeche);border:1px solid var(--rand);border-radius:10px;padding:10px 14px;box-shadow:var(--schatten)}
+.termine h2{margin:0 0 4px;font-size:13px;color:var(--text2);text-transform:uppercase;letter-spacing:.05em}
+.termin{display:flex;gap:10px;align-items:baseline;padding:5px 0;border-top:1px solid var(--raster);font-size:13px}
+.termin:first-of-type{border-top:0}.termin .d{width:96px;font-weight:600}.termin .t{flex:1}.termin .r{color:var(--text2);white-space:nowrap}.termin.n .r{color:var(--warn);font-weight:700}
+.fuss{margin-top:6px;font-size:11.5px;color:var(--stumm)}
+/* Drawer */
+#schatten{position:fixed;inset:0;background:rgba(0,0,0,.28);opacity:0;pointer-events:none;transition:opacity .2s;z-index:20}
+#schatten.offen{opacity:1;pointer-events:auto}
+#drawer{position:fixed;top:0;right:0;height:100%;width:min(560px,100%);background:var(--flaeche);border-left:1px solid var(--rand);box-shadow:-8px 0 30px rgba(0,0,0,.18);transform:translateX(100%);transition:transform .22s ease;z-index:21;overflow-y:auto;padding:0}
+#drawer.offen{transform:none}
+.dk{position:sticky;top:0;background:var(--flaeche);border-bottom:1px solid var(--rand);border-top:4px solid var(--c);padding:14px 18px 10px;display:flex;justify-content:space-between;gap:10px;align-items:flex-start;z-index:2}
+.dk h2{margin:0;font-size:18px}.dk .gr{font-size:12px;color:var(--c);text-transform:uppercase;letter-spacing:.05em;font-weight:700}
+.zu{all:unset;cursor:pointer;font-size:22px;line-height:1;padding:2px 8px;border-radius:6px;color:var(--text2)}.zu:hover{background:var(--raster)}.zu:focus-visible{outline:2px solid var(--text)}
+.db{padding:14px 18px 40px}
+.gross{font-size:34px;font-weight:700;font-variant-numeric:tabular-nums;line-height:1.1}
+.gsub{font-size:13px;color:var(--text2);margin-bottom:8px}
+.btns{display:flex;gap:6px;margin:6px 0 4px}
+.btn{font:inherit;font-size:12px;background:var(--ebene);color:var(--text);border:1px solid var(--rand);border-radius:7px;padding:3px 10px;cursor:pointer}
+.btn[aria-pressed="true"]{background:var(--text);color:var(--flaeche);border-color:var(--text)}
+svg.chart{width:100%;height:auto;display:block;touch-action:none}
+.tip{font-size:12.5px;color:var(--text2);min-height:18px;margin-bottom:4px;font-variant-numeric:tabular-nums}
+.db h3{font-size:12px;text-transform:uppercase;letter-spacing:.05em;color:var(--text2);margin:18px 0 4px}
+.db p{margin:0 0 8px;font-size:14px}
+.db table{width:100%;border-collapse:collapse;font-size:13px}
+.db th{font-weight:600;text-align:left;color:var(--text2);font-size:11.5px;border-bottom:1px solid var(--rand);padding:3px 8px 3px 0}
+.db td{padding:5px 8px 5px 0;border-bottom:1px solid var(--raster);vertical-align:top}
+.db .hin{background:var(--ebene);border-left:3px solid var(--warn);border-radius:4px;padding:6px 10px;font-size:13px;color:var(--text2)}
+.db ul{margin:4px 0 0;padding-left:18px;font-size:13.5px}
+.db a{color:inherit}
+@media (max-width:980px){
+  .raster{grid-template-columns:1fr}.pill{display:none}.sp{margin-bottom:12px}.bandinhalt{grid-template-columns:1fr}
+}
+@media (prefers-reduced-motion:reduce){#drawer,#schatten,.k{transition:none}}
+/* Verständnis-Block */
+.versteh{background:var(--flaeche);border:1px solid var(--rand);border-radius:12px;padding:6px 18px 14px;box-shadow:var(--schatten);margin-bottom:14px}
+.versteh>h2{margin:12px 0 2px;font-size:17px}
+.versteh .lead{margin:0 0 8px;color:var(--text2);font-size:13.5px}
+.versteh details{border-top:1px solid var(--raster);padding:6px 0}
+.versteh details:first-of-type{border-top:0}
+.versteh summary{cursor:pointer;font-weight:650;font-size:14.5px;padding:4px 0;list-style:none}
+.versteh summary::-webkit-details-marker{display:none}
+.versteh summary:before{content:"▸";display:inline-block;width:18px;color:var(--text2);transition:transform .15s}
+.versteh details[open]>summary:before{transform:rotate(90deg)}
+.versteh summary:focus-visible{outline:2px solid var(--text);outline-offset:2px;border-radius:4px}
+.versteh .inh{padding:2px 0 6px 18px;font-size:14px}
+.versteh ol.kern{margin:4px 0 4px;padding-left:20px}.versteh ol.kern li{margin:3px 0}
+.fluss{display:grid;grid-template-columns:1fr 78px 1fr 78px 1fr;grid-template-rows:auto 56px auto 56px auto;align-items:center;gap:0;margin:8px 0 4px}
+.nk{all:unset;box-sizing:border-box;display:block;width:100%;cursor:pointer;background:var(--ebene);border:1px solid var(--rand);border-top:3px solid var(--c);border-radius:9px;padding:8px 10px;text-align:center;transition:transform .15s,border-color .15s}
+.nk:hover{transform:translateY(-1px);border-color:var(--c)}.nk:focus-visible{outline:2px solid var(--c);outline-offset:2px}
+.nk b{display:block;font-size:13.5px}.nk span{display:block;font-size:11.5px;color:var(--text2);margin-top:1px}
+.pf2{font-size:11px;color:var(--text2);text-align:center;line-height:1.25;padding:0 3px}
+.pf2 i{display:block;font-style:normal;font-size:18px;color:var(--text);line-height:1}
+.nk.n1{--c:var(--c1)}.nk.n2{--c:var(--c3)}.nk.n3{--c:var(--c4)}.nk.n4{--c:var(--c2)}.nk.n5{--c:var(--c2)}.nk.n6{--c:var(--c1)}.nk.n7{--c:var(--cb)}
+.bed{display:grid;grid-template-columns:repeat(2,1fr);gap:10px;margin-top:4px}
+.bed div{background:var(--ebene);border:1px solid var(--rand);border-radius:9px;padding:8px 11px;font-size:13.5px}
+.bed b{display:block;font-size:13px;margin-bottom:2px}
+.chip{display:inline-block;font-size:11.5px;border:1px solid var(--rand);border-radius:99px;padding:0 9px;margin:2px 3px 0 0;background:var(--ebene);cursor:pointer;color:var(--text)}
+.chip:hover{border-color:var(--text)}
+@media (max-width:980px){.fluss{grid-template-columns:1fr;grid-template-rows:none;gap:8px}.pf2{display:none}.bed{grid-template-columns:1fr}}
+
+.struktur{background:var(--flaeche);border:1px solid var(--rand);border-radius:12px;padding:10px 14px 14px;box-shadow:var(--schatten);margin-bottom:14px}
+.skraster{display:grid;grid-template-columns:minmax(240px,320px) 1fr;gap:18px;align-items:center}
+#kuchen{width:100%;max-width:1000px;height:auto;display:block;margin:0 auto}
+.kmitte{margin:4px 0 0}
+.leg{display:none}
+#kuchen text{font-size:14px;fill:var(--text);cursor:pointer}
+#kuchen text b,#kuchen .pz{font-weight:700;font-variant-numeric:tabular-nums}
+#kuchen text:hover{text-decoration:underline}
+#kuchen .fl{stroke:var(--achse);stroke-width:1;fill:none}
+#kuchen .gk2{font-size:12px;fill:var(--text2);cursor:default;text-transform:uppercase;letter-spacing:.05em;font-weight:700}
+#kuchen path{cursor:pointer;stroke:var(--flaeche);stroke-width:1.5;transition:opacity .15s}
+#kuchen path:hover,#kuchen path:focus{opacity:.8;outline:none}
+.leg{display:none;grid-template-columns:repeat(2,1fr);gap:3px 14px}
+.leg button{all:unset;cursor:pointer;display:flex;align-items:center;gap:8px;font-size:13px;padding:3px 6px;border-radius:6px}
+.leg button:hover,.leg button:focus-visible{background:var(--ebene);outline:none}
+.leg i{width:11px;height:11px;border-radius:3px;flex:none}
+.leg b{margin-left:auto;font-variant-numeric:tabular-nums}
+.leg .gk{grid-column:1/-1;font-size:11.5px;font-weight:700;text-transform:uppercase;letter-spacing:.05em;color:var(--text2);margin-top:6px}
+.balken{display:flex;height:44px;border-radius:9px;overflow:hidden;margin-top:6px;border:1px solid var(--rand)}
+.balken button{all:unset;cursor:pointer;display:flex;align-items:center;justify-content:center;text-align:center;font-size:13px;font-weight:700;color:#fff;overflow:hidden;white-space:nowrap}
+.balken button:hover,.balken button:focus-visible{filter:brightness(1.12);outline:none}
+.bhin{font-size:11.5px;color:var(--stumm);margin-top:6px}
+.bandinhalt{grid-template-columns:repeat(4,1fr)!important}
+@media (max-width:980px){.bandinhalt{grid-template-columns:1fr!important}}
+@media (max-width:760px){#kuchen .lbl{display:none}#kuchen{max-width:360px}.leg{display:grid;grid-template-columns:1fr;margin-top:8px}}
+
+.kreislauf svg{width:100%;height:auto;display:block}
+.kreislauf .nd{cursor:pointer}
+.kreislauf .nd rect{fill:var(--ebene);stroke:var(--c);stroke-width:2;transition:fill .15s}
+.kreislauf .nd:hover rect,.kreislauf .nd:focus rect{fill:var(--flaeche)}
+.kreislauf .nd:focus{outline:none}.kreislauf .nd:focus rect{stroke-width:3.5}
+.kreislauf .nd text{pointer-events:none}
+.kreislauf .nt{font-size:15px;font-weight:700;fill:var(--text)}
+.kreislauf .ns{font-size:11.5px;fill:var(--text2)}
+.kreislauf .mk rect{fill:var(--h2);stroke-dasharray:none}
+.kreislauf .fr{stroke:var(--c1);stroke-width:2.4;fill:none}
+.kreislauf .fg{stroke:var(--c4);stroke-width:2.2;fill:none;stroke-dasharray:6 4}
+.kreislauf .fz{stroke:var(--text2);stroke-width:1.8;fill:none}
+.kreislauf .fl2{font-size:11.5px;fill:var(--text2)}
+.kreislauf .mitte{font-size:13px;font-weight:700;fill:var(--text2);text-anchor:middle}
+.kreislauf .mitte2{font-size:11.5px;fill:var(--stumm);text-anchor:middle}
+.kl-liste{display:none}
+@media (max-width:760px){.kreislauf .nd text.ns,.kreislauf .fl2{display:none}.kl-liste{display:flex;flex-wrap:wrap;gap:6px;margin-top:8px}}
+/* Inflation: eigene Ergänzungen */
+.bandinhalt{grid-template-columns:repeat(3,1fr)!important}
+.bandinhalt.v4{grid-template-columns:repeat(4,1fr)!important}
+@media (max-width:980px){.bandinhalt,.bandinhalt.v4{grid-template-columns:1fr!important}}
+.kuchenkopf{display:flex;justify-content:space-between;gap:10px;align-items:baseline;flex-wrap:wrap}
+.kuchenkopf h3{margin:0;font-size:16px}
+.kuchenkopf span{font-size:12px;color:var(--text2)}
+.pie{width:100%;max-width:1100px;height:auto;display:block;margin:0 auto}
+.pie path{cursor:pointer;stroke:var(--flaeche);stroke-width:.8;transition:opacity .15s}
+.pie path:hover,.pie path:focus{opacity:.75;outline:none}
+.pie text{font-size:13px;fill:var(--text);cursor:pointer}
+.pie text:hover{text-decoration:underline}
+.pie .pz{font-weight:700;font-variant-numeric:tabular-nums}
+.pie .fl{stroke:var(--achse);stroke-width:1;fill:none}
+.pie .mt{font-size:12px;fill:var(--text2);text-anchor:middle;cursor:default;font-weight:700}
+.pie .mt2{font-size:11px;fill:var(--stumm);text-anchor:middle;cursor:default}
+.balken2{display:flex;height:40px;border-radius:9px;overflow:hidden;margin-top:6px;border:1px solid var(--rand)}
+.balken2 button{all:unset;cursor:pointer;display:flex;align-items:center;justify-content:center;text-align:center;font-size:12px;font-weight:700;color:#fff;overflow:hidden;white-space:nowrap;padding:0 3px}
+.balken2 button:hover,.balken2 button:focus-visible{filter:brightness(1.12);outline:none}
+.liste summary{cursor:pointer;font-size:13px;font-weight:650;padding:6px 0}
+.liste input{font:inherit;font-size:13px;padding:5px 9px;border:1px solid var(--rand);border-radius:7px;background:var(--ebene);color:var(--text);width:min(360px,100%);margin:4px 0 8px}
+.liste .tab{max-height:420px;overflow:auto;border:1px solid var(--rand);border-radius:8px}
+.liste table{width:100%;border-collapse:collapse;font-size:12.5px}
+.liste th{position:sticky;top:0;background:var(--flaeche);text-align:left;font-size:11.5px;color:var(--text2);padding:5px 8px;border-bottom:1px solid var(--rand)}
+.liste td{padding:3px 8px;border-bottom:1px solid var(--raster)}
+.liste tr[data-id]{cursor:pointer}.liste tr[data-id]:hover{background:var(--ebene)}
+.liste td.zahl,.db td.zahl{text-align:right;font-variant-numeric:tabular-nums;white-space:nowrap}
+.sw{display:inline-block;width:10px;height:10px;border-radius:3px;margin-right:6px;vertical-align:baseline}
+.vgl{width:100%;border-collapse:collapse;font-size:13px;margin:4px 0}
+.vgl th{text-align:left;font-size:11.5px;color:var(--text2);border-bottom:1px solid var(--rand);padding:4px 8px 4px 0}
+.vgl td{padding:6px 8px 6px 0;border-bottom:1px solid var(--raster);vertical-align:top}
+.vgl td:first-child{font-weight:650;white-space:nowrap}
+.db .pfad{font-size:12.5px;color:var(--text2);margin:2px 0 6px}
+.gwb{height:12px;background:var(--raster);border-radius:6px;overflow:hidden;margin:4px 0 2px}.gwb i{display:block;height:100%}
+@media (max-width:760px){.pie .lbl{display:none}}
+
+.dem3{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-top:8px}
+.dem3 .dp{background:var(--ebene);border:1px solid var(--rand);border-radius:10px;padding:8px 8px 4px}
+.dem3 h4{margin:0 0 2px;font-size:13.5px}.dem3 .ds{font-size:11.5px;color:var(--text2);margin-bottom:2px}
+.dem3 svg,.dpyr{width:100%;height:auto;display:block}
+.dpyr text{font-size:11px;fill:var(--text2)}.dpyr .pz{font-weight:700;fill:var(--text);font-variant-numeric:tabular-nums}
+.dpyr .am{fill:hsl(210,55%,45%)}.dpyr .af{fill:hsl(335,55%,52%)}
+.dleg{display:flex;gap:14px;font-size:11.5px;color:var(--text2);margin-top:4px;justify-content:center}
+.dleg i{display:inline-block;width:10px;height:10px;border-radius:3px;margin-right:5px;vertical-align:baseline}
+.achart{width:100%;height:auto;display:block}.achart text{font-size:11px;fill:var(--text2)}.achart .pz{font-weight:700;fill:var(--text);font-variant-numeric:tabular-nums}.achart .ab{fill:hsl(175,45%,40%)}
+.dem-kpi{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-top:6px;font-size:12.5px;color:var(--text2)}
+.dem-kpi b{color:var(--text);font-variant-numeric:tabular-nums}
+#dem-tab tr[data-i]{cursor:pointer}#dem-tab tr[data-i]:hover{background:var(--ebene)}
+#dem-tab td.zahl,#dem-tab th.zahl{text-align:right;font-variant-numeric:tabular-nums;white-space:nowrap}
+.mbar{display:inline-block;height:8px;border-radius:4px;vertical-align:middle;margin-left:6px}
+@media (max-width:980px){.dem3,.dem-kpi{grid-template-columns:1fr}}
+.bandinhalt{grid-template-columns:repeat(3,1fr)!important}
+@media (max-width:980px){.bandinhalt{grid-template-columns:1fr!important}}
+</style>
+</head>
+<body>
+<div class="wrap">
+<header>
+  <div>
+    <a href="usa.html" style="font-size:13px;color:var(--text2)">← USA, alle Oberthemen</a>
+    <h1>USA – Arbeitsmarkt <span class="entwurf">Muster, nicht freigegeben</span></h1>
+    <div class="unter">Länderanalyse, Oberthema 7 · Daten und Fakten, keine Bewertung · Struktur: Entwurf 2026-10-20 (Review: April 2027) · Kennzahlen aktualisieren sich automatisch, das Datum steht in jeder Kachel</div>
+  </div>
+  <button class="tool" id="theme" type="button">Dunkel / Hell</button>
+</header>
+<div class="legende">
+  <span><i class="pkt auto"></i>automatisch (FRED, zweimal täglich)</span>
+  <span><i class="pkt man"></i>manuell gepflegt (Quelle und Stand in der Kachel)</span>
+  <span>Kuchenstücke, Balken und Kacheln anklicken: Einordnung, Verlauf, Quelle</span>
+</div>
+
+<section class="versteh" aria-labelledby="vt">
+  <h2 id="vt">Zuerst verstehen: Wo die Beschäftigung entsteht und wie der Arbeitsmarkt gemessen wird</h2>
+  <p class="lead">Der Arbeitsmarkt ist der Markt, auf dem Haushalte Arbeit anbieten und Unternehmen sie nachfragen. Der Lohn ist der Preis. Der Schwerpunkt dieser Seite liegt auf der Frage, in welchen Branchen die Beschäftigten arbeiten. Die Zahlen stammen aus den monatlichen Berichten des Bureau of Labor Statistics (BLS).</p>
+
+  <details open>
+    <summary>Die Grundidee in sechs Punkten</summary>
+    <div class="inh"><ol class="kern" id="grundidee"></ol></div>
+  </details>
+
+  <details open>
+    <summary>Wie der Arbeitsmarkt gemessen wird: drei Erhebungen</summary>
+    <div class="inh">
+      <table class="vgl">
+        <tr><th>Erhebung</th><th>Befragt werden</th><th>Liefert</th></tr>
+        <tr><td>Betriebsumfrage (CES)</td><td>Arbeitgeber (Betriebe und Behörden)</td><td>Zahl der Beschäftigten insgesamt und nach Branche, Stundenlöhne. Die Kachel "Beschäftigtenzuwachs" und der Kuchen unten stammen von hier.</td></tr>
+        <tr><td>Haushaltsumfrage (CPS)</td><td>Haushalte</td><td>Arbeitslosenquote, Erwerbsquote, Beschäftigungsquote, Alter, Dauer der Arbeitslosigkeit.</td></tr>
+        <tr><td>JOLTS</td><td>Arbeitgeber, zu offenen Stellen</td><td>Offene Stellen, Einstellungen, Kündigungen durch Beschäftigte und Entlassungen. Erscheint mit etwa einem Monat Verzögerung.</td></tr>
+      </table>
+      <p style="font-size:12.5px;color:var(--text2);margin:6px 0 0">Quelle: BLS. Betriebs- und Haushaltsumfrage zählen unterschiedlich (zum Beispiel Selbstständige, Mehrfachbeschäftigung), deshalb können ihre Veränderungen im selben Monat voneinander abweichen.</p>
+    </div>
+  </details>
+
+  <details open>
+    <summary>Was das strukturell bedeutet</summary>
+    <div class="inh"><div class="bed" id="strukt"></div>
+    <p style="font-size:12.5px;color:var(--text2);margin:8px 0 0">Die Wirkung auf Märkte und Währungen wird hier bewusst nicht beschrieben. Sie folgt später in der Ableitung.</p></div>
+  </details>
+</section>
+
+<h2 style="font-size:15px;margin:18px 0 6px">Die Beschäftigten nach Branche</h2>
+<div class="struktur" id="bes-box">
+  <div class="kuchenkopf"><h3>Beschäftigte nach Branche, <span id="bes-meta"></span></h3><span>Anteil an allen Beschäftigten (Nonfarm Payrolls) in %, Klick für Verlauf</span></div>
+  <svg class="pie" id="bes-pie" viewBox="0 0 1100 620" role="img" aria-label="Kuchendiagramm der Beschäftigten nach Branche"></svg>
+  <div class="bandkopf" style="margin-top:12px">Zusammengefasst: elf Wirtschaftsbereiche</div>
+  <div class="balken2" id="bes-bal" role="group" aria-label="Elf Wirtschaftsbereiche"></div>
+  <div class="bandkopf" style="margin-top:12px">Zusammengefasst: Güterproduzenten, private Dienstleister, Staat</div>
+  <div class="balken2" id="bes-bal2" role="group" aria-label="Drei Blöcke"></div>
+  <div class="bhin" id="bes-hin"></div>
+</div>
+
+<h2 style="font-size:15px;margin:18px 0 6px">Wer arbeitet wo? Alter und Geschlecht der Erwerbstätigen</h2>
+<div class="struktur" id="dem-box">
+  <div class="kuchenkopf"><h3>Alters- und Geschlechtsverteilung, <span>Jahresdurchschnitt 2025</span></h3><span>Anteil an den Erwerbstätigen der jeweiligen Gruppe in %, Männer links, Frauen rechts</span></div>
+  <div class="bandkopf" style="margin-top:8px">Altersverteilung in sieben Gruppen (Anteil an den Erwerbstätigen der Gruppe in %)</div>
+  <div class="dem3" id="dem3a"></div>
+  <div class="bandkopf" style="margin-top:14px">Männer und Frauen nach Alter (vier Gruppen: BLS weist Geschlecht und Branche nur in groben Altersgruppen aus)</div>
+  <div class="dem3" id="dem3"></div>
+  <div class="dem-kpi" id="dem-kpi"></div>
+  <div class="bandkopf" style="margin-top:14px">Nach Branche (Zeile anklicken für die Pyramide der Branche)</div>
+  <div class="tab" style="overflow:auto"><table class="vgl" id="dem-tab"></table></div>
+  <div class="bhin" id="dem-hin"></div>
+</div>
+
+<h2 style="font-size:15px;margin:18px 0 6px">Die Daten dazu</h2>
+<div class="band"><div class="bandkopf">Beschäftigung</div><div class="bandinhalt" id="b1"></div></div>
+<div class="band"><div class="bandkopf">Arbeitslosigkeit</div><div class="bandinhalt" id="b2"></div></div>
+<div class="band"><div class="bandkopf">Löhne (Verbindung zur Inflation, Oberthema 6)</div><div class="bandinhalt" id="b3"></div></div>
+<div class="band"><div class="bandkopf">Nachfrage nach Arbeit: offene Stellen, Einstellungen, Entlassungen</div><div class="bandinhalt" id="b4"></div></div>
+<div class="band"><div class="bandkopf">Angebot an Arbeit: Erwerbsbeteiligung</div><div class="bandinhalt" id="b5"></div>
+  <p style="font-size:12.5px;color:var(--text2);margin:8px 2px 0">Zuwanderung als Teil des Arbeitsangebots hat hier noch keine Kennzahl, weil keine automatisch abrufbare monatliche Quelle gefunden wurde. Sie wird nachgetragen, sobald eine geeignete Quelle feststeht.</p></div>
+<div class="band"><div class="bandkopf">Bezug zur Fed (Oberthema 3)</div><div class="bandinhalt" id="b6"></div>
+  <p style="font-size:12.5px;color:var(--text2);margin:8px 2px 0">Das Federal Reserve System hat laut Gesetz zwei Ziele: maximale Beschäftigung und stabile Preise. Die Arbeitslosenquote steht in der Gruppe Arbeitslosigkeit.</p></div>
+</div>
+<div id="schatten"></div>
+<aside id="drawer" role="dialog" aria-modal="true" aria-labelledby="dt" tabindex="-1"></aside>
+
+<script src="daten/usa.js?v=1"></script>
+<script>
+try{const g=localStorage.getItem("dashboard-thema");document.documentElement.dataset.theme=g||"dark"}catch(e){document.documentElement.dataset.theme="dark"}
+document.getElementById("theme").addEventListener("click",()=>{const d=document.documentElement;d.dataset.theme=d.dataset.theme==="dark"?"light":"dark";try{localStorage.setItem("dashboard-thema",d.dataset.theme)}catch(e){}});
+const DATA=(window.USA_DATEN&&window.USA_DATEN.fred)||{};
+/* ================== KACHELN ================== */
+const SP=[{id:1,titel:"BESCHÄFTIGUNG"},{id:2,titel:"ARBEITSLOSIGKEIT"},{id:3,titel:"LÖHNE"},{id:4,titel:"NACHFRAGE NACH ARBEIT"},{id:1,titel:"ANGEBOT AN ARBEIT"},{id:2,titel:"FED"}];
+const P1={div:1,dec:1,suf:" %"}, MIO={div:1000,dec:2,suf:" Mio."}, TSD={div:1,dec:0,suf:" Tsd."};
+const K=[
+ {id:"payr",sp:1,b:"b1",titel:"Beschäftigtenzuwachs zum Vormonat",s:"PAYEMS_CHG",f:TSD,rhythm:"m",was:"Veränderung der Zahl der Beschäftigten außerhalb der Landwirtschaft (Nonfarm Payrolls) gegenüber dem Vormonat, in Tausend (Betriebsumfrage, BLS). Das ist die meistbeachtete Zahl des monatlichen Arbeitsmarktberichts.",hin:"Die Werte der Vormonate werden nachträglich revidiert. Die Zahl zeigt die Veränderung, nicht den Bestand.",q:"FRED PAYEMS (BLS), Veränderung zum Vormonat"},
+ {id:"lvl",sp:1,b:"b1",titel:"Beschäftigte insgesamt",s:"PAYEMS",f:{div:1000,dec:1,suf:" Mio."},rhythm:"m",was:"Zahl der Beschäftigten außerhalb der Landwirtschaft, Bestand in Millionen (Betriebsumfrage, BLS). Sie ist die Summe aller Branchen im Kuchen oben.",hin:"",q:"FRED PAYEMS (BLS)"},
+ {id:"epr",sp:1,b:"b1",titel:"Beschäftigungsquote 25 bis 54 Jahre",s:"LNS12300060",f:P1,rhythm:"m",was:"Anteil der 25- bis 54-Jährigen, die beschäftigt sind (Haushaltsumfrage, BLS). Die Altersgruppe lässt Ausbildung und Ruhestand weitgehend außen vor.",hin:"",q:"FRED LNS12300060 (BLS)"},
+
+ {id:"ur",sp:2,b:"b2",titel:"Arbeitslosenquote (U-3)",s:"UNRATE",f:P1,rhythm:"m",was:"Anteil der Arbeitslosen an allen Erwerbspersonen (Haushaltsumfrage, BLS). Arbeitslos ist, wer keine Arbeit hat, aktiv sucht und kurzfristig arbeiten könnte.",hin:"",q:"FRED UNRATE (BLS)"},
+ {id:"u6",sp:2,b:"b2",titel:"Breite Arbeitslosenquote (U-6)",s:"U6RATE",f:P1,rhythm:"m",was:"Wie U-3, zusätzlich zählen Menschen, die gern arbeiten würden, aber nicht aktiv suchen (zum Beispiel entmutigte), und Teilzeitkräfte, die gern Vollzeit arbeiten würden (BLS).",hin:"",q:"FRED U6RATE (BLS)"},
+ {id:"lz",sp:2,b:"b2",titel:"Langzeitarbeitslose (Anteil)",s:"LNS13025703",f:P1,rhythm:"m",was:"Anteil der Arbeitslosen, die seit 27 Wochen oder länger ohne Arbeit sind, an allen Arbeitslosen (BLS).",hin:"",q:"FRED LNS13025703 (BLS)"},
+
+ {id:"ahe",sp:3,b:"b3",titel:"Stundenlöhne, zum Vorjahr",s:"CES0500000003_YOY",f:P1,rhythm:"m",was:"Veränderung des durchschnittlichen Stundenlohns aller Beschäftigten im privaten Sektor gegenüber dem Vorjahresmonat (Betriebsumfrage, BLS).",hin:"Der Durchschnitt wird auch von der Zusammensetzung der Beschäftigung beeinflusst: Verschiebt sich die Beschäftigung zu besser oder schlechter bezahlten Branchen, ändert sich der Durchschnitt, ohne dass sich einzelne Löhne ändern.",q:"FRED CES0500000003 (BLS), Veränderung zum Vorjahr"},
+ {id:"eci",sp:3,b:"b3",titel:"Arbeitskostenindex Löhne, zum Vorjahr",s:"ECIWAG_YOY",f:P1,rhythm:"q",was:"Veränderung der Löhne und Gehälter privater Arbeitgeber (Employment Cost Index, BLS) gegenüber dem Vorjahresquartal. Der Index misst gleiche Stellen im Zeitverlauf und ist deshalb von der Beschäftigungsstruktur weitgehend unabhängig.",hin:"",q:"FRED ECIWAG (BLS), Veränderung zum Vorjahr"},
+
+ {id:"jol",sp:4,b:"b4",titel:"Offene Stellen",s:"JTSJOL",f:MIO,rhythm:"m",was:"Zahl der offenen Stellen außerhalb der Landwirtschaft am Monatsende (JOLTS, BLS).",hin:"",q:"FRED JTSJOL (BLS)"},
+ {id:"hir",sp:4,b:"b4",titel:"Einstellungsrate",s:"JTSHIR",f:P1,rhythm:"m",was:"Einstellungen in einem Monat in Prozent der Beschäftigten (JOLTS, BLS).",hin:"",q:"FRED JTSHIR (BLS)"},
+ {id:"qur",sp:4,b:"b4",titel:"Kündigungsrate (von Beschäftigten)",s:"JTSQUR",f:P1,rhythm:"m",was:"Eigenkündigungen in einem Monat in Prozent der Beschäftigten (JOLTS, BLS). Sie zeigen, wie leicht Beschäftigte sich eine andere Stelle zutrauen.",hin:"",q:"FRED JTSQUR (BLS)"},
+ {id:"ldl",sp:4,b:"b4",titel:"Entlassungen",s:"JTSLDL",f:MIO,rhythm:"m",was:"Entlassungen und Kündigungen durch den Arbeitgeber in einem Monat, in Millionen (JOLTS, BLS).",hin:"",q:"FRED JTSLDL (BLS)"},
+ {id:"icsa",sp:4,b:"b4",titel:"Erstanträge auf Arbeitslosenhilfe (Woche)",s:"ICSA",f:{div:1000,dec:0,suf:" Tsd."},rhythm:"w",was:"Zahl der neuen Anträge auf Arbeitslosenhilfe in der letzten Woche (Arbeitsministerium). Sie ist die aktuellste Arbeitsmarktzahl, weil sie wöchentlich erscheint.",hin:"",q:"FRED ICSA (Arbeitsministerium)"},
+ {id:"ccsa",sp:4,b:"b4",titel:"Laufende Anträge auf Arbeitslosenhilfe (Woche)",s:"CCSA",f:{div:1e6,dec:2,suf:" Mio."},rhythm:"w",was:"Zahl der Menschen, die in der Woche Arbeitslosenhilfe beziehen (Arbeitsministerium).",hin:"",q:"FRED CCSA (Arbeitsministerium)"},
+
+ {id:"lfp",sp:1,b:"b5",titel:"Erwerbsquote",s:"CIVPART",f:P1,rhythm:"m",was:"Anteil der Erwerbspersonen (Beschäftigte und Arbeitssuchende) an der Bevölkerung ab 16 Jahren (Haushaltsumfrage, BLS).",hin:"Die Quote sinkt auch, wenn der Anteil Älterer in der Bevölkerung steigt.",q:"FRED CIVPART (BLS)"},
+ {id:"lfp2",sp:1,b:"b5",titel:"Erwerbsquote 25 bis 54 Jahre",s:"LNS11300060",f:P1,rhythm:"m",was:"Anteil der Erwerbspersonen an den 25- bis 54-Jährigen (BLS). Die Altersgruppe blendet die Alterung der Bevölkerung weitgehend aus.",hin:"",q:"FRED LNS11300060 (BLS)"},
+
+ {id:"zins",sp:2,b:"b6",titel:"Leitzins (Obergrenze)",s:"DFEDTARU",f:{div:1,dec:2,suf:" %"},rhythm:"d",was:"Obergrenze der Zielspanne für den Leitzins (Federal Funds Rate). Details in Oberthema 3.",hin:"",q:"FRED DFEDTARU (Federal Reserve)"}
+];
+const byId={};K.forEach(k=>byId[k.id]=k);
+const $=s=>document.querySelector(s), heute=new Date(); heute.setHours(0,0,0,0);
+const esc=s=>String(s).replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+const nf=(v,d)=>new Intl.NumberFormat("de-DE",{minimumFractionDigits:d,maximumFractionDigits:d}).format(v);
+const dts=d=>{const[y,m,t]=d.split("-");return t+"."+m+"."+y};
+const tageBis=d=>Math.round((new Date(d+"T00:00:00")-heute)/86400000);
+const farbe=sp=>sp===0?"cb":"c"+sp;
+function fmtv(k,v){const f=k.f;return nf(v/f.div,f.dec)+f.suf}
+function letzte(k){const p=DATA[k.s];return p[p.length-1]}
+function veraenderung(k){const p=DATA[k.s];const l=p[p.length-1];
+  let ref;
+  if(k.rhythm==="q"||k.rhythm==="m"){ref=p[p.length-2]}
+  else{const lim=new Date(l[0]);lim.setDate(lim.getDate()-30);ref=[...p].reverse().find(x=>new Date(x[0])<=lim)}
+  if(!ref)return null;const dv=l[1]-ref[1];const txt=(dv>0?"▲ ":dv<0?"▼ ":"= ")+nf(Math.abs(dv)/k.f.div,k.f.dec)+(k.f.suf.includes("%")?" Pkt":k.f.suf);
+  return {txt,ref:ref[0],q:k.rhythm==="q",m:k.rhythm==="m"}}
+function spark(p,col){const n=p.slice(-Math.min(p.length,k_n(p)));const w=200,h=30;const xs=n.map(x=>x[1]);const mn=Math.min(...xs),mx=Math.max(...xs),sp=(mx-mn)||1;
+  const pts=n.map((x,i)=>(i/(n.length-1)*w).toFixed(1)+","+(h-2-(x[1]-mn)/sp*(h-4)).toFixed(1)).join(" ");
+  return '<svg class="spark" viewBox="0 0 '+w+' '+h+'" preserveAspectRatio="none" aria-hidden="true"><polyline fill="none" stroke="'+col+'" stroke-width="1.6" vector-effect="non-scaling-stroke" points="'+pts+'"/></svg>'}
+function k_n(p){return p.length>300?130:p.length>100?100:p.length>40?24:p.length}
+let tiles={}, aktiv=null, letzterFokus=null;
+function kachel(k){
+  const b=document.createElement("button");b.type="button";b.className="k "+farbe(k.sp);b.dataset.id=k.id;
+  let h='<div class="kt"><span class="kn">'+esc(k.titel)+'</span>';
+  if(k.s){const l=letzte(k);h+='<span class="kd">'+dts(l[0])+'</span></div><div class="kw">'+esc(fmtv(k,l[1]))+'</div>';
+    const v=veraenderung(k);h+='<div class="ks"><span>'+(v?esc(v.txt)+" ("+(v.q?"Vorquartal":v.m?"Vormonat":"30 Tage")+")":"")+'</span><span><i class="pkt auto"></i>auto</span></div>'+spark(DATA[k.s],"var(--c)")}
+  else{h+='<span class="kd"></span></div><div class="kw" style="font-size:20px">'+esc(k.kpi[0])+'</div><div class="ks"><span>'+esc(k.kpi[1])+'</span><span><i class="pkt '+(k.auto?'auto':'man')+'"></i>'+(k.auto?'auto':'manuell')+'</span></div>'}
+  b.innerHTML=h;b.addEventListener("click",()=>oeffnen(k.id));tiles[k.id]=b;return b}
+function bauen(){K.forEach(k=>{const c=document.getElementById(k.b);if(c)c.appendChild(kachel(k))})}
+const dr=$("#drawer"), sh=$("#schatten");
+function kopf(gr,titel,farbeCss){dr.style.setProperty("--c",farbeCss||"var(--cb)");return '<div class="dk"><div><div class="gr">'+esc(gr)+'</div><h2 id="dt">'+esc(titel)+'</h2></div><button class="zu" type="button" aria-label="Schließen">×</button></div>'}
+function zeigen(h){dr.innerHTML=h;dr.classList.add("offen");sh.classList.add("offen");dr.querySelector(".zu").addEventListener("click",schliessen);dr.focus()}
+function lage(k){const p=DATA[k.s],l=p[p.length-1],mx=p.reduce((a,b)=>b[1]>a[1]?b:a),mn=p.reduce((a,b)=>b[1]<a[1]?b:a);
+  return 'Aktuell '+fmtv(k,l[1])+' ('+dts(l[0])+'). Im gezeigten Zeitraum ab '+dts(p[0][0])+': Höchstwert '+fmtv(k,mx[1])+' ('+dts(mx[0])+'), Tiefstwert '+fmtv(k,mn[1])+' ('+dts(mn[0])+').'}
+function oeffnen(id,extra){const k=byId[id];letzterFokus=document.activeElement;
+  Object.values(tiles).forEach(t=>t.classList.toggle("aktiv",t.dataset.id===id));
+  let h=kopf(k.gr||SP[+k.b.slice(1)-1].titel,k.titel,k.sp?"var(--c"+k.sp+")":"var(--cb)")+'<div class="db">';
+  const l=letzte(k);h+='<div class="gross">'+esc(fmtv(k,l[1]))+'</div><div class="gsub">Stand '+dts(l[0])+' · <i class="pkt auto"></i>automatisch (FRED)</div>';
+  h+='<div class="btns" role="group" aria-label="Zeitraum"></div><div class="tip" id="tip"> </div><svg class="chart" id="chart" viewBox="0 0 560 230" role="img" aria-label="Verlauf '+esc(k.titel)+'"></svg>';
+  h+=(extra||'')+'<h3>Was ist das?</h3><p>'+esc(k.was)+'</p><h3>Aktuelle Lage</h3><p>'+esc(lage(k))+'</p>';
+  if(k.hin)h+='<h3>Hinweis</h3><div class="hin">'+esc(k.hin)+'</div>';
+  h+='<h3>Quelle</h3><p style="font-size:13px;color:var(--text2)">'+esc(k.q)+'</p></div>';
+  zeigen(h);chartInit(k)}
+function schliessen(){dr.classList.remove("offen");sh.classList.remove("offen");Object.values(tiles).forEach(t=>t.classList.remove("aktiv"));if(letzterFokus&&letzterFokus.focus)letzterFokus.focus()}
+sh.addEventListener("click",schliessen);addEventListener("keydown",e=>{if(e.key==="Escape"&&dr.classList.contains("offen"))schliessen()});
+const ZR=[["3 Mon.",92],["6 Mon.",183],["1 Jahr",365],["Alles",0]];
+function chartInit(k){const box=dr.querySelector(".btns");let sel=(k.rhythm==="q"||k.rhythm==="m")?3:(k.rhythm==="w"?3:2);
+  ZR.forEach((z,i)=>{const b=document.createElement("button");b.type="button";b.className="btn";b.textContent=z[0];b.setAttribute("aria-pressed",i===sel);
+    if((k.rhythm==="q"||k.rhythm==="m")&&i<2){b.disabled=true;b.style.opacity=.4}
+    b.addEventListener("click",()=>{sel=i;[...box.children].forEach((c,j)=>c.setAttribute("aria-pressed",j===i));zeichne(k,ZR[i][1])});box.appendChild(b)});
+  zeichne(k,ZR[sel][1])}
+function zeichne(k,tage){const all=DATA[k.s];let p=all;if(tage){const lim=new Date(all[all.length-1][0]);lim.setDate(lim.getDate()-tage);p=all.filter(x=>new Date(x[0])>=lim)}
+  if(p.length<2)p=all.slice(-2);
+  const svg=$("#chart"),W=560,H=230,L=52,R=12,T=10,B=26;const ys=p.map(x=>x[1]/k.f.div);let mn=Math.min(...ys),mx=Math.max(...ys);const pad=(mx-mn||1)*.08;mn-=pad;mx+=pad;
+  const t0=new Date(p[0][0]).getTime(),t1=new Date(p[p.length-1][0]).getTime(),X=d=>L+(new Date(d).getTime()-t0)/((t1-t0)||1)*(W-L-R),Y=v=>T+(1-(v-mn)/(mx-mn))*(H-T-B);
+  let s="";for(let i=0;i<=4;i++){const v=mn+(mx-mn)*i/4,y=Y(v);s+='<line x1="'+L+'" x2="'+(W-R)+'" y1="'+y+'" y2="'+y+'" stroke="var(--raster)"/><text x="'+(L-6)+'" y="'+(y+4)+'" text-anchor="end" font-size="10.5" fill="var(--stumm)">'+nf(v,k.f.dec>1?1:k.f.dec)+'</text>'}
+  s+='<text x="'+L+'" y="'+(H-6)+'" font-size="10.5" fill="var(--stumm)">'+dts(p[0][0])+'</text><text x="'+(W-R)+'" y="'+(H-6)+'" text-anchor="end" font-size="10.5" fill="var(--stumm)">'+dts(p[p.length-1][0])+'</text>';
+  const pts=p.map(x=>X(x[0]).toFixed(1)+","+Y(x[1]/k.f.div).toFixed(1)).join(" ");
+  s+='<polyline fill="none" stroke="var(--c)" stroke-width="2" stroke-linejoin="round" points="'+pts+'"/>';
+  const lp=p[p.length-1];s+='<circle cx="'+X(lp[0])+'" cy="'+Y(lp[1]/k.f.div)+'" r="3.5" fill="var(--c)"/><line id="cv" y1="'+T+'" y2="'+(H-B)+'" stroke="var(--text)" stroke-width="1" opacity="0"/><circle id="cd" r="4" fill="var(--c)" stroke="var(--flaeche)" stroke-width="2" opacity="0"/>';
+  svg.innerHTML=s;const tip=$("#tip");tip.textContent="Mit Maus oder Finger über den Verlauf fahren, um einzelne Werte zu sehen.";
+  const mv=e=>{const r=svg.getBoundingClientRect();const x=((e.clientX-r.left)/r.width)*W;let b=0,bd=1e9;p.forEach((q,i)=>{const d=Math.abs(X(q[0])-x);if(d<bd){bd=d;b=i}});const q=p[b];
+    const cv=$("#cv"),cd=$("#cd");cv.setAttribute("x1",X(q[0]));cv.setAttribute("x2",X(q[0]));cv.setAttribute("opacity",.4);cd.setAttribute("cx",X(q[0]));cd.setAttribute("cy",Y(q[1]/k.f.div));cd.setAttribute("opacity",1);tip.textContent=dts(q[0])+": "+fmtv(k,q[1])};
+  svg.onpointermove=mv;svg.onpointerdown=mv;svg.onpointerleave=()=>{$("#cv").setAttribute("opacity",0);$("#cd").setAttribute("opacity",0)}}
+const pf=(v,d)=>nf(v,d===undefined?1:d);
+/* Kuchen mit Beschriftung links und rechts */
+function kuchen(svgId,teile,opts){
+ const svg=document.getElementById(svgId),sum=teile.reduce((a,x)=>a+x.w,0);let w0=-Math.PI/2;const R=opts.R||225,cx=550,cy=310,H=620;
+ let pfade="";const lab={r:[],l:[]};
+ teile.forEach(x=>{const dw=x.w/sum*2*Math.PI,w1=w0+dw,wm=(w0+w1)/2;const p=(wk,r)=>[cx+r*Math.cos(wk),cy+r*Math.sin(wk)];const [x0,y0]=p(w0,R),[x1,y1]=p(w1,R);
+  const d=dw>=2*Math.PI-1e-6?"M"+(cx-R)+","+cy+" A"+R+","+R+" 0 1 1 "+(cx+R)+","+cy+" A"+R+","+R+" 0 1 1 "+(cx-R)+","+cy+" Z":"M"+cx+","+cy+" L"+x0.toFixed(2)+","+y0.toFixed(2)+" A"+R+","+R+" 0 "+(dw>Math.PI?1:0)+" 1 "+x1.toFixed(2)+","+y1.toFixed(2)+" Z";
+  pfade+='<path d="'+d+'" fill="'+x.c+'" tabindex="0" role="button" data-id="'+x.id+'" aria-label="'+esc(x.de||x.n)+' '+pf(x.w,2)+' Prozent"><title>'+esc(x.de||x.n)+': '+pf(x.w,2)+' %</title></path>';
+  if(x.w>=opts.min){const rechts=Math.cos(wm)>=0;lab[rechts?"r":"l"].push({x,a0:p(wm,R),a1:p(wm,R+20),y:p(wm,R+20)[1]})}
+  w0=w1});
+ const GAP=19;let linien="",texte="";
+ ["r","l"].forEach(seite=>{const arr=lab[seite].sort((m,n)=>m.y-n.y);
+  for(let i=1;i<arr.length;i++)if(arr[i].y<arr[i-1].y+GAP)arr[i].y=arr[i-1].y+GAP;
+  const ueber=arr.length?arr[arr.length-1].y-(H-12):0;if(ueber>0)arr.forEach(o=>o.y-=ueber);
+  for(let i=1;i<arr.length;i++)if(arr[i].y<arr[i-1].y+GAP)arr[i-1].y=arr[i].y-GAP;
+  const lx=seite==="r"?cx+R+54:cx-R-54;
+  arr.forEach(o=>{const x=o.x,ex=seite==="r"?lx-8:lx+8;
+   linien+='<polyline class="fl" points="'+o.a0[0].toFixed(1)+','+o.a0[1].toFixed(1)+' '+o.a1[0].toFixed(1)+','+o.a1[1].toFixed(1)+' '+ex+','+o.y.toFixed(1)+' '+lx+','+o.y.toFixed(1)+'"/><circle cx="'+o.a0[0].toFixed(1)+'" cy="'+o.a0[1].toFixed(1)+'" r="2" fill="var(--text)"/>';
+   const nm=esc(opts.kurz?opts.kurz(x):(x.de||x.n)),pz=pf(x.w,x.w<10?2:1)+" %";
+   texte+=seite==="r"?'<text class="lbl" data-id="'+x.id+'" x="'+(lx+6)+'" y="'+(o.y+4.5).toFixed(1)+'"><tspan class="pz">'+pz+'</tspan><tspan dx="8">'+nm+'</tspan></text>'
+    :'<text class="lbl" data-id="'+x.id+'" x="'+(lx-6)+'" y="'+(o.y+4.5).toFixed(1)+'" text-anchor="end"><tspan>'+nm+'</tspan><tspan dx="8" class="pz">'+pz+'</tspan></text>'})});
+ svg.innerHTML='<g class="lbl">'+linien+'</g>'+pfade+texte+'<text class="mt" x="'+cx+'" y="'+(cy+H/2-2)*0+'"></text>';
+ svg.querySelectorAll("path,text[data-id]").forEach(e=>{const f=()=>opts.klick(e.dataset.id);e.addEventListener("click",f);if(e.tagName==="path")e.addEventListener("keydown",ev=>{if(ev.key==="Enter"||ev.key===" "){ev.preventDefault();f()}})});
+}
+function balken(id,teile,klick){const sum=teile.reduce((a,x)=>a+x.w,0);const B=document.getElementById(id);
+ B.innerHTML=teile.map(x=>'<button type="button" data-id="'+x.id+'" style="width:'+(x.w/sum*100).toFixed(3)+'%;background:'+x.c+'" title="'+esc(x.de||x.n)+' '+pf(x.w,1)+' %">'+(((x.de||x.n).length+6)*6.1<x.w/sum*1100?esc(x.de||x.n)+" "+pf(x.w,1)+" %":x.w>=2.5?pf(x.w,1)+" %":"")+'</button>').join("");
+ B.querySelectorAll("button").forEach(b=>b.addEventListener("click",()=>klick(b.dataset.id)))}
+function gewBalken(w,max,c){return '<div class="gwb"><i style="width:'+Math.min(100,w/max*100).toFixed(1)+'%;background:'+c+'"></i></div>'}
+
+
+/* ================== BRANCHEN ================== */
+/* Blätter: summieren sich zu "All Employees, Total Nonfarm" (PAYEMS). Reihen: FRED/BLS (CES). */
+const BL=[
+ {id:"mine",s:"USMINE",de:"Bergbau und Holzwirtschaft",b:"bergbau",c:"hsl(25,60%,34%)",t:"Förderung von Öl, Gas, Kohle und Mineralien sowie Forstwirtschaft und Holzeinschlag."},
+ {id:"cons",s:"USCONS",de:"Bau",b:"bau",c:"hsl(30,60%,46%)",t:"Wohn-, Gewerbe- und Infrastrukturbau einschließlich Bauhandwerk."},
+ {id:"dman",s:"DMANEMP",de:"Industrie: langlebige Güter",b:"industrie",c:"hsl(36,62%,52%)",t:"Herstellung langlebiger Güter, zum Beispiel Fahrzeuge, Maschinen, Elektronik, Metall und Möbel."},
+ {id:"ndman",s:"NDMANEMP",de:"Industrie: nicht langlebige Güter",b:"industrie",c:"hsl(42,64%,62%)",t:"Herstellung nicht langlebiger Güter, zum Beispiel Nahrung, Chemie, Papier, Kleidung und Kunststoffe."},
+ {id:"whole",s:"USWTRADE",de:"Großhandel",b:"handel",c:"hsl(175,50%,28%)",t:"Handel zwischen Unternehmen."},
+ {id:"retail",s:"USTRADE",de:"Einzelhandel",b:"handel",c:"hsl(175,48%,38%)",t:"Handel mit Endkunden, stationär und online."},
+ {id:"transp",s:"CES4300000001",de:"Transport und Lagerung",b:"handel",c:"hsl(175,44%,48%)",t:"Straße, Schiene, Luft, Schiff, Pipelines, Kurier und Lager."},
+ {id:"util",s:"CES4422000001",de:"Versorger (Strom, Gas, Wasser)",b:"handel",c:"hsl(175,40%,60%)",t:"Erzeugung und Verteilung von Strom, Gas und Wasser."},
+ {id:"info",s:"USINFO",de:"Information",c:"hsl(265,40%,50%)",b:"info",t:"Software, Medien, Telekommunikation und Datenverarbeitung."},
+ {id:"fin",s:"USFIRE",de:"Finanzen, Versicherung, Immobilien",b:"finanz",c:"hsl(210,55%,40%)",t:"Banken, Versicherer, Immobilienverwaltung und Vermietung."},
+ {id:"pbs",s:"USPBS",de:"Unternehmensnahe Dienste",b:"pbs",c:"hsl(230,45%,54%)",t:"Beratung, Recht, Buchhaltung, IT-Dienste, Forschung, Verwaltungs- und Zeitarbeitsdienste."},
+ {id:"edu",s:"CES6561000001",de:"Private Bildung",b:"bg",c:"hsl(120,38%,42%)",t:"Private Schulen, Hochschulen und Bildungsdienste. Staatliche Schulen zählen zum Staat."},
+ {id:"health",s:"CES6562000001",de:"Gesundheit und Soziales",b:"bg",c:"hsl(95,48%,34%)",t:"Arztpraxen, Krankenhäuser, Pflegeheime, ambulante Pflege und soziale Dienste in privater Hand."},
+ {id:"lah",s:"USLAH",de:"Freizeit und Gastgewerbe",b:"freizeit",c:"hsl(48,75%,46%)",t:"Hotels, Restaurants, Kunst, Unterhaltung und Erholung."},
+ {id:"serv",s:"USSERV",de:"Sonstige Dienstleistungen",b:"sonst",c:"hsl(325,45%,50%)",t:"Reparatur, persönliche Dienste, Verbände und religiöse Einrichtungen."},
+ {id:"fed",s:"CES9091000001",de:"Staat: Bund",b:"staat",c:"hsl(0,0%,34%)",t:"Beschäftigte der Bundesregierung (einschließlich Post)."},
+ {id:"state",s:"CES9092000001",de:"Staat: Bundesstaaten",b:"staat",c:"hsl(0,0%,50%)",t:"Beschäftigte der Bundesstaaten, auch staatliche Hochschulen."},
+ {id:"local",s:"CES9093000001",de:"Staat: Kommunen",b:"staat",c:"hsl(0,0%,66%)",t:"Beschäftigte von Städten, Landkreisen und Schulbezirken, auch Lehrer an staatlichen Schulen."}
+];
+const GRP=[
+ {b:"bergbau",de:"Bergbau",c:"hsl(25,60%,34%)"},{b:"bau",de:"Bau",c:"hsl(30,60%,46%)"},{b:"industrie",de:"Industrie",c:"hsl(40,63%,56%)"},
+ {b:"handel",de:"Handel, Transport, Versorger",c:"hsl(175,48%,36%)"},{b:"info",de:"Information",c:"hsl(265,40%,50%)"},{b:"finanz",de:"Finanzen und Immobilien",c:"hsl(210,55%,40%)"},
+ {b:"pbs",de:"Unternehmensdienste",c:"hsl(230,45%,54%)"},{b:"bg",de:"Bildung und Gesundheit",c:"hsl(105,44%,38%)"},{b:"freizeit",de:"Freizeit und Gastgewerbe",c:"hsl(48,75%,46%)"},
+ {b:"sonst",de:"Sonstige Dienste",c:"hsl(325,45%,50%)"},{b:"staat",de:"Staat",c:"hsl(0,0%,50%)"}];
+const ZEITPKT=l=>{const [y,m]=l[0].split("-");return {j:+y,m:+m}};
+function wertZu(p,datum){const x=p.find(q=>q[0]===datum);return x?x[1]:null}
+function monatVor(l,n){const d=new Date(l[0]+"T00:00:00");d.setMonth(d.getMonth()-n);return d.toISOString().slice(0,10)}
+function branchenBauen(){
+ const T=BL.filter(x=>DATA[x.s]).map(x=>{const p=DATA[x.s],l=p[p.length-1];const v12=wertZu(p,monatVor(l,12)),v20=wertZu(p,"2020-02-01");return Object.assign({},x,{w:l[1],d:l[0],v12:v12,v20:v20,p:p})});
+ if(T.length<BL.length||!DATA.PAYEMS){document.getElementById("bes-box").style.display="none";return null}
+ const sum=T.reduce((a,x)=>a+x.w,0);T.forEach(x=>{x.w=x.w/sum*100*1;x.n=x.w});
+ const abs={};BL.forEach(x=>{const p=DATA[x.s];abs[x.id]=p[p.length-1][1]});
+ const gesamt=DATA.PAYEMS[DATA.PAYEMS.length-1];
+ T.forEach(x=>{x.abs=abs[x.id];x.k={id:"s_"+x.id,titel:x.de+" (Beschäftigte)",s:x.s,f:{div:1000,dec:2,suf:" Mio."},rhythm:"m",sp:0,gr:"Branche",
+  was:x.t+" Der Wert ist die Zahl der Beschäftigten dieser Branche (Betriebsumfrage, BLS).",hin:"",q:"FRED "+x.s+" (BLS, Current Employment Statistics)"};byId[x.k.id]=x.k});
+ document.getElementById("bes-meta").textContent="Stand "+dts(gesamt[0])+", "+nf(gesamt[1]/1000,1)+" Mio. Beschäftigte";
+ const extra=x=>{const dv=x.v12!=null?x.abs-x.v12:null,dp=x.v12?dv/x.v12*100:null,d20=x.v20!=null?x.abs-x.v20:null,p20=x.v20?d20/x.v20*100:null;
+  const z=(a,b)=>'<tr><td>'+a+'</td><td class="zahl"><b>'+b+'</b></td></tr>';
+  return '<h3>Einordnung</h3><table>'+z("Anteil an allen Beschäftigten",nf(x.w,1)+" %")+z("Beschäftigte",nf(x.abs/1000,2)+" Mio.")
+   +(dv!=null?z("Veränderung zum Vorjahr",(dv>=0?"+":"−")+nf(Math.abs(dv),0)+" Tsd. ("+(dp>=0?"+":"−")+nf(Math.abs(dp),1)+" %)"):"")
+   +(d20!=null?z("Veränderung seit Februar 2020",(d20>=0?"+":"−")+nf(Math.abs(d20),0)+" Tsd. ("+(p20>=0?"+":"−")+nf(Math.abs(p20),1)+" %)"):"")+'</table>'};
+ const klick=id=>{const x=T.find(y=>"s_"+y.id===id);if(x)oeffnen(x.k.id,extra(x))};
+ const P=T.map(x=>({id:"s_"+x.id,de:x.de,n:x.de,w:x.w,c:x.c}));
+ kuchen("bes-pie",P,{min:1.2,klick:klick,R:200});
+ /* Balken 1: elf Wirtschaftsbereiche */
+ const G=GRP.map(g=>{const m=T.filter(x=>x.b===g.b);return {id:"g_"+g.b,de:g.de,n:g.de,c:g.c,w:m.reduce((a,x)=>a+x.w,0),m:m}});
+ balken("bes-bal",G,id=>{const g=G.find(x=>x.id===id);letzterFokus=document.activeElement;
+  zeigen(kopf("Wirtschaftsbereich",g.de,g.c)+'<div class="db"><div class="gross">'+nf(g.w,1)+' %</div><div class="gsub">Anteil an allen Beschäftigten, '+nf(g.m.reduce((a,x)=>a+x.abs,0)/1000,2)+' Mio. Beschäftigte</div>'+gewBalken(g.w,25,g.c)
+   +'<h3>Bestandteile</h3><table>'+g.m.map(x=>'<tr><td><a href="#" data-id="s_'+x.id+'" style="color:inherit">'+esc(x.de)+'</a></td><td class="zahl">'+nf(x.abs/1000,2)+' Mio.</td><td class="zahl"><b>'+nf(x.w,1)+' %</b></td></tr>').join("")+'</table>'
+   +'<h3>Quelle</h3><p style="font-size:13px;color:var(--text2)">BLS, Current Employment Statistics, über FRED.</p></div>');
+  dr.querySelectorAll("a[data-id]").forEach(a=>a.addEventListener("click",e=>{e.preventDefault();klick(a.dataset.id)}))});
+ /* Balken 2: Güter, private Dienste, Staat */
+ const gu=T.filter(x=>["bergbau","bau","industrie"].includes(x.b)).reduce((a,x)=>a+x.w,0),st=T.filter(x=>x.b==="staat").reduce((a,x)=>a+x.w,0);
+ const D3=[{id:"d_g",de:"Güterproduzenten",w:gu,c:"hsl(30,60%,46%)",t:"Bergbau, Bau und Industrie"},{id:"d_p",de:"Private Dienstleister",w:100-gu-st,c:"hsl(210,55%,40%)",t:"Handel, Transport, Information, Finanzen, Unternehmensdienste, Bildung, Gesundheit, Freizeit und Sonstiges"},{id:"d_s",de:"Staat",w:st,c:"hsl(0,0%,50%)",t:"Bund, Bundesstaaten und Kommunen"}];
+ balken("bes-bal2",D3,id=>{const a=D3.find(x=>x.id===id);zeigen(kopf("Zusammengefasst",a.de,a.c)+'<div class="db"><div class="gross">'+nf(a.w,1)+' %</div><div class="gsub">Anteil an allen Beschäftigten</div><h3>Was ist enthalten?</h3><p>'+esc(a.t)+'</p><h3>Quelle</h3><p style="font-size:13px;color:var(--text2)">BLS, Current Employment Statistics, über FRED.</p></div>')});
+ document.getElementById("bes-hin").textContent="18 Branchen der untersten Ebene, die sich zur Gesamtzahl der Beschäftigten (Nonfarm Payrolls) summieren. Beschriftet sind Branchen ab 1,2 %. Die Anteile werden bei jeder Aktualisierung neu gerechnet. Quelle: BLS, Current Employment Statistics, über FRED (vorläufige Werte, werden nachträglich revidiert).";
+ return {T:T,G:G,gu:gu,st:st,gesamt:gesamt};
+}
+/* ================== ALTER UND GESCHLECHT (CPS Tabelle 14, Jahresdurchschnitt 2025, Tausend) ================== */
+const DEM={stand:"Jahresdurchschnitt 2025",quelle:"https://www.bls.gov/cps/cpsaat14.htm",
+ br:[["Bergbau","g"],["Bau","g"],["Industrie","g"],["Groß- und Einzelhandel","s"],["Transport und Versorger","s"],["Information","s"],["Finanzen und Immobilien","s"],["Unternehmensdienste","s"],["Bildung und Gesundheit","s"],["Freizeit und Gastgewerbe","s"],["Sonstige Dienste","s"],["Öffentliche Verwaltung","s"]],
+ /* Altersgruppen je Zeile: 16-19, 20-24, 25-54, 55+ ; je Branche in Spalten */
+ m:[[5,206,135,662,111,31,32,167,170,1019,132,26],[26,966,727,1379,505,88,303,812,772,1117,337,188],[332,7220,7135,6629,5172,1237,3805,8765,6314,3450,2262,3002],[96,2365,2733,2435,1884,342,1392,3044,2411,1048,981,1014]],
+ w:[[1,16,71,565,31,22,27,97,511,1258,144,18],[2,74,261,1185,195,80,276,616,2323,1429,380,173],[46,948,2985,4782,1743,770,3827,6536,18878,3552,2464,2586],[23,327,1087,1979,567,217,1524,2038,6576,1076,1061,936]]};
+const ALT=["16 bis 19","20 bis 24","25 bis 54","55 und älter"];
+function demGruppe(idx){const M=[0,1,2,3].map(a=>idx.reduce((s,i)=>s+DEM.m[a][i],0)),W=[0,1,2,3].map(a=>idx.reduce((s,i)=>s+DEM.w[a][i],0));const T=M.reduce((a,b)=>a+b,0)+W.reduce((a,b)=>a+b,0);return {M:M,W:W,T:T}}
+function pyramide(g,sk){const w=400,h=176,cx=200,gap=30,lm=cx-gap-6,rm=cx+gap+6,sc=(cx-gap-44)/sk;let s='<svg class="dpyr" viewBox="0 0 '+w+' '+h+'" role="img" aria-label="Alters- und Geschlechtsverteilung">';
+ for(let a=3;a>=0;a--){const y=8+(3-a)*40,m=g.M[a]/g.T*100,f=g.W[a]/g.T*100;
+  s+='<rect class="am" x="'+(lm-m*sc).toFixed(1)+'" y="'+y+'" width="'+(m*sc).toFixed(1)+'" height="30" rx="3"/><rect class="af" x="'+rm+'" y="'+y+'" width="'+(f*sc).toFixed(1)+'" height="30" rx="3"/>'
+   +'<text x="'+cx+'" y="'+(y+19)+'" text-anchor="middle">'+ALT[a].replace(" und älter","+").replace(" bis ","–")+'</text>'
+   +'<text class="pz" x="'+(lm-m*sc-4).toFixed(1)+'" y="'+(y+19)+'" text-anchor="end">'+nf(m,1)+'</text><text class="pz" x="'+(rm+f*sc+4).toFixed(1)+'" y="'+(y+19)+'">'+nf(f,1)+'</text>'}
+ return s+'</svg>'}
+/* Feine Altersgruppen (CPS Tabelle 18b, Tausend): 16-19, 20-24, 25-34, 35-44, 45-54, 55-64, 65+ ; Zeilen = Branchen in der Reihenfolge von DEM.br */
+DEM.a=[[6,28,114,159,105,82,38],[222,1040,2695,2999,2474,1989,702],[206,988,3393,3465,3261,2942,878],[1227,2564,4364,3836,3211,2894,1520],[143,700,2315,2337,2264,1825,627],[53,168,713,723,571,383,176],[60,579,2493,2740,2399,2035,880],[264,1428,5360,5490,4451,3416,1666],[681,3095,8354,8767,8071,6408,2580],[2277,2546,2881,2397,1724,1450,674],[276,717,1534,1643,1548,1297,745],[44,361,1696,2059,1833,1462,488]];
+DEM.med=[43.1,42.2,43.9,39.7,43.4,41.7,44.2,42.6,42.9,32.4,43.4,44.3];
+DEM.quelle18b="https://www.bls.gov/cps/cpsaat18b.htm";
+const ALT7=["16–19","20–24","25–34","35–44","45–54","55–64","65+"];
+function altGruppe(idx){const v=[0,1,2,3,4,5,6].map(j=>idx.reduce((s,i)=>s+DEM.a[i][j],0));return {v:v,T:v.reduce((a,b)=>a+b,0)}}
+function altChart(g,sk){const w=400,h=7*28+8,lx=52,sc=(w-lx-44)/sk;let s='<svg class="achart" viewBox="0 0 '+w+' '+h+'" role="img" aria-label="Altersverteilung">';
+ g.v.forEach((n,j)=>{const y=6+j*28,p=n/g.T*100;s+='<text x="'+(lx-8)+'" y="'+(y+16)+'" text-anchor="end">'+ALT7[j]+'</text><rect class="ab" x="'+lx+'" y="'+y+'" width="'+(p*sc).toFixed(1)+'" height="22" rx="3"/><text class="pz" x="'+(lx+p*sc+5).toFixed(1)+'" y="'+(y+16)+'">'+nf(p,1)+'</text>'});
+ return s+'</svg>'}
+function demBauen(){
+ const alle=[0,1,2,3,4,5,6,7,8,9,10,11],gu=[0,1,2],sv=[3,4,5,6,7,8,9,10,11];
+ const G=[{de:"Insgesamt",s:"Alle zwölf nichtlandwirtschaftlichen Branchen",g:demGruppe(alle)},{de:"Produktion",s:"Bergbau, Bau, Industrie",g:demGruppe(gu)},{de:"Service",s:"Die übrigen neun Branchengruppen",g:demGruppe(sv)}];
+ const mx=Math.max(...G.flatMap(x=>[...x.g.M,...x.g.W].map(v=>v/x.g.T*100)));const sk=Math.ceil(mx/5)*5;
+ const idxG={Insgesamt:alle,Produktion:gu,Service:sv};G.forEach(x=>{x.a=altGruppe(idxG[x.de])});
+ const ska=Math.ceil(Math.max(...G.flatMap(x=>x.a.v.map(n=>n/x.a.T*100)))/5)*5;
+ document.getElementById("dem3a").innerHTML=G.map(x=>'<div class="dp"><h4>'+x.de+'</h4><div class="ds">'+x.s+', '+nf(x.a.T/1000,1)+' Mio. Erwerbstätige</div>'+altChart(x.a,ska)+'</div>').join("");
+ const frau=g=>g.W.reduce((a,b)=>a+b,0)/g.T*100;const alt7=a=>(a.v[5]+a.v[6])/a.T*100,jung7=a=>(a.v[0]+a.v[1])/a.T*100;
+ const leg='<div class="dleg"><span><i style="background:hsl(210,55%,45%)"></i>Männer</span><span><i style="background:hsl(335,55%,52%)"></i>Frauen</span></div>';
+ document.getElementById("dem3").innerHTML=G.map(x=>'<div class="dp"><h4>'+x.de+'</h4><div class="ds">'+x.s+', '+nf(x.g.T/1000,1)+' Mio. Erwerbstätige</div>'+pyramide(x.g,sk)+leg+'</div>').join("");
+ document.getElementById("dem-kpi").innerHTML=G.map(x=>'<div><b>'+x.de+':</b> Frauenanteil <b>'+nf(frau(x.g),1)+' %</b> · 55 und älter <b>'+nf(alt7(x.a),1)+' %</b> · unter 25 <b>'+nf(jung7(x.a),1)+' %</b></div>').join("");
+ document.getElementById("dem-tab").innerHTML='<tr><th>Branche</th><th>Bereich</th><th class="zahl">Erwerbstätige</th><th class="zahl">Frauenanteil</th><th class="zahl">Medianalter</th><th class="zahl">unter 25</th><th class="zahl">55 und älter</th></tr>'
+  +DEM.br.map((b,i)=>{const g=demGruppe([i]),a=altGruppe([i]);return '<tr data-i="'+i+'"><td>'+b[0]+'</td><td>'+(b[1]==="g"?"Produktion":"Service")+'</td><td class="zahl">'+nf(g.T/1000,2)+' Mio.</td><td class="zahl"><b>'+nf(frau(g),1)+' %</b><i class="mbar" style="width:'+(frau(g)*0.6).toFixed(0)+'px;background:hsl(335,55%,52%)"></i></td><td class="zahl">'+nf(DEM.med[i],1)+' J.</td><td class="zahl">'+nf(jung7(a),1)+' %</td><td class="zahl">'+nf(alt7(a),1)+' %</td></tr>'}).join("");
+ document.querySelectorAll("#dem-tab tr[data-i]").forEach(r=>r.addEventListener("click",()=>{const i=+r.dataset.i,g=demGruppe([i]),a=altGruppe([i]);letzterFokus=document.activeElement;
+  const sk1=Math.ceil(Math.max(...[...g.M,...g.W].map(v=>v/g.T*100))/5)*5;
+  zeigen(kopf("Alter und Geschlecht · "+(DEM.br[i][1]==="g"?"Produktion":"Service"),DEM.br[i][0],"var(--cb)")+'<div class="db"><div class="gross">'+nf(frau(g),1)+' %</div><div class="gsub">Frauenanteil, '+nf(g.T/1000,2)+' Mio. Erwerbstätige, Medianalter '+nf(DEM.med[i],1)+' Jahre ('+DEM.stand+')</div><h3>Altersverteilung (sieben Gruppen)</h3>'+altChart(a,Math.ceil(Math.max(...a.v.map(n=>n/a.T*100))/5)*5)+'<h3>Männer und Frauen nach Alter (vier Gruppen)</h3>'+pyramide(g,sk1)+leg
+   +'<h3>Zahlen</h3><table><tr><th>Alter</th><th class="zahl">Männer</th><th class="zahl">Frauen</th></tr>'+[3,2,1,0].map(a=>'<tr><td>'+ALT[a]+'</td><td class="zahl">'+nf(g.M[a],0)+' Tsd.</td><td class="zahl">'+nf(g.W[a],0)+' Tsd.</td></tr>').join("")+'</table>'
+   +'<h3>Quelle</h3><p style="font-size:13px;color:var(--text2)">BLS, Current Population Survey, <a href="'+DEM.quelle+'" target="_blank" rel="noopener">Tabelle 14</a> (Geschlecht) und <a href="'+DEM.quelle18b+'" target="_blank" rel="noopener">Tabelle 18b</a> (sieben Altersgruppen), '+DEM.stand+'.</p></div>')}));
+ document.getElementById("dem-hin").textContent="Quelle: BLS, Current Population Survey (Haushaltsumfrage), Tabelle 18b (sieben Altersgruppen, ohne Geschlecht) und Tabelle 14 (Geschlecht, vier Altersgruppen), "+DEM.stand+" (elf Monate ohne Oktober wegen der Erhebungspause, mit anderen Jahren nicht streng vergleichbar). Erfasst sind Personen in nichtlandwirtschaftlichen Branchen, die Landwirtschaft (rund 2,2 Mio.) fehlt. Die Zahlen unterscheiden sich von der Betriebsumfrage im Kuchen oben, weil beide Umfragen anders zählen. Geschlecht und Branche gibt die BLS nur in den vier groben Altersgruppen aus, die sieben Altersgruppen gibt es nur ohne Geschlecht. Aktualisierung jährlich (neue Jahresdurchschnitte meist im Februar), manuell.";
+}
+/* Texte, die von den Zahlen abhängen */
+function texte(B){
+ const g=document.getElementById("grundidee"),s=document.getElementById("strukt");
+ const sh=id=>{const x=B&&B.T.find(y=>y.id===id);return x?nf(x.w,1)+" %":"…"};
+ const grp=b=>{const x=B&&B.G.find(y=>"g_"+b===y.id);return x?nf(x.w,1)+" %":"…"};
+ const pd=B?nf(100-B.gu-B.st,1)+" %":"…",gu=B?nf(B.gu,1)+" %":"…",st=B?nf(B.st,1)+" %":"…";
+ g.innerHTML=
+  '<li><b>Arbeit hat zwei Seiten.</b> Haushalte bieten Arbeit an (Angebot: Erwerbspersonen), Unternehmen und Staat fragen sie nach (Nachfrage: Beschäftigte und offene Stellen). Der Lohn gleicht beides aus.</li>'
+  +'<li><b>Dienstleistungen tragen die Beschäftigung.</b> Private Dienstleister stellen '+pd+' der Beschäftigten, Güterproduzenten (Bergbau, Bau, Industrie) '+gu+', der Staat '+st+' (Kuchen unten).</li>'
+  +'<li><b>Gesundheit und Soziales ist der größte Einzelbereich.</b> Er umfasst '+sh("health")+' aller Beschäftigten, zum Vergleich: die gesamte Industrie '+grp("industrie")+'.</li>'
+  +'<li><b>Es gibt drei Quellen.</b> Die Betriebsumfrage zählt Stellen bei Arbeitgebern, die Haushaltsumfrage zählt Personen, JOLTS misst offene Stellen und Bewegungen (Tabelle oben).</li>'
+  +'<li><b>Die Arbeitslosenquote misst nur einen Teil.</b> Die breite Quote U-6 zählt zusätzlich entmutigte Arbeitssuchende und unfreiwillig Teilzeitbeschäftigte.</li>'
+  +'<li><b>Die Fed hat ein Beschäftigungsziel.</b> Gesetzlich verlangt sind maximale Beschäftigung und stabile Preise. Zinsen und Fed-Struktur: Oberthema 3. Löhne und Inflation: Oberthema 6.</li>';
+ s.innerHTML=
+  '<div><b>Der Staat ist ein großer Arbeitgeber, überwiegend lokal</b>Der Staat beschäftigt '+st+' aller Beschäftigten. Den größten Teil stellen die Kommunen ('+sh("local")+'), darunter Lehrer staatlicher Schulen, Polizei und Feuerwehr. Der Bund kommt auf '+sh("fed")+'.</div>'
+  +'<div><b>Die Industrie ist kleiner als Handel und Unternehmensdienste</b>Die Industrie beschäftigt '+grp("industrie")+', Handel, Transport und Versorger '+grp("handel")+' und Unternehmensdienste '+grp("pbs")+'.</div>'
+  +'<div><b>Zwei Umfragen, zwei Bilder</b>Die Betriebsumfrage kann einen Zuwachs zeigen, während die Haushaltsumfrage einen Rückgang zeigt, und umgekehrt. Beide haben unterschiedliche Abgrenzungen. Deshalb stehen beide Arten von Kennzahlen auf dieser Seite.</div>'
+  +'<div><b>Löhne verbinden Arbeitsmarkt und Inflation</b>Dienstleistungen sind lohnintensiv. Der Stundenlohn und der Arbeitskostenindex stehen deshalb in der Gruppe Löhne, die Wirkung auf die Preise in Oberthema 6.</div>';
+}
+/* ================== START ================== */
+(function(){
+ for(let i=K.length-1;i>=0;i--){if(!DATA[K[i].s])K.splice(i,1)}
+ bauen();
+ let B=null;try{B=branchenBauen()}catch(e){console.error(e);document.getElementById("bes-box").style.display="none"}
+ texte(B);
+ try{demBauen()}catch(e){console.error(e);document.getElementById("dem-box").style.display="none"}
+ const D=window.USA_DATEN;if(D&&D.meta){document.querySelector('.unter').innerHTML+=' · Datenabruf: '+D.meta.erstellt}
+})();
+</script>
+</body>
+</html>

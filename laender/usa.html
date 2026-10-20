@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="de" data-theme="dark">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>JPM Prozess · Länderanalyse USA</title>
+<link rel="stylesheet" href="../stil.css?v=20261017">
+<style>
+.themen-raster{max-width:1180px;margin:34px auto 0;display:grid;grid-template-columns:repeat(auto-fill,minmax(270px,1fr));gap:16px}
+.thema-kachel{min-height:150px}
+.thema-nr{font-size:12px;font-weight:700;color:var(--text-stumm);font-variant-numeric:tabular-nums;letter-spacing:.06em}
+.thema-kachel .bereich-kachel-titel{font-size:18px}
+.la-stand{max-width:1180px;margin:18px auto 0;font-size:12.5px;color:var(--text-sekundaer)}
+.la-stand b{color:var(--text)}
+</style>
+</head>
+<body data-laender="land" data-flagge="../bilder/flaggen/usa.jpg">
+
+<header class="kopf">
+  <div class="kopf-zeile">
+    <div>
+      <a class="kopf-zurueck" href="index.html">← Länderanalyse</a>
+      <div class="kopf-pfad">JPM Prozess · Länderanalyse</div>
+      <h1>USA</h1>
+    </div>
+    <button id="themaSchalter" class="thema-schalter" type="button" aria-label="Hell- oder Dunkelmodus umschalten">
+      <span class="thema-hell">Hell</span><span class="thema-dunkel">Dunkel</span>
+    </button>
+  </div>
+  <p class="kopf-frage">Die elf Oberthemen der USA. Ein Oberthema wählen. Daten und Fakten, keine Bewertung.</p>
+</header>
+
+<main class="themen-raster">
+  <a class="bereich-kachel thema-kachel" href="usa-politik.html"><span class="thema-nr">1</span><div class="bereich-kachel-titel">Politische Struktur und Politik</div><p class="bereich-kachel-text">Gewalten, Parteien, Bundesstaaten, Haushalt und Wahlen.</p><span class="bereich-kachel-status status-fertig">online</span></a>
+  <a class="bereich-kachel thema-kachel" href="usa-finanzsystem.html"><span class="thema-nr">2</span><div class="bereich-kachel-titel">Finanzsystem und Kreditsystem</div><p class="bereich-kachel-text">Kreditkreislauf, Schulden und Finanzierungsbedingungen.</p><span class="bereich-kachel-status status-fertig">online</span></a>
+  <a class="bereich-kachel thema-kachel" href="usa-fed.html"><span class="thema-nr">3</span><div class="bereich-kachel-titel">Zentralbank (Fed)</div><p class="bereich-kachel-text">Aufbau, Mitglieder, Abstimmungen, Zinsen und Bilanz.</p><span class="bereich-kachel-status status-fertig">online</span></a>
+  <a class="bereich-kachel thema-kachel" href="usa-wirtschaft.html"><span class="thema-nr">4</span><div class="bereich-kachel-titel">Wirtschaft und Infrastruktur</div><p class="bereich-kachel-text">Wirtschaftskreislauf, Branchen, Energie und Infrastruktur.</p><span class="bereich-kachel-status status-fertig">online</span></a>
+  <a class="bereich-kachel thema-kachel" href="usa-handel.html"><span class="thema-nr">5</span><div class="bereich-kachel-titel">Handelsbeziehungen und internationale Beziehungen</div><p class="bereich-kachel-text">Handelspartner, Lieferketten, Zölle und Seewege.</p><span class="bereich-kachel-status status-fertig">online</span></a>
+  <a class="bereich-kachel thema-kachel" href="usa-inflation.html"><span class="thema-nr">6</span><div class="bereich-kachel-titel">Inflation</div><p class="bereich-kachel-text">Warenkörbe von CPI und PPI, Treiber und Erwartungen.</p><span class="bereich-kachel-status status-fertig">online</span></a>
+  <a class="bereich-kachel thema-kachel" href="usa-arbeitsmarkt.html"><span class="thema-nr">7</span><div class="bereich-kachel-titel">Arbeitsmarkt</div><p class="bereich-kachel-text">Beschäftigte nach Branche, Alter und Geschlecht, Löhne und offene Stellen.</p><span class="bereich-kachel-status status-fertig">online</span></a>
+  <div class="bereich-kachel bereich-kachel-offen thema-kachel"><span class="thema-nr">8</span><div class="bereich-kachel-titel">Sentiment und Verbraucherverhalten</div><p class="bereich-kachel-text">Noch nicht begonnen.</p><span class="bereich-kachel-status status-offen">folgt</span></div>
+  <div class="bereich-kachel bereich-kachel-offen thema-kachel"><span class="thema-nr">9</span><div class="bereich-kachel-titel">Umwelt und Klima</div><p class="bereich-kachel-text">Noch nicht begonnen.</p><span class="bereich-kachel-status status-offen">folgt</span></div>
+  <div class="bereich-kachel bereich-kachel-offen thema-kachel"><span class="thema-nr">10</span><div class="bereich-kachel-titel">Gesundheitswesen</div><p class="bereich-kachel-text">Noch nicht begonnen.</p><span class="bereich-kachel-status status-offen">folgt</span></div>
+  <div class="bereich-kachel bereich-kachel-offen thema-kachel"><span class="thema-nr">11</span><div class="bereich-kachel-titel">Immobilien</div><p class="bereich-kachel-text">Noch nicht begonnen.</p><span class="bereich-kachel-status status-offen">folgt</span></div>
+</main>
+<div class="la-stand" id="stand"></div>
+
+<footer class="fuss">
+  <span>JPM Prozess · Länderanalyse USA. Struktur wird halbjährlich geprüft, Kennzahlen aktualisieren sich automatisch.</span>
+</footer>
+
+<script src="daten/usa.js?v=1"></script>
+<script>
+(function () {
+  "use strict";
+  var schalter = document.getElementById("themaSchalter"), g = null;
+  try { g = localStorage.getItem("dashboard-thema"); } catch (e) { }
+  if (g) { document.documentElement.setAttribute("data-theme", g); }
+  schalter.addEventListener("click", function () {
+    var neu = document.documentElement.getAttribute("data-theme") === "dark" ? "light" : "dark";
+    document.documentElement.setAttribute("data-theme", neu);
+    try { localStorage.setItem("dashboard-thema", neu); } catch (e) { }
+  });
+  var d = window.USA_DATEN, el = document.getElementById("stand");
+  if (d && d.meta) {
+    var s = d.meta.stand || {}, f = d.meta.fehler || {}, t = "Letzter Datenabruf USA: <b>" + d.meta.erstellt + "</b>";
+    t += " · FRED: " + (s.fred || "nie") + " · Wikipedia: " + (s.wikipedia || "nie");
+    var fe = Object.keys(f); if (fe.length) t += " · <b>Abruffehler bei: " + fe.join(", ") + "</b> (zuletzt guter Stand bleibt stehen)";
+    el.innerHTML = t;
+  } else { el.textContent = "Keine Abrufdaten gefunden."; }
+})();
+</script>
+<script src="../einstellungen.js?v=20261021"></script>
+<script src="../hintergrund.js?v=20261021"></script>
+</body>
+</html>
