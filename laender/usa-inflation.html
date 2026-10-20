@@ -1,0 +1,511 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>JPM Prozess · Länderanalyse USA · Inflation</title>
+<style>
+:root{
+  --flaeche:#fcfcfb; --ebene:#f9f9f7; --text:#0b0b0b; --text2:#52514e; --stumm:#898781;
+  --raster:#e1e0d9; --achse:#c3c2b7; --rand:rgba(11,11,11,.10);
+  --c1:#2f6f9f; --c2:#6b4f8a; --c3:#3d7a56; --c4:#8a5a2b; --cb:#52514e;
+  --h1:#e6f0f7; --h2:#eee9f4; --h3:#e5f2ea; --h4:#f4ebe1; --hb:#efeee9;
+  --gut:#006300; --warn:#b97a00; --schatten:0 1px 2px rgba(11,11,11,.04),0 4px 16px rgba(11,11,11,.06);
+  color-scheme:light;
+}
+:root[data-theme="dark"]{
+  --flaeche:#1a1a19; --ebene:#0d0d0d; --text:#fff; --text2:#c3c2b7; --stumm:#898781;
+  --raster:#2c2c2a; --achse:#383835; --rand:rgba(255,255,255,.12);
+  --c1:#5fa0d3; --c2:#ab8fd0; --c3:#56b27d; --c4:#d39a5a; --cb:#c3c2b7;
+  --h1:#16222c; --h2:#221b2c; --h3:#16261d; --h4:#2a2016; --hb:#232321;
+  --gut:#0ca30c; --warn:#fab219; --schatten:none; color-scheme:dark;
+}
+*{box-sizing:border-box}
+body{margin:0;padding:0 20px 56px;background:var(--ebene);color:var(--text);font-family:system-ui,-apple-system,"Segoe UI",sans-serif;font-size:15px;line-height:1.5}
+.wrap{max-width:1280px;margin:0 auto}
+header{padding:20px 0 6px;display:flex;gap:16px;justify-content:space-between;align-items:flex-start;flex-wrap:wrap}
+h1{margin:0;font-size:21px;font-weight:650}
+.unter{color:var(--text2);font-size:13px}
+.entwurf{display:inline-block;margin-left:8px;padding:1px 8px;border-radius:99px;border:1px solid var(--warn);color:var(--warn);font-size:12px;font-weight:600;vertical-align:middle}
+.tool{font:inherit;font-size:13px;background:var(--flaeche);color:var(--text);border:1px solid var(--rand);border-radius:8px;padding:6px 12px;cursor:pointer}
+.legende{display:flex;gap:16px;flex-wrap:wrap;font-size:12px;color:var(--text2);margin:6px 0 12px}
+.pkt{width:8px;height:8px;border-radius:50%;display:inline-block;margin-right:5px}.pkt.auto{background:var(--gut)}.pkt.man{background:var(--stumm)}
+/* Kachel */
+.k{all:unset;box-sizing:border-box;display:block;width:100%;cursor:pointer;background:var(--flaeche);border:1px solid var(--rand);border-radius:9px;padding:9px 11px 8px;box-shadow:var(--schatten);transition:transform .15s,border-color .15s}
+.k:hover{transform:translateY(-1px);border-color:var(--c)}.k:focus-visible{outline:2px solid var(--c);outline-offset:2px}
+.k.aktiv{border-color:var(--c);box-shadow:0 0 0 2px var(--c)}
+.kt{display:flex;justify-content:space-between;align-items:baseline;gap:6px}
+.kn{font-size:12.5px;color:var(--text2);font-weight:600}
+.kd{font-size:11px;color:var(--stumm);white-space:nowrap}
+.kw{font-size:23px;font-weight:700;line-height:1.15;font-variant-numeric:tabular-nums;margin-top:1px}
+.ks{font-size:11.8px;color:var(--text2);display:flex;justify-content:space-between;gap:6px;align-items:center;margin-top:1px}
+.dl{white-space:nowrap}
+.spark{display:block;width:100%;height:30px;margin-top:3px}
+.c1{--c:var(--c1)}.c2{--c:var(--c2)}.c3{--c:var(--c3)}.c4{--c:var(--c4)}.cb{--c:var(--cb)}
+/* Layout */
+.band{background:var(--hb);border:1px solid var(--rand);border-radius:12px;padding:8px 10px 10px;margin-bottom:14px}
+.bandkopf{font-size:12px;font-weight:700;color:var(--text2);text-transform:uppercase;letter-spacing:.05em;margin:2px 2px 6px}
+.bandinhalt{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}
+.raster{display:grid;grid-template-columns:1fr 54px 1fr 54px 1fr 54px 1fr;align-items:stretch}
+.sp{padding:8px;border-radius:12px;display:flex;flex-direction:column;gap:9px}
+.sp.s1{background:var(--h1)}.sp.s2{background:var(--h2)}.sp.s3{background:var(--h3)}.sp.s4{background:var(--h4)}
+.spkopf{color:#fff;font-weight:700;text-align:center;padding:9px 6px;border-radius:9px;font-size:13px;background:var(--c)}
+.pill{all:unset;cursor:pointer;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;font-size:10.5px;text-align:center;color:var(--text2);padding:4px 2px}
+.pill .pf{font-size:20px;color:var(--text);line-height:1}.pill:hover,.pill.aktiv{color:var(--text)}.pill:focus-visible{outline:2px solid var(--text);border-radius:6px}
+.termine{margin-top:16px;background:var(--flaeche);border:1px solid var(--rand);border-radius:10px;padding:10px 14px;box-shadow:var(--schatten)}
+.termine h2{margin:0 0 4px;font-size:13px;color:var(--text2);text-transform:uppercase;letter-spacing:.05em}
+.termin{display:flex;gap:10px;align-items:baseline;padding:5px 0;border-top:1px solid var(--raster);font-size:13px}
+.termin:first-of-type{border-top:0}.termin .d{width:96px;font-weight:600}.termin .t{flex:1}.termin .r{color:var(--text2);white-space:nowrap}.termin.n .r{color:var(--warn);font-weight:700}
+.fuss{margin-top:6px;font-size:11.5px;color:var(--stumm)}
+/* Drawer */
+#schatten{position:fixed;inset:0;background:rgba(0,0,0,.28);opacity:0;pointer-events:none;transition:opacity .2s;z-index:20}
+#schatten.offen{opacity:1;pointer-events:auto}
+#drawer{position:fixed;top:0;right:0;height:100%;width:min(560px,100%);background:var(--flaeche);border-left:1px solid var(--rand);box-shadow:-8px 0 30px rgba(0,0,0,.18);transform:translateX(100%);transition:transform .22s ease;z-index:21;overflow-y:auto;padding:0}
+#drawer.offen{transform:none}
+.dk{position:sticky;top:0;background:var(--flaeche);border-bottom:1px solid var(--rand);border-top:4px solid var(--c);padding:14px 18px 10px;display:flex;justify-content:space-between;gap:10px;align-items:flex-start;z-index:2}
+.dk h2{margin:0;font-size:18px}.dk .gr{font-size:12px;color:var(--c);text-transform:uppercase;letter-spacing:.05em;font-weight:700}
+.zu{all:unset;cursor:pointer;font-size:22px;line-height:1;padding:2px 8px;border-radius:6px;color:var(--text2)}.zu:hover{background:var(--raster)}.zu:focus-visible{outline:2px solid var(--text)}
+.db{padding:14px 18px 40px}
+.gross{font-size:34px;font-weight:700;font-variant-numeric:tabular-nums;line-height:1.1}
+.gsub{font-size:13px;color:var(--text2);margin-bottom:8px}
+.btns{display:flex;gap:6px;margin:6px 0 4px}
+.btn{font:inherit;font-size:12px;background:var(--ebene);color:var(--text);border:1px solid var(--rand);border-radius:7px;padding:3px 10px;cursor:pointer}
+.btn[aria-pressed="true"]{background:var(--text);color:var(--flaeche);border-color:var(--text)}
+svg.chart{width:100%;height:auto;display:block;touch-action:none}
+.tip{font-size:12.5px;color:var(--text2);min-height:18px;margin-bottom:4px;font-variant-numeric:tabular-nums}
+.db h3{font-size:12px;text-transform:uppercase;letter-spacing:.05em;color:var(--text2);margin:18px 0 4px}
+.db p{margin:0 0 8px;font-size:14px}
+.db table{width:100%;border-collapse:collapse;font-size:13px}
+.db th{font-weight:600;text-align:left;color:var(--text2);font-size:11.5px;border-bottom:1px solid var(--rand);padding:3px 8px 3px 0}
+.db td{padding:5px 8px 5px 0;border-bottom:1px solid var(--raster);vertical-align:top}
+.db .hin{background:var(--ebene);border-left:3px solid var(--warn);border-radius:4px;padding:6px 10px;font-size:13px;color:var(--text2)}
+.db ul{margin:4px 0 0;padding-left:18px;font-size:13.5px}
+.db a{color:inherit}
+@media (max-width:980px){
+  .raster{grid-template-columns:1fr}.pill{display:none}.sp{margin-bottom:12px}.bandinhalt{grid-template-columns:1fr}
+}
+@media (prefers-reduced-motion:reduce){#drawer,#schatten,.k{transition:none}}
+/* Verständnis-Block */
+.versteh{background:var(--flaeche);border:1px solid var(--rand);border-radius:12px;padding:6px 18px 14px;box-shadow:var(--schatten);margin-bottom:14px}
+.versteh>h2{margin:12px 0 2px;font-size:17px}
+.versteh .lead{margin:0 0 8px;color:var(--text2);font-size:13.5px}
+.versteh details{border-top:1px solid var(--raster);padding:6px 0}
+.versteh details:first-of-type{border-top:0}
+.versteh summary{cursor:pointer;font-weight:650;font-size:14.5px;padding:4px 0;list-style:none}
+.versteh summary::-webkit-details-marker{display:none}
+.versteh summary:before{content:"▸";display:inline-block;width:18px;color:var(--text2);transition:transform .15s}
+.versteh details[open]>summary:before{transform:rotate(90deg)}
+.versteh summary:focus-visible{outline:2px solid var(--text);outline-offset:2px;border-radius:4px}
+.versteh .inh{padding:2px 0 6px 18px;font-size:14px}
+.versteh ol.kern{margin:4px 0 4px;padding-left:20px}.versteh ol.kern li{margin:3px 0}
+.fluss{display:grid;grid-template-columns:1fr 78px 1fr 78px 1fr;grid-template-rows:auto 56px auto 56px auto;align-items:center;gap:0;margin:8px 0 4px}
+.nk{all:unset;box-sizing:border-box;display:block;width:100%;cursor:pointer;background:var(--ebene);border:1px solid var(--rand);border-top:3px solid var(--c);border-radius:9px;padding:8px 10px;text-align:center;transition:transform .15s,border-color .15s}
+.nk:hover{transform:translateY(-1px);border-color:var(--c)}.nk:focus-visible{outline:2px solid var(--c);outline-offset:2px}
+.nk b{display:block;font-size:13.5px}.nk span{display:block;font-size:11.5px;color:var(--text2);margin-top:1px}
+.pf2{font-size:11px;color:var(--text2);text-align:center;line-height:1.25;padding:0 3px}
+.pf2 i{display:block;font-style:normal;font-size:18px;color:var(--text);line-height:1}
+.nk.n1{--c:var(--c1)}.nk.n2{--c:var(--c3)}.nk.n3{--c:var(--c4)}.nk.n4{--c:var(--c2)}.nk.n5{--c:var(--c2)}.nk.n6{--c:var(--c1)}.nk.n7{--c:var(--cb)}
+.bed{display:grid;grid-template-columns:repeat(2,1fr);gap:10px;margin-top:4px}
+.bed div{background:var(--ebene);border:1px solid var(--rand);border-radius:9px;padding:8px 11px;font-size:13.5px}
+.bed b{display:block;font-size:13px;margin-bottom:2px}
+.chip{display:inline-block;font-size:11.5px;border:1px solid var(--rand);border-radius:99px;padding:0 9px;margin:2px 3px 0 0;background:var(--ebene);cursor:pointer;color:var(--text)}
+.chip:hover{border-color:var(--text)}
+@media (max-width:980px){.fluss{grid-template-columns:1fr;grid-template-rows:none;gap:8px}.pf2{display:none}.bed{grid-template-columns:1fr}}
+
+.struktur{background:var(--flaeche);border:1px solid var(--rand);border-radius:12px;padding:10px 14px 14px;box-shadow:var(--schatten);margin-bottom:14px}
+.skraster{display:grid;grid-template-columns:minmax(240px,320px) 1fr;gap:18px;align-items:center}
+#kuchen{width:100%;max-width:1000px;height:auto;display:block;margin:0 auto}
+.kmitte{margin:4px 0 0}
+.leg{display:none}
+#kuchen text{font-size:14px;fill:var(--text);cursor:pointer}
+#kuchen text b,#kuchen .pz{font-weight:700;font-variant-numeric:tabular-nums}
+#kuchen text:hover{text-decoration:underline}
+#kuchen .fl{stroke:var(--achse);stroke-width:1;fill:none}
+#kuchen .gk2{font-size:12px;fill:var(--text2);cursor:default;text-transform:uppercase;letter-spacing:.05em;font-weight:700}
+#kuchen path{cursor:pointer;stroke:var(--flaeche);stroke-width:1.5;transition:opacity .15s}
+#kuchen path:hover,#kuchen path:focus{opacity:.8;outline:none}
+.leg{display:none;grid-template-columns:repeat(2,1fr);gap:3px 14px}
+.leg button{all:unset;cursor:pointer;display:flex;align-items:center;gap:8px;font-size:13px;padding:3px 6px;border-radius:6px}
+.leg button:hover,.leg button:focus-visible{background:var(--ebene);outline:none}
+.leg i{width:11px;height:11px;border-radius:3px;flex:none}
+.leg b{margin-left:auto;font-variant-numeric:tabular-nums}
+.leg .gk{grid-column:1/-1;font-size:11.5px;font-weight:700;text-transform:uppercase;letter-spacing:.05em;color:var(--text2);margin-top:6px}
+.balken{display:flex;height:44px;border-radius:9px;overflow:hidden;margin-top:6px;border:1px solid var(--rand)}
+.balken button{all:unset;cursor:pointer;display:flex;align-items:center;justify-content:center;text-align:center;font-size:13px;font-weight:700;color:#fff;overflow:hidden;white-space:nowrap}
+.balken button:hover,.balken button:focus-visible{filter:brightness(1.12);outline:none}
+.bhin{font-size:11.5px;color:var(--stumm);margin-top:6px}
+.bandinhalt{grid-template-columns:repeat(4,1fr)!important}
+@media (max-width:980px){.bandinhalt{grid-template-columns:1fr!important}}
+@media (max-width:760px){#kuchen .lbl{display:none}#kuchen{max-width:360px}.leg{display:grid;grid-template-columns:1fr;margin-top:8px}}
+
+.kreislauf svg{width:100%;height:auto;display:block}
+.kreislauf .nd{cursor:pointer}
+.kreislauf .nd rect{fill:var(--ebene);stroke:var(--c);stroke-width:2;transition:fill .15s}
+.kreislauf .nd:hover rect,.kreislauf .nd:focus rect{fill:var(--flaeche)}
+.kreislauf .nd:focus{outline:none}.kreislauf .nd:focus rect{stroke-width:3.5}
+.kreislauf .nd text{pointer-events:none}
+.kreislauf .nt{font-size:15px;font-weight:700;fill:var(--text)}
+.kreislauf .ns{font-size:11.5px;fill:var(--text2)}
+.kreislauf .mk rect{fill:var(--h2);stroke-dasharray:none}
+.kreislauf .fr{stroke:var(--c1);stroke-width:2.4;fill:none}
+.kreislauf .fg{stroke:var(--c4);stroke-width:2.2;fill:none;stroke-dasharray:6 4}
+.kreislauf .fz{stroke:var(--text2);stroke-width:1.8;fill:none}
+.kreislauf .fl2{font-size:11.5px;fill:var(--text2)}
+.kreislauf .mitte{font-size:13px;font-weight:700;fill:var(--text2);text-anchor:middle}
+.kreislauf .mitte2{font-size:11.5px;fill:var(--stumm);text-anchor:middle}
+.kl-liste{display:none}
+@media (max-width:760px){.kreislauf .nd text.ns,.kreislauf .fl2{display:none}.kl-liste{display:flex;flex-wrap:wrap;gap:6px;margin-top:8px}}
+/* Inflation: eigene Ergänzungen */
+.bandinhalt{grid-template-columns:repeat(3,1fr)!important}
+.bandinhalt.v4{grid-template-columns:repeat(4,1fr)!important}
+@media (max-width:980px){.bandinhalt,.bandinhalt.v4{grid-template-columns:1fr!important}}
+.kuchenkopf{display:flex;justify-content:space-between;gap:10px;align-items:baseline;flex-wrap:wrap}
+.kuchenkopf h3{margin:0;font-size:16px}
+.kuchenkopf span{font-size:12px;color:var(--text2)}
+.pie{width:100%;max-width:1100px;height:auto;display:block;margin:0 auto}
+.pie path{cursor:pointer;stroke:var(--flaeche);stroke-width:.8;transition:opacity .15s}
+.pie path:hover,.pie path:focus{opacity:.75;outline:none}
+.pie text{font-size:13px;fill:var(--text);cursor:pointer}
+.pie text:hover{text-decoration:underline}
+.pie .pz{font-weight:700;font-variant-numeric:tabular-nums}
+.pie .fl{stroke:var(--achse);stroke-width:1;fill:none}
+.pie .mt{font-size:12px;fill:var(--text2);text-anchor:middle;cursor:default;font-weight:700}
+.pie .mt2{font-size:11px;fill:var(--stumm);text-anchor:middle;cursor:default}
+.balken2{display:flex;height:40px;border-radius:9px;overflow:hidden;margin-top:6px;border:1px solid var(--rand)}
+.balken2 button{all:unset;cursor:pointer;display:flex;align-items:center;justify-content:center;text-align:center;font-size:12px;font-weight:700;color:#fff;overflow:hidden;white-space:nowrap;padding:0 3px}
+.balken2 button:hover,.balken2 button:focus-visible{filter:brightness(1.12);outline:none}
+.liste summary{cursor:pointer;font-size:13px;font-weight:650;padding:6px 0}
+.liste input{font:inherit;font-size:13px;padding:5px 9px;border:1px solid var(--rand);border-radius:7px;background:var(--ebene);color:var(--text);width:min(360px,100%);margin:4px 0 8px}
+.liste .tab{max-height:420px;overflow:auto;border:1px solid var(--rand);border-radius:8px}
+.liste table{width:100%;border-collapse:collapse;font-size:12.5px}
+.liste th{position:sticky;top:0;background:var(--flaeche);text-align:left;font-size:11.5px;color:var(--text2);padding:5px 8px;border-bottom:1px solid var(--rand)}
+.liste td{padding:3px 8px;border-bottom:1px solid var(--raster)}
+.liste tr[data-id]{cursor:pointer}.liste tr[data-id]:hover{background:var(--ebene)}
+.liste td.zahl,.db td.zahl{text-align:right;font-variant-numeric:tabular-nums;white-space:nowrap}
+.sw{display:inline-block;width:10px;height:10px;border-radius:3px;margin-right:6px;vertical-align:baseline}
+.vgl{width:100%;border-collapse:collapse;font-size:13px;margin:4px 0}
+.vgl th{text-align:left;font-size:11.5px;color:var(--text2);border-bottom:1px solid var(--rand);padding:4px 8px 4px 0}
+.vgl td{padding:6px 8px 6px 0;border-bottom:1px solid var(--raster);vertical-align:top}
+.vgl td:first-child{font-weight:650;white-space:nowrap}
+.db .pfad{font-size:12.5px;color:var(--text2);margin:2px 0 6px}
+.gwb{height:12px;background:var(--raster);border-radius:6px;overflow:hidden;margin:4px 0 2px}.gwb i{display:block;height:100%}
+@media (max-width:760px){.pie .lbl{display:none}}
+</style>
+</head>
+<body>
+<div class="wrap">
+<header>
+  <div>
+    <a href="index.html" style="font-size:13px;color:var(--text2)">← Länderanalyse</a>
+    <h1>USA – Inflation <span class="entwurf">Muster, nicht freigegeben</span></h1>
+    <div class="unter">Länderanalyse, Oberthema 6 · Daten und Fakten, keine Bewertung · Struktur: Entwurf 2026-10-20 (Review: April 2027) · Kennzahlen aktualisieren sich automatisch, das Datum steht in jeder Kachel</div>
+  </div>
+  <button class="tool" id="theme" type="button">Dunkel / Hell</button>
+</header>
+<div class="legende">
+  <span><i class="pkt auto"></i>automatisch (FRED, zweimal täglich)</span>
+  <span><i class="pkt man"></i>fest eingetragen (BLS-Gewichte, Stand im Diagramm)</span>
+  <span>Kuchenstücke, Balken und Kacheln anklicken: Einordnung, Gewicht, Quelle</span>
+</div>
+
+<section class="versteh" aria-labelledby="vt">
+  <h2 id="vt">Zuerst verstehen: Was die Inflationszahlen messen und woraus der Warenkorb besteht</h2>
+  <p class="lead">Eine Inflationsrate ist der gewichtete Durchschnitt vieler Preisänderungen. Wie stark eine Preisänderung zählt, hängt vom Gewicht der Position im Warenkorb ab. Darum stehen die Warenkörbe von CPI und PPI mit ihren Gewichten im Mittelpunkt dieser Seite.</p>
+
+  <details open>
+    <summary>Die Grundidee in sechs Punkten</summary>
+    <div class="inh"><ol class="kern">
+      <li><b>Inflation ist der Anstieg eines Preisindex.</b> Ein Index verfolgt die Preise eines festen Warenkorbs. Das Gewicht jeder Position entspricht ihrem Anteil an den Ausgaben. Eine Position mit 10 % Gewicht bewegt den Index zehnmal so stark wie eine mit 1 %.</li>
+      <li><b>Drei Indizes messen drei verschiedene Dinge.</b> Der CPI misst, was Verbraucher zahlen (BLS). Der PCE-Preisindex misst die Preise der privaten Konsumausgaben nach den volkswirtschaftlichen Gesamtrechnungen (BEA). Der PPI misst, was Produzenten für ihre Leistungen erhalten (BLS). Tabelle unten.</li>
+      <li><b>Wohnen ist der größte Block im CPI.</b> Wohnen macht 44,5 % des CPI-Warenkorbs aus, davon Shelter (Miete und unterstellte Eigentümermiete) 35,6 %. Ob ein Haus steht oder gemietet wird, geht über die Ausgaben ein, obwohl Eigentümer keine Miete zahlen: Das Amt schätzt, was sie zahlen müssten.</li>
+      <li><b>Dienstleistungen dominieren beide Körbe.</b> Im CPI sind es 64,0 %, im PPI 68,3 %. Der PPI enthält zusätzlich die Handelsmargen (19,8 %), also den Aufschlag von Groß- und Einzelhandel.</li>
+      <li><b>Die Kernrate lässt Nahrung und Energie weg.</b> Beide schwanken stark. Der Kern-CPI deckt 79,9 % des Warenkorbs ab, Energie allein nur 6,4 %.</li>
+      <li><b>Die Fed bezieht ihr Ziel auf den PCE.</b> Die Federal Reserve nennt 2 % Inflation im PCE-Preisindex als langfristiges Ziel. Zinsen und Fed-Struktur: Oberthema 3.</li>
+    </ol></div>
+  </details>
+
+  <details open>
+    <summary>CPI, PCE und PPI im Vergleich</summary>
+    <div class="inh">
+      <table class="vgl">
+        <tr><th>Index</th><th>Wer</th><th>Was wird gemessen</th><th>Woher kommen die Gewichte</th></tr>
+        <tr><td>CPI</td><td>BLS (Arbeitsministerium)</td><td>Preise, die städtische Verbraucher für einen festen Warenkorb zahlen</td><td>Befragung zu den Haushaltsausgaben (Consumer Expenditure Survey), einmal pro Jahr aktualisiert</td></tr>
+        <tr><td>PCE-Preisindex</td><td>BEA (Handelsministerium)</td><td>Preise der privaten Konsumausgaben, auch Ausgaben, die Dritte für Haushalte tragen (zum Beispiel Arbeitgeber-Krankenversicherung)</td><td>Volkswirtschaftliche Gesamtrechnung, die Zusammensetzung wird laufend angepasst</td></tr>
+        <tr><td>PPI Final Demand</td><td>BLS</td><td>Preise, die inländische Produzenten für ihre Leistungen erhalten, einschließlich Handelsmargen und Bau</td><td>Versandwerte der Wirtschaftszensus (Basis 2017), neu seit Januar 2026</td></tr>
+      </table>
+      <p style="font-size:12.5px;color:var(--text2);margin:6px 0 0">Quellen: BLS, BEA und Federal Reserve (Erläuterungen zu den Indizes). Die Unterschiede in den Gewichten sind der Grund, warum CPI und PCE nicht dieselbe Rate zeigen.</p>
+    </div>
+  </details>
+
+  <details open>
+    <summary>Was das strukturell bedeutet</summary>
+    <div class="inh"><div class="bed">
+      <div><b>Wohnkosten bestimmen den CPI</b>Mehr als ein Drittel des Warenkorbs ist Shelter. Die Miet-Reihen reagieren langsam, weil Mietverträge selten neu verhandelt werden. Dadurch folgt der CPI dem Markt für Neuvermietungen mit Verzögerung.</div>
+      <div><b>Energie hat wenig Gewicht, aber große Ausschläge</b>6,4 % des Warenkorbs sind Energie. Schwankt der Ölpreis stark, bewegt sich die Gesamtrate merklich, während die Kernrate kaum reagiert.</div>
+      <div><b>Der PPI ist eine andere Stufe</b>Er misst Preise bei den Erzeugern, nicht beim Käufer. Weil Handelsmargen und Exporte im PPI stehen, unterscheidet er sich in der Zusammensetzung deutlich vom CPI. Wie viel davon beim Verbraucher ankommt, ist nicht festgelegt.</div>
+      <div><b>Erwartungen wirken auf das Verhalten</b>Was Haushalte und Märkte künftig erwarten, fließt in Lohnforderungen und Preissetzung ein. Deshalb stehen Umfrage- und Marktwerte (Michigan, Breakeven) mit auf dieser Seite.</div>
+    </div>
+    <p style="font-size:12.5px;color:var(--text2);margin:8px 0 0">Die Wirkung auf Märkte und Währungen wird hier bewusst nicht beschrieben. Sie folgt später in der Ableitung.</p></div>
+  </details>
+</section>
+
+<h2 style="font-size:15px;margin:18px 0 6px">Der Warenkorb: CPI und PPI mit ihren Bestandteilen</h2>
+
+<div class="struktur" id="cpi-box">
+  <div class="kuchenkopf"><h3>CPI-U: Verbraucherpreise, <span id="cpi-meta"></span></h3><span>Gewicht = Anteil an den Ausgaben der Verbraucher in %</span></div>
+  <svg class="pie" id="cpi-pie" viewBox="0 0 1100 620" role="img" aria-label="Kuchendiagramm der CPI-Kategorien mit Gewichten"></svg>
+  <div class="bandkopf" style="margin-top:12px">Zusammengefasst: die fünf Kategorien aus dem Makro-Dashboard</div>
+  <div class="balken2" id="cpi-bal" role="group" aria-label="Fünf CPI-Kategorien"></div>
+  <div class="bandkopf" style="margin-top:12px">Zusammengefasst: Waren und Dienstleistungen</div>
+  <div class="balken2" id="cpi-bal2" role="group" aria-label="Aggregate des CPI"></div>
+  <div class="bhin" id="cpi-hin"></div>
+</div>
+
+<div class="struktur" id="ppi-box">
+  <div class="kuchenkopf"><h3>PPI Final Demand: Erzeugerpreise, <span id="ppi-meta"></span></h3><span>Gewicht = Anteil an der Endnachfrage-Produktion in %</span></div>
+  <svg class="pie" id="ppi-pie" viewBox="0 0 1100 620" role="img" aria-label="Kuchendiagramm aller Gruppen des PPI Final Demand mit Gewichten"></svg>
+  <div class="bandkopf" style="margin-top:12px">Zusammengefasst: Hauptkategorien</div>
+  <div class="balken2" id="ppi-bal" role="group" aria-label="Hauptkategorien des PPI"></div>
+  <div class="bandkopf" style="margin-top:12px">Zusammengefasst: Waren, Dienstleistungen, Bau</div>
+  <div class="balken2" id="ppi-bal2" role="group" aria-label="Waren, Dienstleistungen, Bau"></div>
+  <div class="bhin" id="ppi-hin"></div>
+</div>
+
+<h2 style="font-size:15px;margin:18px 0 6px">Die Daten dazu</h2>
+<div class="band"><div class="bandkopf">Preisindizes: Veränderung zum Vorjahr</div><div class="bandinhalt" id="b1"></div></div>
+<div class="band"><div class="bandkopf">Treiber: Wohnen, Energie, Nahrung, Löhne (Veränderung zum Vorjahr)</div><div class="bandinhalt v4" id="b2"></div>
+  <p style="font-size:12.5px;color:var(--text2);margin:8px 2px 0">Zölle (Oberthema 5) und Lieferketten wirken über Importpreise und Kosten, haben aber keine eigene Kennzahl hier. Die Löhne gehören zu Oberthema 7 (Arbeitsmarkt).</p></div>
+<div class="band"><div class="bandkopf">Erwartungen: Umfrage und Markt</div><div class="bandinhalt v4" id="b3"></div></div>
+<div class="band"><div class="bandkopf">Bezug zur Fed (Oberthema 3)</div><div class="bandinhalt" id="b4"></div></div>
+<div class="fuss">Hinweis: Gewichte stammen aus den veröffentlichten BLS-Tabellen (Relative Importance). Sobald BLS neue Gewichte veröffentlicht (CPI voraussichtlich Februar 2027), werden sie nachgetragen.</div>
+</div>
+<div id="schatten"></div>
+<aside id="drawer" role="dialog" aria-modal="true" aria-labelledby="dt" tabindex="-1"></aside>
+
+<script src="daten/usa.js?v=1"></script>
+<script src="inflation-gewichte.js?v=1"></script>
+<script>
+try{const g=localStorage.getItem("dashboard-thema");document.documentElement.dataset.theme=g||"dark"}catch(e){document.documentElement.dataset.theme="dark"}
+document.getElementById("theme").addEventListener("click",()=>{const d=document.documentElement;d.dataset.theme=d.dataset.theme==="dark"?"light":"dark";try{localStorage.setItem("dashboard-thema",d.dataset.theme)}catch(e){}});
+const DATA=(window.USA_DATEN&&window.USA_DATEN.fred)||{};
+const GEW=window.INFL_GEWICHTE;
+/* ================== KACHELN ================== */
+const SP=[{id:1,titel:"PREISINDIZES"},{id:2,titel:"TREIBER"},{id:3,titel:"ERWARTUNGEN"},{id:4,titel:"FED"}];
+const P1={div:1,dec:1,suf:" %"}, P2={div:1,dec:2,suf:" %"};
+const K=[
+ {id:"cpi",sp:1,b:"b1",titel:"CPI (Gesamt)",s:"CPIAUCSL_YOY",f:P1,rhythm:"m",was:"Veränderung des Verbraucherpreisindex für städtische Verbraucher gegenüber dem Vorjahresmonat (BLS). Er misst den gesamten Warenkorb oben.",hin:"",q:"FRED CPIAUCSL (BLS), Veränderung zum Vorjahr"},
+ {id:"cpik",sp:1,b:"b1",titel:"Kern-CPI (ohne Nahrung, Energie)",s:"CPILFESL_YOY",f:P1,rhythm:"m",was:"Veränderung des CPI ohne Nahrung und Energie gegenüber dem Vorjahresmonat. Der Kern deckt 79,9 % des CPI-Warenkorbs ab.",hin:"",q:"FRED CPILFESL (BLS), Veränderung zum Vorjahr"},
+ {id:"pce",sp:1,b:"b1",titel:"PCE-Preisindex (Gesamt)",s:"PCEPI_YOY",f:P1,rhythm:"m",was:"Veränderung des Preisindex der privaten Konsumausgaben gegenüber dem Vorjahresmonat (BEA). Das ist die Messgröße, auf die sich das Inflationsziel der Fed bezieht.",hin:"",q:"FRED PCEPI (BEA), Veränderung zum Vorjahr"},
+ {id:"pcek",sp:1,b:"b1",titel:"Kern-PCE (ohne Nahrung, Energie)",s:"PCEPILFE_YOY",f:P1,rhythm:"m",was:"Veränderung des PCE-Preisindex ohne Nahrung und Energie gegenüber dem Vorjahresmonat (BEA).",hin:"",q:"FRED PCEPILFE (BEA), Veränderung zum Vorjahr"},
+ {id:"ppi",sp:1,b:"b1",titel:"PPI Final Demand (Gesamt)",s:"PPIFIS_YOY",f:P1,rhythm:"m",was:"Veränderung der Erzeugerpreise für die Endnachfrage gegenüber dem Vorjahresmonat (BLS). Der PPI-Warenkorb steht oben im zweiten Diagramm.",hin:"Der PPI ist stärker von Handelsmargen und Rohstoffen beeinflusst als der CPI und schwankt deshalb mehr.",q:"FRED PPIFIS (BLS), Veränderung zum Vorjahr"},
+ {id:"ppik",sp:1,b:"b1",titel:"Kern-PPI (ohne Nahrung, Energie)",s:"PPIFES_YOY",f:P1,rhythm:"m",was:"Veränderung des PPI Final Demand ohne Nahrung und Energie gegenüber dem Vorjahresmonat (BLS).",hin:"",q:"FRED PPIFES (BLS), Veränderung zum Vorjahr"},
+
+ {id:"wohn",sp:2,b:"b2",titel:"CPI Wohnen",s:"CUSR0000SAH1_YOY",f:P1,rhythm:"m",was:"Veränderung der Preise für Wohnen im CPI (Miete, unterstellte Eigentümermiete, Nebenkosten, Hausrat; saisonbereinigt) gegenüber dem Vorjahresmonat. Wohnen ist mit 44,5 % der größte Block im CPI.",hin:"Die Gruppe Wohnen enthält mehr als Shelter (35,6 % des CPI).",q:"FRED CUSR0000SAH1 (BLS), Veränderung zum Vorjahr"},
+ {id:"energie",sp:2,b:"b2",titel:"CPI Energie",s:"CPIENGSL_YOY",f:P1,rhythm:"m",was:"Veränderung der Energiepreise im CPI (Benzin, Heizöl, Strom, Gas) gegenüber dem Vorjahresmonat. Energie hat 6,4 % Gewicht.",hin:"",q:"FRED CPIENGSL (BLS), Veränderung zum Vorjahr"},
+ {id:"nahrung",sp:2,b:"b2",titel:"CPI Nahrungsmittel",s:"CPIUFDSL_YOY",f:P1,rhythm:"m",was:"Veränderung der Nahrungsmittelpreise im CPI (zu Hause und außer Haus) gegenüber dem Vorjahresmonat. Nahrung hat 13,7 % Gewicht.",hin:"",q:"FRED CPIUFDSL (BLS), Veränderung zum Vorjahr"},
+ {id:"lohn",sp:2,b:"b2",titel:"Stundenlöhne (privater Sektor)",s:"CES0500000003_YOY",f:P1,rhythm:"m",was:"Veränderung des durchschnittlichen Stundenlohns aller Beschäftigten im privaten Sektor gegenüber dem Vorjahresmonat (BLS). Löhne sind der größte Kostenblock der Dienstleistungen. Vertiefung in Oberthema 7.",hin:"",q:"FRED CES0500000003 (BLS), Veränderung zum Vorjahr"},
+
+ {id:"mich",sp:3,b:"b3",titel:"Erwartung Verbraucher, 1 Jahr",s:"MICH",f:P1,rhythm:"m",was:"Erwartete Inflationsrate für die nächsten 12 Monate laut Umfrage der University of Michigan unter Verbrauchern.",hin:"Umfragewert, keine Messung von Preisen.",q:"FRED MICH (University of Michigan)"},
+ {id:"be5",sp:3,b:"b3",titel:"Breakeven 5 Jahre (Markt)",s:"T5YIE",f:P2,rhythm:"d",was:"Aus dem Renditeabstand von normalen und inflationsgeschützten Staatsanleihen (TIPS) abgeleitete durchschnittliche Inflation der nächsten 5 Jahre, die der Markt einpreist.",hin:"Enthält neben der Erwartung auch Prämien für Risiko und Liquidität.",q:"FRED T5YIE (Federal Reserve)"},
+ {id:"be10",sp:3,b:"b3",titel:"Breakeven 10 Jahre (Markt)",s:"T10YIE",f:P2,rhythm:"d",was:"Wie der 5-Jahres-Wert, für den Zeitraum von 10 Jahren.",hin:"Enthält neben der Erwartung auch Prämien für Risiko und Liquidität.",q:"FRED T10YIE (Federal Reserve)"},
+ {id:"fwd",sp:3,b:"b3",titel:"Erwartung 5 Jahre in 5 Jahren",s:"T5YIFR",f:P2,rhythm:"d",was:"Die vom Markt erwartete durchschnittliche Inflation für die fünf Jahre, die in fünf Jahren beginnen. Sie blendet die kurzfristige Entwicklung aus.",hin:"Enthält neben der Erwartung auch Prämien für Risiko und Liquidität.",q:"FRED T5YIFR (Federal Reserve)"},
+
+ {id:"zins",sp:4,b:"b4",titel:"Leitzins (Obergrenze)",s:"DFEDTARU",f:P2,rhythm:"d",was:"Obergrenze der Zielspanne für den Leitzins (Federal Funds Rate). Die Fed legt sie fest, um ihre Ziele für Preise und Beschäftigung zu verfolgen. Details in Oberthema 3.",hin:"",q:"FRED DFEDTARU (Federal Reserve)"}
+];
+const byId={};K.forEach(k=>byId[k.id]=k);
+const $=s=>document.querySelector(s), heute=new Date(); heute.setHours(0,0,0,0);
+const esc=s=>String(s).replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+const nf=(v,d)=>new Intl.NumberFormat("de-DE",{minimumFractionDigits:d,maximumFractionDigits:d}).format(v);
+const dts=d=>{const[y,m,t]=d.split("-");return t+"."+m+"."+y};
+const tageBis=d=>Math.round((new Date(d+"T00:00:00")-heute)/86400000);
+const farbe=sp=>sp===0?"cb":"c"+sp;
+function fmtv(k,v){const f=k.f;return nf(v/f.div,f.dec)+f.suf}
+function letzte(k){const p=DATA[k.s];return p[p.length-1]}
+function veraenderung(k){const p=DATA[k.s];const l=p[p.length-1];
+  let ref;
+  if(k.rhythm==="q"||k.rhythm==="m"){ref=p[p.length-2]}
+  else{const lim=new Date(l[0]);lim.setDate(lim.getDate()-30);ref=[...p].reverse().find(x=>new Date(x[0])<=lim)}
+  if(!ref)return null;const dv=l[1]-ref[1];const txt=(dv>0?"▲ ":dv<0?"▼ ":"= ")+nf(Math.abs(dv)/k.f.div,k.f.dec)+(k.f.suf.includes("%")?" Pkt":k.f.suf);
+  return {txt,ref:ref[0],q:k.rhythm==="q",m:k.rhythm==="m"}}
+function spark(p,col){const n=p.slice(-Math.min(p.length,k_n(p)));const w=200,h=30;const xs=n.map(x=>x[1]);const mn=Math.min(...xs),mx=Math.max(...xs),sp=(mx-mn)||1;
+  const pts=n.map((x,i)=>(i/(n.length-1)*w).toFixed(1)+","+(h-2-(x[1]-mn)/sp*(h-4)).toFixed(1)).join(" ");
+  return '<svg class="spark" viewBox="0 0 '+w+' '+h+'" preserveAspectRatio="none" aria-hidden="true"><polyline fill="none" stroke="'+col+'" stroke-width="1.6" vector-effect="non-scaling-stroke" points="'+pts+'"/></svg>'}
+function k_n(p){return p.length>300?130:p.length>100?100:p.length>40?24:p.length}
+let tiles={}, aktiv=null, letzterFokus=null;
+function kachel(k){
+  const b=document.createElement("button");b.type="button";b.className="k "+farbe(k.sp);b.dataset.id=k.id;
+  let h='<div class="kt"><span class="kn">'+esc(k.titel)+'</span>';
+  if(k.s){const l=letzte(k);h+='<span class="kd">'+dts(l[0])+'</span></div><div class="kw">'+esc(fmtv(k,l[1]))+'</div>';
+    const v=veraenderung(k);h+='<div class="ks"><span>'+(v?esc(v.txt)+" ("+(v.q?"Vorquartal":v.m?"Vormonat":"30 Tage")+")":"")+'</span><span><i class="pkt auto"></i>auto</span></div>'+spark(DATA[k.s],"var(--c)")}
+  else{h+='<span class="kd"></span></div><div class="kw" style="font-size:20px">'+esc(k.kpi[0])+'</div><div class="ks"><span>'+esc(k.kpi[1])+'</span><span><i class="pkt '+(k.auto?'auto':'man')+'"></i>'+(k.auto?'auto':'manuell')+'</span></div>'}
+  b.innerHTML=h;b.addEventListener("click",()=>oeffnen(k.id));tiles[k.id]=b;return b}
+function bauen(){
+ K.forEach(k=>{const c=document.getElementById(k.b);if(c)c.appendChild(kachel(k))});
+}
+const dr=$("#drawer"), sh=$("#schatten");
+function kopf(gr,titel,farbeCss){dr.style.setProperty("--c",farbeCss||"var(--cb)");return '<div class="dk"><div><div class="gr">'+esc(gr)+'</div><h2 id="dt">'+esc(titel)+'</h2></div><button class="zu" type="button" aria-label="Schließen">×</button></div>'}
+function zeigen(h){dr.innerHTML=h;dr.classList.add("offen");sh.classList.add("offen");dr.querySelector(".zu").addEventListener("click",schliessen);dr.focus()}
+function oeffnen(id){const k=byId[id];letzterFokus=document.activeElement;
+  Object.values(tiles).forEach(t=>t.classList.toggle("aktiv",t.dataset.id===id));
+  let h=kopf(SP.find(s=>s.id===k.sp).titel,k.titel,"var(--c"+k.sp+")")+'<div class="db">';
+  const l=letzte(k);h+='<div class="gross">'+esc(fmtv(k,l[1]))+'</div><div class="gsub">Stand '+dts(l[0])+' · <i class="pkt auto"></i>automatisch (FRED)</div>';
+  h+='<div class="btns" role="group" aria-label="Zeitraum"></div><div class="tip" id="tip"> </div><svg class="chart" id="chart" viewBox="0 0 560 230" role="img" aria-label="Verlauf '+esc(k.titel)+'"></svg>';
+  h+='<h3>Was ist das?</h3><p>'+esc(k.was)+'</p>';
+  const p=DATA[k.s],mx=p.reduce((a,b)=>b[1]>a[1]?b:a),mn=p.reduce((a,b)=>b[1]<a[1]?b:a);
+  h+='<h3>Aktuelle Lage</h3><p>Aktuell '+fmtv(k,l[1])+' ('+dts(l[0])+'). Im gezeigten Zeitraum ab '+dts(p[0][0])+': Höchstwert '+fmtv(k,mx[1])+' ('+dts(mx[0])+'), Tiefstwert '+fmtv(k,mn[1])+' ('+dts(mn[0])+').</p>';
+  if(k.hin)h+='<h3>Hinweis</h3><div class="hin">'+esc(k.hin)+'</div>';
+  h+='<h3>Quelle</h3><p style="font-size:13px;color:var(--text2)">'+esc(k.q)+'</p></div>';
+  zeigen(h);chartInit(k)}
+function schliessen(){dr.classList.remove("offen");sh.classList.remove("offen");Object.values(tiles).forEach(t=>t.classList.remove("aktiv"));if(letzterFokus&&letzterFokus.focus)letzterFokus.focus()}
+sh.addEventListener("click",schliessen);addEventListener("keydown",e=>{if(e.key==="Escape"&&dr.classList.contains("offen"))schliessen()});
+const ZR=[["3 Mon.",92],["6 Mon.",183],["1 Jahr",365],["Alles",0]];
+function chartInit(k){const box=dr.querySelector(".btns");let sel=(k.rhythm==="q"||k.rhythm==="m")?3:(k.rhythm==="w"?3:2);
+  ZR.forEach((z,i)=>{const b=document.createElement("button");b.type="button";b.className="btn";b.textContent=z[0];b.setAttribute("aria-pressed",i===sel);
+    if((k.rhythm==="q"||k.rhythm==="m")&&i<2){b.disabled=true;b.style.opacity=.4}
+    b.addEventListener("click",()=>{sel=i;[...box.children].forEach((c,j)=>c.setAttribute("aria-pressed",j===i));zeichne(k,ZR[i][1])});box.appendChild(b)});
+  zeichne(k,ZR[sel][1])}
+function zeichne(k,tage){const all=DATA[k.s];let p=all;if(tage){const lim=new Date(all[all.length-1][0]);lim.setDate(lim.getDate()-tage);p=all.filter(x=>new Date(x[0])>=lim)}
+  if(p.length<2)p=all.slice(-2);
+  const svg=$("#chart"),W=560,H=230,L=52,R=12,T=10,B=26;const ys=p.map(x=>x[1]/k.f.div);let mn=Math.min(...ys),mx=Math.max(...ys);const pad=(mx-mn||1)*.08;mn-=pad;mx+=pad;
+  const t0=new Date(p[0][0]).getTime(),t1=new Date(p[p.length-1][0]).getTime(),X=d=>L+(new Date(d).getTime()-t0)/((t1-t0)||1)*(W-L-R),Y=v=>T+(1-(v-mn)/(mx-mn))*(H-T-B);
+  let s="";for(let i=0;i<=4;i++){const v=mn+(mx-mn)*i/4,y=Y(v);s+='<line x1="'+L+'" x2="'+(W-R)+'" y1="'+y+'" y2="'+y+'" stroke="var(--raster)"/><text x="'+(L-6)+'" y="'+(y+4)+'" text-anchor="end" font-size="10.5" fill="var(--stumm)">'+nf(v,k.f.dec>1?1:k.f.dec)+'</text>'}
+  s+='<text x="'+L+'" y="'+(H-6)+'" font-size="10.5" fill="var(--stumm)">'+dts(p[0][0])+'</text><text x="'+(W-R)+'" y="'+(H-6)+'" text-anchor="end" font-size="10.5" fill="var(--stumm)">'+dts(p[p.length-1][0])+'</text>';
+  const pts=p.map(x=>X(x[0]).toFixed(1)+","+Y(x[1]/k.f.div).toFixed(1)).join(" ");
+  s+='<polyline fill="none" stroke="var(--c)" stroke-width="2" stroke-linejoin="round" points="'+pts+'"/>';
+  const lp=p[p.length-1];s+='<circle cx="'+X(lp[0])+'" cy="'+Y(lp[1]/k.f.div)+'" r="3.5" fill="var(--c)"/><line id="cv" y1="'+T+'" y2="'+(H-B)+'" stroke="var(--text)" stroke-width="1" opacity="0"/><circle id="cd" r="4" fill="var(--c)" stroke="var(--flaeche)" stroke-width="2" opacity="0"/>';
+  svg.innerHTML=s;const tip=$("#tip");tip.textContent="Mit Maus oder Finger über den Verlauf fahren, um einzelne Werte zu sehen.";
+  const mv=e=>{const r=svg.getBoundingClientRect();const x=((e.clientX-r.left)/r.width)*W;let b=0,bd=1e9;p.forEach((q,i)=>{const d=Math.abs(X(q[0])-x);if(d<bd){bd=d;b=i}});const q=p[b];
+    const cv=$("#cv"),cd=$("#cd");cv.setAttribute("x1",X(q[0]));cv.setAttribute("x2",X(q[0]));cv.setAttribute("opacity",.4);cd.setAttribute("cx",X(q[0]));cd.setAttribute("cy",Y(q[1]/k.f.div));cd.setAttribute("opacity",1);tip.textContent=dts(q[0])+": "+fmtv(k,q[1])};
+  svg.onpointermove=mv;svg.onpointerdown=mv;svg.onpointerleave=()=>{$("#cv").setAttribute("opacity",0);$("#cd").setAttribute("opacity",0)}}
+
+/* ================== WARENKÖRBE ================== */
+const HUE=[95,210,325,28,355,265,175,48];
+const CPIDE={"Food and beverages":"Nahrung und Getränke","Housing":"Wohnen","Apparel":"Bekleidung","Transportation":"Verkehr","Medical care":"Medizin","Recreation":"Freizeit","Education and communication":"Bildung und Kommunikation","Other goods and services":"Sonstige Waren und Dienstleistungen"};
+const PPIGRP=[["FD411","Lebensmittel","hsl(95,45%,40%)"],["FD412","Energie","hsl(28,75%,46%)"],["FD413","Waren ohne Lebensmittel und Energie","hsl(205,55%,42%)"],["FD421","Dienstleistungen ohne Handel und Transport","hsl(265,40%,48%)"],["FD423","Handelsdienstleistungen (Handelsmargen)","hsl(175,50%,34%)"],["FD422","Transport und Lagerung","hsl(48,70%,42%)"],["FD43","Bau","hsl(0,0%,50%)"]];
+const PPIDE={FD41112:"Verarbeitete Konsum-Lebensmittel",FD41113:"Rohe Konsum-Lebensmittel",FD4112:"Lebensmittel für den Staat",FD4113:"Lebensmittel für den Export",FD4121:"Konsum-Energie",FD4122:"Energie für den Staat",FD4123:"Energie für den Export",FD413111:"Verbrauchsgüter ohne Lebensmittel/Energie",FD413112:"Langlebige Konsumgüter",FD413121:"Investitionsgüter (Industrie)",FD413122:"Investitionsgüter (übrige Branchen)",FD41321:"Waren für den Staat (ohne Investitionsgüter)",FD41322:"Investitionsgüter für den Staat",FD4133:"Exportwaren ohne Lebensmittel/Energie",FD42111:"Konsum-Dienstleistungen",FD42112:"Dienstleistungen für private Investitionen",FD42121:"Dienstleistungen für den Staat",FD42122:"Staatliche Investitions-Dienstleistungen",FD4213:"Export-Dienstleistungen",FD42211:"Personenverkehr privat",FD42212:"Personenverkehr Staat",FD42213:"Personenverkehr Export",FD42222:"Transport/Lager: Staatsgüter",FD42223:"Transport/Lager: Exporte",FD422211:"Transport/Lager: Konsumgüter",FD422212:"Transport/Lager: Investitionsgüter",FD42311:"Handel mit Konsumgütern",FD42312:"Handel mit Investitionsgütern",FD42321:"Handel mit Staatsgütern",FD42322:"Handel mit staatlichen Investitionsgütern",FD4233:"Handel mit Exporten",FD431:"Bau für private Investitionen",FD432:"Bau für den Staat"};
+const pf=(v,d)=>nf(v,d===undefined?1:d);
+function blaetter(k,pfad,grp){if(!k.k.length)return[{n:k.n,w:k.w,pfad:pfad,grp:grp}];return k.k.flatMap(c=>blaetter(c,pfad.concat([k.n]),grp))}
+function cpiDaten(){
+ const wz=GEW.cpi.baum, out=[], haupt=[];
+ wz.k.forEach((g,gi)=>{
+  const b=blaetter(g,[],gi);
+  /* "Unsampled ..." (nicht erfasste Teilpositionen) bleiben als eigene Stücke */
+  const n=b.length;b.forEach((x,i)=>{x.id="c"+out.length;x.c="hsl("+HUE[gi]+","+(50+(i%2)*10)+"%,"+(30+(i%5)*8)+"%)";x.pfad=[g.n].concat(x.pfad.slice(1));out.push(x)});
+  haupt.push({id:"cg"+gi,n:g.n,de:CPIDE[g.n]||g.n,w:g.w,c:"hsl("+HUE[gi]+",52%,40%)",gi:gi,k:g.k.map(c=>({n:c.n,w:c.w}))});
+ });
+ return {leaves:out,haupt:haupt};
+}
+function ppiDaten(){
+ const gr=GEW.ppi.gruppen, out=[];
+ gr.forEach((g,i)=>{const kat=PPIGRP.findIndex(p=>g.c.startsWith(p[0]));const x={id:"p"+i,code:g.c,n:g.n,de:PPIDE[g.c]||g.n,w:g.w,kat:kat,k:g.k};out.push(x)});
+ /* Reihenfolge: nach Kategorie in der Anzeigereihenfolge, darin nach Gewicht */
+ out.sort((a,b)=>a.kat-b.kat||b.w-a.w);
+ const cnt={};out.forEach(x=>{const i=cnt[x.kat]=(cnt[x.kat]||0);cnt[x.kat]++;const m=PPIGRP[x.kat][2].match(/hsl\((\d+),(\d+)%,(\d+)%\)/);x.c="hsl("+m[1]+","+m[2]+"%,"+(30+(i%5)*8)+"%)"});
+ const haupt=PPIGRP.map((p,i)=>({id:"pg"+i,n:p[1],de:p[1],c:p[2],kat:i,w:out.filter(x=>x.kat===i).reduce((a,x)=>a+x.w,0)}));
+ return {leaves:out,haupt:haupt};
+}
+/* Kuchen mit Beschriftung links und rechts */
+function kuchen(svgId,teile,opts){
+ const svg=document.getElementById(svgId),sum=teile.reduce((a,x)=>a+x.w,0);let w0=-Math.PI/2;const R=opts.R||225,cx=550,cy=310,H=620;
+ let pfade="";const lab={r:[],l:[]};
+ teile.forEach(x=>{const dw=x.w/sum*2*Math.PI,w1=w0+dw,wm=(w0+w1)/2;const p=(wk,r)=>[cx+r*Math.cos(wk),cy+r*Math.sin(wk)];const [x0,y0]=p(w0,R),[x1,y1]=p(w1,R);
+  const d=dw>=2*Math.PI-1e-6?"M"+(cx-R)+","+cy+" A"+R+","+R+" 0 1 1 "+(cx+R)+","+cy+" A"+R+","+R+" 0 1 1 "+(cx-R)+","+cy+" Z":"M"+cx+","+cy+" L"+x0.toFixed(2)+","+y0.toFixed(2)+" A"+R+","+R+" 0 "+(dw>Math.PI?1:0)+" 1 "+x1.toFixed(2)+","+y1.toFixed(2)+" Z";
+  pfade+='<path d="'+d+'" fill="'+x.c+'" tabindex="0" role="button" data-id="'+x.id+'" aria-label="'+esc(x.de||x.n)+' '+pf(x.w,2)+' Prozent"><title>'+esc(x.de||x.n)+': '+pf(x.w,2)+' %</title></path>';
+  if(x.w>=opts.min){const rechts=Math.cos(wm)>=0;lab[rechts?"r":"l"].push({x,a0:p(wm,R),a1:p(wm,R+20),y:p(wm,R+20)[1]})}
+  w0=w1});
+ const GAP=19;let linien="",texte="";
+ ["r","l"].forEach(seite=>{const arr=lab[seite].sort((m,n)=>m.y-n.y);
+  for(let i=1;i<arr.length;i++)if(arr[i].y<arr[i-1].y+GAP)arr[i].y=arr[i-1].y+GAP;
+  const ueber=arr.length?arr[arr.length-1].y-(H-12):0;if(ueber>0)arr.forEach(o=>o.y-=ueber);
+  for(let i=1;i<arr.length;i++)if(arr[i].y<arr[i-1].y+GAP)arr[i-1].y=arr[i].y-GAP;
+  const lx=seite==="r"?cx+R+54:cx-R-54;
+  arr.forEach(o=>{const x=o.x,ex=seite==="r"?lx-8:lx+8;
+   linien+='<polyline class="fl" points="'+o.a0[0].toFixed(1)+','+o.a0[1].toFixed(1)+' '+o.a1[0].toFixed(1)+','+o.a1[1].toFixed(1)+' '+ex+','+o.y.toFixed(1)+' '+lx+','+o.y.toFixed(1)+'"/><circle cx="'+o.a0[0].toFixed(1)+'" cy="'+o.a0[1].toFixed(1)+'" r="2" fill="var(--text)"/>';
+   const nm=esc(opts.kurz?opts.kurz(x):(x.de||x.n)),pz=pf(x.w,x.w<10?2:1)+" %";
+   texte+=seite==="r"?'<text class="lbl" data-id="'+x.id+'" x="'+(lx+6)+'" y="'+(o.y+4.5).toFixed(1)+'"><tspan class="pz">'+pz+'</tspan><tspan dx="8">'+nm+'</tspan></text>'
+    :'<text class="lbl" data-id="'+x.id+'" x="'+(lx-6)+'" y="'+(o.y+4.5).toFixed(1)+'" text-anchor="end"><tspan>'+nm+'</tspan><tspan dx="8" class="pz">'+pz+'</tspan></text>'})});
+ svg.innerHTML='<g class="lbl">'+linien+'</g>'+pfade+texte+'<text class="mt" x="'+cx+'" y="'+(cy+H/2-2)*0+'"></text>';
+ svg.querySelectorAll("path,text[data-id]").forEach(e=>{const f=()=>opts.klick(e.dataset.id);e.addEventListener("click",f);if(e.tagName==="path")e.addEventListener("keydown",ev=>{if(ev.key==="Enter"||ev.key===" "){ev.preventDefault();f()}})});
+}
+function balken(id,teile,klick){const sum=teile.reduce((a,x)=>a+x.w,0);const B=document.getElementById(id);
+ B.innerHTML=teile.map(x=>'<button type="button" data-id="'+x.id+'" style="width:'+(x.w/sum*100).toFixed(3)+'%;background:'+x.c+'" title="'+esc(x.de||x.n)+' '+pf(x.w,1)+' %">'+(((x.de||x.n).length+6)*6.1<x.w/sum*1100?esc(x.de||x.n)+" "+pf(x.w,1)+" %":x.w>=2.5?pf(x.w,1)+" %":"")+'</button>').join("");
+ B.querySelectorAll("button").forEach(b=>b.addEventListener("click",()=>klick(b.dataset.id)))}
+function listeBauen(tabId,suchId,zeilen,kopf,klick){const T=document.getElementById(tabId);
+ const zeichneL=q=>{q=(q||"").toLowerCase();T.innerHTML='<tr>'+kopf.map((h,i)=>'<th'+(i===kopf.length-1?' style="text-align:right"':'')+'>'+h+'</th>').join("")+'</tr>'+zeilen.filter(z=>!q||z.such.includes(q)).map(z=>'<tr data-id="'+z.id+'">'+z.html+'</tr>').join("");
+  T.querySelectorAll("tr[data-id]").forEach(r=>r.addEventListener("click",()=>klick(r.dataset.id)))};
+ zeichneL("");document.getElementById(suchId).addEventListener("input",e=>zeichneL(e.target.value))}
+function gewBalken(w,max,c){return '<div class="gwb"><i style="width:'+Math.min(100,w/max*100).toFixed(1)+'%;background:'+c+'"></i></div>'}
+/* ----- CPI ----- */
+const CPIKAT={
+ shelter:{de:"Shelter (Wohnen)",c:"hsl(210,55%,42%)",t:"Miete (7,84 %), unterstellte Eigentümermiete (26,20 %), Unterkunft auf Reisen (1,29 %) und Mieter-/Hausratversicherung (0,29 %). Die unterstellte Eigentümermiete schätzt, was Eigentümer für ihr eigenes Haus als Miete zahlen müssten."},
+ kerndienste:{de:"Core Services ohne Shelter",c:"hsl(265,42%,48%)",t:"Alle Dienstleistungen außer Energie und Shelter, zum Beispiel Medizin, Autoversicherung und -reparatur, Flugtickets, Bildung, Kommunikation, Freizeit und persönliche Dienste.",hin:"Im Makro-Dashboard enthält die Kategorie Core Services das Shelter mit (Überschneidung, BLS führt keine Reihe ohne Shelter). Hier ist Shelter herausgerechnet, damit die Kategorien zusammen 100 % ergeben."},
+ kernwaren:{de:"Core Goods",c:"hsl(28,72%,46%)",t:"Waren ohne Nahrung und Energie, zum Beispiel Neu- und Gebrauchtwagen, Möbel, Bekleidung, Medikamente, Elektronik, Alkohol und Tabak."},
+ nahrung:{de:"Food (Nahrung)",c:"hsl(95,48%,38%)",t:"Nahrungsmittel zu Hause (8,33 %) und außer Haus, also Restaurants und Imbiss (5,37 %)."},
+ energie:{de:"Energy (Energie)",c:"hsl(0,62%,48%)",t:"Energiewaren wie Benzin und Heizöl (3,12 %) sowie Energiedienste wie Strom und Gas (3,26 %)."}
+};
+const CPIFEIN={
+ shelter:{de:"Shelter (Miete, Eigentümermiete)",c:"hsl(210,55%,38%)",g:"Wohnen",t:"Miete (7,84 %), unterstellte Eigentümermiete (26,20 %), Unterkunft auf Reisen (1,29 %) und Mieter-/Hausratversicherung (0,29 %). Die unterstellte Eigentümermiete schätzt, was Eigentümer für ihr eigenes Haus als Miete zahlen müssten."},
+ versorger:{de:"Strom, Gas, Wasser, Müll",c:"hsl(210,50%,52%)",g:"Wohnen",t:"Energiedienste wie Strom (2,49 %) und Gas (0,77 %), Heizöl und andere Brennstoffe (0,14 %) sowie Wasser, Abwasser und Müllabfuhr (1,14 %)."},
+ hausrat:{de:"Möbel und Haushalt",c:"hsl(200,45%,66%)",g:"Wohnen",t:"Möbel, Geräte, Haushaltswaren, Reinigungsmittel, Werkzeug und Haushaltsdienste wie Gartenpflege und Reparaturen."},
+ fah:{de:"Nahrung zu Hause",c:"hsl(95,48%,34%)",g:"Nahrung und Getränke",t:"Lebensmittel und alkoholfreie Getränke aus dem Handel, zum Beispiel Fleisch, Milchprodukte, Obst, Gemüse, Backwaren, Kaffee."},
+ faw:{de:"Nahrung außer Haus",c:"hsl(95,45%,50%)",g:"Nahrung und Getränke",t:"Restaurants, Imbiss, Kantinen und Automaten (volle Bedienung 2,39 %, Schnellrestaurants 2,68 %)."},
+ alkohol:{de:"Alkoholische Getränke",c:"hsl(95,32%,64%)",g:"Nahrung und Getränke",t:"Bier, Spirituosen und Wein zu Hause (0,40 %) und außer Haus (0,44 %)."},
+ verkehr:{de:"Verkehr ohne Kraftstoff",c:"hsl(28,72%,44%)",g:"Verkehr",t:"Neu- und Gebrauchtwagen (7,20 %), Autoversicherung (2,75 %), Reparatur und Teile, Gebühren sowie öffentlicher Verkehr einschließlich Flugtickets (1,49 %)."},
+ kraftstoff:{de:"Kraftstoff (Benzin)",c:"hsl(28,70%,60%)",g:"Verkehr",t:"Benzin (2,90 %) und andere Kraftstoffe (0,09 %)."},
+ medizin:{de:"Medizin (Medical care)",c:"hsl(355,58%,46%)",g:"Medizin",t:"Medizinische Dienste (6,94 %): Ärzte, Zahnärzte, Krankenhaus, Pflege, Krankenversicherung. Medizinische Waren (1,49 %): Medikamente und medizinisches Material."},
+ freizeit:{de:"Freizeit (Recreation)",c:"hsl(265,42%,50%)",g:"Freizeit",t:"Fernsehen und Streaming, Haustiere und Tierarzt, Sportgeräte, Spielzeug, Eintritte, Mitgliedschaften und Lesestoff."},
+ bildung:{de:"Bildung und Kommunikation",c:"hsl(175,50%,34%)",g:"Bildung und Kommunikation",t:"Studiengebühren, Schulen und Kinderbetreuung (2,60 %) sowie Mobilfunk, Telefon, Internet und Computer (3,24 %)."},
+ kleidung:{de:"Bekleidung (Apparel)",c:"hsl(325,45%,50%)",g:"Bekleidung",t:"Kleidung, Schuhe, Schmuck und Uhren."},
+ sonst:{de:"Sonstiges (Pflege, Tabak, Dienste)",c:"hsl(0,0%,52%)",g:"Sonstiges",t:"Körperpflege (2,46 %), Tabak (0,45 %) sowie persönliche Dienste wie Rechtsberatung, Bestattung und Finanzdienste."}
+};
+function cpiBauen(){
+ const F=GEW.cpi.fein.map(x=>({id:"f_"+x.id,n:x.n,de:CPIFEIN[x.id].de,w:x.w,c:CPIFEIN[x.id].c,t:CPIFEIN[x.id].t,g:CPIFEIN[x.id].g}));
+ const K5=GEW.cpi.kategorien.map(x=>({id:"c_"+x.id,n:x.n,de:CPIKAT[x.id].de,w:x.w,c:CPIKAT[x.id].c,t:CPIKAT[x.id].t,hin:CPIKAT[x.id].hin||""}));
+ const sumF=F.reduce((a,x)=>a+x.w,0),sum5=K5.reduce((a,x)=>a+x.w,0);
+ document.getElementById("cpi-meta").textContent="Stand "+GEW.cpi.stand+", Gewichte aus "+GEW.cpi.gewichte;
+ const src='<h3>Quelle</h3><p style="font-size:13px;color:var(--text2)">BLS, <a href="'+GEW.cpi.quelle+'" target="_blank" rel="noopener">Relative Importance Dezember 2025</a> (Ausgaben 2024).</p></div>';
+ const zeige=id=>{const f=F.find(y=>y.id===id),x=f||K5.find(y=>y.id===id);letzterFokus=document.activeElement;
+  zeigen(kopf(f?"CPI-Kategorie · "+f.g:"CPI, Dashboard-Kategorie",x.de,x.c)+'<div class="db"><div class="gross">'+pf(x.w,1)+' %</div><div class="gsub">Anteil am CPI-U-Warenkorb, '+GEW.cpi.stand+'</div>'+gewBalken(x.w,40,x.c)
+   +'<h3>Was ist enthalten?</h3><p>'+esc(x.t)+'</p>'
+   +'<h3>Einordnung</h3><p>Steigt der Preis dieser Kategorie um 10 %, hebt das den CPI rechnerisch um etwa '+pf(x.w/10,2)+' Prozentpunkte (bei sonst unveränderten Preisen).</p>'
+   +(x.hin?'<h3>Hinweis</h3><div class="hin">'+esc(x.hin)+'</div>':'')+src)};
+ kuchen("cpi-pie",F,{min:0,klick:zeige,R:200});
+ balken("cpi-bal",K5,zeige);
+ const agg=[{id:"ca0",de:"Waren",w:GEW.cpi.waren_gesamt,c:"hsl(28,72%,46%)",t:"Commodities: Nahrung, Energiewaren und alle übrigen Waren zusammen"},{id:"ca1",de:"Dienstleistungen",w:100-GEW.cpi.waren_gesamt,c:"hsl(265,42%,48%)",t:"Services: Shelter, Energiedienste und alle übrigen Dienstleistungen zusammen"}];
+ balken("cpi-bal2",agg,id=>{const a=agg.find(x=>x.id===id);zeigen(kopf("CPI, zusammengefasst",a.de,a.c)+'<div class="db"><div class="gross">'+pf(a.w,1)+' %</div><div class="gsub">Anteil am CPI-U-Warenkorb, '+GEW.cpi.stand+'</div><h3>Was ist enthalten?</h3><p>'+esc(a.t)+'</p><h3>Quelle</h3><p style="font-size:13px;color:var(--text2)">BLS, Special aggregate indexes, Relative Importance Dezember 2025</p></div>')});
+ document.getElementById("cpi-hin").textContent="Kuchen: "+F.length+" Kategorien ohne Überschneidung (BLS-Hauptgruppen, Wohnen, Nahrung und Verkehr jeweils weiter aufgeteilt), Summe "+pf(sumF,1)+" %. Erster Balken: die fünf CPI-Kategorien aus dem Makro-Dashboard (Core Services ohne Shelter gerechnet), Summe "+pf(sum5,1)+" %. Quelle: BLS, Relative Importance Dezember 2025 (Ausgaben 2024).";
+}
+/* ----- PPI ----- */
+function ppiBauen(){
+ const D=ppiDaten(),L=D.leaves,H=D.haupt,byL={},byH={};L.forEach(x=>byL[x.id]=x);H.forEach(x=>byH[x.id]=x);
+ const rang=[...L].sort((a,b)=>b.w-a.w);rang.forEach((x,i)=>x.rang=i+1);
+ document.getElementById("ppi-meta").textContent="Stand "+GEW.ppi.stand+", Gewichte aus "+GEW.ppi.gewichte;
+ kuchen("ppi-pie",L,{min:1.5,klick:id=>ppiDrawer(id),kurz:x=>x.de.length>30?x.de.slice(0,28)+"…":x.de});
+ balken("ppi-bal",H,id=>ppiDrawer(id));
+ const sw=(re)=>L.filter(x=>re.test(x.code)).reduce((a,x)=>a+x.w,0);
+ const agg=[{id:"pa0",de:"Waren",w:sw(/^FD41/),c:"hsl(205,55%,42%)",t:"Final demand goods: Lebensmittel, Energie und Waren ohne beides"},{id:"pa1",de:"Dienstleistungen",w:sw(/^FD42/),c:"hsl(265,40%,48%)",t:"Final demand services: Dienstleistungen, Handel sowie Transport und Lagerung"},{id:"pa2",de:"Bau",w:sw(/^FD43/),c:"hsl(0,0%,50%)",t:"Final demand construction: Bau für private Investitionen und für den Staat"}];
+ balken("ppi-bal2",agg,id=>{const a=agg.find(x=>x.id===id);zeigen(kopf("PPI, zusammengefasst",a.de,a.c)+'<div class="db"><div class="gross">'+pf(a.w,1)+' %</div><div class="gsub">Anteil am PPI Final Demand, Dezember 2025</div><h3>Was ist enthalten?</h3><p>'+esc(a.t)+'</p><h3>Quelle</h3><p style="font-size:13px;color:var(--text2)">BLS, Relative Importance der PPI-Komponenten Dezember 2025 (veröffentlicht 11.06.2026)</p></div>')});
+ const s=L.reduce((a,x)=>a+x.w,0);
+ document.getElementById("ppi-hin").textContent=L.length+" Gruppen der untersten Ebene von Final Demand, Summe "+pf(s,1)+" %. Beschriftet sind Gruppen ab 1,5 %. Quelle: BLS, Relative Importance Dezember 2025, Basis Versandwerte 2017.";
+ function ppiDrawer(id){letzterFokus=document.activeElement;
+  if(byL[id]){const x=byL[id],kat=byH["pg"+x.kat];
+   zeigen(kopf("PPI-Gruppe · "+kat.de,x.de,x.c)+'<div class="db"><div class="gross">'+pf(x.w,3)+' %</div><div class="gsub">Anteil am PPI Final Demand, Rang '+x.rang+' von '+L.length+' · Code '+esc(x.code)+'</div>'
+    +'<div class="pfad">'+esc(x.n)+'</div>'+gewBalken(x.w,35,x.c)
+    +'<h3>Einordnung</h3><p>Die Gruppe macht '+pf(x.w/kat.w*100,1)+' % ihrer Kategorie ('+esc(kat.de)+', '+pf(kat.w,1)+' %) aus.'+'</p>'
+    +'<h3>Quelle</h3><p style="font-size:13px;color:var(--text2)">BLS, <a href="'+GEW.ppi.quelle+'" target="_blank" rel="noopener">PPI Relative Importance der Komponenten Dezember 2025</a> (Basis Versandwerte 2017).</p></div>')}
+  else if(byH[id]){const g=byH[id];
+   zeigen(kopf("PPI-Kategorie",g.de,g.c)+'<div class="db"><div class="gross">'+pf(g.w,3)+' %</div><div class="gsub">Anteil am PPI Final Demand</div>'+gewBalken(g.w,45,g.c)
+    +'<h3>Bestandteile</h3><table>'+L.filter(y=>y.kat===g.kat).sort((a,b)=>b.w-a.w).map(y=>'<tr><td><a href="#" data-id="'+y.id+'" style="color:inherit">'+esc(y.de)+'</a></td><td class="zahl"><b>'+pf(y.w,3)+' %</b></td></tr>').join("")+'</table>'
+    +'<h3>Quelle</h3><p style="font-size:13px;color:var(--text2)">BLS, <a href="'+GEW.ppi.quelle+'" target="_blank" rel="noopener">PPI Relative Importance Dezember 2025</a>.</p></div>');
+   dr.querySelectorAll("a[data-id]").forEach(a=>a.addEventListener("click",e=>{e.preventDefault();ppiDrawer(a.dataset.id)}))}}
+}
+/* ================== START ================== */
+(function(){
+ for(let i=K.length-1;i>=0;i--){if(!DATA[K[i].s])K.splice(i,1)}
+ bauen();
+ if(GEW){cpiBauen();ppiBauen()}else{document.querySelectorAll(".struktur").forEach(e=>e.style.display="none")}
+ const D=window.USA_DATEN;if(D&&D.meta){document.querySelector('.unter').innerHTML+=' · Datenabruf: '+D.meta.erstellt}
+})();
+</script>
+</body>
+</html>
