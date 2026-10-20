@@ -39,7 +39,11 @@
 
   function anwenden(stand) {
     bauen();
-    var url = stand.an ? bildVon(stand.vorlage) : null;
+    /* Laenderseiten: Flagge des Landes (body data-flagge) hat Vorrang, "aus" blendet alles aus */
+    var url;
+    if (stand.flagge) { url = stand.flagge; }
+    else if (stand.fotoAus) { url = null; }
+    else { url = stand.an ? bildVon(stand.vorlage) : null; }
     if (!url) {
       bild.style.display = "none";
       schleier.style.display = "none";
@@ -48,7 +52,7 @@
     bild.style.display = "";
     schleier.style.display = "";
     bild.style.backgroundImage = 'url("' + url + '")';
-    bild.style.opacity = (stand.werte.deckkraft / 100).toFixed(2);
+    bild.style.opacity = stand.flagge ? "1" : (stand.werte.deckkraft / 100).toFixed(2);
   }
 
   document.addEventListener("hintergrund-geaendert", function (e) { anwenden(e.detail); });

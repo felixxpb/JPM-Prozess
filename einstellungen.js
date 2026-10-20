@@ -44,6 +44,16 @@
       standard: { abdunklung: 50, deckkraft: 100, kacheln: "durchscheinend" } }
   ];
 
+  /* Bildpfade relativ zu DIESER Skriptdatei aufloesen, damit auch Seiten in
+     Unterordnern (laender/) das Foto finden (Fehler vom 2026-10-21: dort wurde
+     bilder/... relativ zur Seite gesucht). */
+  var SKRIPT_URL = (document.currentScript && document.currentScript.src) || "";
+  function absolut(rel) {
+    if (!rel || !SKRIPT_URL) { return rel; }
+    try { return new URL(rel, SKRIPT_URL).href; } catch (e) { return rel; }
+  }
+  VORLAGEN.forEach(function (v) { v.bild = absolut(v.bild); });
+
   /* Generischer Rueckfall, falls eine Vorlage einmal keinen eigenen
      "standard" mitbringt. */
   var STANDARD = { abdunklung: 60, deckkraft: 100, kacheln: "durchscheinend" };
@@ -61,6 +71,41 @@
   /* --- Speicher --------------------------------------------------------- */
 
   var zustand = null;
+
+  /* --- Einstellungen der Laenderseiten (Wunsch Felix 2026-10-21) ----------
+     seite: Hintergrund der Laenderseiten wie usa.html: "flagge" (Flagge des
+     Landes), "foto" (Foto wie auf den anderen Seiten) oder "aus".
+     flaggeAbd: Abdunklung des Flaggenhintergrunds in Prozent.
+     kachelAbd: Abdunklung der Flaggen in den Laenderkacheln in Prozent.
+     kachelH: Hoehe der Laenderkacheln ("klein", "mittel", "gross"). */
+  var LAND_STANDARD = { seite: "flagge", flaggeAbd: 70, kachelAbd: 62, kachelH: "mittel" };
+  var LAND_SPEICHER = "dashboard-laender";
+  var HOEHEN = { klein: 130, mittel: 170, gross: 230 };
+  var land = null;
+
+  function landLaden() {
+    if (land) { return land; }
+    var roh = null, g = null;
+    try { roh = localStorage.getItem(LAND_SPEICHER); } catch (e) { }
+    if (roh) { try { g = JSON.parse(roh); } catch (e) { g = null; } }
+    land = kopie(LAND_STANDARD);
+    if (g) { Object.keys(land).forEach(function (k) { if (g[k] !== undefined) { land[k] = g[k]; } }); }
+    return land;
+  }
+
+  function landSichern() {
+    try { localStorage.setItem(LAND_SPEICHER, JSON.stringify(land)); } catch (e) { }
+    melden();
+  }
+
+  function flaggeDerSeite() {
+    var f = document.body && document.body.getAttribute("data-flagge");
+    return f ? absoluteSeite(f) : null;
+  }
+
+  function absoluteSeite(rel) {
+    try { return new URL(rel, document.baseURI).href; } catch (e) { return rel; }
+  }
 
   function laden() {
     if (zustand) { return zustand; }
@@ -129,8 +174,13 @@
     var z = laden();
     var w = aktuelleWerte();
 
+    var L = landLaden(), flagge = flaggeDerSeite();
+    var flaggeAktiv = !!flagge && L.seite === "flagge";
+
     /* Abdunklung und Kachelstil sind reines CSS und wirken sofort */
-    document.documentElement.style.setProperty("--hg-abdunklung", (w.abdunklung / 100).toFixed(2));
+    document.documentElement.style.setProperty("--hg-abdunklung", ((flaggeAktiv ? L.flaggeAbd : w.abdunklung) / 100).toFixed(2));
+    document.documentElement.style.setProperty("--land-kachel-abd", (L.kachelAbd / 100).toFixed(2));
+    document.documentElement.style.setProperty("--land-kachel-h", (HOEHEN[L.kachelH] || 170) + "px");
     document.documentElement.setAttribute("data-kachelstil", w.kacheln);
     document.documentElement.setAttribute("data-hintergrund", z.an ? z.aktiv : "aus");
 
@@ -171,7 +221,7 @@
     }
 
     document.dispatchEvent(new CustomEvent("hintergrund-geaendert", {
-      detail: { an: z.an, vorlage: z.aktiv, werte: kopie(w) }
+      detail: { an: z.an, vorlage: z.aktiv, werte: kopie(w), flagge: flaggeAktiv ? flagge : null, fotoAus: !!flagge && L.seite === "aus" }
     }));
   }
 
@@ -179,7 +229,8 @@
   window.DASHBOARD_EINSTELLUNGEN = {
     lesen: function () {
       var z = laden();
-      return { an: z.an, vorlage: z.aktiv, werte: kopie(aktuelleWerte()) };
+      var L = landLaden(), f = flaggeDerSeite();
+      return { an: z.an, vorlage: z.aktiv, werte: kopie(aktuelleWerte()), flagge: (f && L.seite === "flagge") ? f : null, fotoAus: !!f && L.seite === "aus" };
     },
     vorlagen: VORLAGEN
   };
@@ -208,7 +259,7 @@
 
   /* --- Menue bauen ------------------------------------------------------ */
 
-  var dialog = null, hintergrundAbschnitt = null, flaechenAbschnitt = null;
+  var dialog = null, hintergrundAbschnitt = null, flaechenAbschnitt = null, laenderAbschnitt = null;
 
   function el(tag, klasse, text) {
     var e = document.createElement(tag);
@@ -447,6 +498,33 @@
     return behaelter;
   }
 
+  /* Abschnitt "Laenderanalyse": nur auf Laenderseiten sichtbar (body data-laender) */
+  function baueLaenderAbschnitt() {
+    var L = landLaden(), b = el("div");
+    b.appendChild(el("p", "ein-hinweis",
+      "Gilt für die Länderseiten. Der Hintergrund der Länderübersicht folgt den Einstellungen unter " +
+      "„Hintergrund“ (Foto, Abdunklung, Deckkraft). Die Flagge als Seitenhintergrund erscheint nur im Dunkelmodus."));
+    b.appendChild(baueWahl("Hintergrund eines Landes (z. B. USA)", [
+      { text: "Flagge", wert: "flagge" },
+      { text: "Foto", wert: "foto" },
+      { text: "Aus", wert: "aus" }
+    ], function (v) { return L.seite === v; }, function (v) { L.seite = v; landSichern(); }));
+    b.appendChild(baueRegler("einFlaggeAbd", "Abdunklung Flaggenhintergrund", 0, 92, 1, L.flaggeAbd,
+      function (v) { return v + " %"; }, function (v) { L.flaggeAbd = v; landSichern(); }));
+    b.appendChild(baueRegler("einKachelAbd", "Abdunklung der Flaggen in den Länderkacheln", 0, 95, 1, L.kachelAbd,
+      function (v) { return v + " %"; }, function (v) { L.kachelAbd = v; landSichern(); }));
+    b.appendChild(baueWahl("Höhe der Länderkacheln", [
+      { text: "Klein", wert: "klein" },
+      { text: "Mittel", wert: "mittel" },
+      { text: "Groß", wert: "gross" }
+    ], function (v) { return L.kachelH === v; }, function (v) { L.kachelH = v; landSichern(); }));
+    var zr = el("button", "ein-zuruecksetzen", "Länder-Einstellungen zurücksetzen");
+    zr.type = "button";
+    zr.addEventListener("click", function () { land = kopie(LAND_STANDARD); landSichern(); zeichneEinstellungenNeu(); });
+    b.appendChild(zr);
+    return b;
+  }
+
   function zeichneEinstellungenNeu() {
     if (!hintergrundAbschnitt) { return; }
     if (flaechenAbschnitt) {
@@ -455,6 +533,10 @@
     }
     hintergrundAbschnitt.innerHTML = "";
     hintergrundAbschnitt.appendChild(baueHintergrundAbschnitt());
+    if (laenderAbschnitt) {
+      laenderAbschnitt.innerHTML = "";
+      laenderAbschnitt.appendChild(baueLaenderAbschnitt());
+    }
   }
 
   function baueDialog() {
@@ -505,6 +587,14 @@
     hintergrundAbschnitt = el("div");
     hintergrundAbschnitt.appendChild(baueHintergrundAbschnitt());
     koerper.appendChild(hintergrundAbschnitt);
+
+    /* Abschnitt Laenderanalyse (nur auf Laenderseiten) */
+    if (document.body.hasAttribute("data-laender")) {
+      koerper.appendChild(el("div", "ein-titel", "Länderanalyse"));
+      laenderAbschnitt = el("div");
+      laenderAbschnitt.appendChild(baueLaenderAbschnitt());
+      koerper.appendChild(laenderAbschnitt);
+    }
 
     kasten.appendChild(koerper);
     huelle.appendChild(kasten);

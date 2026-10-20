@@ -37,38 +37,17 @@
 
 <main class="haupt">
   <div class="bereiche-wahl" role="tablist" aria-label="Hauptbereiche">
-    <button class="bereich-kachel bereich-gross" id="knopfLaender" type="button" aria-expanded="false" aria-controls="panelLaender" data-ziel="laender">
+    <a class="bereich-kachel bereich-gross" id="knopfLaender" href="laender/index.html">
       <div class="bereich-kachel-titel">Länderanalyse</div>
       <p class="bereich-kachel-text">Wie ist ein Land aufgebaut und wie funktioniert es? Elf Oberthemen je Land: Politik, Finanzsystem, Zentralbank, Wirtschaft und mehr. Grundlage für die Makrokontexte.</p>
-      <span class="bereich-kachel-status status-fertig">USA: 2 von 11 Oberthemen · weitere Länder folgen</span>
-    </button>
+      <span class="bereich-kachel-status status-fertig">USA: 7 von 11 Oberthemen · weitere Länder folgen</span>
+    </a>
     <button class="bereich-kachel bereich-gross" id="knopfJpm" type="button" aria-expanded="false" aria-controls="panelJpm" data-ziel="jpm">
       <div class="bereich-kachel-titel">JPM Makro-Prozess</div>
       <p class="bereich-kachel-text">Der Makro-Analyseprozess nach dem JPM-Ansatz in drei Schichten (Makro-Themen, Bewertung und Positionierung, Signale) plus Prozess-Werkzeuge.</p>
       <span class="bereich-kachel-status status-offen">folgt</span>
     </button>
   </div>
-
-  <section class="panel" id="panelLaender" hidden aria-label="Länderanalyse">
-    <h2 class="panel-titel">Länderanalyse: Länder wählen</h2>
-    <div class="start-raster">
-    <a class="bereich-kachel" href="laender/index.html#usa">
-      <div class="bereich-kachel-titel">USA</div>
-      <p class="bereich-kachel-text">Politik und Finanz-/Kreditsystem sind online, weitere Oberthemen folgen.</p>
-      <span class="bereich-kachel-status status-fertig">2 von 11 Oberthemen</span>
-    </a>
-    <div class="bereich-kachel bereich-kachel-offen"><div class="bereich-kachel-titel">Euroraum</div><p class="bereich-kachel-text">Noch nicht begonnen.</p><span class="bereich-kachel-status status-offen">folgt</span></div>
-    <div class="bereich-kachel bereich-kachel-offen"><div class="bereich-kachel-titel">Vereinigtes Königreich</div><p class="bereich-kachel-text">Noch nicht begonnen.</p><span class="bereich-kachel-status status-offen">folgt</span></div>
-    <div class="bereich-kachel bereich-kachel-offen"><div class="bereich-kachel-titel">Japan</div><p class="bereich-kachel-text">Noch nicht begonnen.</p><span class="bereich-kachel-status status-offen">folgt</span></div>
-    <div class="bereich-kachel bereich-kachel-offen"><div class="bereich-kachel-titel">Australien</div><p class="bereich-kachel-text">Noch nicht begonnen.</p><span class="bereich-kachel-status status-offen">folgt</span></div>
-    <div class="bereich-kachel bereich-kachel-offen"><div class="bereich-kachel-titel">Kanada</div><p class="bereich-kachel-text">Noch nicht begonnen.</p><span class="bereich-kachel-status status-offen">folgt</span></div>
-    <div class="bereich-kachel bereich-kachel-offen"><div class="bereich-kachel-titel">Schweiz</div><p class="bereich-kachel-text">Noch nicht begonnen.</p><span class="bereich-kachel-status status-offen">folgt</span></div>
-    <div class="bereich-kachel bereich-kachel-offen"><div class="bereich-kachel-titel">Neuseeland</div><p class="bereich-kachel-text">Noch nicht begonnen.</p><span class="bereich-kachel-status status-offen">folgt</span></div>
-    <div class="bereich-kachel bereich-kachel-offen"><div class="bereich-kachel-titel">Norwegen</div><p class="bereich-kachel-text">Noch nicht begonnen.</p><span class="bereich-kachel-status status-offen">folgt</span></div>
-    <div class="bereich-kachel bereich-kachel-offen"><div class="bereich-kachel-titel">Schweden</div><p class="bereich-kachel-text">Noch nicht begonnen.</p><span class="bereich-kachel-status status-offen">folgt</span></div>
-    <div class="bereich-kachel bereich-kachel-offen"><div class="bereich-kachel-titel">China (Indikator)</div><p class="bereich-kachel-text">Nur als Indikator, keine eigene Länderseite.</p><span class="bereich-kachel-status status-offen">folgt</span></div>
-    </div>
-  </section>
 
   <section class="panel" id="panelJpm" hidden aria-label="JPM Makro-Prozess">
     <h2 class="panel-titel">JPM Makro-Prozess: Aufbau folgt</h2>
@@ -102,8 +81,8 @@
 <script>
 (function () {
   "use strict";
-  var knoepfe = document.querySelectorAll(".bereich-gross");
-  var panels = { laender: document.getElementById("panelLaender"), jpm: document.getElementById("panelJpm") };
+  var knoepfe = document.querySelectorAll("button.bereich-gross");
+  var panels = { jpm: document.getElementById("panelJpm") };
   function zeige(ziel) {
     knoepfe.forEach(function (k) { k.setAttribute("aria-expanded", String(k.dataset.ziel === ziel)); });
     Object.keys(panels).forEach(function (k) { panels[k].hidden = (k !== ziel); });
@@ -121,7 +100,7 @@
 })();
 </script>
 
-<script src="einstellungen.js?v=20261017"></script>
-<script src="hintergrund.js?v=20261017"></script>
+<script src="einstellungen.js?v=20261021"></script>
+<script src="hintergrund.js?v=20261021"></script>
 </body>
 </html>
