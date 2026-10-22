@@ -66,6 +66,18 @@ FRED = {
     "BOPTEXP": "2022-01-01", "BOPTIMP": "2022-01-01", "DTWEXBGS": "2024-10-01",
     "FDHBFIN": "2015-01-01",   # Bundesschulden im Besitz von Auslaendern (Mrd. USD)
     "VAPGDPAERAF": "2015-01-01", "VAPGDPOSEG": "2015-01-01", "VAPGDPF": "2015-01-01", "VAPGDPSL": "2015-01-01",
+    # Oberthema 8 (Sentiment und Verbraucherverhalten)
+    "UMCSENT": "2018-01-01",
+    "PCEDG": "2019-01-01", "PCEND": "2019-01-01", "PCES": "2019-01-01", "PCEC96": "2019-01-01", "RSAFS": "2019-01-01",
+    "PSAVERT": "2019-01-01", "TOTALSL": "2019-01-01", "REVOLSL": "2019-01-01", "DRCCLACBS": "2015-01-01", "TDSP": "2015-01-01",
+    "DSPIC96": "2019-01-01", "TNWBSHNO": "2015-01-01",
+    # Konsumkuchen: Konsumausgaben nach Verwendungszweck (BEA, Mrd. USD, vierteljaehrlich, auf Jahresrate)
+    "DHLCRC1Q027SBEA": "2015-01-01", "DHUTRC1Q027SBEA": "2015-01-01", "DTRSRC1Q027SBEA": "2015-01-01",
+    "DMOTRC1Q027SBEA": "2015-01-01", "DFXARC1Q027SBEA": "2015-01-01", "DFSARC1Q027SBEA": "2015-01-01",
+    "DCLORC1Q027SBEA": "2015-01-01", "DREQRC1Q027SBEA": "2015-01-01", "DRCARC1Q027SBEA": "2015-01-01",
+    "DGOERC1Q027SBEA": "2015-01-01", "DNRGRC1Q027SBEA": "2015-01-01", "DOTSRC1Q027SBEA": "2015-01-01",
+    # Oberthema 9 (Umwelt und Klima): Energiepreise
+    "APU000072610": "2019-01-01", "GASREGW": "2022-01-01", "DHOILNYH": "2024-10-01",
 }
 # Reihen mit Umrechnung: Name -> (FRED-Reihe, Umrechnung, Start). pc1 = Veraenderung zum Vorjahr in Prozent
 FRED_UMGERECHNET = {
@@ -83,6 +95,14 @@ FRED_UMGERECHNET = {
     "CES0500000003_YOY": ("CES0500000003", "pc1", "2022-01-01"),    # Stundenlohn privater Sektor
     "PAYEMS_CHG": ("PAYEMS", "chg", "2022-01-01"),                   # Beschaeftigtenaenderung zum Vormonat (Tausend)
     "ECIWAG_YOY": ("ECIWAG", "pc1", "2022-01-01"),                   # Employment Cost Index Loehne, zum Vorjahr
+    # Oberthema 8 (Verbraucher): Veraenderung zum Vorjahr
+    "PCEC96_YOY": ("PCEC96", "pc1", "2022-01-01"),
+    "RSAFS_YOY": ("RSAFS", "pc1", "2022-01-01"),
+    "DSPIC96_YOY": ("DSPIC96", "pc1", "2022-01-01"),
+    "TOTALSL_YOY": ("TOTALSL", "pc1", "2022-01-01"),
+    # Oberthema 9: Preisindizes Strom und Benzin, zum Vorjahr
+    "CPI_STROM_YOY": ("CUSR0000SEHF01", "pc1", "2022-01-01"),
+    "CPI_BENZIN_YOY": ("CUSR0000SETB01", "pc1", "2022-01-01"),
 }
 
 
@@ -549,6 +569,240 @@ def lade_census():
     return out
 
 
+# ---------------------------------------------------------------- Umwelt und Klima (Oberthema 9)
+def tabelle_zeilen(html_text, nr, sep=""):
+    tabs = re.findall(r"<table.*?</table>", html_text, flags=re.S)
+    rows = re.findall(r"<tr.*?</tr>", tabs[nr], flags=re.S)
+    return [[html.unescape(re.sub(r"<[^>]+>", sep, c)).replace("\xa0", " ").strip()
+             for c in re.findall(r"<t[hd].*?</t[hd]>", r, flags=re.S)] for r in rows]
+
+
+def zahl_us(t):
+    try:
+        return float(t.replace(",", ""))
+    except Exception:
+        return None
+
+
+MONATE = {"January": 1, "February": 2, "March": 3, "April": 4, "May": 5, "June": 6, "July": 7, "August": 8,
+          "Sept": 9, "September": 9, "October": 10, "November": 11, "December": 12}
+
+
+def epm_tabelle(t):
+    """Electric Power Monthly: Jahreswerte, Monatswerte und die letzten 12 Monate je Spalte."""
+    h = holen("https://www.eia.gov/electricity/monthly/epm_table_grapher.php?t=" + t)
+    z = tabelle_zeilen(h, 1)
+    kopf = next(r for r in z if r and r[0] == "Period")
+    jahre, monate, r12, jahr = {}, {}, None, None
+    abschnitt = ""
+    for r in z:
+        if not r or r[0] == "Period":
+            continue
+        if len(r) == 1:
+            abschnitt = r[0]
+            m = re.match(r"Year\s*(\d{4})", r[0])
+            jahr = int(m.group(1)) if m else None
+            continue
+        werte = {kopf[i]: zahl_us(r[i]) for i in range(1, min(len(kopf), len(r)))}
+        if abschnitt.startswith("Annual") and re.fullmatch(r"\d{4}", r[0]):
+            jahre[int(r[0])] = werte
+        elif abschnitt.startswith("Year") and r[0] in MONATE and jahr:
+            monate["%d-%02d-01" % (jahr, MONATE[r[0]])] = werte
+        elif abschnitt.startswith("Rolling"):
+            r12 = (r[0], werte)
+    return jahre, monate, r12
+
+
+def lade_strommix():
+    j1, m1, r1 = epm_tabelle("epmt_1_1")
+    j2, m2, r2 = epm_tabelle("epmt_1_1_a")
+
+    def teile(a, b):
+        """a aus Tabelle 1.1, b aus Tabelle 1.1.A -> Strommix in Tsd. MWh"""
+        if not a or not b:
+            return None
+        v = lambda d, k: d.get(k) or 0.0
+        bio = (v(b, "Wood andWood-DerivedFuels") + v(b, "LandfillGas") + v(b, "BiogenicMunicipalSolid Waste")
+               + v(b, "Other Waste Biomass") + v(b, "Geothermal"))
+        return {"gas": v(a, "NaturalGas"), "kohle": v(a, "Coal"), "atom": v(a, "Nuclear"),
+                "wind": v(b, "Wind"), "solar": v(a, "Estimated Total Solar"), "wasser": v(a, "HydroelectricConventional"),
+                "bio": bio, "oel": v(a, "PetroleumLiquids") + v(a, "PetroleumCoke"),
+                "rest": v(a, "OtherFossilGas") + v(a, "HydroelectricPumpedStorage") + v(a, "Other")}
+    jahre = {str(y): teile(j1.get(y), j2.get(y)) for y in sorted(j1) if y in j2}
+    monate = {d: teile(m1[d], m2.get(d)) for d in sorted(m1) if d in m2}
+    r12 = None
+    if r1 and r2 and r1[0] == r2[0]:
+        r12 = {"ende": r1[0], "werte": teile(r1[1], r2[1])}
+    if not jahre or not monate or not r12 or not all(jahre.values()) or not r12["werte"]:
+        raise ValueError("EPM: Tabellen unvollstaendig")
+    ges = sum(r12["werte"].values())
+    if not (3.5e6 < ges < 5.5e6):
+        raise ValueError("EPM: Gesamterzeugung unplausibel: %s" % ges)
+    return {"jahre": jahre, "monate": monate, "r12": r12, "letzter_monat": max(monate), "einheit": "Tsd. MWh",
+            "quelle": "https://www.eia.gov/electricity/monthly/epm_table_grapher.php?t=epmt_1_1"}
+
+
+def lade_co2():
+    t = holen("https://gml.noaa.gov/webdata/ccgg/trends/co2/co2_mm_mlo.csv")
+    pts = []
+    for zl in t.splitlines():
+        if zl.startswith("#") or not zl.strip() or zl.startswith("year"):
+            continue
+        c = zl.split(",")
+        try:
+            y, m, avg = int(c[0]), int(c[1]), float(c[3])
+        except Exception:
+            continue
+        if avg > 0 and y >= 2015:
+            pts.append(["%d-%02d-01" % (y, m), avg])
+    if len(pts) < 60 or not (380 < pts[-1][1] < 500):
+        raise ValueError("CO2 unplausibel")
+    return {"monat": pts, "quelle": "https://gml.noaa.gov/ccgg/trends/"}
+
+
+def lade_duerre():
+    ende = datetime.date.today()
+    u = ("https://usdmdataservices.unl.edu/api/USStatistics/GetDroughtSeverityStatisticsByAreaPercent?aoi=us"
+         "&startdate=1/1/2020&enddate=%d/%d/%d&statisticsType=1" % (ende.month, ende.day, ende.year))
+    zeilen = holen(u).strip().splitlines()
+    kopf = zeilen[0].split(",")
+    reihen = {k: [] for k in ("D0", "D1", "D2", "D3")}
+    for zl in zeilen[1:]:
+        d = dict(zip(kopf, zl.split(",")))
+        if d.get("AreaOfInterest", "CONUS") != "CONUS":
+            continue
+        try:
+            dat = "%s-%s-%s" % (d["MapDate"][:4], d["MapDate"][4:6], d["MapDate"][6:8])
+            for k in reihen:
+                reihen[k].append([dat, float(d[k])])
+        except Exception:
+            continue
+    for k in reihen:
+        reihen[k].sort()
+    if len(reihen["D1"]) < 50:
+        raise ValueError("Duerre-Daten zu kurz")
+    return {"reihen": reihen, "quelle": "https://droughtmonitor.unl.edu/"}
+
+
+def lade_gistemp():
+    t = holen("https://data.giss.nasa.gov/gistemp/tabledata_v4/GLB.Ts+dSST.csv")
+    monat, jahr = [], []
+    for zl in t.splitlines():
+        c = zl.split(",")
+        if not c or not re.fullmatch(r"\d{4}", c[0]):
+            continue
+        y = int(c[0])
+        for m in range(1, 13):
+            try:
+                v = float(c[m])
+            except Exception:
+                continue
+            if y >= 2015:
+                monat.append(["%d-%02d-01" % (y, m), v])
+        try:
+            if y >= 1980:
+                jahr.append(["%d-01-01" % y, float(c[13])])
+        except Exception:
+            pass
+    if len(monat) < 60:
+        raise ValueError("GISTEMP zu kurz")
+    return {"monat": monat, "jahr": jahr, "quelle": "https://data.giss.nasa.gov/gistemp/"}
+
+
+def lade_laden(alt):
+    z = tabelle_zeilen(holen("https://afdc.energy.gov/stations/states"), 0, " ")
+    row = next(r for r in z if r and r[0] == "Total")
+    m = re.match(r"([\d,]+)\s*\|\s*([\d,]+)\s+([\d,]+)\s*\|\s*([\d,]+)\s*\|\s*([\d,]+)", row[4])
+    if not m:
+        raise ValueError("AFDC: Format geaendert: " + row[4][:60])
+    st, ports, l1, l2, dc = (int(x.replace(",", "")) for x in m.groups())
+    if not (100000 < ports < 1000000):
+        raise ValueError("AFDC: unplausibel")
+    heute = datetime.date.today().isoformat()
+    hist = list((alt or {}).get("hist") or [])
+    if not hist or hist[-1][0][:7] != heute[:7]:
+        hist.append([heute, ports, dc])
+    else:
+        hist[-1] = [heute, ports, dc]
+    return {"stand": heute, "standorte": st, "ports": ports, "l2": l2, "dcfast": dc, "hist": hist[-60:],
+            "quelle": "https://afdc.energy.gov/stations/states"}
+
+
+def lade_raffinerien():
+    """Raffinerien mit Lage und Kapazitaet (FEMA-Dienst auf Basis der EIA-Raffineriedaten)."""
+    u = ("https://gis.fema.gov/arcgis/rest/services/Partner/Petroleum_Refinery_Status/FeatureServer/0/query?"
+         "where=1%3D1&outFields=company,corp,site,barrels_per_day,status,st_abr,period_,latitude,longitude&f=json&returnGeometry=false&resultRecordCount=500")
+    f = json.loads(holen(u)).get("features", [])
+    out = []
+    for x in f:
+        a = x["attributes"]
+        if a.get("latitude") is None or a.get("longitude") is None or not a.get("barrels_per_day"):
+            continue
+        out.append([round(a["latitude"], 4), round(a["longitude"], 4), int(a["barrels_per_day"]),
+                    (a.get("company") or "").title()[:40], (a.get("site") or "").title()[:30], a.get("st_abr") or "",
+                    a.get("status") or "", a.get("period_") or ""])
+    if len(out) < 50:
+        raise ValueError("Raffinerien: zu wenige (%d)" % len(out))
+    return {"liste": out, "quelle": "https://www.eia.gov/petroleum/refinerycapacity/ (EIA-820, ueber FEMA-Dienst)"}
+
+
+def lade_stuerme():
+    t = json.loads(holen("https://www.nhc.noaa.gov/CurrentStorms.json"))
+    out = []
+    for s in t.get("activeStorms", []):
+        out.append({"id": s.get("id"), "name": s.get("name"), "klasse": s.get("classification"), "wind_kn": s.get("intensity"),
+                    "druck": s.get("pressure"), "lat": s.get("latitudeNumeric"), "lon": s.get("longitudeNumeric"),
+                    "richtung": s.get("movementDir"), "tempo": s.get("movementSpeed"), "update": s.get("lastUpdate"),
+                    "url": (s.get("publicAdvisory") or {}).get("url")})
+    return {"liste": out, "quelle": "https://www.nhc.noaa.gov/"}
+
+
+FR_ABFRAGEN = [
+    ("EPA", "environmental-protection-agency", "greenhouse gas OR emissions OR endangerment OR climate"),
+    ("Energieministerium", "energy-department", "liquefied natural gas OR energy efficiency OR clean energy OR electric"),
+    ("Finanzministerium", "treasury-department", "energy credit OR clean electricity OR clean vehicle OR clean fuel"),
+    ("Innenministerium", "interior-department", "wind OR solar OR oil and gas leasing OR offshore"),
+]
+
+
+def lade_regelungen():
+    treffer = {}
+    fehler = []
+    for name, agentur, term in FR_ABFRAGEN:
+        u = ("https://www.federalregister.gov/api/v1/documents.json?conditions%5Bagencies%5D%5B%5D=" + agentur
+             + "&conditions%5Bterm%5D=" + urllib.parse.quote_plus(term)
+             + "&conditions%5Btype%5D%5B%5D=RULE&conditions%5Btype%5D%5B%5D=PRORULE&order=newest&per_page=8"
+             + "&fields%5B%5D=title&fields%5B%5D=publication_date&fields%5B%5D=type&fields%5B%5D=html_url&fields%5B%5D=document_number")
+        try:
+            for d in json.loads(holen(u)).get("results", []):
+                treffer[d["document_number"]] = {"d": d["publication_date"], "t": d["title"], "a": name,
+                                                  "art": "Regel" if d["type"] == "Rule" else "Entwurf", "u": d["html_url"]}
+        except Exception as e:  # noqa
+            fehler.append(name + ": " + str(e)[:60])
+    liste = sorted(treffer.values(), key=lambda x: x["d"], reverse=True)[:16]
+    if not liste:
+        raise ValueError("Federal Register: keine Treffer " + "; ".join(fehler))
+    return {"liste": liste, "quelle": "https://www.federalregister.gov/", "fehler": fehler}
+
+
+def lade_umwelt(alt=None):
+    out, fehler = {}, {}
+    alt = alt or {}
+    for name, fkt in (("strommix", lade_strommix), ("co2", lade_co2), ("duerre", lade_duerre), ("gistemp", lade_gistemp),
+                      ("laden", lambda: lade_laden(alt.get("laden"))), ("raffinerien", lade_raffinerien),
+                      ("stuerme", lade_stuerme), ("regelungen", lade_regelungen)):
+        try:
+            out[name] = fkt()
+        except Exception as e:  # noqa
+            out[name] = alt.get(name)
+            fehler[name] = str(e)[:150]
+    if fehler:
+        out["fehler"] = fehler
+    if not any(out.get(k) for k in ("strommix", "co2", "duerre", "gistemp")):
+        raise ValueError("Umwelt: keine Quelle erreichbar " + str(fehler))
+    return out
+
+
 def lade_alt():
     try:
         t = open(DATEI, encoding="utf-8").read()
@@ -562,9 +816,9 @@ def main():
     neu = {"meta": {"erstellt": datetime.datetime.now(datetime.timezone.utc).strftime("%Y-%m-%d %H:%M UTC"),
                     "fehler": {}, "stand": dict(alt.get("meta", {}).get("stand", {}))}}
     heute = datetime.date.today().isoformat()
-    for name, fkt in (("fred", lade_fred), ("wikipedia", lade_wikipedia), ("fed", lade_fed), ("eia", lade_eia), ("handel", lade_handel), ("zoll", lade_zoll), ("census", lade_census)):
+    for name, fkt in (("fred", lade_fred), ("wikipedia", lade_wikipedia), ("fed", lade_fed), ("eia", lade_eia), ("handel", lade_handel), ("zoll", lade_zoll), ("census", lade_census), ("umwelt", None)):
         try:
-            neu[name] = fkt()
+            neu[name] = fkt() if fkt else lade_umwelt(alt.get("umwelt"))
             neu["meta"]["stand"][name] = heute
             print("OK", name)
         except Exception as e:  # noqa

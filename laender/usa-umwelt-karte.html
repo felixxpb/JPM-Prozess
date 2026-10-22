@@ -1,0 +1,314 @@
+<!DOCTYPE html>
+<html lang="de" data-theme="dark">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>JPM Prozess · Länderanalyse USA · Umwelt und Klima · Karte</title>
+<link rel="stylesheet" href="../lib/leaflet/leaflet.css">
+<style>
+:root{
+  --flaeche:#fcfcfb; --ebene:#f9f9f7; --text:#0b0b0b; --text2:#52514e; --stumm:#898781;
+  --raster:#e1e0d9; --achse:#c3c2b7; --rand:rgba(11,11,11,.10);
+  --exe:#2f6f9f; --leg:#3d7a56; --jud:#8a5a2b; --the:#6b4f8a; --zeit:#52514e; --mil:#7a3b3b;
+  --exe-h:#e6f0f7; --leg-h:#e5f2ea; --jud-h:#f4ebe1; --the-h:#eee9f4; --zeit-h:#efeee9; --mil-h:#f3e6e6;
+  --gut:#006300; --warn:#b97a00; --schatten:0 1px 2px rgba(11,11,11,.04),0 4px 16px rgba(11,11,11,.06);
+  color-scheme:light;
+}
+:root[data-theme="dark"]{
+  --flaeche:#1a1a19; --ebene:#0d0d0d; --text:#fff; --text2:#c3c2b7; --stumm:#898781;
+  --raster:#2c2c2a; --achse:#383835; --rand:rgba(255,255,255,.12);
+  --exe:#5fa0d3; --leg:#56b27d; --jud:#d39a5a; --the:#ab8fd0; --zeit:#c3c2b7; --mil:#d38a8a;
+  --exe-h:#16222c; --leg-h:#16261d; --jud-h:#2a2016; --the-h:#221b2c; --zeit-h:#232321; --mil-h:#2a1a1a;
+  --gut:#0ca30c; --warn:#fab219; --schatten:none; color-scheme:dark;
+}
+*{box-sizing:border-box}
+body{margin:0;padding:0 20px 56px;background:var(--ebene);color:var(--text);font-family:system-ui,-apple-system,"Segoe UI",sans-serif;font-size:15px;line-height:1.5}
+.wrap{max-width:1280px;margin:0 auto}
+header{padding:20px 0 8px;display:flex;gap:16px;justify-content:space-between;align-items:flex-start;flex-wrap:wrap}
+h1{margin:0;font-size:21px;font-weight:650}
+.unter{color:var(--text2);font-size:13px}
+.entwurf{display:inline-block;margin-left:8px;padding:1px 8px;border-radius:99px;border:1px solid var(--warn);color:var(--warn);font-size:12px;font-weight:600;vertical-align:middle}
+.tabs{display:flex;gap:6px;flex-wrap:wrap;margin:10px 0 6px}
+.tab,.tool{font:inherit;font-size:13px;background:var(--flaeche);color:var(--text);border:1px solid var(--rand);border-radius:8px;padding:6px 12px;cursor:pointer}
+.tab[aria-selected="true"]{background:var(--text);color:var(--ebene);border-color:var(--text)}
+.beschr{font-size:13px;color:var(--text2);margin:0 0 14px}
+.versteh{background:var(--flaeche);border:1px solid var(--rand);border-radius:12px;padding:6px 18px 16px;box-shadow:var(--schatten);margin-bottom:20px}
+.versteh>h2{margin:12px 0 2px;font-size:17px}
+.lead{margin:0 0 8px;color:var(--text2);font-size:13.5px}
+.quelle{font-size:12px;color:var(--text2);margin:6px 0 0}
+/* Knoten */
+.nk{all:unset;box-sizing:border-box;display:block;width:100%;cursor:pointer;background:var(--ebene);border:1px solid var(--rand);border-top:3px solid var(--c);border-radius:9px;padding:7px 10px;text-align:center;transition:transform .15s,border-color .15s}
+.nk:hover{transform:translateY(-1px);border-color:var(--c)}.nk:focus-visible{outline:2px solid var(--c);outline-offset:2px}.nk.aktiv{box-shadow:0 0 0 2px var(--c)}
+.nk b{display:block;font-size:13.5px}.nk span{display:block;font-size:11.5px;color:var(--text2);margin-top:1px}
+.nk.wa{--c:var(--the)}.nk.ex{--c:var(--exe)}.nk.le{--c:var(--leg)}.nk.ju{--c:var(--jud)}.nk.bu{--c:var(--zeit)}.nk.mi{--c:var(--mil)}.nk.vf{--c:var(--text2);border-style:dashed}
+.nk.klein{padding:5px 8px}.nk.klein b{font-size:12.5px}
+.pf2{font-size:11px;color:var(--text2);text-align:center;line-height:1.25;padding:2px 3px}
+.pf2 i{display:block;font-style:normal;font-size:18px;color:var(--text);line-height:1}
+.grp{border-radius:12px;padding:8px;background:var(--bg);display:flex;flex-direction:column;gap:8px}
+.grp.ex{--bg:var(--exe-h);--c:var(--exe)}.grp.le{--bg:var(--leg-h);--c:var(--leg)}.grp.ju{--bg:var(--jud-h);--c:var(--jud)}.grp.wa{--bg:var(--the-h);--c:var(--the)}.grp.bu{--bg:var(--zeit-h);--c:var(--zeit)}
+.gh{color:#fff;font-weight:700;text-align:center;padding:7px 8px;border-radius:8px;background:var(--c);font-size:13px;line-height:1.2}
+.gh small{display:block;font-weight:500;font-size:11px;opacity:.9}
+.zeile{display:grid;gap:8px}.zwei2{grid-template-columns:1fr 1fr}
+/* V1 */
+.v1 .strang{display:flex;align-items:center;justify-content:center;gap:10px;flex-wrap:wrap;margin-bottom:10px;padding:10px;border:1px dashed var(--achse);border-radius:12px}
+.v1 .strang .nk{width:200px}
+.v1 .gew{display:grid;grid-template-columns:1fr 92px 1fr 92px 1fr;align-items:center}
+.v1 .gew>.grp{align-self:stretch}
+.v1 .unten{margin-top:10px}
+/* V2 */
+.v2 .rast{display:grid;grid-template-columns:1fr 120px 1fr;grid-template-rows:auto auto auto auto auto auto;gap:6px 8px;align-items:center}
+.v2 .mitte{grid-column:1/4;display:flex;justify-content:center}.v2 .mitte .grp{width:min(420px,100%)}
+/* V3 */
+.v3 .stock{display:grid;grid-template-columns:130px 1fr;gap:6px 12px;align-items:stretch}
+.v3 .lab{font-size:12px;font-weight:700;color:var(--text2);text-transform:uppercase;letter-spacing:.05em;display:flex;align-items:center;justify-content:center;text-align:center;background:var(--flaeche);border:1px solid var(--rand);border-radius:10px;padding:6px}
+.v3 .etage{border:1px solid var(--rand);border-radius:12px;padding:8px;background:var(--flaeche)}
+.v3 .pfz{grid-column:2;font-size:11.5px;color:var(--text2);text-align:center}
+.v3 .pfz i{font-style:normal;font-size:16px;color:var(--text);margin-right:6px}
+.v3 .drei{display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px}
+/* V4 */
+.v4 .kette{display:flex;flex-wrap:wrap;align-items:stretch;gap:6px;margin:4px 0 14px}
+.v4 .kette .nk{width:auto;flex:1 1 128px}
+.v4 .kette .pf{align-self:center;font-size:20px;color:var(--text2)}
+.v4 h3{margin:14px 0 4px;font-size:12px;color:var(--text2);text-transform:uppercase;letter-spacing:.05em}
+/* V5 */
+.v5 .nabe{display:grid;grid-template-columns:1fr 130px 1fr 130px 1fr;grid-template-rows:auto 62px auto 62px auto;align-items:center}
+.v5 .zentrum{background:var(--flaeche);border:2px solid var(--achse);border-radius:50%/40%;text-align:center;padding:16px 8px;font-size:12.5px;cursor:pointer}
+.v5 .zentrum b{display:block;font-size:14px}
+.v5 .zentrum:hover{border-color:var(--text)}
+/* Detail */
+#detail{margin-top:14px;background:var(--flaeche);border:1px solid var(--rand);border-left:4px solid var(--dc,var(--achse));border-radius:10px;padding:12px 16px;font-size:13.5px;box-shadow:var(--schatten)}
+#detail h4{margin:0 0 4px;font-size:15px}#detail p{margin:5px 0}#detail ul{margin:4px 0 4px;padding-left:20px}#detail li{margin:2px 0}
+#detail table{border-collapse:collapse;font-size:13px;margin:4px 0}#detail th,#detail td{border-bottom:1px solid var(--raster);padding:4px 10px 4px 0;text-align:left;vertical-align:top}
+.leer{color:var(--text2)}
+.chips{display:flex;flex-wrap:wrap;gap:8px;margin:12px 0 4px}
+.chips .tool{font-size:12.5px}.chips .tool.aktiv{background:var(--text);color:var(--ebene)}
+/* Stärken/Schwächen */
+details.sw{margin-top:18px;background:var(--flaeche);border:1px solid var(--rand);border-radius:12px;padding:6px 18px 12px;box-shadow:var(--schatten)}
+details.sw>summary{cursor:pointer;font-weight:650;font-size:15px;padding:8px 0;list-style:none}
+details.sw>summary::-webkit-details-marker{display:none}
+details.sw>summary:before{content:"▸";display:inline-block;width:18px;color:var(--text2);transition:transform .15s}
+details.sw[open]>summary:before{transform:rotate(90deg)}
+table.swt{width:100%;border-collapse:collapse;font-size:13.2px}
+.swt th{font-size:11px;text-transform:uppercase;letter-spacing:.04em;color:var(--text2);text-align:left;border-bottom:2px solid var(--rand);padding:4px 10px 4px 0}
+.swt td{padding:7px 10px 7px 0;border-bottom:1px solid var(--raster);vertical-align:top}
+.swt th.s,.swt td.s{border-left:3px solid var(--gut);padding-left:9px}.swt th.w,.swt td.w{border-left:3px solid var(--warn);padding-left:9px}
+.swt td.th{font-weight:650;white-space:nowrap;width:150px}
+.swt tr.zl{cursor:pointer}.swt tr.zl:hover td{background:var(--ebene)}
+.swt tr.zl td.th:before{content:"▸ ";color:var(--text2)}.swt tr.zl.offen td.th:before{content:"▾ "}
+.swt tr.mehr td{background:var(--ebene);font-size:12.8px;color:var(--text2);padding:8px 12px}
+@media (max-width:980px){
+  .v1 .gew,.v5 .nabe,.v2 .rast{grid-template-columns:1fr;grid-template-rows:none}
+  .v1 .gew .pf2,.v5 .nabe .pf2,.v2 .rast .pf2{display:none}
+  .v5 .nabe>*,.v2 .rast>*{grid-column:1!important;grid-row:auto!important}
+  .v3 .stock{grid-template-columns:1fr}.v3 .pfz{grid-column:1}.v3 .drei{grid-template-columns:1fr}
+  .zwei2{grid-template-columns:1fr}.swt td.th{white-space:normal}
+}
+
+.wrap{max-width:none}
+body{padding:0 16px 40px}
+.ansichten{display:inline-flex;border:1px solid var(--rand);border-radius:9px;overflow:hidden;margin:6px 10px 8px 0}
+.ansichten button{font:inherit;font-size:13.5px;background:var(--flaeche);color:var(--text);border:0;border-right:1px solid var(--rand);padding:8px 16px;cursor:pointer}
+.ansichten button:last-child{border-right:0}
+.ansichten button[aria-pressed="true"]{background:var(--text);color:var(--ebene);font-weight:650}
+.rahmen{display:grid;grid-template-columns:1fr 340px;gap:12px;align-items:start}
+#karte{height:78vh;min-height:520px;border:1px solid var(--rand);border-radius:12px;background:#0e1420;z-index:0}
+.seite{display:flex;flex-direction:column;gap:10px;max-height:78vh;overflow:auto}
+.box{background:var(--flaeche);border:1px solid var(--rand);border-radius:10px;padding:10px 12px;font-size:13px}
+.box h3{margin:0 0 6px;font-size:13px;text-transform:uppercase;letter-spacing:.05em;color:var(--text2)}
+.box label{display:flex;align-items:center;gap:7px;margin:3px 0;cursor:pointer}
+.box .pt{display:inline-block;width:11px;height:11px;border-radius:50%;flex:none}
+.box .sq{display:inline-block;width:10px;height:10px;transform:rotate(45deg);flex:none;border:1.5px solid #fff}
+.box .gw{margin-left:auto;color:var(--text2);font-variant-numeric:tabular-nums;font-size:12px}
+.box .gk{display:flex;align-items:center;gap:6px;margin:8px 0 2px}.box .gk b{font-size:12.5px}.box .gk .links{margin-left:auto;display:inline-flex;gap:4px}.box .gk button{white-space:nowrap;font:inherit;font-size:11.5px;background:var(--ebene);color:var(--text);border:1px solid var(--rand);border-radius:6px;padding:2px 8px;cursor:pointer}.box .gk button:hover{background:var(--text);color:var(--ebene)}
+.box .klein{font-size:12px;color:var(--text2);margin:4px 0 0}
+.sturm{border-left:4px solid var(--c);padding:4px 8px;margin:6px 0;background:var(--ebene);border-radius:6px}
+.sturm b{display:block}.sturm span{font-size:12px;color:var(--text2)}
+.warn{border-left:4px solid var(--c);padding:3px 8px;margin:5px 0;background:var(--ebene);border-radius:6px;font-size:12.5px}
+.warn b{display:block;font-size:12.5px}
+.warn span{color:var(--text2);font-size:11.5px}
+.mk-ref{background:#ff4d4d;border:2px solid #fff;transform:rotate(45deg);box-shadow:0 0 0 1px #0007}
+.mk-lng{background:#00d8ff;border:2px solid #fff;border-radius:50%;box-shadow:0 0 0 1px #0007}
+.mk-spr{background:#ffffff;border:2px solid #333;border-radius:2px}
+.mk-hub{background:#ffd400;border:2px solid #333;border-radius:2px;transform:rotate(45deg)}
+.mk-storm{width:26px;height:26px;border-radius:50%;background:#e02424;border:3px solid #fff;color:#fff;font-weight:800;font-size:11px;display:flex;align-items:center;justify-content:center;box-shadow:0 0 0 2px #e0242488}
+.leaflet-container{font:inherit;background:#0e1420}
+.leaflet-popup-content{font-size:13px;line-height:1.4}
+.leaflet-popup-content b{display:block;font-size:14px}
+.zeitstempel{font-size:12px;color:var(--text2)}
+.vorschau header,.vorschau .kopfleiste,.vorschau .seite,.vorschau .fuss,.vorschau .unter,.vorschau .zuruck{display:none!important}
+.vorschau .rahmen{grid-template-columns:1fr}.vorschau #karte{height:100vh;border:0;border-radius:0}
+.fuss{font-size:12px;color:var(--text2);margin:10px 2px 0;line-height:1.5}
+@media (max-width:980px){.rahmen{grid-template-columns:1fr}.seite{max-height:none}#karte{height:70vh}}
+</style>
+</head>
+<body>
+<div class="wrap">
+<header>
+  <div>
+    <a href="usa-umwelt.html" class="zuruck" style="font-size:13px;color:var(--text2)">← USA, Umwelt und Klima</a>
+    <h1>USA – Energie und Wetter auf der Karte <span class="entwurf">Vorschau, nicht freigegeben</span></h1>
+    <div class="unter">Wo der Strom erzeugt wird, wo Öl und Gas verarbeitet werden und wo gerade Stürme und Unwetter liegen · Daten und Fakten, keine Bewertung</div>
+  </div>
+  <button class="tool" id="theme" type="button">Dunkel / Hell</button>
+</header>
+<div class="kopfleiste">
+  <span class="ansichten" id="ansichten" role="group" aria-label="Ansicht"></span>
+  <span class="zeitstempel" id="stand"></span>
+</div>
+<div class="rahmen">
+  <div id="karte" role="application" aria-label="Karte der USA mit Energieanlagen und Wetterlage"></div>
+  <div class="seite" id="seite"></div>
+</div>
+<div class="fuss" id="fuss"></div>
+</div>
+
+<script src="../lib/leaflet/leaflet.js"></script>
+<script src="daten/usa.js?v=1"></script>
+<script src="daten/kraftwerke.js?v=1"></script>
+<script>
+
+const KW=window.KRAFTWERKE||null, UM=((window.USA_DATEN||{}).umwelt)||{}, META=((window.USA_DATEN||{}).meta)||{};
+const esc=s=>String(s==null?"":s).replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+const nf=(v,d)=>new Intl.NumberFormat("de-DE",{minimumFractionDigits:d||0,maximumFractionDigits:d||0}).format(v);
+try{const g=localStorage.getItem("dashboard-thema");document.documentElement.dataset.theme=g||"dark"}catch(e){document.documentElement.dataset.theme="dark"}
+const FARBE={gas:"#f08a24",kohle:"#8c8c8c",atom:"#b072e0",wind:"#34b7e0",sonne:"#f5d22a",wasser:"#3f7fe0",bio:"#5fb45a",oel:"#b5651d",speicher:"#e05a9a"};
+const NAME={gas:"Erdgas",kohle:"Kohle",atom:"Atomkraft",wind:"Wind",sonne:"Sonne",wasser:"Wasserkraft",bio:"Biomasse, Erdwärme",oel:"Erdöl",speicher:"Batteriespeicher"};
+const FUEL_ORDER=["gas","kohle","atom","wind","sonne","wasser","speicher","oel","bio"];
+/* Handverzeichnis: Lage ungefaehr (Ort), keine Kapazitaeten */
+const LNG=[
+ ["Sabine Pass LNG","Cameron Parish, Louisiana","Cheniere",29.74,-93.87,"in Betrieb"],
+ ["Cameron LNG","Hackberry, Louisiana","Cameron LNG",29.79,-93.34,"in Betrieb"],
+ ["Calcasieu Pass LNG","Cameron, Louisiana","Venture Global",29.77,-93.35,"in Betrieb"],
+ ["Plaquemines LNG","Plaquemines Parish, Louisiana","Venture Global",29.40,-89.70,"in Betrieb oder Anlauf (Status prüfen)"],
+ ["Freeport LNG","Quintana, Texas","Freeport LNG",28.94,-95.31,"in Betrieb"],
+ ["Corpus Christi LNG","Portland, Texas","Cheniere",27.88,-97.22,"in Betrieb"],
+ ["Golden Pass LNG","Sabine Pass, Texas","Golden Pass",29.72,-93.91,"Anlauf (Status prüfen)"],
+ ["Cove Point LNG","Lusby, Maryland","Dominion",38.40,-76.39,"in Betrieb"],
+ ["Elba Island LNG","Savannah, Georgia","Kinder Morgan",32.09,-80.99,"in Betrieb"]
+];
+const SPR=[
+ ["Bryan Mound","Freeport, Texas",28.93,-95.37],["Big Hill","bei Winnie, Texas",29.72,-94.10],
+ ["West Hackberry","Hackberry, Louisiana",29.95,-93.32],["Bayou Choctaw","Iberville Parish, Louisiana",30.33,-91.45]];
+const HUBS=[
+ ["Cushing, Oklahoma","Lieferort für Rohöl der Sorte WTI (Tanklager)",35.99,-96.77],
+ ["Henry Hub, Erath, Louisiana","Preisknoten für Erdgas (Termingeschäfte)",29.96,-92.04]];
+const STUFE={TD:"Tropisches Tief",TS:"Tropischer Sturm",HU:"Hurrikan",STD:"Subtropisches Tief",STS:"Subtropischer Sturm",PTC:"Möglicher Tropensturm",PC:"Post-tropisch",EX:"Außertropisch",LO:"Tiefdruckgebiet",DB:"Störung",WV:"Welle"};
+const RICHT=["N","NNO","NO","ONO","O","OSO","SO","SSO","S","SSW","SW","WSW","W","WNW","NW","NNW"];
+const dts=s=>{const d=new Date(s);return isNaN(d)?"":d.toLocaleString("de-DE",{day:"2-digit",month:"2-digit",year:"numeric",hour:"2-digit",minute:"2-digit"})};
+
+/* ===== Karte ===== */
+const hell=()=>document.documentElement.dataset.theme==="light";
+const map=L.map("karte",{preferCanvas:true,minZoom:3,worldCopyJump:true,zoomSnap:.5}).fitBounds([[23.5,-126.5],[50.5,-65]]);
+const ESRI="https://services.arcgisonline.com/ArcGIS/rest/services/Canvas/";
+const ATTR="Karte: Esri, HERE, Garmin, © OpenStreetMap-Mitwirkende";
+map.createPane("beschriftung");map.getPane("beschriftung").style.zIndex=650;map.getPane("beschriftung").style.pointerEvents="none";
+const tiles={dark:L.tileLayer(ESRI+"World_Dark_Gray_Base/MapServer/tile/{z}/{y}/{x}",{maxZoom:12,attribution:ATTR}),
+ light:L.tileLayer(ESRI+"World_Light_Gray_Base/MapServer/tile/{z}/{y}/{x}",{maxZoom:12,attribution:ATTR})};
+const labels={dark:L.tileLayer(ESRI+"World_Dark_Gray_Reference/MapServer/tile/{z}/{y}/{x}",{maxZoom:12,pane:"beschriftung"}),
+ light:L.tileLayer(ESRI+"World_Light_Gray_Reference/MapServer/tile/{z}/{y}/{x}",{maxZoom:12,pane:"beschriftung"})};
+let basis=null,lab=null;function basisSetzen(){if(basis)map.removeLayer(basis);if(lab)map.removeLayer(lab);basis=hell()?tiles.light:tiles.dark;lab=hell()?labels.light:labels.dark;basis.addTo(map);lab.addTo(map);basis.bringToBack()}
+basisSetzen();
+document.getElementById("theme").addEventListener("click",()=>{const d=document.documentElement;d.dataset.theme=d.dataset.theme==="dark"?"light":"dark";try{localStorage.setItem("dashboard-thema",d.dataset.theme)}catch(e){}basisSetzen()});
+
+/* Energie-Ebenen */
+const EB={};   /* id -> Layer */
+const G={};
+if(KW){FUEL_ORDER.slice().reverse().forEach(k=>{G[k]=L.layerGroup()});
+ KW.liste.forEach(p=>{const r=Math.max(2.6,Math.min(15,Math.sqrt(p[3])/3.3));
+  const m=L.circleMarker([p[0],p[1]],{radius:r,color:"#000",weight:.5,opacity:.5,fillColor:FARBE[p[2]],fillOpacity:.78});
+  m.bindPopup('<b>'+esc(p[4])+'</b>'+esc(NAME[p[2]])+' · '+nf(p[3])+' MW<br>'+esc(p[5])+(p[6]?' · '+esc(p[6]):'')+'<br><span style="color:#888">Quelle: EIA-860M, '+esc(KW.stand.replace("_generator"," ").replace(".xlsx",""))+'</span>');
+  G[p[2]].addLayer(m)});
+ FUEL_ORDER.forEach(k=>{EB["kw_"+k]=G[k]})}
+const raf=(UM.raffinerien&&UM.raffinerien.liste)||[];
+EB.raf=L.layerGroup(raf.map(r=>{const s=Math.max(9,Math.min(24,Math.sqrt(r[2])/22));
+ const ic=L.divIcon({className:"",html:'<div class="mk-ref" style="width:'+s+'px;height:'+s+'px;margin:-'+s/2+'px 0 0 -'+s/2+'px"></div>',iconSize:[0,0]});
+ return L.marker([r[0],r[1]],{icon:ic}).bindPopup('<b>Raffinerie '+esc(r[4])+'</b>'+esc(r[3])+'<br>Kapazität: '+nf(r[2])+' Barrel pro Tag ('+nf(r[2]*0.159/1000,0)+' Tsd. m³)<br>Status laut Datenbank: '+esc(r[6])+'<br><span style="color:#888">Datenstand der Anlage: '+esc(r[7])+' · Quelle: EIA über FEMA</span>')}));
+EB.lng=L.layerGroup(LNG.map(x=>L.marker([x[3],x[4]],{icon:L.divIcon({className:"",html:'<div class="mk-lng" style="width:15px;height:15px;margin:-7px 0 0 -7px"></div>',iconSize:[0,0]})}).bindPopup('<b>'+esc(x[0])+'</b>LNG-Exportterminal<br>'+esc(x[1])+' · '+esc(x[2])+'<br>Status: '+esc(x[5])+'<br><span style="color:#888">Lage ungefähr, von Hand gepflegt</span>')));
+EB.spr=L.layerGroup(SPR.map(x=>L.marker([x[2],x[3]],{icon:L.divIcon({className:"",html:'<div class="mk-spr" style="width:13px;height:13px;margin:-6px 0 0 -6px"></div>',iconSize:[0,0]})}).bindPopup('<b>Strategische Ölreserve: '+esc(x[0])+'</b>'+esc(x[1])+'<br><span style="color:#888">Salzkavernen des Energieministeriums, Lage ungefähr, von Hand gepflegt</span>')));
+EB.hub=L.layerGroup(HUBS.map(x=>L.marker([x[2],x[3]],{icon:L.divIcon({className:"",html:'<div class="mk-hub" style="width:13px;height:13px;margin:-6px 0 0 -6px"></div>',iconSize:[0,0]})}).bindPopup('<b>'+esc(x[0])+'</b>'+esc(x[1])+'<br><span style="color:#888">Lage ungefähr, von Hand gepflegt</span>')));
+
+/* Wetter-Ebenen (live von NOAA) */
+const NHC="https://mapservices.weather.noaa.gov/tropical/services/tropical/NHC_tropical_weather/MapServer/WMSServer";
+const grp=[4,30,56,82,108,134,160,186,212,238,264,290,316,342,368];
+const stormIds=[];grp.forEach(g=>stormIds.push(g+4,g+3,g+5,g+2,g+8,g+7,g+13));
+EB.radar=L.tileLayer.wms("https://mapservices.weather.noaa.gov/eventdriven/services/radar/radar_base_reflectivity/MapServer/WMSServer",{layers:"1",format:"image/png",transparent:true,version:"1.3.0",opacity:.7,attribution:"Radar: NOAA/NWS"});
+EB.ausblick=L.tileLayer.wms(NHC,{layers:"0",format:"image/png",transparent:true,version:"1.3.0",opacity:.85,attribution:"Hurrikanzentrum: NOAA/NHC"});
+EB.sturm=L.tileLayer.wms(NHC,{layers:stormIds.join(","),format:"image/png",transparent:true,version:"1.3.0",opacity:.95,attribution:"Hurrikanzentrum: NOAA/NHC"});
+EB.warn=L.layerGroup();
+EB.stuerme=L.layerGroup();
+(UM.stuerme&&UM.stuerme.liste||[]).forEach(s=>{if(s.lat==null)return;
+ const t=(s.klasse||"?").slice(0,2);
+ L.marker([s.lat,s.lon],{icon:L.divIcon({className:"",html:'<div class="mk-storm" style="margin:-13px 0 0 -13px">'+esc(t)+'</div>',iconSize:[0,0]}),zIndexOffset:900})
+  .bindPopup('<b>'+esc(STUFE[s.klasse]||s.klasse)+' '+esc(s.name)+'</b>Wind '+esc(s.wind_kn)+' kn ('+nf(s.wind_kn*1.852)+' km/h), Druck '+esc(s.druck)+' hPa<br>Zugrichtung '+(s.richtung!=null?RICHT[Math.round(s.richtung/22.5)%16]:"?")+' mit '+esc(s.tempo)+' kn<br><span style="color:#888">Stand '+dts(s.update)+' · NHC</span>').addTo(EB.stuerme)});
+
+/* ===== Ansichten ===== */
+const ANS={
+ energie:{t:"Energie",an:["kw_gas","kw_kohle","kw_atom","kw_wind","kw_sonne","kw_wasser","kw_speicher","kw_oel","kw_bio","raf","lng","spr","hub"],b:"Kraftwerke nach Energiequelle, Raffinerien, Flüssiggas-Terminals, Ölreserve und Preisknoten."},
+ wetter:{t:"Wetter und Hurrikane",an:["radar","sturm","ausblick","stuerme","warn"],b:"Live-Wetterradar, Zugbahnen und Vorhersagekegel der Stürme, Entwicklungsgebiete und aktive Warnungen."},
+ beides:{t:"Beides zusammen",an:["kw_gas","kw_kohle","kw_atom","kw_wind","kw_sonne","kw_wasser","kw_speicher","raf","lng","spr","hub","sturm","ausblick","stuerme","warn"],b:"Energieanlagen und Wetterlage gemeinsam: Zeigt, welche Raffinerien, Terminals und Kraftwerke im Weg von Stürmen liegen."}
+};
+const LABEL={raf:"Raffinerien",lng:"Flüssiggas-Exportterminals (LNG)",spr:"Strategische Ölreserve (4 Standorte)",hub:"Preisknoten (Cushing, Henry Hub)",radar:"Wetterradar (live)",sturm:"Stürme: Zugbahn, Kegel, Warngebiete (live)",ausblick:"Hurrikanzentrum: Entwicklungsgebiete (live)",stuerme:"Aktive Stürme (Position)",warn:"Warnungen: Hurrikan, Tropensturm, Sturmflut (live)"};
+let ansicht="energie";
+function ebenenSetzen(ids){Object.keys(EB).forEach(id=>{const an=ids.includes(id);if(an&&!map.hasLayer(EB[id]))EB[id].addTo(map);if(!an&&map.hasLayer(EB[id]))map.removeLayer(EB[id])});
+ document.querySelectorAll("#seite input[data-e]").forEach(c=>{c.checked=map.hasLayer(EB[c.dataset.e])});
+ if(EB.radar&&map.hasLayer(EB.radar))EB.radar.bringToFront()}
+function ansichtSetzen(a){ansicht=a;document.querySelectorAll("#ansichten button").forEach(b=>b.setAttribute("aria-pressed",b.dataset.a===a));
+ ebenenSetzen(ANS[a].an);const sp=document.getElementById("kopfbesch");if(sp)sp.textContent=ANS[a].b;
+ document.getElementById("seite").dataset.ansicht=a;seiteAnzeigen()}
+document.getElementById("ansichten").innerHTML=Object.keys(ANS).map(k=>'<button type="button" data-a="'+k+'" aria-pressed="false">'+ANS[k].t+'</button>').join("");
+document.querySelectorAll("#ansichten button").forEach(b=>b.addEventListener("click",()=>ansichtSetzen(b.dataset.a)));
+
+/* ===== Seitenleiste ===== */
+const GRUPPEN={kw:FUEL_ORDER.map(k=>"kw_"+k),oel:["raf","lng","spr","hub"],wetter:["radar","sturm","ausblick","stuerme","warn"]};
+const gk=(g,t)=>'<div class="gk"><b>'+t+'</b><span class="links"><button type="button" data-g="'+g+'" data-a="an">alle an</button><button type="button" data-g="'+g+'" data-a="aus">alle aus</button></span></div>';
+function seiteBauen(){
+ const S=document.getElementById("seite");
+ let h='<div class="box"><h3>Ebenen</h3><div id="kopfbesch" class="klein" style="margin:0 0 6px"></div>';
+ if(KW){h+=gk("kw","Kraftwerke ab "+nf(KW.ab_mw)+" MW ("+nf(KW.anzahl)+" Anlagen)")+'<div class="klein" style="margin:0 0 2px">Leistung in Gigawatt</div>';
+  h+=FUEL_ORDER.map(k=>'<label><input type="checkbox" data-e="kw_'+k+'"><i class="pt" style="background:'+FARBE[k]+'"></i>'+NAME[k]+'<span class="gw">'+nf((KW.mw_je_kat[k]||0)/1000)+' GW</span></label>').join("")}
+ h+=gk("oel","Öl und Gas");
+ h+='<label><input type="checkbox" data-e="raf"><i class="sq" style="background:#ff4d4d"></i>'+LABEL.raf+'<span class="gw">'+raf.length+'</span></label>';
+ h+='<label><input type="checkbox" data-e="lng"><i class="pt" style="background:#00d8ff;border:2px solid #fff"></i>'+LABEL.lng+'<span class="gw">'+LNG.length+'</span></label>';
+ h+='<label><input type="checkbox" data-e="spr"><i class="pt" style="background:#fff;border-radius:2px"></i>'+LABEL.spr+'</label>';
+ h+='<label><input type="checkbox" data-e="hub"><i class="sq" style="background:#ffd400"></i>'+LABEL.hub+'</label>';
+ h+=gk("wetter","Wetter (live)");
+ ["radar","sturm","ausblick","stuerme","warn"].forEach(k=>{h+='<label><input type="checkbox" data-e="'+k+'">'+LABEL[k]+'</label>'});
+ h+='<div class="klein">Kreisgröße der Kraftwerke zeigt die Leistung, Rauten der Raffinerien die Verarbeitungskapazität.</div></div>';
+ h+='<div class="box" id="boxsturm"><h3>Aktive Stürme</h3><div id="sturmliste"></div></div>';
+ h+='<div class="box" id="boxwarn"><h3>Warnungen (NWS, live)</h3><div id="warnliste" class="klein">wird geladen …</div></div>';
+ S.innerHTML=h;
+ S.querySelectorAll("button[data-g]").forEach(b=>b.addEventListener("click",()=>{const an=b.dataset.a==="an";GRUPPEN[b.dataset.g].forEach(id=>{const l=EB[id];if(!l)return;const c=S.querySelector('input[data-e="'+id+'"]');if(c)c.checked=an;an?(map.hasLayer(l)||l.addTo(map)):(map.hasLayer(l)&&map.removeLayer(l))});if(an&&map.hasLayer(EB.radar))EB.radar.bringToFront()}));
+ S.querySelectorAll("input[data-e]").forEach(c=>c.addEventListener("change",()=>{const l=EB[c.dataset.e];if(!l)return;c.checked?l.addTo(map):map.removeLayer(l);if(c.dataset.e==="radar"&&c.checked)l.bringToFront()}));
+}
+function seiteAnzeigen(){/* Kasten sichtbar je Ansicht */
+ const w=ansicht!=="energie";document.getElementById("boxsturm").style.display=w?"":"none";document.getElementById("boxwarn").style.display=w?"":"none"}
+function sturmListe(){
+ const L_=(UM.stuerme&&UM.stuerme.liste)||[],el=document.getElementById("sturmliste");
+ if(!UM.stuerme){el.innerHTML='<div class="klein">Sturmdaten nicht verfügbar.</div>';return}
+ if(!L_.length){el.innerHTML='<div class="klein">Zurzeit meldet das Hurrikanzentrum keine aktiven Stürme.</div>';return}
+ el.innerHTML=L_.map(s=>{const c=(s.klasse==="HU")?"#e02424":(s.klasse==="TS"||s.klasse==="STS")?"#f08a24":"#c8b400";
+  return '<div class="sturm" style="--c:'+c+'"><b>'+esc(STUFE[s.klasse]||s.klasse)+' '+esc(s.name)+'</b><span>Wind '+esc(s.wind_kn)+' kn ('+nf(s.wind_kn*1.852)+' km/h) · Druck '+esc(s.druck)+' hPa · Zug nach '+(s.richtung!=null?RICHT[Math.round(s.richtung/22.5)%16]:"?")+' mit '+esc(s.tempo)+' kn<br>Position '+nf(Math.abs(s.lat),1)+(s.lat>=0?"° N":"° S")+', '+nf(Math.abs(s.lon),1)+(s.lon>=0?"° O":"° W")+' · Stand '+dts(s.update)+'</span>'+(s.url?'<br><a href="'+esc(s.url)+'" target="_blank" rel="noopener">Bulletin des Hurrikanzentrums</a>':'')+'</div>'}).join("")+'<div class="klein">Die Liste stammt vom letzten automatischen Abruf'+(META.erstellt?' ('+esc(META.erstellt)+')':'')+'. Die Karte zeigt Zugbahnen und Kegel live.</div>'}
+const WARN_EVENTS="Hurricane Warning,Hurricane Watch,Tropical Storm Warning,Tropical Storm Watch,Storm Surge Warning,Storm Surge Watch,Extreme Wind Warning,Hurricane Local Statement";
+const WFARBE={"Hurricane Warning":"#e02424","Hurricane Watch":"#ff7a00","Tropical Storm Warning":"#f0a000","Tropical Storm Watch":"#ffd400","Storm Surge Warning":"#a020f0","Storm Surge Watch":"#d070ff","Extreme Wind Warning":"#ff00aa"};
+async function warnungenLaden(){
+ const el=document.getElementById("warnliste");
+ try{
+  const [a,c]=await Promise.all([fetch("https://api.weather.gov/alerts/active?event="+encodeURIComponent(WARN_EVENTS)).then(r=>r.json()),fetch("https://api.weather.gov/alerts/active/count").then(r=>r.json()).catch(()=>null)]);
+  EB.warn.clearLayers();const F=a.features||[];
+  F.forEach(f=>{if(f.geometry){L.geoJSON(f,{style:{color:WFARBE[f.properties.event]||"#f00",weight:1.5,fillOpacity:.25}}).bindPopup('<b>'+esc(f.properties.event)+'</b>'+esc(f.properties.areaDesc).slice(0,200)).addTo(EB.warn)}});
+  let h=F.length?F.slice(0,40).map(f=>{const p=f.properties;return '<div class="warn" style="--c:'+(WFARBE[p.event]||"#f00")+'"><b>'+esc(p.event)+'</b>'+esc(p.areaDesc).slice(0,140)+'<br><span>bis '+dts(p.expires)+'</span></div>'}).join(""):'<div class="klein">Zurzeit sind keine Hurrikan-, Tropensturm- oder Sturmflutwarnungen aktiv.</div>';
+  h+='<div class="klein">Abgerufen '+dts(new Date())+(c&&c.total!=null?' · alle aktiven Unwetterwarnungen der USA zusammen: '+nf(c.total):'')+'. Quelle: Wetterdienst NWS, Aktualisierung alle 5 Minuten.</div>';
+  el.innerHTML=h;
+ }catch(e){el.innerHTML='<div class="klein">Warnungen konnten nicht abgerufen werden (keine Verbindung zum Wetterdienst).</div>'}
+}
+function auffrischen(){if(EB.radar)EB.radar.setParams({_t:Date.now()});if(EB.sturm)EB.sturm.setParams({_t:Date.now()});if(EB.ausblick)EB.ausblick.setParams({_t:Date.now()});warnungenLaden()}
+seiteBauen();sturmListe();
+document.getElementById("stand").textContent=(KW?"Kraftwerke: EIA-860M "+KW.stand.replace("_generator"," ").replace(".xlsx","")+" · ":"")+(META.erstellt?"Datenabruf: "+META.erstellt:"");
+document.getElementById("fuss").innerHTML='<b>Quellen und Hinweise.</b> Kraftwerke: EIA, Form EIA-860M (Generatorliste, Leistung = Nettoleistung im Sommer, je Kraftwerk der überwiegende Energieträger, ab '+(KW?nf(KW.ab_mw):"100")+' MW). Raffinerien: EIA-Raffineriebericht (Form EIA-820) über den FEMA-Kartendienst, der Datenstand steht je Anlage im Popup, Stilllegungen der letzten Jahre sind nicht vollständig berücksichtigt. LNG-Terminals, Ölreserve und Preisknoten sind von Hand gepflegt, die Lage ist ungefähr. Wetterradar, Zugbahnen und Warnungen: NOAA/NWS, live beim Laden der Seite, Radar und Warnungen aktualisieren sich alle 5 Minuten. Kartengrundlage: Esri (Canvas), OpenStreetMap-Mitwirkende. Beschreibung, keine Bewertung.';
+{const h=location.hash;if(/vorschau/.test(h))document.body.classList.add("vorschau");
+ const m=h.match(/(energie|wetter|beides)/);ansichtSetzen(m?m[1]:"energie")}
+warnungenLaden();setInterval(auffrischen,300000);
+
+</script>
+</body>
+</html>

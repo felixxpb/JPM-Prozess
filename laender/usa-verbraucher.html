@@ -1,0 +1,464 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>JPM Prozess · Länderanalyse USA · Sentiment und Verbraucherverhalten</title>
+<style>
+:root{
+  --flaeche:#fcfcfb; --ebene:#f9f9f7; --text:#0b0b0b; --text2:#52514e; --stumm:#898781;
+  --raster:#e1e0d9; --achse:#c3c2b7; --rand:rgba(11,11,11,.10);
+  --c1:#2f6f9f; --c2:#6b4f8a; --c3:#3d7a56; --c4:#8a5a2b; --cb:#52514e;
+  --h1:#e6f0f7; --h2:#eee9f4; --h3:#e5f2ea; --h4:#f4ebe1; --hb:#efeee9;
+  --gut:#006300; --warn:#b97a00; --schatten:0 1px 2px rgba(11,11,11,.04),0 4px 16px rgba(11,11,11,.06);
+  color-scheme:light;
+}
+:root[data-theme="dark"]{
+  --flaeche:#1a1a19; --ebene:#0d0d0d; --text:#fff; --text2:#c3c2b7; --stumm:#898781;
+  --raster:#2c2c2a; --achse:#383835; --rand:rgba(255,255,255,.12);
+  --c1:#5fa0d3; --c2:#ab8fd0; --c3:#56b27d; --c4:#d39a5a; --cb:#c3c2b7;
+  --h1:#16222c; --h2:#221b2c; --h3:#16261d; --h4:#2a2016; --hb:#232321;
+  --gut:#0ca30c; --warn:#fab219; --schatten:none; color-scheme:dark;
+}
+*{box-sizing:border-box}
+body{margin:0;padding:0 20px 56px;background:var(--ebene);color:var(--text);font-family:system-ui,-apple-system,"Segoe UI",sans-serif;font-size:15px;line-height:1.5}
+.wrap{max-width:1280px;margin:0 auto}
+header{padding:20px 0 6px;display:flex;gap:16px;justify-content:space-between;align-items:flex-start;flex-wrap:wrap}
+h1{margin:0;font-size:21px;font-weight:650}
+.unter{color:var(--text2);font-size:13px}
+.entwurf{display:inline-block;margin-left:8px;padding:1px 8px;border-radius:99px;border:1px solid var(--warn);color:var(--warn);font-size:12px;font-weight:600;vertical-align:middle}
+.tool{font:inherit;font-size:13px;background:var(--flaeche);color:var(--text);border:1px solid var(--rand);border-radius:8px;padding:6px 12px;cursor:pointer}
+.legende{display:flex;gap:16px;flex-wrap:wrap;font-size:12px;color:var(--text2);margin:6px 0 12px}
+.pkt{width:8px;height:8px;border-radius:50%;display:inline-block;margin-right:5px}.pkt.auto{background:var(--gut)}.pkt.man{background:var(--stumm)}
+/* Kachel */
+.k{all:unset;box-sizing:border-box;display:block;width:100%;cursor:pointer;background:var(--flaeche);border:1px solid var(--rand);border-radius:9px;padding:9px 11px 8px;box-shadow:var(--schatten);transition:transform .15s,border-color .15s}
+.k:hover{transform:translateY(-1px);border-color:var(--c)}.k:focus-visible{outline:2px solid var(--c);outline-offset:2px}
+.k.aktiv{border-color:var(--c);box-shadow:0 0 0 2px var(--c)}
+.kt{display:flex;justify-content:space-between;align-items:baseline;gap:6px}
+.kn{font-size:12.5px;color:var(--text2);font-weight:600}
+.kd{font-size:11px;color:var(--stumm);white-space:nowrap}
+.kw{font-size:23px;font-weight:700;line-height:1.15;font-variant-numeric:tabular-nums;margin-top:1px}
+.ks{font-size:11.8px;color:var(--text2);display:flex;justify-content:space-between;gap:6px;align-items:center;margin-top:1px}
+.dl{white-space:nowrap}
+.spark{display:block;width:100%;height:30px;margin-top:3px}
+.c1{--c:var(--c1)}.c2{--c:var(--c2)}.c3{--c:var(--c3)}.c4{--c:var(--c4)}.cb{--c:var(--cb)}
+/* Layout */
+.band{background:var(--hb);border:1px solid var(--rand);border-radius:12px;padding:8px 10px 10px;margin-bottom:14px}
+.bandkopf{font-size:12px;font-weight:700;color:var(--text2);text-transform:uppercase;letter-spacing:.05em;margin:2px 2px 6px}
+.bandinhalt{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}
+.raster{display:grid;grid-template-columns:1fr 54px 1fr 54px 1fr 54px 1fr;align-items:stretch}
+.sp{padding:8px;border-radius:12px;display:flex;flex-direction:column;gap:9px}
+.sp.s1{background:var(--h1)}.sp.s2{background:var(--h2)}.sp.s3{background:var(--h3)}.sp.s4{background:var(--h4)}
+.spkopf{color:#fff;font-weight:700;text-align:center;padding:9px 6px;border-radius:9px;font-size:13px;background:var(--c)}
+.pill{all:unset;cursor:pointer;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;font-size:10.5px;text-align:center;color:var(--text2);padding:4px 2px}
+.pill .pf{font-size:20px;color:var(--text);line-height:1}.pill:hover,.pill.aktiv{color:var(--text)}.pill:focus-visible{outline:2px solid var(--text);border-radius:6px}
+.termine{margin-top:16px;background:var(--flaeche);border:1px solid var(--rand);border-radius:10px;padding:10px 14px;box-shadow:var(--schatten)}
+.termine h2{margin:0 0 4px;font-size:13px;color:var(--text2);text-transform:uppercase;letter-spacing:.05em}
+.termin{display:flex;gap:10px;align-items:baseline;padding:5px 0;border-top:1px solid var(--raster);font-size:13px}
+.termin:first-of-type{border-top:0}.termin .d{width:96px;font-weight:600}.termin .t{flex:1}.termin .r{color:var(--text2);white-space:nowrap}.termin.n .r{color:var(--warn);font-weight:700}
+.fuss{margin-top:6px;font-size:11.5px;color:var(--stumm)}
+/* Drawer */
+#schatten{position:fixed;inset:0;background:rgba(0,0,0,.28);opacity:0;pointer-events:none;transition:opacity .2s;z-index:20}
+#schatten.offen{opacity:1;pointer-events:auto}
+#drawer{position:fixed;top:0;right:0;height:100%;width:min(560px,100%);background:var(--flaeche);border-left:1px solid var(--rand);box-shadow:-8px 0 30px rgba(0,0,0,.18);transform:translateX(100%);transition:transform .22s ease;z-index:21;overflow-y:auto;padding:0}
+#drawer.offen{transform:none}
+.dk{position:sticky;top:0;background:var(--flaeche);border-bottom:1px solid var(--rand);border-top:4px solid var(--c);padding:14px 18px 10px;display:flex;justify-content:space-between;gap:10px;align-items:flex-start;z-index:2}
+.dk h2{margin:0;font-size:18px}.dk .gr{font-size:12px;color:var(--c);text-transform:uppercase;letter-spacing:.05em;font-weight:700}
+.zu{all:unset;cursor:pointer;font-size:22px;line-height:1;padding:2px 8px;border-radius:6px;color:var(--text2)}.zu:hover{background:var(--raster)}.zu:focus-visible{outline:2px solid var(--text)}
+.db{padding:14px 18px 40px}
+.gross{font-size:34px;font-weight:700;font-variant-numeric:tabular-nums;line-height:1.1}
+.gsub{font-size:13px;color:var(--text2);margin-bottom:8px}
+.btns{display:flex;gap:6px;margin:6px 0 4px}
+.btn{font:inherit;font-size:12px;background:var(--ebene);color:var(--text);border:1px solid var(--rand);border-radius:7px;padding:3px 10px;cursor:pointer}
+.btn[aria-pressed="true"]{background:var(--text);color:var(--flaeche);border-color:var(--text)}
+svg.chart{width:100%;height:auto;display:block;touch-action:none}
+.tip{font-size:12.5px;color:var(--text2);min-height:18px;margin-bottom:4px;font-variant-numeric:tabular-nums}
+.db h3{font-size:12px;text-transform:uppercase;letter-spacing:.05em;color:var(--text2);margin:18px 0 4px}
+.db p{margin:0 0 8px;font-size:14px}
+.db table{width:100%;border-collapse:collapse;font-size:13px}
+.db th{font-weight:600;text-align:left;color:var(--text2);font-size:11.5px;border-bottom:1px solid var(--rand);padding:3px 8px 3px 0}
+.db td{padding:5px 8px 5px 0;border-bottom:1px solid var(--raster);vertical-align:top}
+.db .hin{background:var(--ebene);border-left:3px solid var(--warn);border-radius:4px;padding:6px 10px;font-size:13px;color:var(--text2)}
+.db ul{margin:4px 0 0;padding-left:18px;font-size:13.5px}
+.db a{color:inherit}
+@media (max-width:980px){
+  .raster{grid-template-columns:1fr}.pill{display:none}.sp{margin-bottom:12px}.bandinhalt{grid-template-columns:1fr}
+}
+@media (prefers-reduced-motion:reduce){#drawer,#schatten,.k{transition:none}}
+/* Verständnis-Block */
+.versteh{background:var(--flaeche);border:1px solid var(--rand);border-radius:12px;padding:6px 18px 14px;box-shadow:var(--schatten);margin-bottom:14px}
+.versteh>h2{margin:12px 0 2px;font-size:17px}
+.versteh .lead{margin:0 0 8px;color:var(--text2);font-size:13.5px}
+.versteh details{border-top:1px solid var(--raster);padding:6px 0}
+.versteh details:first-of-type{border-top:0}
+.versteh summary{cursor:pointer;font-weight:650;font-size:14.5px;padding:4px 0;list-style:none}
+.versteh summary::-webkit-details-marker{display:none}
+.versteh summary:before{content:"▸";display:inline-block;width:18px;color:var(--text2);transition:transform .15s}
+.versteh details[open]>summary:before{transform:rotate(90deg)}
+.versteh summary:focus-visible{outline:2px solid var(--text);outline-offset:2px;border-radius:4px}
+.versteh .inh{padding:2px 0 6px 18px;font-size:14px}
+.versteh ol.kern{margin:4px 0 4px;padding-left:20px}.versteh ol.kern li{margin:3px 0}
+.fluss{display:grid;grid-template-columns:1fr 78px 1fr 78px 1fr;grid-template-rows:auto 56px auto 56px auto;align-items:center;gap:0;margin:8px 0 4px}
+.nk{all:unset;box-sizing:border-box;display:block;width:100%;cursor:pointer;background:var(--ebene);border:1px solid var(--rand);border-top:3px solid var(--c);border-radius:9px;padding:8px 10px;text-align:center;transition:transform .15s,border-color .15s}
+.nk:hover{transform:translateY(-1px);border-color:var(--c)}.nk:focus-visible{outline:2px solid var(--c);outline-offset:2px}
+.nk b{display:block;font-size:13.5px}.nk span{display:block;font-size:11.5px;color:var(--text2);margin-top:1px}
+.pf2{font-size:11px;color:var(--text2);text-align:center;line-height:1.25;padding:0 3px}
+.pf2 i{display:block;font-style:normal;font-size:18px;color:var(--text);line-height:1}
+.nk.n1{--c:var(--c1)}.nk.n2{--c:var(--c3)}.nk.n3{--c:var(--c4)}.nk.n4{--c:var(--c2)}.nk.n5{--c:var(--c2)}.nk.n6{--c:var(--c1)}.nk.n7{--c:var(--cb)}
+.bed{display:grid;grid-template-columns:repeat(2,1fr);gap:10px;margin-top:4px}
+.bed div{background:var(--ebene);border:1px solid var(--rand);border-radius:9px;padding:8px 11px;font-size:13.5px}
+.bed b{display:block;font-size:13px;margin-bottom:2px}
+.chip{display:inline-block;font-size:11.5px;border:1px solid var(--rand);border-radius:99px;padding:0 9px;margin:2px 3px 0 0;background:var(--ebene);cursor:pointer;color:var(--text)}
+.chip:hover{border-color:var(--text)}
+@media (max-width:980px){.fluss{grid-template-columns:1fr;grid-template-rows:none;gap:8px}.pf2{display:none}.bed{grid-template-columns:1fr}}
+
+.struktur{background:var(--flaeche);border:1px solid var(--rand);border-radius:12px;padding:10px 14px 14px;box-shadow:var(--schatten);margin-bottom:14px}
+.skraster{display:grid;grid-template-columns:minmax(240px,320px) 1fr;gap:18px;align-items:center}
+#kuchen{width:100%;max-width:1000px;height:auto;display:block;margin:0 auto}
+.kmitte{margin:4px 0 0}
+.leg{display:none}
+#kuchen text{font-size:14px;fill:var(--text);cursor:pointer}
+#kuchen text b,#kuchen .pz{font-weight:700;font-variant-numeric:tabular-nums}
+#kuchen text:hover{text-decoration:underline}
+#kuchen .fl{stroke:var(--achse);stroke-width:1;fill:none}
+#kuchen .gk2{font-size:12px;fill:var(--text2);cursor:default;text-transform:uppercase;letter-spacing:.05em;font-weight:700}
+#kuchen path{cursor:pointer;stroke:var(--flaeche);stroke-width:1.5;transition:opacity .15s}
+#kuchen path:hover,#kuchen path:focus{opacity:.8;outline:none}
+.leg{display:none;grid-template-columns:repeat(2,1fr);gap:3px 14px}
+.leg button{all:unset;cursor:pointer;display:flex;align-items:center;gap:8px;font-size:13px;padding:3px 6px;border-radius:6px}
+.leg button:hover,.leg button:focus-visible{background:var(--ebene);outline:none}
+.leg i{width:11px;height:11px;border-radius:3px;flex:none}
+.leg b{margin-left:auto;font-variant-numeric:tabular-nums}
+.leg .gk{grid-column:1/-1;font-size:11.5px;font-weight:700;text-transform:uppercase;letter-spacing:.05em;color:var(--text2);margin-top:6px}
+.balken{display:flex;height:44px;border-radius:9px;overflow:hidden;margin-top:6px;border:1px solid var(--rand)}
+.balken button{all:unset;cursor:pointer;display:flex;align-items:center;justify-content:center;text-align:center;font-size:13px;font-weight:700;color:#fff;overflow:hidden;white-space:nowrap}
+.balken button:hover,.balken button:focus-visible{filter:brightness(1.12);outline:none}
+.bhin{font-size:11.5px;color:var(--stumm);margin-top:6px}
+.bandinhalt{grid-template-columns:repeat(4,1fr)!important}
+@media (max-width:980px){.bandinhalt{grid-template-columns:1fr!important}}
+@media (max-width:760px){#kuchen .lbl{display:none}#kuchen{max-width:360px}.leg{display:grid;grid-template-columns:1fr;margin-top:8px}}
+
+.kreislauf svg{width:100%;height:auto;display:block}
+.kreislauf .nd{cursor:pointer}
+.kreislauf .nd rect{fill:var(--ebene);stroke:var(--c);stroke-width:2;transition:fill .15s}
+.kreislauf .nd:hover rect,.kreislauf .nd:focus rect{fill:var(--flaeche)}
+.kreislauf .nd:focus{outline:none}.kreislauf .nd:focus rect{stroke-width:3.5}
+.kreislauf .nd text{pointer-events:none}
+.kreislauf .nt{font-size:15px;font-weight:700;fill:var(--text)}
+.kreislauf .ns{font-size:11.5px;fill:var(--text2)}
+.kreislauf .mk rect{fill:var(--h2);stroke-dasharray:none}
+.kreislauf .fr{stroke:var(--c1);stroke-width:2.4;fill:none}
+.kreislauf .fg{stroke:var(--c4);stroke-width:2.2;fill:none;stroke-dasharray:6 4}
+.kreislauf .fz{stroke:var(--text2);stroke-width:1.8;fill:none}
+.kreislauf .fl2{font-size:11.5px;fill:var(--text2)}
+.kreislauf .mitte{font-size:13px;font-weight:700;fill:var(--text2);text-anchor:middle}
+.kreislauf .mitte2{font-size:11.5px;fill:var(--stumm);text-anchor:middle}
+.kl-liste{display:none}
+@media (max-width:760px){.kreislauf .nd text.ns,.kreislauf .fl2{display:none}.kl-liste{display:flex;flex-wrap:wrap;gap:6px;margin-top:8px}}
+/* Inflation: eigene Ergänzungen */
+.bandinhalt{grid-template-columns:repeat(3,1fr)!important}
+.bandinhalt.v4{grid-template-columns:repeat(4,1fr)!important}
+@media (max-width:980px){.bandinhalt,.bandinhalt.v4{grid-template-columns:1fr!important}}
+.kuchenkopf{display:flex;justify-content:space-between;gap:10px;align-items:baseline;flex-wrap:wrap}
+.kuchenkopf h3{margin:0;font-size:16px}
+.kuchenkopf span{font-size:12px;color:var(--text2)}
+.pie{width:100%;max-width:1100px;height:auto;display:block;margin:0 auto}
+.pie path{cursor:pointer;stroke:var(--flaeche);stroke-width:.8;transition:opacity .15s}
+.pie path:hover,.pie path:focus{opacity:.75;outline:none}
+.pie text{font-size:13px;fill:var(--text);cursor:pointer}
+.pie text:hover{text-decoration:underline}
+.pie .pz{font-weight:700;font-variant-numeric:tabular-nums}
+.pie .fl{stroke:var(--achse);stroke-width:1;fill:none}
+.pie .mt{font-size:12px;fill:var(--text2);text-anchor:middle;cursor:default;font-weight:700}
+.pie .mt2{font-size:11px;fill:var(--stumm);text-anchor:middle;cursor:default}
+.balken2{display:flex;height:40px;border-radius:9px;overflow:hidden;margin-top:6px;border:1px solid var(--rand)}
+.balken2 button{all:unset;cursor:pointer;display:flex;align-items:center;justify-content:center;text-align:center;font-size:12px;font-weight:700;color:#fff;overflow:hidden;white-space:nowrap;padding:0 3px}
+.balken2 button:hover,.balken2 button:focus-visible{filter:brightness(1.12);outline:none}
+.liste summary{cursor:pointer;font-size:13px;font-weight:650;padding:6px 0}
+.liste input{font:inherit;font-size:13px;padding:5px 9px;border:1px solid var(--rand);border-radius:7px;background:var(--ebene);color:var(--text);width:min(360px,100%);margin:4px 0 8px}
+.liste .tab{max-height:420px;overflow:auto;border:1px solid var(--rand);border-radius:8px}
+.liste table{width:100%;border-collapse:collapse;font-size:12.5px}
+.liste th{position:sticky;top:0;background:var(--flaeche);text-align:left;font-size:11.5px;color:var(--text2);padding:5px 8px;border-bottom:1px solid var(--rand)}
+.liste td{padding:3px 8px;border-bottom:1px solid var(--raster)}
+.liste tr[data-id]{cursor:pointer}.liste tr[data-id]:hover{background:var(--ebene)}
+.liste td.zahl,.db td.zahl{text-align:right;font-variant-numeric:tabular-nums;white-space:nowrap}
+.sw{display:inline-block;width:10px;height:10px;border-radius:3px;margin-right:6px;vertical-align:baseline}
+.vgl{width:100%;border-collapse:collapse;font-size:13px;margin:4px 0}
+.vgl th{text-align:left;font-size:11.5px;color:var(--text2);border-bottom:1px solid var(--rand);padding:4px 8px 4px 0}
+.vgl td{padding:6px 8px 6px 0;border-bottom:1px solid var(--raster);vertical-align:top}
+.vgl td:first-child{font-weight:650;white-space:nowrap}
+.db .pfad{font-size:12.5px;color:var(--text2);margin:2px 0 6px}
+.gwb{height:12px;background:var(--raster);border-radius:6px;overflow:hidden;margin:4px 0 2px}.gwb i{display:block;height:100%}
+@media (max-width:760px){.pie .lbl{display:none}}
+
+.bandinhalt{grid-template-columns:repeat(3,1fr)!important}
+@media (max-width:980px){.bandinhalt{grid-template-columns:1fr!important}}
+.vtab{width:100%;border-collapse:collapse;font-size:13px;margin-top:6px}
+.vtab th,.vtab td{padding:5px 8px;border-bottom:1px solid var(--rand);text-align:left}
+.vtab .zahl{text-align:right;font-variant-numeric:tabular-nums;white-space:nowrap}
+</style>
+</head>
+<body>
+<div class="wrap">
+<header>
+  <div>
+    <a href="usa.html" style="font-size:13px;color:var(--text2)">← USA, alle Oberthemen</a>
+    <h1>USA – Sentiment und Verbraucherverhalten <span class="entwurf">Vorschau, nicht freigegeben</span></h1>
+    <div class="unter">Länderanalyse, Oberthema 8 · Daten und Fakten, keine Bewertung · Struktur: Entwurf 2026-10-22 (Review: April 2027) · Kennzahlen aktualisieren sich automatisch, das Datum steht in jeder Kachel</div>
+  </div>
+  <button class="tool" id="theme" type="button">Dunkel / Hell</button>
+</header>
+<div class="legende">
+  <span><i class="pkt auto"></i>automatisch (FRED, zweimal täglich)</span>
+  <span>Kuchenstücke, Balken und Kacheln anklicken: Einordnung, Verlauf, Quelle</span>
+</div>
+
+<section class="versteh" aria-labelledby="vt">
+  <h2 id="vt">Zuerst verstehen: Wie Haushalte Einkommen, Stimmung, Konsum und Schulden verbinden</h2>
+  <p class="lead">Der private Konsum ist der größte Teil der US-Wirtschaft. Haushalte bekommen Einkommen, geben einen Teil aus, sparen den Rest oder leihen sich Geld. Die Stimmung beschreibt, wie sie ihre Lage und die nächsten Monate einschätzen. Die Zahlen stammen vom Bureau of Economic Analysis (BEA), von der Federal Reserve, vom Census Bureau und von der Universität Michigan.</p>
+
+  <details open>
+    <summary>Die Grundidee in sechs Punkten</summary>
+    <div class="inh"><ol class="kern" id="grundidee"></ol></div>
+  </details>
+
+  <details open>
+    <summary>Der Kreislauf eines Haushalts: Einkommen, Konsum, Sparen, Schulden</summary>
+    <div class="inh">
+      <table class="vgl">
+        <tr><th>Baustein</th><th>Was er beschreibt</th><th>Kennzahlen auf dieser Seite</th></tr>
+        <tr><td>Einkommen und Vermögen</td><td>Was Haushalte einnehmen (nach Steuern) und besitzen (Immobilien, Aktien, Ersparnisse abzüglich Schulden).</td><td>Verfügbares Einkommen, Nettovermögen</td></tr>
+        <tr><td>Konsum</td><td>Was sie davon ausgeben: Waren und Dienstleistungen.</td><td>Konsumausgaben (PCE), Einzelhandel, Konsumkuchen</td></tr>
+        <tr><td>Sparen und Schulden</td><td>Was nicht ausgegeben wird, und was zusätzlich geliehen oder zurückgezahlt wird.</td><td>Sparquote, Konsumkredite, Ausfallrate, Schuldendienst</td></tr>
+        <tr><td>Stimmung</td><td>Wie Haushalte ihre Lage einschätzen und welche Preisentwicklung sie erwarten.</td><td>Verbrauchervertrauen Uni Michigan, Inflationserwartung</td></tr>
+      </table>
+      <p style="font-size:12.5px;color:var(--text2);margin:6px 0 0">Quellen: BEA (Personal Income and Outlays), Federal Reserve (G.19, Z.1, Haushaltsschulden), Census Bureau (Einzelhandel), Universität Michigan (Umfrage).</p>
+    </div>
+  </details>
+
+  <details open>
+    <summary>Was das strukturell bedeutet</summary>
+    <div class="inh"><div class="bed" id="strukt"></div>
+    <p style="font-size:12.5px;color:var(--text2);margin:8px 0 0">Die Wirkung auf Märkte und Währungen wird hier bewusst nicht beschrieben. Sie folgt später in der Ableitung.</p></div>
+  </details>
+</section>
+
+<h2 style="font-size:15px;margin:18px 0 6px">Wofür Haushalte ihr Geld ausgeben: der Konsumkuchen</h2>
+<div class="struktur" id="kon-box">
+  <div class="kuchenkopf"><h3>Konsumausgaben nach Verwendungszweck, <span id="kon-meta"></span></h3><span>Anteil an den gesamten Konsumausgaben (PCE) in %, Klick für Verlauf und Bestandteile</span></div>
+  <svg class="pie" id="kon-pie" viewBox="0 0 1100 620" role="img" aria-label="Kuchendiagramm der Konsumausgaben nach Verwendungszweck"></svg>
+  <div class="bandkopf" style="margin-top:12px">Zusammengefasst: langlebige Güter, kurzlebige Güter, Dienstleistungen (monatlich)</div>
+  <div class="balken2" id="kon-bal" role="group" aria-label="Drei Konsumarten"></div>
+  <div class="bhin" id="kon-hin"></div>
+</div>
+
+<h2 style="font-size:15px;margin:18px 0 6px">Die Daten dazu</h2>
+<div class="band"><div class="bandkopf">Stimmung</div><div class="bandinhalt" id="b1"></div></div>
+<div class="band"><div class="bandkopf">Konsum</div><div class="bandinhalt" id="b2"></div></div>
+<div class="band"><div class="bandkopf">Sparen und Schulden</div><div class="bandinhalt" id="b3"></div></div>
+<div class="band"><div class="bandkopf">Einkommen und Vermögen</div><div class="bandinhalt" id="b4"></div></div>
+</div>
+<div id="schatten"></div>
+<aside id="drawer" role="dialog" aria-modal="true" aria-labelledby="dt" tabindex="-1"></aside>
+
+<script src="daten/usa.js?v=1"></script>
+<script>
+try{const g=localStorage.getItem("dashboard-thema");document.documentElement.dataset.theme=g||"dark"}catch(e){document.documentElement.dataset.theme="dark"}
+document.getElementById("theme").addEventListener("click",()=>{const d=document.documentElement;d.dataset.theme=d.dataset.theme==="dark"?"light":"dark";try{localStorage.setItem("dashboard-thema",d.dataset.theme)}catch(e){}});
+const DATA=(window.USA_DATEN&&window.USA_DATEN.fred)||{};
+/* ================== KACHELN ================== */
+const SP=[{id:1,titel:"STIMMUNG"},{id:2,titel:"KONSUM"},{id:3,titel:"SPAREN UND SCHULDEN"},{id:4,titel:"EINKOMMEN UND VERMÖGEN"}];
+const P1={div:1,dec:1,suf:" %"}, MRD={div:1,dec:0,suf:" Mrd. USD"}, BIO={div:1e6,dec:2,suf:" Bio. USD"};
+const K=[
+ {id:"umc",sp:1,b:"b1",titel:"Verbrauchervertrauen (Uni Michigan)",s:"UMCSENT",f:{div:1,dec:1,suf:""},rhythm:"m",was:"Index der Universität Michigan aus einer monatlichen Haushaltsumfrage (Basis 1966 = 100). Gefragt wird nach der eigenen finanziellen Lage, den Erwartungen für die Wirtschaft und der Kaufbereitschaft für langlebige Güter. Ein höherer Wert bedeutet bessere Stimmung.",hin:"Es ist eine Stimmungsumfrage, keine Messung von Ausgaben. Der Wert wird nach einer vorläufigen Veröffentlichung Mitte des Monats zum Monatsende endgültig.",q:"FRED UMCSENT (Universität Michigan)"},
+ {id:"mich",sp:1,b:"b1",titel:"Inflationserwartung der Haushalte, 1 Jahr",s:"MICH",f:P1,rhythm:"m",was:"Mittlere Erwartung der befragten Haushalte, wie stark die Preise in den nächsten zwölf Monaten steigen (Universität Michigan). Dieselbe Kennzahl steht in Oberthema 6 bei den Erwartungen.",hin:"Es sind Umfragewerte von Haushalten, keine Marktpreise. Sie weichen oft von der gemessenen Inflation ab.",q:"FRED MICH (Universität Michigan)"},
+
+ {id:"pce96",sp:2,b:"b2",titel:"Reale Konsumausgaben, zum Vorjahr",s:"PCEC96_YOY",f:P1,rhythm:"m",was:"Veränderung der inflationsbereinigten Konsumausgaben der Haushalte (PCE) gegenüber dem Vorjahresmonat (BEA).",hin:"Die Werte werden mit späteren Veröffentlichungen revidiert.",q:"FRED PCEC96 (BEA), Veränderung zum Vorjahr"},
+ {id:"pce",sp:2,b:"b2",titel:"Konsumausgaben insgesamt (PCE), Jahresrate",s:"PCEC",f:{div:1000,dec:2,suf:" Bio. USD"},rhythm:"q",was:"Gesamte Konsumausgaben der Haushalte in laufenden Preisen, hochgerechnet auf ein Jahr (BEA, vierteljährlich). Sie sind die Summe aller Stücke im Kuchen oben.",hin:"",q:"FRED PCEC (BEA)"},
+ {id:"rs",sp:2,b:"b2",titel:"Einzelhandelsumsatz (Monat)",s:"RSAFS",f:{div:1000,dec:0,suf:" Mrd. USD"},rhythm:"m",was:"Umsatz des Einzelhandels und der Gastronomie in einem Monat (Census Bureau, saisonbereinigt). Er erscheint früher als die Konsumausgaben des BEA.",hin:"Der Umsatz ist nicht inflationsbereinigt und enthält Preiseffekte.",q:"FRED RSAFS (Census Bureau)"},
+ {id:"rsy",sp:2,b:"b2",titel:"Einzelhandelsumsatz, zum Vorjahr",s:"RSAFS_YOY",f:P1,rhythm:"m",was:"Veränderung des Einzelhandelsumsatzes gegenüber dem Vorjahresmonat (Census Bureau).",hin:"Nicht inflationsbereinigt.",q:"FRED RSAFS (Census Bureau), Veränderung zum Vorjahr"},
+ {id:"pcedg",sp:2,b:"b2",titel:"Ausgaben für langlebige Güter",s:"PCEDG",f:MRD,rhythm:"m",was:"Konsumausgaben für langlebige Güter wie Autos, Möbel und Geräte, Jahresrate (BEA).",hin:"",q:"FRED PCEDG (BEA)"},
+ {id:"pcend",sp:2,b:"b2",titel:"Ausgaben für kurzlebige Güter",s:"PCEND",f:MRD,rhythm:"m",was:"Konsumausgaben für nicht langlebige Güter wie Nahrung, Kleidung und Benzin, Jahresrate (BEA).",hin:"",q:"FRED PCEND (BEA)"},
+ {id:"pces",sp:2,b:"b2",titel:"Ausgaben für Dienstleistungen",s:"PCES",f:MRD,rhythm:"m",was:"Konsumausgaben für Dienstleistungen wie Wohnen, Gesundheit, Reisen und Gastronomie, Jahresrate (BEA).",hin:"",q:"FRED PCES (BEA)"},
+
+ {id:"spar",sp:3,b:"b3",titel:"Sparquote",s:"PSAVERT",f:P1,rhythm:"m",was:"Anteil des verfügbaren Einkommens, der nicht ausgegeben wird (BEA). Verfügbar ist das Einkommen nach Steuern.",hin:"Die Werte werden häufig revidiert.",q:"FRED PSAVERT (BEA)"},
+ {id:"kred",sp:3,b:"b3",titel:"Konsumkredite insgesamt",s:"TOTALSL",f:BIO,rhythm:"m",was:"Offener Betrag aller Konsumkredite (Kreditkarten, Autokredite, Studienkredite, andere) ohne Immobilienkredite (Federal Reserve, G.19).",hin:"",q:"FRED TOTALSL (Federal Reserve)"},
+ {id:"kredy",sp:3,b:"b3",titel:"Konsumkredite, zum Vorjahr",s:"TOTALSL_YOY",f:P1,rhythm:"m",was:"Veränderung des Betrags der Konsumkredite gegenüber dem Vorjahresmonat (Federal Reserve, G.19).",hin:"",q:"FRED TOTALSL (Federal Reserve), Veränderung zum Vorjahr"},
+ {id:"rev",sp:3,b:"b3",titel:"Revolvierende Kredite (vor allem Kreditkarten)",s:"REVOLSL",f:BIO,rhythm:"m",was:"Offener Betrag der revolvierenden Konsumkredite, vor allem Kreditkartenschulden (Federal Reserve, G.19).",hin:"",q:"FRED REVOLSL (Federal Reserve)"},
+ {id:"ausf",sp:3,b:"b3",titel:"Ausfallrate Kreditkarten (Banken)",s:"DRCCLACBS",f:{div:1,dec:2,suf:" %"},rhythm:"q",was:"Anteil der Kreditkartenkredite bei Geschäftsbanken, die überfällig sind (Federal Reserve, vierteljährlich, saisonbereinigt).",hin:"",q:"FRED DRCCLACBS (Federal Reserve)"},
+ {id:"tdsp",sp:3,b:"b3",titel:"Schuldendienst der Haushalte",s:"TDSP",f:{div:1,dec:1,suf:" %"},rhythm:"q",was:"Zahlungen für Zinsen und Tilgung aller Haushaltsschulden in Prozent des verfügbaren Einkommens (Federal Reserve, vierteljährlich).",hin:"",q:"FRED TDSP (Federal Reserve)"},
+
+ {id:"dpi",sp:4,b:"b4",titel:"Reales verfügbares Einkommen",s:"DSPIC96",f:{div:1000,dec:2,suf:" Bio. USD"},rhythm:"m",was:"Einkommen der Haushalte nach Steuern, inflationsbereinigt, Jahresrate in Preisen von 2017 (BEA).",hin:"",q:"FRED DSPIC96 (BEA)"},
+ {id:"dpiy",sp:4,b:"b4",titel:"Reales verfügbares Einkommen, zum Vorjahr",s:"DSPIC96_YOY",f:P1,rhythm:"m",was:"Veränderung des realen verfügbaren Einkommens gegenüber dem Vorjahresmonat (BEA).",hin:"",q:"FRED DSPIC96 (BEA), Veränderung zum Vorjahr"},
+ {id:"nw",sp:4,b:"b4",titel:"Nettovermögen der Haushalte",s:"TNWBSHNO",f:{div:1e6,dec:1,suf:" Bio. USD"},rhythm:"q",was:"Vermögen der Haushalte (Immobilien, Aktien, Einlagen, Rentenansprüche) abzüglich ihrer Schulden, Stand am Quartalsende (Federal Reserve, Z.1). Enthalten sind auch gemeinnützige Organisationen.",hin:"Der Wert hängt stark von Aktien- und Immobilienpreisen ab.",q:"FRED TNWBSHNO (Federal Reserve)"}
+];
+const byId={};K.forEach(k=>byId[k.id]=k);
+const $=s=>document.querySelector(s), heute=new Date(); heute.setHours(0,0,0,0);
+const esc=s=>String(s).replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+const nf=(v,d)=>new Intl.NumberFormat("de-DE",{minimumFractionDigits:d,maximumFractionDigits:d}).format(v);
+const dts=d=>{const[y,m,t]=d.split("-");return t+"."+m+"."+y};
+const tageBis=d=>Math.round((new Date(d+"T00:00:00")-heute)/86400000);
+const farbe=sp=>sp===0?"cb":"c"+sp;
+function fmtv(k,v){const f=k.f;return nf(v/f.div,f.dec)+f.suf}
+function letzte(k){const p=DATA[k.s];return p[p.length-1]}
+function veraenderung(k){const p=DATA[k.s];const l=p[p.length-1];
+  let ref;
+  if(k.rhythm==="q"||k.rhythm==="m"){ref=p[p.length-2]}
+  else{const lim=new Date(l[0]);lim.setDate(lim.getDate()-30);ref=[...p].reverse().find(x=>new Date(x[0])<=lim)}
+  if(!ref)return null;const dv=l[1]-ref[1];const txt=(dv>0?"▲ ":dv<0?"▼ ":"= ")+nf(Math.abs(dv)/k.f.div,k.f.dec)+(k.f.suf.includes("%")?" Pkt":k.f.suf);
+  return {txt,ref:ref[0],q:k.rhythm==="q",m:k.rhythm==="m"}}
+function spark(p,col){const n=p.slice(-Math.min(p.length,k_n(p)));const w=200,h=30;const xs=n.map(x=>x[1]);const mn=Math.min(...xs),mx=Math.max(...xs),sp=(mx-mn)||1;
+  const pts=n.map((x,i)=>(i/(n.length-1)*w).toFixed(1)+","+(h-2-(x[1]-mn)/sp*(h-4)).toFixed(1)).join(" ");
+  return '<svg class="spark" viewBox="0 0 '+w+' '+h+'" preserveAspectRatio="none" aria-hidden="true"><polyline fill="none" stroke="'+col+'" stroke-width="1.6" vector-effect="non-scaling-stroke" points="'+pts+'"/></svg>'}
+function k_n(p){return p.length>300?130:p.length>100?100:p.length>40?24:p.length}
+let tiles={}, aktiv=null, letzterFokus=null;
+function kachel(k){
+  const b=document.createElement("button");b.type="button";b.className="k "+farbe(k.sp);b.dataset.id=k.id;
+  let h='<div class="kt"><span class="kn">'+esc(k.titel)+'</span>';
+  if(k.s){const l=letzte(k);h+='<span class="kd">'+dts(l[0])+'</span></div><div class="kw">'+esc(fmtv(k,l[1]))+'</div>';
+    const v=veraenderung(k);h+='<div class="ks"><span>'+(v?esc(v.txt)+" ("+(v.q?"Vorquartal":v.m?"Vormonat":"30 Tage")+")":"")+'</span><span><i class="pkt auto"></i>auto</span></div>'+spark(DATA[k.s],"var(--c)")}
+  else{h+='<span class="kd"></span></div><div class="kw" style="font-size:20px">'+esc(k.kpi[0])+'</div><div class="ks"><span>'+esc(k.kpi[1])+'</span><span><i class="pkt '+(k.auto?'auto':'man')+'"></i>'+(k.auto?'auto':'manuell')+'</span></div>'}
+  b.innerHTML=h;b.addEventListener("click",()=>oeffnen(k.id));tiles[k.id]=b;return b}
+function bauen(){K.forEach(k=>{const c=document.getElementById(k.b);if(c)c.appendChild(kachel(k))})}
+const dr=$("#drawer"), sh=$("#schatten");
+function kopf(gr,titel,farbeCss){dr.style.setProperty("--c",farbeCss||"var(--cb)");return '<div class="dk"><div><div class="gr">'+esc(gr)+'</div><h2 id="dt">'+esc(titel)+'</h2></div><button class="zu" type="button" aria-label="Schließen">×</button></div>'}
+function zeigen(h){dr.innerHTML=h;dr.classList.add("offen");sh.classList.add("offen");dr.querySelector(".zu").addEventListener("click",schliessen);dr.focus()}
+function lage(k){const p=DATA[k.s],l=p[p.length-1],mx=p.reduce((a,b)=>b[1]>a[1]?b:a),mn=p.reduce((a,b)=>b[1]<a[1]?b:a);
+  return 'Aktuell '+fmtv(k,l[1])+' ('+dts(l[0])+'). Im gezeigten Zeitraum ab '+dts(p[0][0])+': Höchstwert '+fmtv(k,mx[1])+' ('+dts(mx[0])+'), Tiefstwert '+fmtv(k,mn[1])+' ('+dts(mn[0])+').'}
+function oeffnen(id,extra){const k=byId[id];letzterFokus=document.activeElement;
+  Object.values(tiles).forEach(t=>t.classList.toggle("aktiv",t.dataset.id===id));
+  let h=kopf(k.gr||SP[+k.b.slice(1)-1].titel,k.titel,k.sp?"var(--c"+k.sp+")":"var(--cb)")+'<div class="db">';
+  const l=letzte(k);h+='<div class="gross">'+esc(fmtv(k,l[1]))+'</div><div class="gsub">Stand '+dts(l[0])+' · <i class="pkt auto"></i>automatisch (FRED)</div>';
+  h+='<div class="btns" role="group" aria-label="Zeitraum"></div><div class="tip" id="tip"> </div><svg class="chart" id="chart" viewBox="0 0 560 230" role="img" aria-label="Verlauf '+esc(k.titel)+'"></svg>';
+  h+=(extra||'')+'<h3>Was ist das?</h3><p>'+esc(k.was)+'</p><h3>Aktuelle Lage</h3><p>'+esc(lage(k))+'</p>';
+  if(k.hin)h+='<h3>Hinweis</h3><div class="hin">'+esc(k.hin)+'</div>';
+  h+='<h3>Quelle</h3><p style="font-size:13px;color:var(--text2)">'+esc(k.q)+'</p></div>';
+  zeigen(h);chartInit(k)}
+function schliessen(){dr.classList.remove("offen");sh.classList.remove("offen");Object.values(tiles).forEach(t=>t.classList.remove("aktiv"));if(letzterFokus&&letzterFokus.focus)letzterFokus.focus()}
+sh.addEventListener("click",schliessen);addEventListener("keydown",e=>{if(e.key==="Escape"&&dr.classList.contains("offen"))schliessen()});
+const ZR=[["3 Mon.",92],["6 Mon.",183],["1 Jahr",365],["Alles",0]];
+function chartInit(k){const box=dr.querySelector(".btns");let sel=(k.rhythm==="q"||k.rhythm==="m")?3:(k.rhythm==="w"?3:2);
+  ZR.forEach((z,i)=>{const b=document.createElement("button");b.type="button";b.className="btn";b.textContent=z[0];b.setAttribute("aria-pressed",i===sel);
+    if((k.rhythm==="q"||k.rhythm==="m")&&i<2){b.disabled=true;b.style.opacity=.4}
+    b.addEventListener("click",()=>{sel=i;[...box.children].forEach((c,j)=>c.setAttribute("aria-pressed",j===i));zeichne(k,ZR[i][1])});box.appendChild(b)});
+  zeichne(k,ZR[sel][1])}
+function zeichne(k,tage){const all=DATA[k.s];let p=all;if(tage){const lim=new Date(all[all.length-1][0]);lim.setDate(lim.getDate()-tage);p=all.filter(x=>new Date(x[0])>=lim)}
+  if(p.length<2)p=all.slice(-2);
+  const svg=$("#chart"),W=560,H=230,L=52,R=12,T=10,B=26;const ys=p.map(x=>x[1]/k.f.div);let mn=Math.min(...ys),mx=Math.max(...ys);const pad=(mx-mn||1)*.08;mn-=pad;mx+=pad;
+  const t0=new Date(p[0][0]).getTime(),t1=new Date(p[p.length-1][0]).getTime(),X=d=>L+(new Date(d).getTime()-t0)/((t1-t0)||1)*(W-L-R),Y=v=>T+(1-(v-mn)/(mx-mn))*(H-T-B);
+  let s="";for(let i=0;i<=4;i++){const v=mn+(mx-mn)*i/4,y=Y(v);s+='<line x1="'+L+'" x2="'+(W-R)+'" y1="'+y+'" y2="'+y+'" stroke="var(--raster)"/><text x="'+(L-6)+'" y="'+(y+4)+'" text-anchor="end" font-size="10.5" fill="var(--stumm)">'+nf(v,k.f.dec>1?1:k.f.dec)+'</text>'}
+  s+='<text x="'+L+'" y="'+(H-6)+'" font-size="10.5" fill="var(--stumm)">'+dts(p[0][0])+'</text><text x="'+(W-R)+'" y="'+(H-6)+'" text-anchor="end" font-size="10.5" fill="var(--stumm)">'+dts(p[p.length-1][0])+'</text>';
+  const pts=p.map(x=>X(x[0]).toFixed(1)+","+Y(x[1]/k.f.div).toFixed(1)).join(" ");
+  s+='<polyline fill="none" stroke="var(--c)" stroke-width="2" stroke-linejoin="round" points="'+pts+'"/>';
+  const lp=p[p.length-1];s+='<circle cx="'+X(lp[0])+'" cy="'+Y(lp[1]/k.f.div)+'" r="3.5" fill="var(--c)"/><line id="cv" y1="'+T+'" y2="'+(H-B)+'" stroke="var(--text)" stroke-width="1" opacity="0"/><circle id="cd" r="4" fill="var(--c)" stroke="var(--flaeche)" stroke-width="2" opacity="0"/>';
+  svg.innerHTML=s;const tip=$("#tip");tip.textContent="Mit Maus oder Finger über den Verlauf fahren, um einzelne Werte zu sehen.";
+  const mv=e=>{const r=svg.getBoundingClientRect();const x=((e.clientX-r.left)/r.width)*W;let b=0,bd=1e9;p.forEach((q,i)=>{const d=Math.abs(X(q[0])-x);if(d<bd){bd=d;b=i}});const q=p[b];
+    const cv=$("#cv"),cd=$("#cd");cv.setAttribute("x1",X(q[0]));cv.setAttribute("x2",X(q[0]));cv.setAttribute("opacity",.4);cd.setAttribute("cx",X(q[0]));cd.setAttribute("cy",Y(q[1]/k.f.div));cd.setAttribute("opacity",1);tip.textContent=dts(q[0])+": "+fmtv(k,q[1])};
+  svg.onpointermove=mv;svg.onpointerdown=mv;svg.onpointerleave=()=>{$("#cv").setAttribute("opacity",0);$("#cd").setAttribute("opacity",0)}}
+const pf=(v,d)=>nf(v,d===undefined?1:d);
+/* Kuchen mit Beschriftung links und rechts */
+function kuchen(svgId,teile,opts){
+ const svg=document.getElementById(svgId),sum=teile.reduce((a,x)=>a+x.w,0);let w0=-Math.PI/2;const R=opts.R||225,cx=550,cy=310,H=620;
+ let pfade="";const lab={r:[],l:[]};
+ teile.forEach(x=>{const dw=x.w/sum*2*Math.PI,w1=w0+dw,wm=(w0+w1)/2;const p=(wk,r)=>[cx+r*Math.cos(wk),cy+r*Math.sin(wk)];const [x0,y0]=p(w0,R),[x1,y1]=p(w1,R);
+  const d=dw>=2*Math.PI-1e-6?"M"+(cx-R)+","+cy+" A"+R+","+R+" 0 1 1 "+(cx+R)+","+cy+" A"+R+","+R+" 0 1 1 "+(cx-R)+","+cy+" Z":"M"+cx+","+cy+" L"+x0.toFixed(2)+","+y0.toFixed(2)+" A"+R+","+R+" 0 "+(dw>Math.PI?1:0)+" 1 "+x1.toFixed(2)+","+y1.toFixed(2)+" Z";
+  pfade+='<path d="'+d+'" fill="'+x.c+'" tabindex="0" role="button" data-id="'+x.id+'" aria-label="'+esc(x.de||x.n)+' '+pf(x.w,2)+' Prozent"><title>'+esc(x.de||x.n)+': '+pf(x.w,2)+' %</title></path>';
+  if(x.w>=opts.min){const rechts=Math.cos(wm)>=0;lab[rechts?"r":"l"].push({x,a0:p(wm,R),a1:p(wm,R+20),y:p(wm,R+20)[1]})}
+  w0=w1});
+ const GAP=19;let linien="",texte="";
+ ["r","l"].forEach(seite=>{const arr=lab[seite].sort((m,n)=>m.y-n.y);
+  for(let i=1;i<arr.length;i++)if(arr[i].y<arr[i-1].y+GAP)arr[i].y=arr[i-1].y+GAP;
+  const ueber=arr.length?arr[arr.length-1].y-(H-12):0;if(ueber>0)arr.forEach(o=>o.y-=ueber);
+  for(let i=1;i<arr.length;i++)if(arr[i].y<arr[i-1].y+GAP)arr[i-1].y=arr[i].y-GAP;
+  const lx=seite==="r"?cx+R+54:cx-R-54;
+  arr.forEach(o=>{const x=o.x,ex=seite==="r"?lx-8:lx+8;
+   linien+='<polyline class="fl" points="'+o.a0[0].toFixed(1)+','+o.a0[1].toFixed(1)+' '+o.a1[0].toFixed(1)+','+o.a1[1].toFixed(1)+' '+ex+','+o.y.toFixed(1)+' '+lx+','+o.y.toFixed(1)+'"/><circle cx="'+o.a0[0].toFixed(1)+'" cy="'+o.a0[1].toFixed(1)+'" r="2" fill="var(--text)"/>';
+   const nm=esc(opts.kurz?opts.kurz(x):(x.de||x.n)),pz=pf(x.w,x.w<10?2:1)+" %";
+   texte+=seite==="r"?'<text class="lbl" data-id="'+x.id+'" x="'+(lx+6)+'" y="'+(o.y+4.5).toFixed(1)+'"><tspan class="pz">'+pz+'</tspan><tspan dx="8">'+nm+'</tspan></text>'
+    :'<text class="lbl" data-id="'+x.id+'" x="'+(lx-6)+'" y="'+(o.y+4.5).toFixed(1)+'" text-anchor="end"><tspan>'+nm+'</tspan><tspan dx="8" class="pz">'+pz+'</tspan></text>'})});
+ svg.innerHTML='<g class="lbl">'+linien+'</g>'+pfade+texte+'<text class="mt" x="'+cx+'" y="'+(cy+H/2-2)*0+'"></text>';
+ svg.querySelectorAll("path,text[data-id]").forEach(e=>{const f=()=>opts.klick(e.dataset.id);e.addEventListener("click",f);if(e.tagName==="path")e.addEventListener("keydown",ev=>{if(ev.key==="Enter"||ev.key===" "){ev.preventDefault();f()}})});
+}
+function balken(id,teile,klick){const sum=teile.reduce((a,x)=>a+x.w,0);const B=document.getElementById(id);
+ B.innerHTML=teile.map(x=>'<button type="button" data-id="'+x.id+'" style="width:'+(x.w/sum*100).toFixed(3)+'%;background:'+x.c+'" title="'+esc(x.de||x.n)+' '+pf(x.w,1)+' %">'+(((x.de||x.n).length+6)*6.1<x.w/sum*1100?esc(x.de||x.n)+" "+pf(x.w,1)+" %":x.w>=2.5?pf(x.w,1)+" %":"")+'</button>').join("");
+ B.querySelectorAll("button").forEach(b=>b.addEventListener("click",()=>klick(b.dataset.id)))}
+function gewBalken(w,max,c){return '<div class="gwb"><i style="width:'+Math.min(100,w/max*100).toFixed(1)+'%;background:'+c+'"></i></div>'}
+
+
+/* ================== KONSUMKUCHEN ================== */
+/* Acht Hauptkategorien der Konsumausgaben nach Verwendungszweck (BEA, Mrd. USD, Jahresrate, vierteljährlich).
+   Sonstiges = Gesamt (PCEC) minus die sieben anderen Stücke, damit sich alles zu 100 % summiert. */
+const KAT=[
+ {id:"gesund",de:"Gesundheit",c:"hsl(95,48%,34%)",t:"Arzt- und Krankenhausleistungen, Medikamente, Pflege.",teile:[["DHLCRC1Q027SBEA","Gesundheit"]]},
+ {id:"wohnen",de:"Wohnen und Nebenkosten",c:"hsl(210,55%,40%)",t:"Mieten (auch die unterstellte Miete der Eigentümer), Strom, Gas, Wasser und Müllabfuhr.",teile:[["DHUTRC1Q027SBEA","Wohnen und Nebenkosten"]]},
+ {id:"verkehr",de:"Verkehr und Autos",c:"hsl(30,60%,46%)",t:"Kauf von Autos und Teilen sowie Verkehrsdienste (Flug, Bahn, Werkstatt, Versicherung der Fahrzeuge). Benzin steht unter Kraftstoffe.",teile:[["DMOTRC1Q027SBEA","Autos und Teile"],["DTRSRC1Q027SBEA","Verkehrsdienste"]]},
+ {id:"essen",de:"Lebensmittel und Gastronomie",c:"hsl(48,75%,46%)",t:"Lebensmittel und Getränke für zu Hause sowie Restaurants, Lieferdienste und Beherbergung.",teile:[["DFXARC1Q027SBEA","Lebensmittel und Getränke (zu Hause)"],["DFSARC1Q027SBEA","Gastronomie und Beherbergung"]]},
+ {id:"kleid",de:"Kleidung",c:"hsl(325,45%,50%)",t:"Kleidung und Schuhe.",teile:[["DCLORC1Q027SBEA","Kleidung und Schuhe"]]},
+ {id:"freizeit",de:"Freizeit",c:"hsl(265,40%,50%)",t:"Freizeitgüter (Sport, Spiele, Unterhaltungselektronik) und Freizeitdienste (Kino, Konzerte, Sportveranstaltungen).",teile:[["DREQRC1Q027SBEA","Freizeitgüter"],["DRCARC1Q027SBEA","Freizeitdienste"]]},
+ {id:"energie",de:"Kraftstoffe und Energiegüter",c:"hsl(0,55%,45%)",t:"Benzin und andere Energiegüter wie Heizöl. Strom und Gas für den Haushalt stehen unter Wohnen und Nebenkosten.",teile:[["DGOERC1Q027SBEA","Benzin und andere Energiegüter"]]},
+ {id:"sonst",de:"Sonstiges",c:"hsl(0,0%,50%)",t:"Alles übrige: Möbel und Haushaltsgeräte, Finanz- und Versicherungsdienste, Kommunikation, Bildung, Körperpflege, Haushaltsgüter und andere Dienstleistungen. Der Wert ist der Rest zum Gesamtwert.",teile:[]}
+];
+function summeReihen(ids){const m={};ids.forEach(s=>(DATA[s]||[]).forEach(p=>{m[p[0]]=(m[p[0]]||0)+p[1]}));return Object.keys(m).sort().map(d=>[d,m[d]])}
+function vor(p,jahre){const l=p[p.length-1],d=new Date(l[0]+"T00:00:00");d.setFullYear(d.getFullYear()-jahre);const x=p.find(q=>q[0]===d.toISOString().slice(0,10));return x?x[1]:null}
+function kuchenBauen(){
+ const need=["PCEC"].concat(KAT.flatMap(k=>k.teile.map(t=>t[0])));
+ if(need.some(s=>!DATA[s])){document.getElementById("kon-box").style.display="none";return null}
+ const gesamt=DATA.PCEC,ld=gesamt[gesamt.length-1][0];
+ const kk=KAT.slice(0,7);const ids=kk.flatMap(k=>k.teile.map(t=>t[0]));
+ kk.forEach(k=>{k.reihe=summeReihen(k.teile.map(t=>t[0]))});
+ const rest=gesamt.map(p=>{const s=ids.reduce((a,sid)=>{const x=DATA[sid].find(q=>q[0]===p[0]);return a+(x?x[1]:0)},0);return [p[0],p[1]-s]});
+ KAT[7].reihe=rest;
+ if(DATA.DOTSRC1Q027SBEA)KAT[7].teile=[["DOTSRC1Q027SBEA","Sonstige Dienstleistungen"]];
+ const T=KAT.map(k=>{const p=k.reihe,w=p[p.length-1][1],v1=vor(p,1),v5=p.find(q=>q[0]==="2019-10-01");
+  DATA["__"+k.id]=p;const kc={id:"k_"+k.id,titel:k.de+" (Konsumausgaben)",s:"__"+k.id,f:{div:1,dec:0,suf:" Mrd. USD"},rhythm:"q",sp:0,gr:"Konsumkuchen",was:k.t+" Der Wert ist die Jahresrate in Milliarden US-Dollar (BEA, vierteljährlich).",hin:k.id==="sonst"?"Der Wert ist der Rest: Gesamtausgaben (PCEC) minus die sieben anderen Stücke. Er ist keine eigene amtliche Reihe.":"",q:"BEA über FRED, Konsumausgaben nach Verwendungszweck"+(k.id==="sonst"?" (Gesamt minus die übrigen Stücke)":"")};byId[kc.id]=kc;
+  return Object.assign({},k,{w:w/gesamt[gesamt.length-1][1]*100,abs:w,v1:v1,v5:v5,k:kc,n:k.de})});
+ document.getElementById("kon-meta").textContent="Stand "+dts(ld)+" (Quartal), "+nf(gesamt[gesamt.length-1][1]/1000,2)+" Bio. USD Jahresrate";
+ const extra=x=>{const g=gesamt[gesamt.length-1][1],dv=x.v1!=null?(x.abs/x.v1-1)*100:null,d5=x.v5!=null?(x.abs/x.v5-1)*100:null;
+  const z=(a,b)=>'<tr><td>'+a+'</td><td class="zahl"><b>'+b+'</b></td></tr>';const sg=v=>(v>=0?"+":"−")+nf(Math.abs(v),1)+" %";
+  let h='<h3>Einordnung</h3><table>'+z("Anteil an den Konsumausgaben",nf(x.w,1)+" %")+z("Ausgaben (Jahresrate)",nf(x.abs/1000,2)+" Bio. USD")+(dv!=null?z("Veränderung zum Vorjahresquartal",sg(dv)):"")+(d5!=null?z("Veränderung seit Q4 2019",sg(d5)):"")+'</table>';
+  if(x.teile.length&&x.id!=="sonst"||x.id==="sonst"&&x.teile.length){h+='<h3>Bestandteile</h3><table>'+x.teile.map(t=>{const p=DATA[t[0]],v=p[p.length-1][1];return '<tr><td>'+esc(t[1])+'</td><td class="zahl">'+nf(v/1000,2)+' Bio.</td><td class="zahl"><b>'+nf(v/g*100,1)+' %</b></td></tr>'}).join("")+(x.id==="sonst"?'<tr><td>Übrige Waren und Dienste (Rest)</td><td class="zahl">'+nf((x.abs-DATA.DOTSRC1Q027SBEA[DATA.DOTSRC1Q027SBEA.length-1][1])/1000,2)+' Bio.</td><td class="zahl"><b>'+nf((x.abs-DATA.DOTSRC1Q027SBEA[DATA.DOTSRC1Q027SBEA.length-1][1])/g*100,1)+' %</b></td></tr>':'')+'</table>'}
+  return h};
+ const klick=id=>{const x=T.find(y=>"k_"+y.id===id);if(x)oeffnen(x.k.id,extra(x))};
+ kuchen("kon-pie",T.map(x=>({id:"k_"+x.id,de:x.de,n:x.de,w:x.w,c:x.c})),{min:1.2,klick:klick,R:200});
+ document.getElementById("kon-hin").textContent="Die Stücke sind die Konsumausgaben der Haushalte nach Verwendungszweck (BEA, Personal Consumption Expenditures), Jahresrate in laufenden Preisen. Das Stück Sonstiges ist der Rest zum Gesamtwert. Die BEA-Reihen werden vierteljährlich veröffentlicht und nachträglich revidiert, die Anteile werden bei jeder Aktualisierung neu gerechnet.";
+ /* Balken: Güter und Dienste, monatlich */
+ const kinds=[{id:"m_dg",s:"PCEDG",de:"Langlebige Güter",c:"hsl(30,60%,46%)",t:"Autos, Möbel, Geräte, Freizeitgüter."},{id:"m_nd",s:"PCEND",de:"Kurzlebige Güter",c:"hsl(48,75%,46%)",t:"Nahrung, Kleidung, Benzin, Medikamente."},{id:"m_sv",s:"PCES",de:"Dienstleistungen",c:"hsl(210,55%,40%)",t:"Wohnen, Gesundheit, Reisen, Gastronomie, Finanzen, Bildung."}];
+ let D3=null;
+ if(kinds.every(x=>DATA[x.s])){const sm=kinds.reduce((a,x)=>a+DATA[x.s][DATA[x.s].length-1][1],0);
+  D3=kinds.map(x=>({id:x.id,de:x.de,w:DATA[x.s][DATA[x.s].length-1][1]/sm*100,c:x.c,t:x.t,s:x.s}));
+  D3.forEach(x=>{const kc={id:"mk_"+x.id,titel:x.de+" (Konsumausgaben)",s:x.s,f:MRD,rhythm:"m",sp:0,gr:"Konsumart",was:x.t+" Jahresrate in Milliarden US-Dollar (BEA).",hin:"",q:"FRED "+x.s+" (BEA)"};byId[kc.id]=kc;x.kc=kc});
+  balken("kon-bal",D3,id=>{const x=D3.find(y=>y.id===id);oeffnen(x.kc.id,'<h3>Einordnung</h3><table><tr><td>Anteil an den Konsumausgaben</td><td class="zahl"><b>'+nf(x.w,1)+' %</b></td></tr></table>')})}
+ else document.getElementById("kon-bal").parentNode.style.display="none";
+ return {T:T,D3:D3};
+}
+/* Texte, die von den Zahlen abhängen */
+function texte(B){
+ const g=document.getElementById("grundidee"),s=document.getElementById("strukt");
+ const sh=id=>{const x=B&&B.T.find(y=>y.id===id);return x?nf(x.w,1)+" %":"…"};
+ const dl=id=>{const x=B&&B.D3&&B.D3.find(y=>y.id===id);return x?nf(x.w,1)+" %":"…"};
+ const l=sid=>{const p=DATA[sid];return p?p[p.length-1][1]:null};
+ const spar=l("PSAVERT"),umc=l("UMCSENT"),tdsp=l("TDSP"),ausf=l("DRCCLACBS");
+ g.innerHTML=
+  '<li><b>Konsum ist der größte Teil der Wirtschaft.</b> Die Konsumausgaben der Haushalte machen rund zwei Drittel der gesamten Wirtschaftsleistung aus (Oberthema 4). Was Haushalte tun, bestimmt deshalb stark das Wachstum.</li>'
+  +'<li><b>Haushalte geben vor allem für Dienstleistungen aus.</b> Dienstleistungen machen '+dl("m_sv")+' der Konsumausgaben aus, langlebige Güter '+dl("m_dg")+' und kurzlebige Güter '+dl("m_nd")+' (Balken unten).</li>'
+  +'<li><b>Wohnen und Gesundheit sind die größten Einzelposten.</b> Wohnen und Nebenkosten kommen auf '+sh("wohnen")+', Gesundheit auf '+sh("gesund")+' der Konsumausgaben, Lebensmittel und Gastronomie auf '+sh("essen")+'.</li>'
+  +'<li><b>Was nicht ausgegeben wird, wird gespart.</b> Die Sparquote beträgt zuletzt '+(spar!=null?nf(spar,1)+" %":"…")+' des verfügbaren Einkommens (Kachel unten).</li>'
+  +'<li><b>Schulden erweitern oder belasten den Spielraum.</b> Haushalte leihen sich Geld für Konsum, Auto, Studium und Wohnen. Der Schuldendienst liegt bei '+(tdsp!=null?nf(tdsp,1)+" %":"…")+' des verfügbaren Einkommens, die Kreditkarten-Ausfallrate bei '+(ausf!=null?nf(ausf,2)+" %":"…")+'.</li>'
+  +'<li><b>Die Stimmung ist eine Umfrage, keine Ausgabe.</b> Das Verbrauchervertrauen (Uni Michigan) liegt zuletzt bei '+(umc!=null?nf(umc,1):"…")+'. Es sagt, wie Haushalte ihre Lage einschätzen, nicht, was sie tatsächlich ausgeben.</li>';
+ s.innerHTML=
+  '<div><b>Dienstleistungen sind stabiler Kern des Konsums</b>Wohnen, Gesundheit und Gastronomie sind laufende Ausgaben. Sie machen zusammen den größten Teil des Kuchens aus ('+sh("wohnen")+' Wohnen, '+sh("gesund")+' Gesundheit, '+sh("essen")+' Lebensmittel und Gastronomie).</div>'
+  +'<div><b>Langlebige Güter sind kleiner, aber beweglicher</b>Autos, Möbel und Geräte kann man aufschieben und über Kredite finanzieren. Sie machen '+dl("m_dg")+' der Ausgaben aus und werden deshalb in der Kachelgruppe Konsum einzeln gezeigt.</div>'
+  +'<div><b>Einkommen, Vermögen und Kredite bestimmen den Spielraum</b>Haushalte können mehr ausgeben, wenn Einkommen oder Vermögen steigen oder wenn sie sich Geld leihen. Die Kachelgruppen Einkommen und Vermögen sowie Sparen und Schulden zeigen diese drei Quellen getrennt.</div>'
+  +'<div><b>Verbindung zu anderen Oberthemen</b>Inflationserwartungen stehen auch in Oberthema 6 (Inflation), das Einkommen hängt am Arbeitsmarkt (Oberthema 7), die Zinsen auf Kredite an der Fed (Oberthema 3).</div>';
+}
+/* ================== START ================== */
+(function(){
+ for(let i=K.length-1;i>=0;i--){if(!DATA[K[i].s])K.splice(i,1)}
+ bauen();
+ let B=null;try{B=kuchenBauen()}catch(e){console.error(e);document.getElementById("kon-box").style.display="none"}
+ texte(B);
+ const D=window.USA_DATEN;if(D&&D.meta){document.querySelector('.unter').innerHTML+=' · Datenabruf: '+D.meta.erstellt}
+})();
+</script>
+</body>
+</html>

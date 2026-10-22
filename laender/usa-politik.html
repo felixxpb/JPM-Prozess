@@ -168,7 +168,7 @@ svg.lin{position:absolute;inset:0;width:100%;height:100%;pointer-events:none;ove
 </header>
 <section class="versteh" aria-labelledby="vt">
   <h2 id="vt">Zuerst verstehen: Wie die USA politisch aufgebaut sind</h2>
-  <p class="lead">Die Kennzahlen weiter unten sind Belege für diesen Aufbau. Wichtiger als jede einzelne Zahl ist, wie die Teile zusammenhängen. Die Kästen im Kreislauf sind anklickbar.</p>
+  <p class="lead">Die Kennzahlen weiter unten sind Belege für diesen Aufbau. Wichtiger als jede einzelne Zahl ist, wie die Teile zusammenhängen. Das Schaubild weiter unten ist interaktiv.</p>
 
   <details open>
     <summary>Die Grundidee in neun Punkten</summary>
@@ -187,11 +187,22 @@ svg.lin{position:absolute;inset:0;width:100%;height:100%;pointer-events:none;ove
   </details>
 
   <details open>
-    <summary>Der Kreislauf (Kästen anklicken)</summary>
+    <summary>Das Schaubild: wer hat worauf Einfluss (Kachel anklicken)</summary>
     <div class="inh">
-      <div class="fluss" id="fluss"></div>
-      <div id="nkpanel" hidden></div>
-      <p class="quelle">Lesart: Oben beginnt die Willensbildung (Wähler, Wahlen), rechts wird regiert, in der Mitte entstehen Gesetze und Haushalt, unten prüfen die Gerichte. Die Bundesstaaten stehen als zweite Ebene links und organisieren die Wahlen.</p>
+      <style>
+      .schaub-k{display:block;position:relative;border:1px solid var(--rand);border-radius:12px;overflow:hidden;background:#0e1420;color:#f1f5f9;text-decoration:none;box-shadow:var(--schatten)}
+      .schaub-k img{display:block;width:100%;height:auto;opacity:.95;transition:opacity .15s,transform .3s}
+      .schaub-k:hover img,.schaub-k:focus-visible img{opacity:1;transform:scale(1.01)}
+      .schaub-k .sk-text{position:absolute;left:0;right:0;bottom:0;padding:34px 230px 14px 18px;background:linear-gradient(transparent,rgba(14,20,32,.96) 55%);display:flex;flex-direction:column;gap:2px}
+      .schaub-k .sk-text b{font-size:16px}.schaub-k .sk-text span{font-size:13px;color:#c3cad6}
+      .schaub-k .sk-btn{position:absolute;right:14px;bottom:16px;z-index:2;background:#f1f5f9;color:#0e1420;border-radius:8px;padding:6px 12px;font-size:13px;font-weight:650}
+      </style>
+      <a class="schaub-k" href="usa-politik-schaubild.html" aria-label="Interaktives Schaubild öffnen">
+        <img src="../bilder/politik-schaubild-vorschau.png" alt="Vorschau: Schaubild der US-Verfassung mit den wichtigsten Verbindungen zwischen Wählern, Kongress, Präsident, Gerichten und Bundesstaaten">
+        <span class="sk-btn">Öffnen · zoomen und verschieben</span>
+        <span class="sk-text"><b>Wie die Verfassung zusammenhängt: 55 Verbindungen in drei Detailgraden</b><span>Die Vorschau zeigt nur die 22 wichtigsten. Im interaktiven Schaubild lässt sich der Detailgrad umschalten, Arten von Verbindungen einzeln anzeigen und auf einzelne Bereiche zoomen.</span></span>
+      </a>
+      <p class="quelle">Lesart: Jeder Pfeil geht vom Handelnden zum Betroffenen und ist eine konkrete Befugnis aus der Verfassung, einem Gesetz oder einem Urteil. Quellen: US-Verfassung und Zusatzartikel, Congress.gov, Supreme Court. Entwurf, Rechtsgrundlagen werden vor der Freigabe gegen den Verfassungstext geprüft.</p>
     </div>
   </details>
 

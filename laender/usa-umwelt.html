@@ -1,0 +1,590 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>JPM Prozess · Länderanalyse USA · Umwelt und Klima</title>
+<style>
+:root{
+  --flaeche:#fcfcfb; --ebene:#f9f9f7; --text:#0b0b0b; --text2:#52514e; --stumm:#898781;
+  --raster:#e1e0d9; --achse:#c3c2b7; --rand:rgba(11,11,11,.10);
+  --c1:#2f6f9f; --c2:#6b4f8a; --c3:#3d7a56; --c4:#8a5a2b; --cb:#52514e;
+  --h1:#e6f0f7; --h2:#eee9f4; --h3:#e5f2ea; --h4:#f4ebe1; --hb:#efeee9;
+  --gut:#006300; --warn:#b97a00; --schatten:0 1px 2px rgba(11,11,11,.04),0 4px 16px rgba(11,11,11,.06);
+  color-scheme:light;
+}
+:root[data-theme="dark"]{
+  --flaeche:#1a1a19; --ebene:#0d0d0d; --text:#fff; --text2:#c3c2b7; --stumm:#898781;
+  --raster:#2c2c2a; --achse:#383835; --rand:rgba(255,255,255,.12);
+  --c1:#5fa0d3; --c2:#ab8fd0; --c3:#56b27d; --c4:#d39a5a; --cb:#c3c2b7;
+  --h1:#16222c; --h2:#221b2c; --h3:#16261d; --h4:#2a2016; --hb:#232321;
+  --gut:#0ca30c; --warn:#fab219; --schatten:none; color-scheme:dark;
+}
+*{box-sizing:border-box}
+body{margin:0;padding:0 20px 56px;background:var(--ebene);color:var(--text);font-family:system-ui,-apple-system,"Segoe UI",sans-serif;font-size:15px;line-height:1.5}
+.wrap{max-width:1280px;margin:0 auto}
+header{padding:20px 0 6px;display:flex;gap:16px;justify-content:space-between;align-items:flex-start;flex-wrap:wrap}
+h1{margin:0;font-size:21px;font-weight:650}
+.unter{color:var(--text2);font-size:13px}
+.entwurf{display:inline-block;margin-left:8px;padding:1px 8px;border-radius:99px;border:1px solid var(--warn);color:var(--warn);font-size:12px;font-weight:600;vertical-align:middle}
+.tool{font:inherit;font-size:13px;background:var(--flaeche);color:var(--text);border:1px solid var(--rand);border-radius:8px;padding:6px 12px;cursor:pointer}
+.legende{display:flex;gap:16px;flex-wrap:wrap;font-size:12px;color:var(--text2);margin:6px 0 12px}
+.pkt{width:8px;height:8px;border-radius:50%;display:inline-block;margin-right:5px}.pkt.auto{background:var(--gut)}.pkt.man{background:var(--stumm)}
+/* Kachel */
+.k{all:unset;box-sizing:border-box;display:block;width:100%;cursor:pointer;background:var(--flaeche);border:1px solid var(--rand);border-radius:9px;padding:9px 11px 8px;box-shadow:var(--schatten);transition:transform .15s,border-color .15s}
+.k:hover{transform:translateY(-1px);border-color:var(--c)}.k:focus-visible{outline:2px solid var(--c);outline-offset:2px}
+.k.aktiv{border-color:var(--c);box-shadow:0 0 0 2px var(--c)}
+.kt{display:flex;justify-content:space-between;align-items:baseline;gap:6px}
+.kn{font-size:12.5px;color:var(--text2);font-weight:600}
+.kd{font-size:11px;color:var(--stumm);white-space:nowrap}
+.kw{font-size:23px;font-weight:700;line-height:1.15;font-variant-numeric:tabular-nums;margin-top:1px}
+.ks{font-size:11.8px;color:var(--text2);display:flex;justify-content:space-between;gap:6px;align-items:center;margin-top:1px}
+.dl{white-space:nowrap}
+.spark{display:block;width:100%;height:30px;margin-top:3px}
+.c1{--c:var(--c1)}.c2{--c:var(--c2)}.c3{--c:var(--c3)}.c4{--c:var(--c4)}.cb{--c:var(--cb)}
+/* Layout */
+.band{background:var(--hb);border:1px solid var(--rand);border-radius:12px;padding:8px 10px 10px;margin-bottom:14px}
+.bandkopf{font-size:12px;font-weight:700;color:var(--text2);text-transform:uppercase;letter-spacing:.05em;margin:2px 2px 6px}
+.bandinhalt{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}
+.raster{display:grid;grid-template-columns:1fr 54px 1fr 54px 1fr 54px 1fr;align-items:stretch}
+.sp{padding:8px;border-radius:12px;display:flex;flex-direction:column;gap:9px}
+.sp.s1{background:var(--h1)}.sp.s2{background:var(--h2)}.sp.s3{background:var(--h3)}.sp.s4{background:var(--h4)}
+.spkopf{color:#fff;font-weight:700;text-align:center;padding:9px 6px;border-radius:9px;font-size:13px;background:var(--c)}
+.pill{all:unset;cursor:pointer;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;font-size:10.5px;text-align:center;color:var(--text2);padding:4px 2px}
+.pill .pf{font-size:20px;color:var(--text);line-height:1}.pill:hover,.pill.aktiv{color:var(--text)}.pill:focus-visible{outline:2px solid var(--text);border-radius:6px}
+.termine{margin-top:16px;background:var(--flaeche);border:1px solid var(--rand);border-radius:10px;padding:10px 14px;box-shadow:var(--schatten)}
+.termine h2{margin:0 0 4px;font-size:13px;color:var(--text2);text-transform:uppercase;letter-spacing:.05em}
+.termin{display:flex;gap:10px;align-items:baseline;padding:5px 0;border-top:1px solid var(--raster);font-size:13px}
+.termin:first-of-type{border-top:0}.termin .d{width:96px;font-weight:600}.termin .t{flex:1}.termin .r{color:var(--text2);white-space:nowrap}.termin.n .r{color:var(--warn);font-weight:700}
+.fuss{margin-top:6px;font-size:11.5px;color:var(--stumm)}
+/* Drawer */
+#schatten{position:fixed;inset:0;background:rgba(0,0,0,.28);opacity:0;pointer-events:none;transition:opacity .2s;z-index:20}
+#schatten.offen{opacity:1;pointer-events:auto}
+#drawer{position:fixed;top:0;right:0;height:100%;width:min(560px,100%);background:var(--flaeche);border-left:1px solid var(--rand);box-shadow:-8px 0 30px rgba(0,0,0,.18);transform:translateX(100%);transition:transform .22s ease;z-index:21;overflow-y:auto;padding:0}
+#drawer.offen{transform:none}
+.dk{position:sticky;top:0;background:var(--flaeche);border-bottom:1px solid var(--rand);border-top:4px solid var(--c);padding:14px 18px 10px;display:flex;justify-content:space-between;gap:10px;align-items:flex-start;z-index:2}
+.dk h2{margin:0;font-size:18px}.dk .gr{font-size:12px;color:var(--c);text-transform:uppercase;letter-spacing:.05em;font-weight:700}
+.zu{all:unset;cursor:pointer;font-size:22px;line-height:1;padding:2px 8px;border-radius:6px;color:var(--text2)}.zu:hover{background:var(--raster)}.zu:focus-visible{outline:2px solid var(--text)}
+.db{padding:14px 18px 40px}
+.gross{font-size:34px;font-weight:700;font-variant-numeric:tabular-nums;line-height:1.1}
+.gsub{font-size:13px;color:var(--text2);margin-bottom:8px}
+.btns{display:flex;gap:6px;margin:6px 0 4px}
+.btn{font:inherit;font-size:12px;background:var(--ebene);color:var(--text);border:1px solid var(--rand);border-radius:7px;padding:3px 10px;cursor:pointer}
+.btn[aria-pressed="true"]{background:var(--text);color:var(--flaeche);border-color:var(--text)}
+svg.chart{width:100%;height:auto;display:block;touch-action:none}
+.tip{font-size:12.5px;color:var(--text2);min-height:18px;margin-bottom:4px;font-variant-numeric:tabular-nums}
+.db h3{font-size:12px;text-transform:uppercase;letter-spacing:.05em;color:var(--text2);margin:18px 0 4px}
+.db p{margin:0 0 8px;font-size:14px}
+.db table{width:100%;border-collapse:collapse;font-size:13px}
+.db th{font-weight:600;text-align:left;color:var(--text2);font-size:11.5px;border-bottom:1px solid var(--rand);padding:3px 8px 3px 0}
+.db td{padding:5px 8px 5px 0;border-bottom:1px solid var(--raster);vertical-align:top}
+.db .hin{background:var(--ebene);border-left:3px solid var(--warn);border-radius:4px;padding:6px 10px;font-size:13px;color:var(--text2)}
+.db ul{margin:4px 0 0;padding-left:18px;font-size:13.5px}
+.db a{color:inherit}
+@media (max-width:980px){
+  .raster{grid-template-columns:1fr}.pill{display:none}.sp{margin-bottom:12px}.bandinhalt{grid-template-columns:1fr}
+}
+@media (prefers-reduced-motion:reduce){#drawer,#schatten,.k{transition:none}}
+/* Verständnis-Block */
+.versteh{background:var(--flaeche);border:1px solid var(--rand);border-radius:12px;padding:6px 18px 14px;box-shadow:var(--schatten);margin-bottom:14px}
+.versteh>h2{margin:12px 0 2px;font-size:17px}
+.versteh .lead{margin:0 0 8px;color:var(--text2);font-size:13.5px}
+.versteh details{border-top:1px solid var(--raster);padding:6px 0}
+.versteh details:first-of-type{border-top:0}
+.versteh summary{cursor:pointer;font-weight:650;font-size:14.5px;padding:4px 0;list-style:none}
+.versteh summary::-webkit-details-marker{display:none}
+.versteh summary:before{content:"▸";display:inline-block;width:18px;color:var(--text2);transition:transform .15s}
+.versteh details[open]>summary:before{transform:rotate(90deg)}
+.versteh summary:focus-visible{outline:2px solid var(--text);outline-offset:2px;border-radius:4px}
+.versteh .inh{padding:2px 0 6px 18px;font-size:14px}
+.versteh ol.kern{margin:4px 0 4px;padding-left:20px}.versteh ol.kern li{margin:3px 0}
+.fluss{display:grid;grid-template-columns:1fr 78px 1fr 78px 1fr;grid-template-rows:auto 56px auto 56px auto;align-items:center;gap:0;margin:8px 0 4px}
+.nk{all:unset;box-sizing:border-box;display:block;width:100%;cursor:pointer;background:var(--ebene);border:1px solid var(--rand);border-top:3px solid var(--c);border-radius:9px;padding:8px 10px;text-align:center;transition:transform .15s,border-color .15s}
+.nk:hover{transform:translateY(-1px);border-color:var(--c)}.nk:focus-visible{outline:2px solid var(--c);outline-offset:2px}
+.nk b{display:block;font-size:13.5px}.nk span{display:block;font-size:11.5px;color:var(--text2);margin-top:1px}
+.pf2{font-size:11px;color:var(--text2);text-align:center;line-height:1.25;padding:0 3px}
+.pf2 i{display:block;font-style:normal;font-size:18px;color:var(--text);line-height:1}
+.nk.n1{--c:var(--c1)}.nk.n2{--c:var(--c3)}.nk.n3{--c:var(--c4)}.nk.n4{--c:var(--c2)}.nk.n5{--c:var(--c2)}.nk.n6{--c:var(--c1)}.nk.n7{--c:var(--cb)}
+.bed{display:grid;grid-template-columns:repeat(2,1fr);gap:10px;margin-top:4px}
+.bed div{background:var(--ebene);border:1px solid var(--rand);border-radius:9px;padding:8px 11px;font-size:13.5px}
+.bed b{display:block;font-size:13px;margin-bottom:2px}
+.chip{display:inline-block;font-size:11.5px;border:1px solid var(--rand);border-radius:99px;padding:0 9px;margin:2px 3px 0 0;background:var(--ebene);cursor:pointer;color:var(--text)}
+.chip:hover{border-color:var(--text)}
+@media (max-width:980px){.fluss{grid-template-columns:1fr;grid-template-rows:none;gap:8px}.pf2{display:none}.bed{grid-template-columns:1fr}}
+
+.struktur{background:var(--flaeche);border:1px solid var(--rand);border-radius:12px;padding:10px 14px 14px;box-shadow:var(--schatten);margin-bottom:14px}
+.skraster{display:grid;grid-template-columns:minmax(240px,320px) 1fr;gap:18px;align-items:center}
+#kuchen{width:100%;max-width:1000px;height:auto;display:block;margin:0 auto}
+.kmitte{margin:4px 0 0}
+.leg{display:none}
+#kuchen text{font-size:14px;fill:var(--text);cursor:pointer}
+#kuchen text b,#kuchen .pz{font-weight:700;font-variant-numeric:tabular-nums}
+#kuchen text:hover{text-decoration:underline}
+#kuchen .fl{stroke:var(--achse);stroke-width:1;fill:none}
+#kuchen .gk2{font-size:12px;fill:var(--text2);cursor:default;text-transform:uppercase;letter-spacing:.05em;font-weight:700}
+#kuchen path{cursor:pointer;stroke:var(--flaeche);stroke-width:1.5;transition:opacity .15s}
+#kuchen path:hover,#kuchen path:focus{opacity:.8;outline:none}
+.leg{display:none;grid-template-columns:repeat(2,1fr);gap:3px 14px}
+.leg button{all:unset;cursor:pointer;display:flex;align-items:center;gap:8px;font-size:13px;padding:3px 6px;border-radius:6px}
+.leg button:hover,.leg button:focus-visible{background:var(--ebene);outline:none}
+.leg i{width:11px;height:11px;border-radius:3px;flex:none}
+.leg b{margin-left:auto;font-variant-numeric:tabular-nums}
+.leg .gk{grid-column:1/-1;font-size:11.5px;font-weight:700;text-transform:uppercase;letter-spacing:.05em;color:var(--text2);margin-top:6px}
+.balken{display:flex;height:44px;border-radius:9px;overflow:hidden;margin-top:6px;border:1px solid var(--rand)}
+.balken button{all:unset;cursor:pointer;display:flex;align-items:center;justify-content:center;text-align:center;font-size:13px;font-weight:700;color:#fff;overflow:hidden;white-space:nowrap}
+.balken button:hover,.balken button:focus-visible{filter:brightness(1.12);outline:none}
+.bhin{font-size:11.5px;color:var(--stumm);margin-top:6px}
+.bandinhalt{grid-template-columns:repeat(4,1fr)!important}
+@media (max-width:980px){.bandinhalt{grid-template-columns:1fr!important}}
+@media (max-width:760px){#kuchen .lbl{display:none}#kuchen{max-width:360px}.leg{display:grid;grid-template-columns:1fr;margin-top:8px}}
+
+.kreislauf svg{width:100%;height:auto;display:block}
+.kreislauf .nd{cursor:pointer}
+.kreislauf .nd rect{fill:var(--ebene);stroke:var(--c);stroke-width:2;transition:fill .15s}
+.kreislauf .nd:hover rect,.kreislauf .nd:focus rect{fill:var(--flaeche)}
+.kreislauf .nd:focus{outline:none}.kreislauf .nd:focus rect{stroke-width:3.5}
+.kreislauf .nd text{pointer-events:none}
+.kreislauf .nt{font-size:15px;font-weight:700;fill:var(--text)}
+.kreislauf .ns{font-size:11.5px;fill:var(--text2)}
+.kreislauf .mk rect{fill:var(--h2);stroke-dasharray:none}
+.kreislauf .fr{stroke:var(--c1);stroke-width:2.4;fill:none}
+.kreislauf .fg{stroke:var(--c4);stroke-width:2.2;fill:none;stroke-dasharray:6 4}
+.kreislauf .fz{stroke:var(--text2);stroke-width:1.8;fill:none}
+.kreislauf .fl2{font-size:11.5px;fill:var(--text2)}
+.kreislauf .mitte{font-size:13px;font-weight:700;fill:var(--text2);text-anchor:middle}
+.kreislauf .mitte2{font-size:11.5px;fill:var(--stumm);text-anchor:middle}
+.kl-liste{display:none}
+@media (max-width:760px){.kreislauf .nd text.ns,.kreislauf .fl2{display:none}.kl-liste{display:flex;flex-wrap:wrap;gap:6px;margin-top:8px}}
+/* Inflation: eigene Ergänzungen */
+.bandinhalt{grid-template-columns:repeat(3,1fr)!important}
+.bandinhalt.v4{grid-template-columns:repeat(4,1fr)!important}
+@media (max-width:980px){.bandinhalt,.bandinhalt.v4{grid-template-columns:1fr!important}}
+.kuchenkopf{display:flex;justify-content:space-between;gap:10px;align-items:baseline;flex-wrap:wrap}
+.kuchenkopf h3{margin:0;font-size:16px}
+.kuchenkopf span{font-size:12px;color:var(--text2)}
+.pie{width:100%;max-width:1100px;height:auto;display:block;margin:0 auto}
+.pie path{cursor:pointer;stroke:var(--flaeche);stroke-width:.8;transition:opacity .15s}
+.pie path:hover,.pie path:focus{opacity:.75;outline:none}
+.pie text{font-size:13px;fill:var(--text);cursor:pointer}
+.pie text:hover{text-decoration:underline}
+.pie .pz{font-weight:700;font-variant-numeric:tabular-nums}
+.pie .fl{stroke:var(--achse);stroke-width:1;fill:none}
+.pie .mt{font-size:12px;fill:var(--text2);text-anchor:middle;cursor:default;font-weight:700}
+.pie .mt2{font-size:11px;fill:var(--stumm);text-anchor:middle;cursor:default}
+.balken2{display:flex;height:40px;border-radius:9px;overflow:hidden;margin-top:6px;border:1px solid var(--rand)}
+.balken2 button{all:unset;cursor:pointer;display:flex;align-items:center;justify-content:center;text-align:center;font-size:12px;font-weight:700;color:#fff;overflow:hidden;white-space:nowrap;padding:0 3px}
+.balken2 button:hover,.balken2 button:focus-visible{filter:brightness(1.12);outline:none}
+.liste summary{cursor:pointer;font-size:13px;font-weight:650;padding:6px 0}
+.liste input{font:inherit;font-size:13px;padding:5px 9px;border:1px solid var(--rand);border-radius:7px;background:var(--ebene);color:var(--text);width:min(360px,100%);margin:4px 0 8px}
+.liste .tab{max-height:420px;overflow:auto;border:1px solid var(--rand);border-radius:8px}
+.liste table{width:100%;border-collapse:collapse;font-size:12.5px}
+.liste th{position:sticky;top:0;background:var(--flaeche);text-align:left;font-size:11.5px;color:var(--text2);padding:5px 8px;border-bottom:1px solid var(--rand)}
+.liste td{padding:3px 8px;border-bottom:1px solid var(--raster)}
+.liste tr[data-id]{cursor:pointer}.liste tr[data-id]:hover{background:var(--ebene)}
+.liste td.zahl,.db td.zahl{text-align:right;font-variant-numeric:tabular-nums;white-space:nowrap}
+.sw{display:inline-block;width:10px;height:10px;border-radius:3px;margin-right:6px;vertical-align:baseline}
+.vgl{width:100%;border-collapse:collapse;font-size:13px;margin:4px 0}
+.vgl th{text-align:left;font-size:11.5px;color:var(--text2);border-bottom:1px solid var(--rand);padding:4px 8px 4px 0}
+.vgl td{padding:6px 8px 6px 0;border-bottom:1px solid var(--raster);vertical-align:top}
+.vgl td:first-child{font-weight:650;white-space:nowrap}
+.db .pfad{font-size:12.5px;color:var(--text2);margin:2px 0 6px}
+.gwb{height:12px;background:var(--raster);border-radius:6px;overflow:hidden;margin:4px 0 2px}.gwb i{display:block;height:100%}
+@media (max-width:760px){.pie .lbl{display:none}}
+
+.bandinhalt{grid-template-columns:repeat(3,1fr)!important}
+@media (max-width:980px){.bandinhalt{grid-template-columns:1fr!important}}
+.tl{position:relative;margin:8px 0 0;padding-left:22px;border-left:2px solid var(--achse)}
+.tl .ev{position:relative;margin:0 0 14px;padding:8px 12px;background:var(--ebene);border:1px solid var(--rand);border-radius:9px}
+.tl .ev::before{content:"";position:absolute;left:-30px;top:14px;width:12px;height:12px;border-radius:50%;background:var(--c);border:2px solid var(--flaeche)}
+.tl .ev .dt{font-size:12px;color:var(--text2);font-variant-numeric:tabular-nums}
+.tl .ev .art{display:inline-block;font-size:11px;font-weight:650;padding:0 7px;border-radius:99px;background:var(--c);color:#fff;margin-left:6px}
+.tl .ev b{display:block;font-size:14px;margin:2px 0}
+.tl .ev p{margin:2px 0;font-size:13px;color:var(--text2)}
+.tl .ev .qu{font-size:11.5px;color:var(--stumm)}
+.vtab{width:100%;border-collapse:collapse;font-size:13px;margin-top:6px}
+.vtab th,.vtab td{padding:5px 8px;border-bottom:1px solid var(--rand);text-align:left}
+.vtab .zahl{text-align:right;font-variant-numeric:tabular-nums;white-space:nowrap}
+.hinweis{font-size:12.5px;color:var(--text2);margin:8px 2px 0}
+</style>
+</head>
+<body>
+<div class="wrap">
+<header>
+  <div>
+    <a href="usa.html" style="font-size:13px;color:var(--text2)">← USA, alle Oberthemen</a>
+    <h1>USA – Umwelt und Klima <span class="entwurf">Vorschau, nicht freigegeben</span></h1>
+    <div class="unter">Länderanalyse, Oberthema 9 · Daten und Fakten, keine Bewertung · Struktur: Entwurf 2026-10-22 (Review: April 2027) · Kennzahlen aktualisieren sich automatisch, das Datum steht in jeder Kachel</div>
+  </div>
+  <button class="tool" id="theme" type="button">Dunkel / Hell</button>
+</header>
+<div class="legende">
+  <span><i class="pkt auto"></i>automatisch (EIA, FRED, NOAA, NASA, US Drought Monitor, Federal Register, zweimal täglich)</span>
+  <span><i class="pkt man"></i>manuell gepflegt (Quelle und Stand in der Kachel)</span>
+  <span>Kuchenstücke, Balken und Kacheln anklicken: Einordnung, Verlauf, Quelle</span>
+</div>
+
+<section class="versteh" aria-labelledby="vt">
+  <h2 id="vt">Zuerst verstehen: Wie Energie, Klima und Wetter die Wirtschaft berühren</h2>
+  <p class="lead">Umwelt und Klima sind für die Märkte vor allem über drei Wege wichtig: über die Preise für Energie, über die Politik, die Energie und Emissionen regelt, und über Wetter und Wasser als Risiko für Schäden und Ernten. Die Zahlen stammen von der Energiebehörde EIA, von NOAA und NASA, von der Federal Reserve (FRED), vom US Drought Monitor und von Cox Automotive.</p>
+
+  <details open>
+    <summary>Die Grundidee in sechs Punkten</summary>
+    <div class="inh"><ol class="kern" id="grundidee"></ol></div>
+  </details>
+
+  <details open>
+    <summary>Die Bausteine und wo sie auf dieser Seite stehen</summary>
+    <div class="inh">
+      <table class="vgl">
+        <tr><th>Baustein</th><th>Was er beschreibt</th><th>Auf dieser Seite</th></tr>
+        <tr><td>Strommix</td><td>Aus welchen Quellen der US-Strom kommt: Erdgas, Kohle, Atomkraft, Wind, Sonne, Wasser.</td><td>Kuchen unten</td></tr>
+        <tr><td>Energiepreise</td><td>Was Strom, Benzin, Heizöl, Erdgas und Rohöl kosten. Sie schlagen sich in Haushaltsbudgets und Inflation nieder.</td><td>Kachelgruppe Energiepreise</td></tr>
+        <tr><td>Klimapolitik</td><td>Gesetze, Verordnungen und Gerichtsurteile, die Emissionen und Energieförderung regeln.</td><td>Zeitleiste und Behörden</td></tr>
+        <tr><td>Elektroautos</td><td>Neuverkäufe, Marktanteil und Ladeinfrastruktur als Teil der Verkehrs- und Energiewende.</td><td>Kachelgruppe Elektroautos</td></tr>
+        <tr><td>Wasser und Dürre</td><td>Wie groß die Fläche mit Trockenheit ist. Das wirkt auf Landwirtschaft, Stromerzeugung und Preise.</td><td>Kachelgruppe Wasser und Dürre</td></tr>
+        <tr><td>Klimadaten und Extremwetter</td><td>CO₂-Konzentration, globale Temperatur und Schäden durch Naturkatastrophen.</td><td>Kachelgruppen Klimadaten und Extremwetter</td></tr>
+      </table>
+      <p style="font-size:12.5px;color:var(--text2);margin:6px 0 0">Förderung von Öl und Gas, LNG-Exporte und der Stromverbrauch der Sektoren stehen in <a href="usa-wirtschaft.html">Oberthema 4 (Wirtschaft und Infrastruktur)</a>.</p>
+    </div>
+  </details>
+
+  <details open>
+    <summary>Was das strukturell bedeutet</summary>
+    <div class="inh"><div class="bed" id="strukt"></div>
+    <p style="font-size:12.5px;color:var(--text2);margin:8px 0 0">Die Wirkung auf Märkte und Währungen wird hier bewusst nicht beschrieben. Sie folgt später in der Ableitung.</p></div>
+  </details>
+</section>
+
+<h2 style="font-size:15px;margin:18px 0 6px">Woher der Strom kommt: der Strommix</h2>
+<div class="struktur" id="mix-box">
+  <div class="kuchenkopf"><h3>Stromerzeugung nach Quelle, <span id="mix-meta"></span></h3><span>Anteil an der gesamten Nettostromerzeugung in %, Klick für Verlauf und Vergleich</span></div>
+  <svg class="pie" id="mix-pie" viewBox="0 0 1100 620" role="img" aria-label="Kuchendiagramm der US-Stromerzeugung nach Quelle"></svg>
+  <div class="bandkopf" style="margin-top:12px">Zusammengefasst: fossil, Atomkraft, erneuerbar</div>
+  <div class="balken2" id="mix-bal" role="group" aria-label="Fossil, Atom, erneuerbar"></div>
+  <div class="bhin" id="mix-hin"></div>
+</div>
+
+<h2 style="font-size:15px;margin:18px 0 6px">Karte: Energie und Wetter</h2>
+<style>
+.karte-k{display:block;position:relative;border:1px solid var(--rand);border-radius:12px;overflow:hidden;background:#0e1420;color:#f1f5f9;text-decoration:none;box-shadow:var(--schatten)}
+.karte-k img{display:block;width:100%;height:auto;opacity:.95;transition:opacity .15s,transform .3s}
+.karte-k:hover img,.karte-k:focus-visible img{opacity:1;transform:scale(1.01)}
+.karte-k .sk-text{position:absolute;left:0;right:0;bottom:0;padding:34px 230px 14px 18px;background:linear-gradient(transparent,rgba(14,20,32,.96) 55%);display:flex;flex-direction:column;gap:2px}
+.karte-k .sk-text b{font-size:16px}.karte-k .sk-text span{font-size:13px;color:#c3cad6}
+.karte-k .sk-btn{position:absolute;right:14px;bottom:16px;z-index:2;background:#f1f5f9;color:#0e1420;border-radius:8px;padding:6px 12px;font-size:13px;font-weight:650}
+.ticker{margin:8px 0 0;padding:0;list-style:none}
+.ticker li{display:grid;grid-template-columns:86px 190px 1fr;gap:8px;align-items:baseline;padding:5px 0;border-bottom:1px solid var(--rand);font-size:13px}
+.ticker .tk-a{font-size:11.5px;font-weight:650;color:var(--text2)}
+.ticker .tk-d{font-variant-numeric:tabular-nums;color:var(--text2);font-size:12px}
+.ticker a{color:var(--text)}
+@media (max-width:760px){.ticker li{grid-template-columns:1fr}}
+</style>
+<a class="karte-k" href="usa-umwelt-karte.html" aria-label="Karte Energie und Wetter öffnen">
+  <img src="../bilder/energiekarte-vorschau.png" alt="Vorschau: Karte der USA mit Kraftwerken, Raffinerien, Flüssiggas-Terminals und aktuellen Stürmen">
+  <span class="sk-btn">Karte öffnen · drei Ansichten</span>
+  <span class="sk-text"><b>Wo Energie erzeugt wird und wo das Wetter gerade liegt</b><span>2.751 Kraftwerke nach Energiequelle, Raffinerien, Flüssiggas-Terminals, Ölreserve, dazu Wetterradar, Stürme und Warnungen live. Ansichten: Energie, Wetter und Hurrikane, beides zusammen.</span></span>
+</a>
+
+<h2 style="font-size:15px;margin:18px 0 6px">Klimapolitik und Regulierung: was wann beschlossen wurde</h2>
+<div class="struktur" id="pol-box">
+  <div class="kuchenkopf"><h3>Zeitleiste der wichtigsten Entscheidungen</h3><span>Nur Fakten mit Datum und Quelle, manuell gepflegt (Stand der Recherche 22.10.2026)</span></div>
+  <div class="tl" id="zeit"></div>
+  <div class="bandkopf" style="margin-top:12px">Neueste Regelungen im Bundesregister (automatisch, zweimal täglich)</div>
+  <ul class="ticker" id="ticker"></ul>
+  <div class="bhin" id="tk-hin"></div>
+  <div class="bandkopf" style="margin-top:12px">Wer wofür zuständig ist</div>
+  <div class="tab" style="overflow:auto"><table class="vgl" id="behoerden"></table></div>
+  <div class="bhin" id="pol-hin"></div>
+</div>
+
+<h2 style="font-size:15px;margin:18px 0 6px">Die Daten dazu</h2>
+<div class="band"><div class="bandkopf">Energiepreise</div><div class="bandinhalt" id="b1"></div>
+  <p class="hinweis">Förderung von Öl und Gas, LNG-Exporte und der Stromverbrauch der Sektoren stehen in Oberthema 4 (Wirtschaft und Infrastruktur). Wie die Preise auf die Inflation wirken, steht in Oberthema 6.</p></div>
+<div class="band"><div class="bandkopf">Elektroautos</div><div class="bandinhalt" id="b2"></div></div>
+<div class="band"><div class="bandkopf">Wasser und Dürre</div><div class="bandinhalt" id="b3"></div>
+  <p class="hinweis">Die Pegel der großen Stauseen im Westen (zum Beispiel Lake Mead und Lake Powell) haben hier noch keine Kennzahl, weil keine zuverlässig automatisch abrufbare Quelle gefunden wurde. Sie werden nachgetragen, sobald eine geeignete Quelle feststeht.</p></div>
+<div class="band"><div class="bandkopf">Klimadaten</div><div class="bandinhalt" id="b4"></div></div>
+<div class="band"><div class="bandkopf">Extremwetter und Schäden</div><div class="bandinhalt" id="b5"></div></div>
+</div>
+<div id="schatten"></div>
+<aside id="drawer" role="dialog" aria-modal="true" aria-labelledby="dt" tabindex="-1"></aside>
+
+<script src="daten/usa.js?v=1"></script>
+<script>
+try{const g=localStorage.getItem("dashboard-thema");document.documentElement.dataset.theme=g||"dark"}catch(e){document.documentElement.dataset.theme="dark"}
+document.getElementById("theme").addEventListener("click",()=>{const d=document.documentElement;d.dataset.theme=d.dataset.theme==="dark"?"light":"dark";try{localStorage.setItem("dashboard-thema",d.dataset.theme)}catch(e){}});
+const DATA=(window.USA_DATEN&&window.USA_DATEN.fred)||{};
+const U=(window.USA_DATEN&&window.USA_DATEN.umwelt)||{};
+/* ================== ABGELEITETE REIHEN ================== */
+const QU=[
+ {id:"gas",de:"Erdgas",c:"hsl(28,72%,50%)",t:"Strom aus Gaskraftwerken. Erdgas ist seit Jahren die größte Einzelquelle der US-Stromerzeugung."},
+ {id:"kohle",de:"Kohle",c:"hsl(0,0%,30%)",t:"Strom aus Kohlekraftwerken (Steinkohle, Braunkohle, Kohlegas)."},
+ {id:"atom",de:"Atomkraft",c:"hsl(280,45%,50%)",t:"Strom aus Kernkraftwerken."},
+ {id:"wind",de:"Wind",c:"hsl(195,70%,46%)",t:"Strom aus Windkraft an Land und auf See."},
+ {id:"solar",de:"Sonne",c:"hsl(48,92%,50%)",t:"Solarstrom aus großen Anlagen und kleinen Dachanlagen (die EIA schätzt den Dachanlagen-Anteil)."},
+ {id:"wasser",de:"Wasserkraft",c:"hsl(215,66%,44%)",t:"Strom aus Wasserkraftwerken (ohne Pumpspeicher)."},
+ {id:"bio",de:"Biomasse und Erdwärme",c:"hsl(110,40%,36%)",t:"Strom aus Holz und Holzabfällen, Deponiegas, Müll aus Biomasse, anderer Biomasse und Erdwärme."},
+ {id:"oel",de:"Erdöl",c:"hsl(18,52%,30%)",t:"Strom aus Heizöl, Diesel und Petrolkoks."},
+ {id:"rest",de:"Sonstiges",c:"hsl(0,0%,62%)",t:"Sonstige Gase, Pumpspeicher (Saldo) und weitere Quellen."}
+];
+const BLOCK=[
+ {id:"fossil",de:"Fossil (Gas, Kohle, Öl)",c:"hsl(25,60%,40%)",m:["gas","kohle","oel"],t:"Strom aus Erdgas, Kohle und Erdöl."},
+ {id:"atomb",de:"Atomkraft",c:"hsl(280,45%,50%)",m:["atom"],t:"Strom aus Kernkraftwerken."},
+ {id:"erneu",de:"Erneuerbar",c:"hsl(140,45%,38%)",m:["wind","solar","wasser","bio"],t:"Strom aus Wind, Sonne, Wasserkraft, Biomasse und Erdwärme."},
+ {id:"restb",de:"Sonstiges",c:"hsl(0,0%,62%)",m:["rest"],t:"Sonstige Gase, Pumpspeicher (Saldo) und weitere Quellen."}
+];
+const mixM=U.strommix&&U.strommix.monate||{};
+if(U.strommix){
+ const ds=Object.keys(mixM).sort();
+ QU.forEach(q=>{DATA["__sm_"+q.id]=ds.map(d=>[d,mixM[d][q.id]])});
+ BLOCK.forEach(b=>{DATA["__sb_"+b.id]=ds.map(d=>[d,b.m.reduce((a,m)=>a+mixM[d][m],0)])});
+}
+if(U.co2){DATA.__co2=U.co2.monat;const p=U.co2.monat;const o=[];p.forEach(x=>{const vj=(+x[0].slice(0,4)-1)+x[0].slice(4);const y=p.find(q=>q[0]===vj);if(y)o.push([x[0],x[1]-y[1]])});DATA.__co2y=o}
+if(U.gistemp)DATA.__temp=U.gistemp.monat;
+if(U.duerre)Object.keys(U.duerre.reihen).forEach(k=>{DATA["__dm_"+k]=U.duerre.reihen[k]});
+/* ================== KACHELN ================== */
+const SP=[{id:1,titel:"ENERGIEPREISE"},{id:2,titel:"ELEKTROAUTOS"},{id:3,titel:"WASSER UND DÜRRE"},{id:4,titel:"KLIMADATEN"},{id:1,titel:"EXTREMWETTER"}];
+const P1={div:1,dec:1,suf:" %"};
+const K=[
+ {id:"strom",sp:1,b:"b1",titel:"Strompreis für Haushalte",s:"APU000072610",f:{div:1,dec:3,suf:" USD/kWh"},rhythm:"m",was:"Durchschnittlicher Preis einer Kilowattstunde Strom für Haushalte in großen US-Städten (Arbeitsministerium, BLS).",hin:"Es ist ein Durchschnitt über viele Städte. Die Strompreise unterscheiden sich stark zwischen den Staaten.",q:"FRED APU000072610 (BLS)"},
+ {id:"stromy",sp:1,b:"b1",titel:"Strompreisindex, zum Vorjahr",s:"CPI_STROM_YOY",f:P1,rhythm:"m",was:"Veränderung des Verbraucherpreisindex für Strom gegenüber dem Vorjahresmonat (BLS). Der Index ist Teil des CPI-Kuchens in Oberthema 6.",hin:"",q:"FRED CUSR0000SEHF01 (BLS), Veränderung zum Vorjahr"},
+ {id:"benz",sp:1,b:"b1",titel:"Benzinpreis (Regular, Wochenmittel)",s:"GASREGW",f:{div:1,dec:2,suf:" USD/Gal."},rhythm:"w",was:"Durchschnittlicher Preis für eine Gallone Normalbenzin an US-Tankstellen, wöchentlich (EIA). Eine Gallone sind etwa 3,8 Liter.",hin:"",q:"FRED GASREGW (EIA)"},
+ {id:"benzy",sp:1,b:"b1",titel:"Benzinpreisindex, zum Vorjahr",s:"CPI_BENZIN_YOY",f:P1,rhythm:"m",was:"Veränderung des Verbraucherpreisindex für Benzin gegenüber dem Vorjahresmonat (BLS).",hin:"Der Index steigt und fällt stark mit dem Rohölpreis.",q:"FRED CUSR0000SETB01 (BLS), Veränderung zum Vorjahr"},
+ {id:"hh",sp:1,b:"b1",titel:"Erdgaspreis (Henry Hub)",s:"MHHNGSP",f:{div:1,dec:2,suf:" USD/MMBtu"},rhythm:"m",was:"Monatsmittel des Erdgaspreises am Handelsknoten Henry Hub in Louisiana, in US-Dollar je Million britische Wärmeeinheiten (EIA). Gas ist die größte Quelle des US-Stroms.",hin:"",q:"FRED MHHNGSP (EIA)"},
+ {id:"wti",sp:1,b:"b1",titel:"Rohölpreis (WTI)",s:"MCOILWTICO",f:{div:1,dec:2,suf:" USD/Barrel"},rhythm:"m",was:"Monatsmittel des Rohölpreises der Sorte West Texas Intermediate (EIA).",hin:"",q:"FRED MCOILWTICO (EIA)"},
+ {id:"heiz",sp:1,b:"b1",titel:"Heizölpreis (New York)",s:"DHOILNYH",f:{div:1,dec:2,suf:" USD/Gal."},rhythm:"d",was:"Tagespreis für Heizöl Nr. 2 im Hafen von New York (EIA).",hin:"",q:"FRED DHOILNYH (EIA)"},
+
+ {id:"d1",sp:3,b:"b3",titel:"Dürre: Fläche mit mäßiger Dürre oder schlimmer",s:"__dm_D1",f:P1,rhythm:"w",was:"Anteil der Fläche der 48 Festlandstaaten, der laut US Drought Monitor mindestens in mäßiger Dürre (Stufe D1 bis D4) ist.",hin:"Der Drought Monitor erscheint wöchentlich (Stichtag Dienstag, Veröffentlichung Donnerstag). Er ist eine Experteneinschätzung aus Messdaten, keine einzelne Messung.",q:"US Drought Monitor (NDMC, USDA, NOAA), Fläche der 48 Festlandstaaten"},
+ {id:"d2",sp:3,b:"b3",titel:"Dürre: Fläche mit schwerer Dürre oder schlimmer",s:"__dm_D2",f:P1,rhythm:"w",was:"Anteil der Fläche der 48 Festlandstaaten in schwerer Dürre oder schlimmer (Stufe D2 bis D4).",hin:"",q:"US Drought Monitor, Fläche der 48 Festlandstaaten"},
+ {id:"d3",sp:3,b:"b3",titel:"Dürre: Fläche mit extremer Dürre oder schlimmer",s:"__dm_D3",f:P1,rhythm:"w",was:"Anteil der Fläche der 48 Festlandstaaten in extremer oder außergewöhnlicher Dürre (Stufe D3 bis D4).",hin:"",q:"US Drought Monitor, Fläche der 48 Festlandstaaten"},
+ {id:"d0",sp:3,b:"b3",titel:"Trockenheit: Fläche mit abnormaler Trockenheit oder mehr",s:"__dm_D0",f:P1,rhythm:"w",was:"Anteil der Fläche der 48 Festlandstaaten, der mindestens abnormal trocken ist (Stufe D0 bis D4). D0 ist die Vorstufe zur Dürre.",hin:"",q:"US Drought Monitor, Fläche der 48 Festlandstaaten"},
+
+ {id:"co2",sp:4,b:"b4",titel:"CO₂-Konzentration in der Luft (Mauna Loa)",s:"__co2",f:{div:1,dec:1,suf:" ppm"},rhythm:"m",was:"Monatsmittel der CO₂-Konzentration in der Atmosphäre an der Messstation Mauna Loa auf Hawaii, in Teilchen pro Million (NOAA). Der Wert gilt weltweit als Referenz.",hin:"Der Verlauf zeigt eine jahreszeitliche Schwankung (im Frühjahr am höchsten) und einen stetigen Anstieg.",q:"NOAA Global Monitoring Laboratory"},
+ {id:"co2y",sp:4,b:"b4",titel:"CO₂-Konzentration, Anstieg zum Vorjahr",s:"__co2y",f:{div:1,dec:1,suf:" ppm"},rhythm:"m",was:"Unterschied der CO₂-Konzentration zum gleichen Monat des Vorjahres (berechnet aus den NOAA-Monatswerten).",hin:"",q:"NOAA Global Monitoring Laboratory, eigene Berechnung"},
+ {id:"temp",sp:4,b:"b4",titel:"Globale Temperatur, Abweichung (NASA)",s:"__temp",f:{div:1,dec:2,suf:" °C"},rhythm:"m",was:"Abweichung der globalen mittleren Oberflächentemperatur eines Monats vom Durchschnitt der Jahre 1951 bis 1980 (NASA GISTEMP, Land und Ozean).",hin:"Die Reihe gilt für die ganze Erde, nicht nur für die USA. Eine Reihe für die US-Temperatur der NOAA war bei der Abfrage nicht erreichbar.",q:"NASA GISS Surface Temperature Analysis (GISTEMP v4)"}
+];
+const byId={};K.forEach(k=>byId[k.id]=k);
+const $=s=>document.querySelector(s), heute=new Date(); heute.setHours(0,0,0,0);
+const esc=s=>String(s).replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+const nf=(v,d)=>new Intl.NumberFormat("de-DE",{minimumFractionDigits:d,maximumFractionDigits:d}).format(v);
+const dts=d=>{const[y,m,t]=d.split("-");return t+"."+m+"."+y};
+const tageBis=d=>Math.round((new Date(d+"T00:00:00")-heute)/86400000);
+const farbe=sp=>sp===0?"cb":"c"+sp;
+function fmtv(k,v){const f=k.f;return nf(v/f.div,f.dec)+f.suf}
+function letzte(k){const p=DATA[k.s];return p[p.length-1]}
+function veraenderung(k){const p=DATA[k.s];const l=p[p.length-1];
+  let ref;
+  if(k.rhythm==="q"||k.rhythm==="m"){ref=p[p.length-2]}
+  else{const lim=new Date(l[0]);lim.setDate(lim.getDate()-30);ref=[...p].reverse().find(x=>new Date(x[0])<=lim)}
+  if(!ref)return null;const dv=l[1]-ref[1];const txt=(dv>0?"▲ ":dv<0?"▼ ":"= ")+nf(Math.abs(dv)/k.f.div,k.f.dec)+(k.f.suf.includes("%")?" Pkt":k.f.suf);
+  return {txt,ref:ref[0],q:k.rhythm==="q",m:k.rhythm==="m"}}
+function spark(p,col){const n=p.slice(-Math.min(p.length,k_n(p)));const w=200,h=30;const xs=n.map(x=>x[1]);const mn=Math.min(...xs),mx=Math.max(...xs),sp=(mx-mn)||1;
+  const pts=n.map((x,i)=>(i/(n.length-1)*w).toFixed(1)+","+(h-2-(x[1]-mn)/sp*(h-4)).toFixed(1)).join(" ");
+  return '<svg class="spark" viewBox="0 0 '+w+' '+h+'" preserveAspectRatio="none" aria-hidden="true"><polyline fill="none" stroke="'+col+'" stroke-width="1.6" vector-effect="non-scaling-stroke" points="'+pts+'"/></svg>'}
+function k_n(p){return p.length>300?130:p.length>100?100:p.length>40?24:p.length}
+let tiles={}, aktiv=null, letzterFokus=null;
+function kachel(k){
+  const b=document.createElement("button");b.type="button";b.className="k "+farbe(k.sp);b.dataset.id=k.id;
+  let h='<div class="kt"><span class="kn">'+esc(k.titel)+'</span>';
+  if(k.s){const l=letzte(k);h+='<span class="kd">'+dts(l[0])+'</span></div><div class="kw">'+esc(fmtv(k,l[1]))+'</div>';
+    const v=veraenderung(k);h+='<div class="ks"><span>'+(v?esc(v.txt)+" ("+(v.q?"Vorquartal":v.m?"Vormonat":"30 Tage")+")":"")+'</span><span><i class="pkt auto"></i>auto</span></div>'+spark(DATA[k.s],"var(--c)")}
+  else{h+='<span class="kd"></span></div><div class="kw" style="font-size:20px">'+esc(k.kpi[0])+'</div><div class="ks"><span>'+esc(k.kpi[1])+'</span><span><i class="pkt '+(k.auto?'auto':'man')+'"></i>'+(k.auto?'auto':'manuell')+'</span></div>'}
+  b.innerHTML=h;b.addEventListener("click",()=>oeffnen(k.id));tiles[k.id]=b;return b}
+/* ----- Kacheln ohne Reihe (manuell oder aus Sammelwerten) ----- */
+function fz(v,d){return nf(v,d)}
+const MAN=[
+ {id:"evq3",sp:2,b:"b2",titel:"E-Auto-Neuverkäufe pro Quartal",kpi:["262.649","Q3 2026, Marktanteil rund 6,4 %"],man:true,
+  was:"Zahl der in den USA neu verkauften reinen Elektroautos pro Quartal (Schätzung von Kelley Blue Book, Cox Automotive). Der Marktanteil ist der Anteil an allen Neuwagenverkäufen.",
+  lage:"Im 3. Quartal 2026 stiegen die Verkäufe um 6,1 % gegenüber dem 2. Quartal auf das höchste Niveau seit einem Jahr. Seit dem Ende der Steuergutschrift lag der Marktanteil bei etwa 6 %, nach einem Hoch von 10,6 % im 3. Quartal 2025.",
+  rows:[{l:"Q3 2026: Neuverkäufe",w:"262.649, Anteil rund 6,4 %",q:"Cox Automotive, Q3 2026",s:"Okt. 2026",m:"man"},{l:"Q2 2026: Neuverkäufe",w:"247.226 (−20,5 % zum Vorjahr), Anteil rund 5,8 %",q:"Cox Automotive, Q2 2026",s:"Jul. 2026",m:"man"},{l:"Q1 2026: Neuverkäufe",w:"216.399, Anteil 5,8 %",q:"Cox Automotive, Q1 2026",s:"Apr. 2026",m:"man"},{l:"Q3 2025: Marktanteil (Hoch)",w:"10,6 %",q:"Cox Automotive, Q1 2026",s:"2025",m:"man"},{l:"Gebrauchte E-Autos, Q3 2026",w:"rund 127.000 (Rekordniveau)",q:"Cox Automotive, Prognose Q3 2026",s:"Sep. 2026",m:"man"}],
+  hin:"Die Zahlen sind Schätzungen und werden nachträglich revidiert (zum Beispiel Q1 2026 mit 216.399 oder 212.600). Die Steuergutschrift für neue Elektroautos ist 2025 ausgelaufen.",q:"Cox Automotive / Kelley Blue Book, Quartalsberichte (manuell gepflegt)"},
+ {id:"evs",sp:2,b:"b2",titel:"E-Auto-Marktanteil an den Neuwagen",kpi:["6,4 %","Q3 2026, Hoch 10,6 % im Q3 2025"],man:true,
+  was:"Anteil der reinen Elektroautos an allen neu verkauften Pkw und leichten Nutzfahrzeugen in den USA.",
+  lage:"Nach dem Auslaufen der Steuergutschrift fiel der Anteil von 10,6 % (3. Quartal 2025) auf etwa 5,8 % im 1. und 2. Quartal 2026 und stieg im 3. Quartal 2026 wieder auf rund 6,4 %.",
+  rows:[{l:"Tesla-Anteil an E-Auto-Verkäufen, Juli 2026",w:"rund 55 %",q:"Cox EV Market Monitor, Juli 2026",s:"Jul. 2026",m:"man"}],hin:"Monatswerte zeigen kleine Abweichungen zu den Quartalswerten (Juli 2026: etwa 77.000 Neuverkäufe, 5,6 % Anteil).",q:"Cox Automotive (manuell gepflegt)"}
+];
+function manBauen(){
+ MAN.forEach(k=>{byId[k.id]=k;document.getElementById(k.b).appendChild(kachel(k))});
+ /* Ladepunkte: automatisch aus AFDC */
+ if(U.laden){const L=U.laden;
+  const k1={id:"lad",sp:2,b:"b2",titel:"Öffentliche Ladepunkte",kpi:[nf(L.ports,0),"davon "+nf(L.dcfast,0)+" Schnelllader (DC)"],auto:true,
+   was:"Zahl der öffentlichen Ladepunkte für Elektroautos in den USA, aus dem Stationsverzeichnis des Energieministeriums (Alternative Fuels Data Center). Ein Standort kann mehrere Ladepunkte haben.",
+   lage:"Stand "+dts(L.stand)+": "+nf(L.ports,0)+" öffentliche Ladepunkte an "+nf(L.standorte,0)+" Standorten, davon "+nf(L.l2,0)+" mit Wechselstrom (Level 2) und "+nf(L.dcfast,0)+" Schnelllader mit Gleichstrom (DC).",
+   rows:L.hist.slice(-12).reverse().map(h=>({l:"Stand "+dts(h[0]),w:nf(h[1],0)+" Ladepunkte, "+nf(h[2],0)+" Schnelllader",q:"AFDC",s:dts(h[0]),m:"auto"})),
+   hin:"Das Verzeichnis zählt auch Standorte, die bei Betreibern getrennt geführt werden. Andere Anbieter (zum Beispiel Paren) nennen leicht abweichende Zahlen. Der Verlauf wird ab dem ersten Abruf mitgeschrieben.",q:"AFDC Station Counts, afdc.energy.gov/stations/states"};
+  byId[k1.id]=k1;document.getElementById(k1.b).appendChild(kachel(k1));
+  const k2={id:"ladd",sp:2,b:"b2",titel:"Öffentliche Schnellladepunkte (DC)",kpi:[nf(L.dcfast,0),"Stand "+dts(L.stand)],auto:true,
+   was:"Öffentliche Ladepunkte mit Gleichstrom (DC Fast), an denen ein Elektroauto in rund 20 bis 40 Minuten nennenswert nachladen kann.",
+   lage:"Das Verzeichnis nennt "+nf(L.dcfast,0)+" öffentliche Schnellladepunkte. Zum Vergleich nannte das Verzeichnis im Juli 2026 rund 75.000 und im Juli 2025 rund 60.000.",rows:[],hin:"",q:"AFDC Station Counts (Energieministerium)"};
+  byId[k2.id]=k2;document.getElementById(k2.b).appendChild(kachel(k2))}
+ /* Extremwetter (manuell, jaehrlich) */
+ const EX=[
+  {id:"kat25",sp:1,b:"b5",titel:"Milliarden-Dollar-Katastrophen 2025",kpi:["23 Ereignisse","rund 115 Mrd. USD Schaden, 276 Todesopfer"],man:true,
+   was:"Zahl der Wetter- und Klimakatastrophen in den USA mit mehr als einer Milliarde Dollar Schaden (inflationsbereinigt in Preisen von 2025) und ihre direkten Kosten. Gezählt werden Unwetter, Hurrikane, Überschwemmungen, Dürre, Waldbrände und Winterstürme.",
+   lage:"2025 war nach Climate Central das dritthöchste Jahr seit 1980 (hinter 2023 mit 28 und 2024 mit 27 Ereignissen). Das teuerste Ereignis waren die Waldbrände in Los Angeles im Januar mit 61,2 Mrd. USD.",
+   rows:[{l:"Anzahl 2025",w:"23 Ereignisse",q:"Climate Central, Bericht vom 09.03.2026",s:"09.03.2026",m:"man"},{l:"Direkte Kosten 2025",w:"rund 115,0 Mrd. USD",q:"Climate Central",s:"09.03.2026",m:"man"},{l:"Teuerstes Ereignis 2025",w:"Waldbrände Los Angeles, 61,2 Mrd. USD",q:"Climate Central",s:"09.03.2026",m:"man"},{l:"Todesopfer 2025 (direkt und indirekt)",w:"276",q:"Climate Central",s:"09.03.2026",m:"man"}],
+   hin:"Die NOAA hat diese Datenbank im Mai 2025 eingestellt (letzter Stand 2024). Die Organisation Climate Central führt sie unter der Leitung des bisherigen NOAA-Projektleiters fort. Die Zahlen werden einmal im Jahr aktualisiert.",q:"Climate Central, US Billion-Dollar Weather and Climate Disasters (manuell gepflegt)"},
+  {id:"kat80",sp:1,b:"b5",titel:"Milliarden-Dollar-Katastrophen seit 1980",kpi:["426 Ereignisse","mehr als 3,1 Bio. USD Gesamtschaden"],man:true,
+   was:"Gesamtzahl und Gesamtkosten aller Milliarden-Dollar-Katastrophen seit 1980 (inflationsbereinigt).",
+   lage:"Die NOAA-Datenbank listete bis 2024 insgesamt 403 Ereignisse mit mehr als 2,945 Bio. USD. Die fortgeführte Reihe von Climate Central kommt mit 2025 auf 426 Ereignisse und mehr als 3,1 Bio. USD (die Differenz enthält auch Überarbeitungen).",
+   rows:[{l:"Stand NOAA bis 2024",w:"403 Ereignisse, 2,945 Bio. USD",q:"NOAA NCEI (eingestellt)",s:"2025",m:"man"},{l:"Stand Climate Central 2025",w:"426 Ereignisse, mehr als 3,1 Bio. USD",q:"Climate Central",s:"09.03.2026",m:"man"}],
+   hin:"Die Zahlen werden bei jeder Aktualisierung revidiert.",q:"Climate Central, NOAA NCEI (manuell gepflegt)"}];
+ EX.forEach(k=>{byId[k.id]=k;document.getElementById(k.b).appendChild(kachel(k))});
+}
+function bauen(){K.forEach(k=>{const c=document.getElementById(k.b);if(c)c.appendChild(kachel(k))});manBauen()}
+const dr=$("#drawer"), sh=$("#schatten");
+function kopf(gr,titel,farbeCss){dr.style.setProperty("--c",farbeCss||"var(--cb)");return '<div class="dk"><div><div class="gr">'+esc(gr)+'</div><h2 id="dt">'+esc(titel)+'</h2></div><button class="zu" type="button" aria-label="Schließen">×</button></div>'}
+function zeigen(h){dr.innerHTML=h;dr.classList.add("offen");sh.classList.add("offen");dr.querySelector(".zu").addEventListener("click",schliessen);dr.focus()}
+function lage(k){const p=DATA[k.s],l=p[p.length-1],mx=p.reduce((a,b)=>b[1]>a[1]?b:a),mn=p.reduce((a,b)=>b[1]<a[1]?b:a);
+  return 'Aktuell '+fmtv(k,l[1])+' ('+dts(l[0])+'). Im gezeigten Zeitraum ab '+dts(p[0][0])+': Höchstwert '+fmtv(k,mx[1])+' ('+dts(mx[0])+'), Tiefstwert '+fmtv(k,mn[1])+' ('+dts(mn[0])+').'}
+function oeffnen(id,extra){const k=byId[id];letzterFokus=document.activeElement;
+  Object.values(tiles).forEach(t=>t.classList.toggle("aktiv",t.dataset.id===id));
+  let h=kopf(k.gr||SP[+k.b.slice(1)-1].titel,k.titel,k.sp?"var(--c"+k.sp+")":"var(--cb)")+'<div class="db">';
+  if(k.s){const l=letzte(k);h+='<div class="gross">'+esc(fmtv(k,l[1]))+'</div><div class="gsub">Stand '+dts(l[0])+' · <i class="pkt auto"></i>automatisch</div>';
+   h+='<div class="btns" role="group" aria-label="Zeitraum"></div><div class="tip" id="tip"> </div><svg class="chart" id="chart" viewBox="0 0 560 230" role="img" aria-label="Verlauf '+esc(k.titel)+'"></svg>'}
+  else h+='<div class="gross" style="font-size:28px">'+esc(k.kpi[0])+'</div><div class="gsub">'+esc(k.kpi[1])+' · <i class="pkt '+(k.auto?'auto':'man')+'"></i>'+(k.auto?'automatisch':'manuell gepflegt')+'</div>';
+  h+=(extra||'')+'<h3>Was ist das?</h3><p>'+esc(k.was)+'</p><h3>Aktuelle Lage</h3><p>'+esc(k.lage||lage(k))+'</p>';
+  if(k.rows&&k.rows.length)h+='<h3>Weitere Datenpunkte</h3><table><tr><th>Datenpunkt</th><th>Wert</th><th>Quelle</th><th>Stand</th></tr>'+k.rows.map(r=>'<tr><td>'+esc(r.l)+'</td><td><b>'+esc(r.w)+'</b></td><td>'+esc(r.q)+'</td><td>'+esc(r.s)+' <i class="pkt '+(r.m==="auto"?"auto":"man")+'"></i></td></tr>').join("")+'</table>';
+  if(k.hin)h+='<h3>Hinweis</h3><div class="hin">'+esc(k.hin)+'</div>';
+  h+='<h3>Quelle</h3><p style="font-size:13px;color:var(--text2)">'+esc(k.q)+'</p></div>';
+  zeigen(h);if(k.s)chartInit(k)}
+function schliessen(){dr.classList.remove("offen");sh.classList.remove("offen");Object.values(tiles).forEach(t=>t.classList.remove("aktiv"));if(letzterFokus&&letzterFokus.focus)letzterFokus.focus()}
+sh.addEventListener("click",schliessen);addEventListener("keydown",e=>{if(e.key==="Escape"&&dr.classList.contains("offen"))schliessen()});
+const ZR=[["3 Mon.",92],["6 Mon.",183],["1 Jahr",365],["Alles",0]];
+function chartInit(k){const box=dr.querySelector(".btns");let sel=(k.rhythm==="q"||k.rhythm==="m")?3:(k.rhythm==="w"?3:2);
+  ZR.forEach((z,i)=>{const b=document.createElement("button");b.type="button";b.className="btn";b.textContent=z[0];b.setAttribute("aria-pressed",i===sel);
+    if((k.rhythm==="q"||k.rhythm==="m")&&i<2){b.disabled=true;b.style.opacity=.4}
+    b.addEventListener("click",()=>{sel=i;[...box.children].forEach((c,j)=>c.setAttribute("aria-pressed",j===i));zeichne(k,ZR[i][1])});box.appendChild(b)});
+  zeichne(k,ZR[sel][1])}
+function zeichne(k,tage){const all=DATA[k.s];let p=all;if(tage){const lim=new Date(all[all.length-1][0]);lim.setDate(lim.getDate()-tage);p=all.filter(x=>new Date(x[0])>=lim)}
+  if(p.length<2)p=all.slice(-2);
+  const svg=$("#chart"),W=560,H=230,L=52,R=12,T=10,B=26;const ys=p.map(x=>x[1]/k.f.div);let mn=Math.min(...ys),mx=Math.max(...ys);const pad=(mx-mn||1)*.08;mn-=pad;mx+=pad;
+  const t0=new Date(p[0][0]).getTime(),t1=new Date(p[p.length-1][0]).getTime(),X=d=>L+(new Date(d).getTime()-t0)/((t1-t0)||1)*(W-L-R),Y=v=>T+(1-(v-mn)/(mx-mn))*(H-T-B);
+  let s="";for(let i=0;i<=4;i++){const v=mn+(mx-mn)*i/4,y=Y(v);s+='<line x1="'+L+'" x2="'+(W-R)+'" y1="'+y+'" y2="'+y+'" stroke="var(--raster)"/><text x="'+(L-6)+'" y="'+(y+4)+'" text-anchor="end" font-size="10.5" fill="var(--stumm)">'+nf(v,k.f.dec>1?1:k.f.dec)+'</text>'}
+  s+='<text x="'+L+'" y="'+(H-6)+'" font-size="10.5" fill="var(--stumm)">'+dts(p[0][0])+'</text><text x="'+(W-R)+'" y="'+(H-6)+'" text-anchor="end" font-size="10.5" fill="var(--stumm)">'+dts(p[p.length-1][0])+'</text>';
+  const pts=p.map(x=>X(x[0]).toFixed(1)+","+Y(x[1]/k.f.div).toFixed(1)).join(" ");
+  s+='<polyline fill="none" stroke="var(--c)" stroke-width="2" stroke-linejoin="round" points="'+pts+'"/>';
+  const lp=p[p.length-1];s+='<circle cx="'+X(lp[0])+'" cy="'+Y(lp[1]/k.f.div)+'" r="3.5" fill="var(--c)"/><line id="cv" y1="'+T+'" y2="'+(H-B)+'" stroke="var(--text)" stroke-width="1" opacity="0"/><circle id="cd" r="4" fill="var(--c)" stroke="var(--flaeche)" stroke-width="2" opacity="0"/>';
+  svg.innerHTML=s;const tip=$("#tip");tip.textContent="Mit Maus oder Finger über den Verlauf fahren, um einzelne Werte zu sehen.";
+  const mv=e=>{const r=svg.getBoundingClientRect();const x=((e.clientX-r.left)/r.width)*W;let b=0,bd=1e9;p.forEach((q,i)=>{const d=Math.abs(X(q[0])-x);if(d<bd){bd=d;b=i}});const q=p[b];
+    const cv=$("#cv"),cd=$("#cd");cv.setAttribute("x1",X(q[0]));cv.setAttribute("x2",X(q[0]));cv.setAttribute("opacity",.4);cd.setAttribute("cx",X(q[0]));cd.setAttribute("cy",Y(q[1]/k.f.div));cd.setAttribute("opacity",1);tip.textContent=dts(q[0])+": "+fmtv(k,q[1])};
+  svg.onpointermove=mv;svg.onpointerdown=mv;svg.onpointerleave=()=>{$("#cv").setAttribute("opacity",0);$("#cd").setAttribute("opacity",0)}}
+const pf=(v,d)=>nf(v,d===undefined?1:d);
+/* Kuchen mit Beschriftung links und rechts */
+function kuchen(svgId,teile,opts){
+ const svg=document.getElementById(svgId),sum=teile.reduce((a,x)=>a+x.w,0);let w0=-Math.PI/2;const R=opts.R||225,cx=550,cy=310,H=620;
+ let pfade="";const lab={r:[],l:[]};
+ teile.forEach(x=>{const dw=x.w/sum*2*Math.PI,w1=w0+dw,wm=(w0+w1)/2;const p=(wk,r)=>[cx+r*Math.cos(wk),cy+r*Math.sin(wk)];const [x0,y0]=p(w0,R),[x1,y1]=p(w1,R);
+  const d=dw>=2*Math.PI-1e-6?"M"+(cx-R)+","+cy+" A"+R+","+R+" 0 1 1 "+(cx+R)+","+cy+" A"+R+","+R+" 0 1 1 "+(cx-R)+","+cy+" Z":"M"+cx+","+cy+" L"+x0.toFixed(2)+","+y0.toFixed(2)+" A"+R+","+R+" 0 "+(dw>Math.PI?1:0)+" 1 "+x1.toFixed(2)+","+y1.toFixed(2)+" Z";
+  pfade+='<path d="'+d+'" fill="'+x.c+'" tabindex="0" role="button" data-id="'+x.id+'" aria-label="'+esc(x.de||x.n)+' '+pf(x.w,2)+' Prozent"><title>'+esc(x.de||x.n)+': '+pf(x.w,2)+' %</title></path>';
+  if(x.w>=opts.min){const rechts=Math.cos(wm)>=0;lab[rechts?"r":"l"].push({x,a0:p(wm,R),a1:p(wm,R+20),y:p(wm,R+20)[1]})}
+  w0=w1});
+ const GAP=19;let linien="",texte="";
+ ["r","l"].forEach(seite=>{const arr=lab[seite].sort((m,n)=>m.y-n.y);
+  for(let i=1;i<arr.length;i++)if(arr[i].y<arr[i-1].y+GAP)arr[i].y=arr[i-1].y+GAP;
+  const ueber=arr.length?arr[arr.length-1].y-(H-12):0;if(ueber>0)arr.forEach(o=>o.y-=ueber);
+  for(let i=1;i<arr.length;i++)if(arr[i].y<arr[i-1].y+GAP)arr[i-1].y=arr[i].y-GAP;
+  const lx=seite==="r"?cx+R+54:cx-R-54;
+  arr.forEach(o=>{const x=o.x,ex=seite==="r"?lx-8:lx+8;
+   linien+='<polyline class="fl" points="'+o.a0[0].toFixed(1)+','+o.a0[1].toFixed(1)+' '+o.a1[0].toFixed(1)+','+o.a1[1].toFixed(1)+' '+ex+','+o.y.toFixed(1)+' '+lx+','+o.y.toFixed(1)+'"/><circle cx="'+o.a0[0].toFixed(1)+'" cy="'+o.a0[1].toFixed(1)+'" r="2" fill="var(--text)"/>';
+   const nm=esc(opts.kurz?opts.kurz(x):(x.de||x.n)),pz=pf(x.w,x.w<10?2:1)+" %";
+   texte+=seite==="r"?'<text class="lbl" data-id="'+x.id+'" x="'+(lx+6)+'" y="'+(o.y+4.5).toFixed(1)+'"><tspan class="pz">'+pz+'</tspan><tspan dx="8">'+nm+'</tspan></text>'
+    :'<text class="lbl" data-id="'+x.id+'" x="'+(lx-6)+'" y="'+(o.y+4.5).toFixed(1)+'" text-anchor="end"><tspan>'+nm+'</tspan><tspan dx="8" class="pz">'+pz+'</tspan></text>'})});
+ svg.innerHTML='<g class="lbl">'+linien+'</g>'+pfade+texte+'<text class="mt" x="'+cx+'" y="'+(cy+H/2-2)*0+'"></text>';
+ svg.querySelectorAll("path,text[data-id]").forEach(e=>{const f=()=>opts.klick(e.dataset.id);e.addEventListener("click",f);if(e.tagName==="path")e.addEventListener("keydown",ev=>{if(ev.key==="Enter"||ev.key===" "){ev.preventDefault();f()}})});
+}
+function balken(id,teile,klick){const sum=teile.reduce((a,x)=>a+x.w,0);const B=document.getElementById(id);
+ B.innerHTML=teile.map(x=>'<button type="button" data-id="'+x.id+'" style="width:'+(x.w/sum*100).toFixed(3)+'%;background:'+x.c+'" title="'+esc(x.de||x.n)+' '+pf(x.w,1)+' %">'+(((x.de||x.n).length+6)*6.1<x.w/sum*1100?esc(x.de||x.n)+" "+pf(x.w,1)+" %":x.w>=2.5?pf(x.w,1)+" %":"")+'</button>').join("");
+ B.querySelectorAll("button").forEach(b=>b.addEventListener("click",()=>klick(b.dataset.id)))}
+function gewBalken(w,max,c){return '<div class="gwb"><i style="width:'+Math.min(100,w/max*100).toFixed(1)+'%;background:'+c+'"></i></div>'}
+
+
+/* ================== STROMMIX ================== */
+function summe(o){return Object.values(o).reduce((a,b)=>a+b,0)}
+function mixBauen(){
+ const S=U.strommix;if(!S||!S.r12){document.getElementById("mix-box").style.display="none";return null}
+ const r=S.r12.werte,tot=summe(r),J=S.jahre,j25=J["2025"],j16=J["2016"],t25=j25?summe(j25):0,t16=j16?summe(j16):0;
+ const mon=S.letzter_monat,md=new Date(mon+"T00:00:00");
+ const monN=["Januar","Februar","März","April","Mai","Juni","Juli","August","September","Oktober","November","Dezember"];
+ const ende=monN[md.getMonth()]+" "+md.getFullYear();
+ const T=QU.map(q=>{const w=r[q.id]/tot*100;
+  const kc={id:"q_"+q.id,titel:q.de+" (Stromerzeugung)",s:"__sm_"+q.id,f:{div:1000,dec:1,suf:" TWh"},rhythm:"m",sp:0,gr:"Strommix",was:q.t+" Monatswerte in Terawattstunden (EIA, Electric Power Monthly).",hin:"Die Werte des laufenden und des Vorjahres sind vorläufig, frühere Jahre sind endgültig. Die Monate unterscheiden sich stark nach Jahreszeit (Heizen, Klimaanlagen).",q:"EIA Electric Power Monthly, Tabellen 1.1 und 1.1.A"};byId[kc.id]=kc;
+  return Object.assign({},q,{n:q.de,w:w,abs:r[q.id],k:kc,a25:j25?j25[q.id]/t25*100:null,a16:j16?j16[q.id]/t16*100:null})});
+ document.getElementById("mix-meta").textContent="12 Monate bis "+ende+", "+nf(tot/1000,0)+" TWh";
+ const extra=x=>{const z=(a,b)=>'<tr><td>'+a+'</td><td class="zahl"><b>'+b+'</b></td></tr>',sg=v=>(v>=0?"+":"−")+nf(Math.abs(v),1)+" Pkt";
+  return '<h3>Einordnung</h3><table>'+z("Anteil, 12 Monate bis "+ende,nf(x.w,1)+" %")+z("Erzeugung, 12 Monate",nf(x.abs/1000,0)+" TWh")+(x.a25!=null?z("Anteil 2025 (Kalenderjahr)",nf(x.a25,1)+" %"):"")+(x.a16!=null?z("Anteil 2016 (Kalenderjahr)",nf(x.a16,1)+" %"):"")+(x.a16!=null?z("Veränderung des Anteils seit 2016",sg(x.w-x.a16)):"")+'</table>'};
+ const klick=id=>{const x=T.find(y=>"q_"+y.id===id);if(x)oeffnen(x.k.id,extra(x))};
+ kuchen("mix-pie",T.map(x=>({id:"q_"+x.id,de:x.de,n:x.de,w:x.w,c:x.c})),{min:1.0,klick:klick,R:200});
+ /* Balken: fossil, Atom, erneuerbar, Sonstiges */
+ const B3=BLOCK.map(b=>{const w=b.m.reduce((a,m)=>a+r[m],0)/tot*100;
+  const kc={id:"b_"+b.id,titel:b.de+" (Stromerzeugung)",s:"__sb_"+b.id,f:{div:1000,dec:1,suf:" TWh"},rhythm:"m",sp:0,gr:"Strommix zusammengefasst",was:b.t+" Monatswerte in Terawattstunden (EIA).",hin:"",q:"EIA Electric Power Monthly, eigene Summen"};byId[kc.id]=kc;
+  return {id:"b_"+b.id,de:b.de,w:w,c:b.c,m:b.m,kc:kc,a25:j25?b.m.reduce((a,m)=>a+j25[m],0)/t25*100:null,a16:j16?b.m.reduce((a,m)=>a+j16[m],0)/t16*100:null}});
+ balken("mix-bal",B3,id=>{const x=B3.find(y=>y.id===id);oeffnen(x.kc.id,'<h3>Einordnung</h3><table><tr><td>Anteil, 12 Monate bis '+ende+'</td><td class="zahl"><b>'+nf(x.w,1)+' %</b></td></tr>'+(x.a25!=null?'<tr><td>Anteil 2025</td><td class="zahl"><b>'+nf(x.a25,1)+' %</b></td></tr>':'')+(x.a16!=null?'<tr><td>Anteil 2016</td><td class="zahl"><b>'+nf(x.a16,1)+' %</b></td></tr>':'')+'</table><h3>Bestandteile</h3><table>'+x.m.map(m=>{const q=QU.find(z=>z.id===m);return '<tr><td>'+esc(q.de)+'</td><td class="zahl">'+nf(r[m]/1000,0)+' TWh</td><td class="zahl"><b>'+nf(r[m]/tot*100,1)+' %</b></td></tr>'}).join("")+'</table>')});
+ document.getElementById("mix-hin").textContent="Nettostromerzeugung aller Sektoren (Kraftwerke der Versorger und Industrie, plus geschätzter Dachanlagen-Solarstrom) in Terawattstunden. Das Stück Sonstiges enthält sonstige Gase, den Saldo der Pumpspeicher und weitere Quellen. Die Werte der letzten zwei Jahre sind vorläufig, die Anteile werden bei jeder Aktualisierung neu berechnet. Quelle: EIA, Electric Power Monthly, Tabellen 1.1 und 1.1.A.";
+ return {T:T,B3:B3,tot:tot,ende:ende};
+}
+/* ================== KLIMAPOLITIK: ZEITLEISTE ================== */
+const ART={ges:{n:"Gesetz",c:"#3d7a56"},reg:{n:"Verordnung",c:"#2f6f9f"},ger:{n:"Gericht",c:"#8a5a2b"},int:{n:"International",c:"#6b4f8a"},dat:{n:"Daten",c:"#52514e"}};
+const EREIGNIS=[
+ {d:"2025-05-08",a:"dat",t:"NOAA stellt die Datenbank der Milliarden-Dollar-Katastrophen ein",x:"Die Wetterbehörde NOAA aktualisiert die Datenbank über Schäden durch Extremwetter nicht mehr über 2024 hinaus und archiviert sie. Die Organisation Climate Central führt die Reihe fort.",q:"CNN, 08.05.2025; Climate Central"},
+ {d:"2025-07-04",a:"ges",t:"„One Big Beautiful Bill Act“ ändert die Steuergutschriften für Energie",x:"Wind und Solar: Die Gutschriften (45Y und 48E) enden für Anlagen, die nach 2027 in Betrieb gehen, es sei denn, der Bau begann etwa bis zum 04. oder 05.07.2026 (die Quellen nennen das Datum uneinheitlich). Speicher und weitere Techniken laufen erst ab 2034 aus. Die Steuergutschriften für Elektroautos und Haushaltsenergie endeten 2025.",q:"Kanzleianalysen zum Gesetz (Sidley, Kirkland, Chapman), IRS Notice 2025-42; Detail-Daten werden vor der Freigabe gegen den Gesetzestext geprüft"},
+ {d:"2026-01-07",a:"int",t:"Dekret beendet die Teilnahme an dutzenden internationalen Organisationen",x:"Die US-Regierung beendet die Zusammenarbeit mit zahlreichen internationalen Organisationen und Verträgen, darunter dem Weltklimarat (IPCC) und der UN-Klimarahmenkonvention (UNFCCC). Der Austritt aus dem Pariser Abkommen wurde bereits im Januar 2025 angekündigt.",q:"Medienberichte (Nature, Washington Post), Stand der Recherche 22.10.2026"},
+ {d:"2026-02-12",a:"reg",t:"EPA hebt die Gefährdungsfeststellung („Endangerment Finding“) auf",x:"Die Umweltbehörde EPA nimmt die Feststellung von 2009 zurück, dass Treibhausgase die öffentliche Gesundheit gefährden. Sie war die rechtliche Grundlage für Treibhausgasregeln bei Fahrzeugen und Kraftwerken. Mehrere Organisationen klagten gegen die Aufhebung.",q:"WRI, Nature, Washington Post (12.02.2026); Al Jazeera (19.02.2026)"},
+ {d:"2026-07-04",a:"ges",t:"Frist für den Baubeginn von Wind- und Solaranlagen läuft ab",x:"Ein Jahr nach Inkrafttreten des Gesetzes endet die Möglichkeit, mit dem Bau zu beginnen und damit die längere Frist für die Inbetriebnahme zu nutzen. Für Anlagen, die später beginnen, gilt der 31.12.2027 als Frist für die Inbetriebnahme.",q:"Kanzleianalysen zum Gesetz; genaues Datum und Auslegung werden geprüft"},
+ {d:"2026-10-01",a:"dat",t:"Das Weiße Haus erklärt den Oktober 2026 zum „National Energy Dominance Month“",x:"Die Regierung bezeichnet die Aufhebung der Gefährdungsfeststellung als größte Deregulierungsmaßnahme der US-Geschichte.",q:"Medienberichte (Archyde, Oktober 2026)"}
+];
+const BEHOERDEN=[
+ ["EPA (Umweltbehörde)","Luft- und Wasserreinheit, Emissionsregeln für Kraftwerke und Fahrzeuge, Umweltgenehmigungen"],
+ ["Energieministerium (DOE)","Energieforschung, Atomkraft-Programme, Genehmigung von Gasexporten (LNG), Strategische Ölreserve"],
+ ["Innenministerium (DOI)","Verpachtung von Bundesland und Meeresflächen für Öl, Gas, Kohle, Wind und Solar"],
+ ["FERC","Bundesaufsicht über Stromnetze, Strommärkte und Gaspipelines zwischen den Staaten"],
+ ["NRC","Genehmigung und Aufsicht der Kernkraftwerke"],
+ ["Finanzministerium und Steuerbehörde (IRS)","Auszahlung und Auslegung der Steuergutschriften für Energie"],
+ ["NOAA, NASA, USGS","Messung und Prognose von Wetter, Klima und Wasser, Warnungen"],
+ ["Bundesstaaten","Genehmigung von Kraftwerken und Leitungen, Strompreise (Aufsichtsbehörden), eigene Ziele für erneuerbare Energien, in Kalifornien eigene Fahrzeugregeln"]
+];
+function tickerBauen(){
+ const R=U.regelungen&&U.regelungen.liste;const el=document.getElementById("ticker");
+ if(!R||!R.length){el.innerHTML='<li><span></span><span></span><span>Neueste Regelungen sind zurzeit nicht abrufbar.</span></li>';return}
+ el.innerHTML=R.map(r=>'<li><span class="tk-d">'+dts(r.d)+'</span><span class="tk-a">'+esc(r.a)+' · '+esc(r.art)+'</span><span><a href="'+esc(r.u)+'" target="_blank" rel="noopener">'+esc(r.t)+'</a></span></li>').join("");
+ document.getElementById("tk-hin").textContent="Die Liste zeigt die neuesten Regeln und Entwürfe von EPA, Energieministerium, Finanzministerium und Innenministerium zu Klima, Emissionen und Energie, aus dem Federal Register (federalregister.gov). Sie ist eine automatische Stichwortsuche und bewertet nichts. Wichtige Entscheidungen trage ich in die Zeitleiste oben von Hand nach.";
+}
+function zeitBauen(){
+ document.getElementById("zeit").innerHTML=EREIGNIS.slice().reverse().map(e=>{const a=ART[e.a];return '<div class="ev" style="--c:'+a.c+'"><div class="dt">'+dts(e.d)+'<span class="art">'+a.n+'</span></div><b>'+esc(e.t)+'</b><p>'+esc(e.x)+'</p><div class="qu">Quelle: '+esc(e.q)+'</div></div>'}).join("");
+ document.getElementById("behoerden").innerHTML='<tr><th>Stelle</th><th>Zuständig für</th></tr>'+BEHOERDEN.map(b=>'<tr><td><b>'+esc(b[0])+'</b></td><td>'+esc(b[1])+'</td></tr>').join("");
+ document.getElementById("pol-hin").textContent="Zusammenstellung aus Nachrichtenquellen und Kanzleianalysen (Stand der Recherche 22.10.2026), manuell gepflegt. Rechtliche Details und genaue Fristen werden vor der Freigabe gegen Gesetzestext und Bundesregister geprüft. Die Zeitleiste beschreibt Entscheidungen, sie bewertet sie nicht. Die Zuständigkeiten sind stabiles Grundwissen.";
+}
+/* Texte, die von den Zahlen abhängen */
+function texte(B){
+ const g=document.getElementById("grundidee"),s=document.getElementById("strukt");
+ const sh=id=>{const x=B&&B.T.find(y=>y.id===id);return x?nf(x.w,1)+" %":"…"};
+ const bl=id=>{const x=B&&B.B3.find(y=>y.id==="b_"+id);return x?nf(x.w,1)+" %":"…"};
+ const l=sid=>{const p=DATA[sid];return p?p[p.length-1][1]:null};
+ const benz=l("GASREGW"),d1=l("__dm_D1"),co2=l("__co2");
+ const ev=MAN&&"6,4 %";
+ g.innerHTML=
+  '<li><b>Energie ist ein Kostenfaktor für alle.</b> Strom, Benzin und Gas stehen in jedem Haushaltsbudget und in den Kosten der Unternehmen. Der Benzinpreis liegt zuletzt bei '+(benz!=null?nf(benz,2)+" USD je Gallone":"…")+'. Preisveränderungen laufen in die Inflation (Oberthema 6) und in das Verbraucherverhalten (Oberthema 8).</li>'
+  +'<li><b>Der Strommix ändert sich langsam.</b> Erdgas liefert '+sh("gas")+' des US-Stroms, Atomkraft '+sh("atom")+', Kohle '+sh("kohle")+', Wind '+sh("wind")+' und Sonne '+sh("solar")+' (Kuchen unten). Fossile Quellen zusammen kommen auf '+bl("fossil")+', erneuerbare auf '+bl("erneu")+'.</li>'
+  +'<li><b>Der Strombedarf wächst.</b> Rechenzentren und Elektrifizierung treiben den Verbrauch (Oberthema 4). Wie schnell neue Kraftwerke und Leitungen gebaut werden, hängt an Genehmigungen und Steuergutschriften.</li>'
+  +'<li><b>Die Politik setzt Anreize und Grenzen.</b> Gesetze regeln Steuergutschriften, Behörden setzen Emissionsregeln um, Gerichte prüfen beides. 2025 und 2026 haben sich mehrere dieser Regeln stark verändert (Zeitleiste unten).</li>'
+  +'<li><b>Wetter und Wasser sind Risiken für Schäden und Ernten.</b> Zuletzt waren '+(d1!=null?nf(d1,1)+" %":"…")+' der Fläche der 48 Festlandstaaten in mindestens mäßiger Dürre. 2025 zählte Climate Central 23 Katastrophen mit mehr als einer Milliarde Dollar Schaden.</li>'
+  +'<li><b>Elektroautos sind ein Teil der Verkehrs- und Energiefrage.</b> Der Marktanteil neuer Elektroautos lag im 3. Quartal 2026 bei rund 6,4 %, nach 10,6 % im 3. Quartal 2025, bevor die Steuergutschrift auslief.</li>';
+ s.innerHTML=
+  '<div><b>Gas ist der Preisanker im Strom</b>Weil Erdgas '+sh("gas")+' des Stroms erzeugt, wirkt der Gaspreis auf den Strompreis. Kohle ('+sh("kohle")+') und Atomkraft ('+sh("atom")+') sind die weiteren großen Quellen.</div>'
+  +'<div><b>Wind und Sonne wachsen schnell</b>Wind und Sonne kommen zusammen auf '+(B?nf(B.T.find(x=>x.id==="wind").w+B.T.find(x=>x.id==="solar").w,1)+" %":"…")+' des Stroms. Die Förderung dafür ist per Gesetz befristet (Zeitleiste).</div>'
+  +'<div><b>Politik und Gerichte bestimmen den Rahmen</b>Die Aufhebung der Gefährdungsfeststellung entzieht Treibhausgasregeln ihre Rechtsgrundlage. Klagen sind anhängig. Wie die Gerichte entscheiden, ist offen.</div>'
+  +'<div><b>Risiken sind regional</b>Dürre trifft vor allem Landwirtschaft und Wasserversorgung im Westen und in der Mitte, Hurrikane die Golfküste und den Südosten, Waldbrände den Westen. Das wirkt auf Versicherungen, Preise und öffentliche Haushalte.</div>';
+}
+/* ================== START ================== */
+(function(){
+ for(let i=K.length-1;i>=0;i--){if(!DATA[K[i].s]||!DATA[K[i].s].length)K.splice(i,1)}
+ bauen();
+ let B=null;try{B=mixBauen()}catch(e){console.error(e);document.getElementById("mix-box").style.display="none"}
+ try{zeitBauen()}catch(e){console.error(e)}
+ try{tickerBauen()}catch(e){console.error(e)}
+ texte(B);
+ const D=window.USA_DATEN;if(D&&D.meta){document.querySelector('.unter').innerHTML+=' · Datenabruf: '+D.meta.erstellt}
+})();
+</script>
+</body>
+</html>
