@@ -77,13 +77,21 @@ body {
 }
 
 .kopf-zurueck {
-  display: inline-block;
-  font-size: 12px;
-  color: var(--text-stumm);
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 14.5px;
+  font-weight: 600;
+  color: var(--text-primaer);
   text-decoration: none;
-  margin-bottom: 8px;
+  background: var(--flaeche);
+  border: 1.5px solid var(--achse);
+  border-radius: 12px;
+  padding: 8px 16px;
+  margin-bottom: 12px;
+  box-shadow: var(--schatten);
 }
-.kopf-zurueck:hover { color: var(--text-primaer); }
+.kopf-zurueck:hover, .kopf-zurueck:focus-visible { border-color: var(--text-sekundaer); outline: none; }
 
 .kopf h1 {
   margin: 0;
