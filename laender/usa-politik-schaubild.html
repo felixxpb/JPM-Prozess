@@ -3,622 +3,241 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>JPM Prozess · Länderanalyse USA · Politik · Schaubild</title>
+<title>JPM Prozess · USA Politik: die Verfassung verständlich</title>
 <style>
-:root{
-  --flaeche:#fcfcfb; --ebene:#f9f9f7; --text:#0b0b0b; --text2:#52514e; --stumm:#898781;
-  --raster:#e1e0d9; --achse:#c3c2b7; --rand:rgba(11,11,11,.10);
-  --exe:#2f6f9f; --leg:#3d7a56; --jud:#8a5a2b; --the:#6b4f8a; --zeit:#52514e; --mil:#7a3b3b;
-  --exe-h:#e6f0f7; --leg-h:#e5f2ea; --jud-h:#f4ebe1; --the-h:#eee9f4; --zeit-h:#efeee9; --mil-h:#f3e6e6;
-  --gut:#006300; --warn:#b97a00; --schatten:0 1px 2px rgba(11,11,11,.04),0 4px 16px rgba(11,11,11,.06);
-  color-scheme:light;
-}
-:root[data-theme="dark"]{
-  --flaeche:#1a1a19; --ebene:#0d0d0d; --text:#fff; --text2:#c3c2b7; --stumm:#898781;
-  --raster:#2c2c2a; --achse:#383835; --rand:rgba(255,255,255,.12);
-  --exe:#5fa0d3; --leg:#56b27d; --jud:#d39a5a; --the:#ab8fd0; --zeit:#c3c2b7; --mil:#d38a8a;
-  --exe-h:#16222c; --leg-h:#16261d; --jud-h:#2a2016; --the-h:#221b2c; --zeit-h:#232321; --mil-h:#2a1a1a;
-  --gut:#0ca30c; --warn:#fab219; --schatten:none; color-scheme:dark;
-}
+:root{--ebene:#0f1419;--flaeche:#18233a;--achse:#3a4a66;--text2b:#9fb0c8;--schatten:none;--bg:#0c1220;--kart:#18233a;--rand:#26334b;--text:#eaf0fb;--t2:#9fb0c8;--t3:#c6d2e4;
+--k:#4cc38a;--p:#5aa9e6;--g:#f2a65a;--s:#9aa7b5;--v:#b48ae6;--gold:#ffd166}
 *{box-sizing:border-box}
-body{margin:0;padding:0 20px 56px;background:var(--ebene);color:var(--text);font-family:system-ui,-apple-system,"Segoe UI",sans-serif;font-size:15px;line-height:1.5}
-.wrap{max-width:1280px;margin:0 auto}
-header{padding:20px 0 8px;display:flex;gap:16px;justify-content:space-between;align-items:flex-start;flex-wrap:wrap}
-h1{margin:0;font-size:21px;font-weight:650}
-.unter{color:var(--text2);font-size:13px}
-.entwurf{display:inline-block;margin-left:8px;padding:1px 8px;border-radius:99px;border:1px solid var(--warn);color:var(--warn);font-size:12px;font-weight:600;vertical-align:middle}
-.tabs{display:flex;gap:6px;flex-wrap:wrap;margin:10px 0 6px}
-.tab,.tool{font:inherit;font-size:13px;background:var(--flaeche);color:var(--text);border:1px solid var(--rand);border-radius:8px;padding:6px 12px;cursor:pointer}
-.tab[aria-selected="true"]{background:var(--text);color:var(--ebene);border-color:var(--text)}
-.beschr{font-size:13px;color:var(--text2);margin:0 0 14px}
-.versteh{background:var(--flaeche);border:1px solid var(--rand);border-radius:12px;padding:6px 18px 16px;box-shadow:var(--schatten);margin-bottom:20px}
-.versteh>h2{margin:12px 0 2px;font-size:17px}
-.lead{margin:0 0 8px;color:var(--text2);font-size:13.5px}
-.quelle{font-size:12px;color:var(--text2);margin:6px 0 0}
-/* Knoten */
-.nk{all:unset;box-sizing:border-box;display:block;width:100%;cursor:pointer;background:var(--ebene);border:1px solid var(--rand);border-top:3px solid var(--c);border-radius:9px;padding:7px 10px;text-align:center;transition:transform .15s,border-color .15s}
-.nk:hover{transform:translateY(-1px);border-color:var(--c)}.nk:focus-visible{outline:2px solid var(--c);outline-offset:2px}.nk.aktiv{box-shadow:0 0 0 2px var(--c)}
-.nk b{display:block;font-size:13.5px}.nk span{display:block;font-size:11.5px;color:var(--text2);margin-top:1px}
-.nk.wa{--c:var(--the)}.nk.ex{--c:var(--exe)}.nk.le{--c:var(--leg)}.nk.ju{--c:var(--jud)}.nk.bu{--c:var(--zeit)}.nk.mi{--c:var(--mil)}.nk.vf{--c:var(--text2);border-style:dashed}
-.nk.klein{padding:5px 8px}.nk.klein b{font-size:12.5px}
-.pf2{font-size:11px;color:var(--text2);text-align:center;line-height:1.25;padding:2px 3px}
-.pf2 i{display:block;font-style:normal;font-size:18px;color:var(--text);line-height:1}
-.grp{border-radius:12px;padding:8px;background:var(--bg);display:flex;flex-direction:column;gap:8px}
-.grp.ex{--bg:var(--exe-h);--c:var(--exe)}.grp.le{--bg:var(--leg-h);--c:var(--leg)}.grp.ju{--bg:var(--jud-h);--c:var(--jud)}.grp.wa{--bg:var(--the-h);--c:var(--the)}.grp.bu{--bg:var(--zeit-h);--c:var(--zeit)}
-.gh{color:#fff;font-weight:700;text-align:center;padding:7px 8px;border-radius:8px;background:var(--c);font-size:13px;line-height:1.2}
-.gh small{display:block;font-weight:500;font-size:11px;opacity:.9}
-.zeile{display:grid;gap:8px}.zwei2{grid-template-columns:1fr 1fr}
-/* V1 */
-.v1 .strang{display:flex;align-items:center;justify-content:center;gap:10px;flex-wrap:wrap;margin-bottom:10px;padding:10px;border:1px dashed var(--achse);border-radius:12px}
-.v1 .strang .nk{width:200px}
-.v1 .gew{display:grid;grid-template-columns:1fr 92px 1fr 92px 1fr;align-items:center}
-.v1 .gew>.grp{align-self:stretch}
-.v1 .unten{margin-top:10px}
-/* V2 */
-.v2 .rast{display:grid;grid-template-columns:1fr 120px 1fr;grid-template-rows:auto auto auto auto auto auto;gap:6px 8px;align-items:center}
-.v2 .mitte{grid-column:1/4;display:flex;justify-content:center}.v2 .mitte .grp{width:min(420px,100%)}
-/* V3 */
-.v3 .stock{display:grid;grid-template-columns:130px 1fr;gap:6px 12px;align-items:stretch}
-.v3 .lab{font-size:12px;font-weight:700;color:var(--text2);text-transform:uppercase;letter-spacing:.05em;display:flex;align-items:center;justify-content:center;text-align:center;background:var(--flaeche);border:1px solid var(--rand);border-radius:10px;padding:6px}
-.v3 .etage{border:1px solid var(--rand);border-radius:12px;padding:8px;background:var(--flaeche)}
-.v3 .pfz{grid-column:2;font-size:11.5px;color:var(--text2);text-align:center}
-.v3 .pfz i{font-style:normal;font-size:16px;color:var(--text);margin-right:6px}
-.v3 .drei{display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px}
-/* V4 */
-.v4 .kette{display:flex;flex-wrap:wrap;align-items:stretch;gap:6px;margin:4px 0 14px}
-.v4 .kette .nk{width:auto;flex:1 1 128px}
-.v4 .kette .pf{align-self:center;font-size:20px;color:var(--text2)}
-.v4 h3{margin:14px 0 4px;font-size:12px;color:var(--text2);text-transform:uppercase;letter-spacing:.05em}
-/* V5 */
-.v5 .nabe{display:grid;grid-template-columns:1fr 130px 1fr 130px 1fr;grid-template-rows:auto 62px auto 62px auto;align-items:center}
-.v5 .zentrum{background:var(--flaeche);border:2px solid var(--achse);border-radius:50%/40%;text-align:center;padding:16px 8px;font-size:12.5px;cursor:pointer}
-.v5 .zentrum b{display:block;font-size:14px}
-.v5 .zentrum:hover{border-color:var(--text)}
-/* Detail */
-#detail{margin-top:14px;background:var(--flaeche);border:1px solid var(--rand);border-left:4px solid var(--dc,var(--achse));border-radius:10px;padding:12px 16px;font-size:13.5px;box-shadow:var(--schatten)}
-#detail h4{margin:0 0 4px;font-size:15px}#detail p{margin:5px 0}#detail ul{margin:4px 0 4px;padding-left:20px}#detail li{margin:2px 0}
-#detail table{border-collapse:collapse;font-size:13px;margin:4px 0}#detail th,#detail td{border-bottom:1px solid var(--raster);padding:4px 10px 4px 0;text-align:left;vertical-align:top}
-.leer{color:var(--text2)}
-.chips{display:flex;flex-wrap:wrap;gap:8px;margin:12px 0 4px}
-.chips .tool{font-size:12.5px}.chips .tool.aktiv{background:var(--text);color:var(--ebene)}
-/* Stärken/Schwächen */
-details.sw{margin-top:18px;background:var(--flaeche);border:1px solid var(--rand);border-radius:12px;padding:6px 18px 12px;box-shadow:var(--schatten)}
-details.sw>summary{cursor:pointer;font-weight:650;font-size:15px;padding:8px 0;list-style:none}
-details.sw>summary::-webkit-details-marker{display:none}
-details.sw>summary:before{content:"▸";display:inline-block;width:18px;color:var(--text2);transition:transform .15s}
-details.sw[open]>summary:before{transform:rotate(90deg)}
-table.swt{width:100%;border-collapse:collapse;font-size:13.2px}
-.swt th{font-size:11px;text-transform:uppercase;letter-spacing:.04em;color:var(--text2);text-align:left;border-bottom:2px solid var(--rand);padding:4px 10px 4px 0}
-.swt td{padding:7px 10px 7px 0;border-bottom:1px solid var(--raster);vertical-align:top}
-.swt th.s,.swt td.s{border-left:3px solid var(--gut);padding-left:9px}.swt th.w,.swt td.w{border-left:3px solid var(--warn);padding-left:9px}
-.swt td.th{font-weight:650;white-space:nowrap;width:150px}
-.swt tr.zl{cursor:pointer}.swt tr.zl:hover td{background:var(--ebene)}
-.swt tr.zl td.th:before{content:"▸ ";color:var(--text2)}.swt tr.zl.offen td.th:before{content:"▾ "}
-.swt tr.mehr td{background:var(--ebene);font-size:12.8px;color:var(--text2);padding:8px 12px}
-@media (max-width:980px){
-  .v1 .gew,.v5 .nabe,.v2 .rast{grid-template-columns:1fr;grid-template-rows:none}
-  .v1 .gew .pf2,.v5 .nabe .pf2,.v2 .rast .pf2{display:none}
-  .v5 .nabe>*,.v2 .rast>*{grid-column:1!important;grid-row:auto!important}
-  .v3 .stock{grid-template-columns:1fr}.v3 .pfz{grid-column:1}.v3 .drei{grid-template-columns:1fr}
-  .zwei2{grid-template-columns:1fr}.swt td.th{white-space:normal}
-}
-
-/* V2: Zusammenhaenge, alle Pfeile */
-.stage{position:relative;margin-top:8px}
-.stage .nk{position:relative;z-index:3}
-.stage svg.ebene{position:absolute;left:0;top:0;width:100%;height:100%;overflow:visible;pointer-events:none}
-.stage svg#lin{z-index:1}.stage svg#bd{z-index:6}
-.nk.klein{padding:5px 8px}.nk.klein b{font-size:12.5px}
-.nk.gh2{background:var(--c);color:#fff;border:0;border-radius:8px;padding:7px 8px}
-.nk.gh2 b{font-size:13px;color:#fff}.nk.gh2 span{color:#fff;opacity:.92}
-.nk.gh2:hover{filter:brightness(1.08)}.nk.gh2.aktiv{box-shadow:0 0 0 3px var(--text)}
-.nk.dim{opacity:.28}
-.gh{position:relative;z-index:2}
-.lin path.l{fill:none;stroke-width:1.9;opacity:.9;pointer-events:stroke;cursor:pointer}
-.lin path.halo{fill:none;stroke:var(--flaeche);stroke-width:5;opacity:.85}
-.lin path.l.sel{stroke-width:3.6;opacity:1}
-.lin .dim path.l{opacity:.07}.lin .dim path.halo{opacity:0}.lin .dim g.bd{opacity:.1}
-.lin g.bd{cursor:pointer;pointer-events:all}
-.lin g.bd circle{stroke:var(--flaeche);stroke-width:1.6}
-.lin g.bd text{font-size:9.5px;font-weight:700;fill:#fff;text-anchor:middle;dominant-baseline:central;pointer-events:none}
-.lin text.lb{font-size:11px;font-weight:600;paint-order:stroke;stroke:var(--flaeche);stroke-width:4px;stroke-linejoin:round;pointer-events:none}
-.filter{display:flex;flex-wrap:wrap;gap:6px;margin:6px 0 10px;align-items:center}
-.filter .tool{display:inline-flex;align-items:center;gap:7px}
-.filter .tool i{width:12px;height:12px;border-radius:3px;display:inline-block}
-.filter .tool[aria-pressed="true"]{background:var(--text);color:var(--ebene);border-color:var(--text)}
-.filter .hinw{font-size:12px;color:var(--text2);margin-left:6px}
-.filter label{font-size:12.5px;color:var(--text2);display:inline-flex;gap:5px;align-items:center;margin-left:8px;cursor:pointer}
-table.rel{width:100%;border-collapse:collapse;font-size:13px;margin-top:12px}
-.rel th{font-size:11px;text-transform:uppercase;letter-spacing:.04em;color:var(--text2);text-align:left;border-bottom:2px solid var(--rand);padding:4px 8px 4px 0}
-.rel td{padding:6px 8px 6px 0;border-bottom:1px solid var(--raster);vertical-align:top}
-.rel tr.r{cursor:pointer}.rel tr.r:hover td,.rel tr.r.sel td{background:var(--ebene)}
-.rel td.nr{width:34px}.rel td.nr b{display:inline-block;min-width:22px;height:22px;line-height:22px;border-radius:11px;color:#fff;font-size:11px;text-align:center}
-.rel td.rg{color:var(--text2);font-size:12px}
-.vtabs{display:flex;gap:6px;flex-wrap:wrap;margin:10px 0 4px}
-.vtabs button{font:inherit;font-size:13px;background:var(--flaeche);color:var(--text);border:1px solid var(--rand);border-radius:8px;padding:6px 12px;cursor:pointer}
-.vtabs button[aria-selected="true"]{background:var(--text);color:var(--ebene);border-color:var(--text)}
-.vbesch{font-size:13px;color:var(--text2);margin:2px 0 8px}
-/* Layouts (grosszuegige Abstaende, damit die Pfeile Platz haben) */
-.wrap{max-width:1500px}
-.L1,.L2,.L3{padding:0 6px}
-.grp{gap:40px;padding:10px 12px 14px}
-.zeile{gap:40px}
-/* Layout 1: Saeulen */
-.L1 .oben{display:grid;grid-template-columns:1fr 190px 1fr 190px 1fr;margin-bottom:120px;align-items:start}
-.L1 .pill3{display:grid;grid-template-columns:1fr 190px 1fr 190px 1fr;align-items:start}
-.L1 .unten2{margin-top:120px}
-/* Layout 2: Stockwerke */
-.L2{display:flex;flex-direction:column;gap:120px}
-.L2 .zeile{display:flex;gap:90px;justify-content:center}.L2 .zeile>div{flex:1 1 0;max-width:270px}
-/* Layout 3: Dreieck */
-.L3{display:grid;grid-template-columns:1fr 170px 1fr 170px 1fr;grid-template-rows:auto 130px auto 130px auto;align-items:start}
-.nk{min-height:50px}
-
-/* Stile je Variante */
-.stagewrap{border-radius:14px}
-.stagewrap.sty-a{--flaeche:#0e1420;--ebene:#172033;--text:#f1f5f9;--text2:#a9b6c9;--rand:rgba(255,255,255,.18);--raster:#243049;--achse:#33415c;
- --exe:#5fa0d3;--leg:#56b27d;--jud:#d39a5a;--the:#ab8fd0;--zeit:#9aa7bb;--mil:#d38a8a;--exe-h:#14263a;--leg-h:#122a20;--jud-h:#2e2114;--the-h:#231b33;--zeit-h:#1b2230;--mil-h:#2e1a1a;
- background:var(--flaeche);color:var(--text);padding:18px 14px}
-.sty-a .nk{background:var(--ebene);border-color:var(--rand)}
-.sty-a .lin path.l{stroke-width:2.6;opacity:.95}.sty-a .lin path.halo{stroke-width:6}
-.sty-a .lin g.bd circle{stroke:#0e1420}
-.stagewrap.sty-b{--flaeche:#fffdf6;--ebene:#fffdf6;--text:#1b1b1b;--text2:#555;--rand:#1b1b1b;--raster:#e8e3d6;
- background-color:#fffdf6;background-image:linear-gradient(#00000009 1px,transparent 1px),linear-gradient(90deg,#00000009 1px,transparent 1px);background-size:26px 26px;padding:18px 14px;border:2px solid #1b1b1b}
-.sty-b .nk{border:2.5px solid #1b1b1b;border-left:12px solid var(--c);border-radius:999px/22px;padding:8px 16px;text-align:left;background:#fffdf6}
-.sty-b .nk.gh2{border-left-color:#1b1b1b;border-radius:10px;background:#1b1b1b;color:#fff}.sty-b .nk.gh2 b,.sty-b .nk.gh2 span{color:#fff}
-.sty-a .nk.gh2{background:var(--c);border:0}
-.sty-b .nk.vf{border-style:dashed}
-.sty-b .grp{background:transparent;border:2px dashed #b9b3a2;border-radius:14px}
-.sty-b .gh{background:#1b1b1b;border-radius:6px}
-.sty-b .lin path.l{stroke-width:3.6;opacity:1;stroke-linecap:round}.sty-b .lin path.halo{stroke-width:7.5;opacity:1}
-.sty-b .lin g.bd circle{stroke:#fffdf6;stroke-width:2.4}
-/* Variante C: Fokus */
-.F{padding:4px 2px}
-.Fwahl{display:flex;flex-wrap:wrap;gap:6px 18px;margin-bottom:16px;align-items:center}
-.Fg{display:inline-flex;gap:5px;align-items:center;flex-wrap:wrap}.Fg em{font-style:normal;font-size:11px;text-transform:uppercase;letter-spacing:.05em;color:var(--text2);margin-right:2px}
-.Fwahl .tool{font-size:12.5px;padding:4px 10px}.Fwahl .tool.aktiv{background:var(--text);color:var(--ebene);border-color:var(--text)}
-.Fgrid{display:grid;grid-template-columns:1fr 300px 1fr;gap:18px;align-items:start}
-.Fcol h5{margin:0 0 4px;font-size:12px;text-transform:uppercase;letter-spacing:.05em;color:var(--text2)}
-.Fz{display:flex;align-items:center;gap:10px;margin:8px 0;min-height:56px}
-.Fz>.nk{width:190px;flex:none;padding:6px 8px}
-.Fa{all:unset;box-sizing:border-box;flex:1;min-width:120px;cursor:pointer;display:flex;flex-direction:column;padding:2px 4px;border-radius:8px;position:relative}
-.Fa:hover,.Fa:focus-visible{background:var(--ebene)}
-.Fl{font-size:12.5px;font-weight:600;text-align:center;line-height:1.25;padding-bottom:5px;color:var(--text)}
-.Fp{display:block;height:0;border-top:3.5px solid var(--c);position:relative;margin-right:10px}
-.Fp::after{content:"";position:absolute;right:-12px;top:-9px;border-left:14px solid var(--c);border-top:7.5px solid transparent;border-bottom:7.5px solid transparent}
-.Fa small{font-size:10.5px;color:var(--c);text-align:center;margin-top:4px;font-weight:600}
-.Fmid{position:sticky;top:12px;align-self:start}
-.Fzentrum{cursor:default!important;padding:16px 16px 14px!important;border-top-width:6px!important;text-align:left!important}
-.Fzentrum b{font-size:18px!important}.Fzentrum span{font-size:12.5px!important}.Fzentrum p{font-size:12.5px;color:var(--text2);margin:10px 0 0;line-height:1.45}
-@media (max-width:980px){.Fgrid{grid-template-columns:1fr}.Fmid{position:static;order:-1}.Fz>.nk{width:140px}}
-@media (max-width:980px){.stage svg.ebene{display:none}.L1 .oben,.L1 .pill3,.L3{display:flex;flex-direction:column;gap:12px}.L2{display:flex;flex-direction:column;gap:12px}.L2 .band4,.L2 .band3,.L2 .band2{display:flex;flex-direction:column;width:100%;gap:8px}.L1 .unten2{margin-top:12px}}
-
-.wrap{max-width:none;padding:0}
-body{padding:0 16px 40px}
-header{padding:14px 0 6px}
-.stagewrap{border-radius:0}
-#vp{position:relative;overflow:hidden;height:78vh;min-height:520px;background:#0e1420;border:1px solid var(--rand);border-radius:12px;cursor:grab;touch-action:none}
-#vp.zieht{cursor:grabbing}
-#pan{position:absolute;left:0;top:0;transform-origin:0 0;will-change:transform}
-.stage{width:2100px;position:relative;padding:40px 50px 50px;background:#0e1420;color:#f1f5f9}
-.stage .nk{position:relative;z-index:3;background:var(--ebene);min-height:62px}
-.nk b{font-size:16px!important}.nk span{font-size:13px!important}
-.nk.gh2{background:var(--c);border:0}
-.gh{font-size:15px!important;padding:9px 8px!important}
-.grp{gap:56px;padding:14px 18px 20px}
-.L1 .oben{display:grid;grid-template-columns:1fr 280px 1fr 280px 1fr;margin-bottom:190px;align-items:start}
-.L1 .pill3{display:grid;grid-template-columns:1fr 280px 1fr 280px 1fr;align-items:start}
-.L1 .unten2{margin-top:190px}
-.lin path.l{stroke-width:2.8;opacity:.95}.lin path.halo{stroke-width:6.5}
-.lin g.bd circle{stroke:#0e1420}
-.lin text.lb{font-size:13px;stroke:#0e1420;stroke-width:5px}
-.lin g.bd text{font-size:10.5px}
-.lin text.lb{font-size:calc(13px*var(--k,1))!important;stroke-width:calc(5px*var(--k,1))!important}
-.lin g.bd{transform-box:fill-box;transform-origin:center;transform:scale(var(--k,1))}
-.leiste{display:flex;flex-wrap:wrap;gap:8px 14px;align-items:center;margin:6px 0 10px}
-.leiste .grp3{display:inline-flex;border:1px solid var(--rand);border-radius:9px;overflow:hidden}
-.leiste .grp3 button{font:inherit;font-size:13px;background:var(--flaeche);color:var(--text);border:0;border-right:1px solid var(--rand);padding:7px 13px;cursor:pointer}
-.leiste .grp3 button:last-child{border-right:0}
-.leiste .grp3 button[aria-pressed="true"]{background:var(--text);color:var(--ebene);font-weight:650}
-.leiste .tool{font-size:12.5px;padding:5px 10px}
-.leiste .zoomk{margin-left:auto;display:inline-flex;gap:6px}
-.leiste .zoomk .tool{min-width:34px;font-size:15px;padding:3px 10px}
-.leiste label{font-size:12.5px;color:var(--text2);display:inline-flex;gap:5px;align-items:center;cursor:pointer}
-.hilfe{font-size:12.5px;color:var(--text2);margin:0 0 8px}
-.vorschau header,.vorschau .leiste,.vorschau .hilfe,.vorschau #detail,.vorschau table.rel,.vorschau .zuruck{display:none!important}
-.vorschau{padding:0!important}.vorschau #vp{height:100vh;border:0;border-radius:0}
-.stufe{display:inline-block;min-width:18px;height:18px;line-height:18px;border-radius:9px;background:var(--achse);color:var(--text);font-size:10.5px;text-align:center;margin-right:4px}
-@media (max-width:760px){#vp{height:70vh}.leiste .zoomk{margin-left:0}}
+html{color-scheme:dark}body{margin:0;background:#0f1419;color:var(--text);font:15px/1.5 system-ui,Segoe UI,sans-serif}
+.wrap{max-width:1120px;margin:0 auto;padding:26px 22px 80px}
+h1{font-size:26px;margin:0 0 4px}.unter{color:#93a1ae;font-size:13.5px;max-width:880px}
+h2{font-size:19px;margin:38px 0 4px}.was{color:#93a1ae;font-size:13.5px;margin:0 0 12px;max-width:880px}
+.panel{background:var(--bg);border:1px solid var(--rand);border-radius:16px;padding:16px}
+/* Dach */
+.dach{background:var(--gold);color:#1b1500;border-radius:14px;padding:14px 20px}
+.dach h3{margin:0;font-size:19px}.dach p{margin:4px 0 0;font-size:13.5px}
+.prinz{display:flex;flex-wrap:wrap;gap:8px;margin-top:10px}
+.prinz span{background:rgba(27,21,0,.12);border-radius:999px;padding:3px 12px;font-size:12.5px;font-weight:600}
+.art{display:grid;grid-template-columns:repeat(7,1fr);gap:6px;margin-top:12px}
+.art div{background:rgba(27,21,0,.1);border-radius:10px;padding:6px 8px;font-size:11.5px;line-height:1.3}
+.art b{display:block;font-size:12px}
+/* Saeulen */
+.saeulen{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-top:12px}
+.sl{background:var(--kart);border:1px solid var(--rand);border-top-width:6px;border-radius:14px;padding:14px 16px}
+.sl.k{border-top-color:var(--k)}.sl.p{border-top-color:var(--p)}.sl.g{border-top-color:var(--g)}
+.sl .art1{font-size:11.5px;font-weight:700;letter-spacing:.06em}
+.sl.k .art1{color:var(--k)}.sl.p .art1{color:var(--p)}.sl.g .art1{color:var(--g)}
+.sl h3{margin:2px 0 2px;font-size:18px}.sl .kern{color:var(--t3);font-size:13px;margin:0 0 8px}
+.sl h4{margin:10px 0 3px;font-size:11.5px;text-transform:uppercase;letter-spacing:.07em;color:var(--t2)}
+.sl ul{margin:0;padding-left:18px;font-size:13px;color:var(--t3)}.sl li{margin:2px 0}
+.sl .zahl{display:flex;gap:8px;margin:6px 0}
+.sl .zahl div{flex:1;background:#101a2d;border-radius:10px;padding:6px 8px;text-align:center}
+.sl .zahl b{display:block;font-size:19px}.sl .zahl span{font-size:11px;color:var(--t2)}
+/* Kontrollen */
+table.m{width:100%;border-collapse:separate;border-spacing:8px;font-size:13px}
+table.m th{font-weight:700;padding:10px 12px;border-radius:12px;color:#0b1620;font-size:14px}
+table.m td{background:var(--kart);border:1px solid var(--rand);border-radius:12px;padding:10px 12px;vertical-align:top;color:#d5deea}
+table.m td.leer{background:transparent;border:1px dashed var(--rand);color:#5d6b82;text-align:center;vertical-align:middle}
+table.m td b{color:#fff}
+/* Karten */
+.karten{display:grid;grid-template-columns:repeat(2,1fr);gap:12px}
+.kt{background:var(--kart);border:1px solid var(--rand);border-left-width:6px;border-radius:14px;padding:14px 16px}
+.kt h3{margin:0 0 2px;font-size:16.5px}.kt p{margin:2px 0 6px;font-size:13px;color:var(--t3)}
+.kt ul{margin:4px 0 0;padding-left:18px;font-size:13px;color:var(--t3)}.kt li{margin:2px 0}
+.kt.s{border-left-color:var(--s)}.kt.v{border-left-color:var(--v)}.kt.r{border-left-color:var(--gold)}.kt.a{border-left-color:var(--k)}
+/* Gesetz */
+.weg{display:grid;grid-template-columns:repeat(6,1fr);gap:8px;align-items:stretch}
+.wg{background:var(--kart);border:1px solid var(--rand);border-radius:14px;padding:10px 12px;position:relative}
+.wg .z{display:inline-flex;width:28px;height:28px;border-radius:50%;align-items:center;justify-content:center;font-weight:700;color:#0b1620;margin-bottom:6px}
+.wg h4{margin:0 0 3px;font-size:13.5px}.wg p{margin:0;font-size:12px;color:var(--t3)}
+.hinw{font-size:12.5px;color:var(--t2);margin-top:10px}
+.pruef{background:#2a2410;border:1px solid #5a4a15;border-radius:12px;padding:10px 14px;font-size:13px;color:#e8d9a4;margin-top:26px}
+@media(max-width:900px){.saeulen,.karten{grid-template-columns:1fr}.art{grid-template-columns:repeat(2,1fr)}.weg{grid-template-columns:1fr}}
+.zurueck-knopf{display:inline-flex;align-items:center;gap:8px;font-size:14.5px;font-weight:600;color:#eaf0fb;text-decoration:none;background:#18233a;border:1.5px solid #3a4a66;border-radius:12px;padding:8px 16px;margin-bottom:12px}
+.zurueck-knopf:hover,.zurueck-knopf:focus-visible{border-color:#9fb0c8;outline:none}
+.plakette{display:inline-block;margin-left:8px;padding:1px 8px;border-radius:99px;border:1px solid #fab219;color:#fab219;font-size:12px;font-weight:600;vertical-align:middle}
 </style>
 </head>
-<body>
+<body data-flagge="../bilder/flaggen/usa.jpg">
 <div class="wrap">
-<header>
-  <div>
-    <a href="usa-politik.html" class="zuruck" style="font-size:13px;color:var(--text2)">← USA, Politik</a>
-    <h1>USA – Politik: das Schaubild der Verfassung <span class="entwurf">Entwurf, nicht freigegeben</span></h1>
-    <div class="unter">Zeigt, wer worauf Einfluss hat. Jeder Pfeil geht vom Handelnden zum Betroffenen und ist eine konkrete Befugnis aus der Verfassung, einem Gesetz oder einem Urteil · Beschreibung, keine Bewertung</div>
-  </div>
-</header>
-<div class="leiste">
-  <span class="hinw">Detailgrad:</span>
-  <span class="grp3" id="stufen" role="group" aria-label="Detailgrad"></span>
-  <span class="hinw">Art:</span>
-  <span id="arten" style="display:contents"></span>
-  <label><input type="checkbox" id="lbl"> Text an jedem Pfeil</label>
-  <span class="zoomk"><button type="button" class="tool" id="zm" title="Verkleinern" aria-label="Verkleinern">−</button><button type="button" class="tool" id="zp" title="Vergrößern" aria-label="Vergrößern">+</button><button type="button" class="tool" id="zf">Alles zeigen</button></span>
-</div>
-<p class="hilfe">Mit dem Mausrad zoomen, mit gedrückter Maustaste verschieben (auf dem Handy: zwei Finger zum Zoomen, ein Finger zum Verschieben). Kasten anklicken: seine Pfeile werden hervorgehoben. Pfeil oder Zahl anklicken: Erklärung und Rechtsgrundlage unter dem Schaubild.</p>
-<div id="vp"><div id="pan"><div class="stage stagewrap sty-a" id="stage"></div></div></div>
-<div id="detail"><span class="leer">Einen Kasten, einen Pfeil oder eine Zahl anklicken: Erklärung, Rechtsgrundlage und Zusammenhänge erscheinen hier.</span></div>
-<table class="rel" id="rel"></table>
+<a href="usa-politik.html" class="zurueck-knopf">← USA, Politik</a>
+<h1>USA – Politik: die Verfassung verständlich <span class="plakette">Entwurf, nicht freigegeben</span></h1>
+<div class="unter">Länderanalyse, Oberthema 1 · Wie die Verfassung die Macht verteilt: Fundament, die drei Gewalten, der Kreislauf der Verfassung und der Weg eines Gesetzes · Alles anklickbar, wo Pfeile und Bausteine stehen · Grundwissen zur US-Verfassung, Rechtsgrundlagen vor Freigabe gegen den Verfassungstext zu prüfen · Daten und Fakten, keine Bewertung</div>
+
+<h2>1 · Das Fundament: Was die Verfassung ist</h2>
+<div class="panel"><div class="dach">
+<h3>Die Verfassung der Vereinigten Staaten</h3>
+<p>Beschlossen 1787 in Philadelphia, ratifiziert 1788, in Kraft seit 1789. Sie ist die älteste noch gültige schriftliche Verfassung eines Staates und steht über jedem Gesetz.</p>
+<div class="prinz"><span>Gewaltenteilung</span><span>Checks and Balances</span><span>Föderalismus</span><span>Volkssouveränität</span><span>Grundrechte</span><span>Vorrang der Verfassung</span></div>
+<div class="art">
+<div><b>Artikel I</b>Kongress</div><div><b>Artikel II</b>Präsident</div><div><b>Artikel III</b>Gerichte</div><div><b>Artikel IV</b>Staaten untereinander, neue Staaten</div><div><b>Artikel V</b>Änderung der Verfassung</div><div><b>Artikel VI</b>Vorrang von Verfassung und Bundesrecht</div><div><b>Artikel VII</b>Ratifizierung</div>
+</div></div></div>
+
+<h2>2 · Die drei Gewalten</h2>
+<p class="was">Die Macht ist auf drei Säulen verteilt. Keine darf alles allein, und jede kann die anderen begrenzen.</p>
+<div class="saeulen">
+<div class="sl k"><div class="art1">ARTIKEL I · LEGISLATIVE</div><h3>Kongress</h3><p class="kern">Macht die Gesetze und verwaltet das Geld.</p>
+<div class="zahl"><div><b>435</b><span>Repräsentantenhaus, 2 Jahre</span></div><div><b>100</b><span>Senat, 2 je Staat, 6 Jahre</span></div></div>
+<h4>Wichtigste Befugnisse</h4><ul><li>Gesetze beschließen (beide Kammern nötig)</li><li>Steuern erheben und Haushalt beschließen</li><li>Handel regeln, Geld und Schulden</li><li>Krieg erklären, Streitkräfte finanzieren</li></ul>
+<h4>Nur das Repräsentantenhaus</h4><ul><li>Steuergesetze einbringen</li><li>Amtsenthebung beschließen (Anklage)</li></ul>
+<h4>Nur der Senat</h4><ul><li>Amtsenthebung entscheiden (2/3)</li><li>Verträge billigen (2/3)</li><li>Minister, Richter, Botschafter bestätigen</li></ul>
+<h4>Wahl</h4><ul><li>Direkt vom Volk (Senat seit 1913)</li></ul></div>
+
+<div class="sl p"><div class="art1">ARTIKEL II · EXEKUTIVE</div><h3>Präsident</h3><p class="kern">Führt die Gesetze aus und führt die Regierung.</p>
+<div class="zahl"><div><b>4</b><span>Jahre, höchstens zwei Amtszeiten</span></div><div><b>538</b><span>Wahlmänner, 270 nötig</span></div></div>
+<h4>Wichtigste Befugnisse</h4><ul><li>Gesetze ausführen, Behörden und Ministerien (15) leiten</li><li>Oberbefehlshaber der Streitkräfte</li><li>Verträge verhandeln, Botschafter empfangen</li><li>Minister, Richter, Botschafter ernennen</li><li>Begnadigung bei Bundesvergehen</li></ul>
+<h4>Gegenüber dem Kongress</h4><ul><li>Veto gegen Gesetze</li><li>Bericht zur Lage der Nation</li><li>Kann den Kongress zu Sondersitzungen einberufen</li></ul>
+<h4>Wahl</h4><ul><li>Indirekt über das Electoral College, jeder Staat stellt Wahlmänner</li></ul></div>
+
+<div class="sl g"><div class="art1">ARTIKEL III · JUDIKATIVE</div><h3>Supreme Court und Gerichte</h3><p class="kern">Entscheidet Streit und prüft, was verfassungsgemäß ist.</p>
+<div class="zahl"><div><b>9</b><span>Richter am Supreme Court (Zahl per Gesetz)</span></div><div><b>Leben</b><span>Amtszeit auf Lebenszeit, bei "gutem Verhalten"</span></div></div>
+<h4>Wichtigste Befugnisse</h4><ul><li>Streitfälle des Bundes und zwischen den Staaten entscheiden</li><li>Gesetze und Regierungshandeln an der Verfassung messen (Normenkontrolle, seit Marbury v. Madison, 1803)</li><li>Verfassung auslegen, Urteile binden alle Gerichte</li></ul>
+<h4>Aufbau</h4><ul><li>Supreme Court an der Spitze</li><li>13 Berufungsgerichte</li><li>94 Bezirksgerichte</li></ul>
+<h4>Besetzung</h4><ul><li>Der Präsident ernennt, der Senat bestätigt</li></ul></div>
 </div>
 
+<h2>3 · So funktioniert die Verfassung: der Kreislauf</h2>
+<p class="was">Der Kreislauf zeigt, wie Macht entsteht, ausgeübt und kontrolliert wird. Das Volk wählt (über die Staaten) Kongress und Präsident, die beiden machen Politik und kontrollieren sich gegenseitig, das Gericht prüft beide und wirkt zurück auf das Volk. In der Mitte steht die Verfassung, die den Rahmen setzt und nur mit großer Mehrheit geändert werden kann. Alles ist anklickbar.</p>
+<div class="panel">
+<p class="leg"><b style="color:#b48ae6">Lila</b>: Wahl und Vertretung · <b style="color:#6cb8f2">Blau</b>: Kontrolle zwischen den Gewalten · <b style="color:#ffd166">Gold</b>: Verfassung und Rechte</p>
+<svg id="kr" viewBox="0 0 1100 700" role="group" aria-label="Kreislauf der US-Verfassung"></svg>
+<div class="info" id="kri">Klicke auf einen Baustein oder einen Pfeil.</div>
+</div>
+
+<h2>4 · Der Weg eines Gesetzes (Prozessdiagramm)</h2>
+<p class="was">Von der Idee bis zum gültigen Gesetz: Rauten sind Entscheidungen (Ja oder Nein), Rechtecke Schritte, Kapseln Ergebnisse. Die Farbe zeigt, wer entscheidet: grün der Kongress, blau der Präsident, orange die Gerichte. Alles ist anklickbar.</p>
+<div class="panel">
+<p class="leg"><b style="color:#4cc38a">Grün</b>: Kongress · <b style="color:#5aa9e6">Blau</b>: Präsident · <b style="color:#f2a65a">Orange</b>: Gerichte · <b style="color:#ef6f6f">Rot</b>: Gesetz gescheitert · <b style="color:#4cc38a">Hellgrün</b>: Gesetz gilt</p>
+<svg id="pz" viewBox="0 0 1100 1000" role="group" aria-label="Prozessdiagramm: Weg eines Gesetzes"></svg>
+<div class="info" id="pzi">Klicke auf einen Schritt oder eine Entscheidung.</div>
+</div>
+
+<div class="pruef"><b>Offen vor der Freigabe:</b> Alle Zahlen und Befugnisse sind Grundwissen zur Verfassung. Sie sollten einmal gegen den Verfassungstext (Artikel I bis VII und Zusatzartikel) und die offizielle Seite des Kongresses geprüft werden, bevor die Plakette "Entwurf" entfällt. Besonders: Fristen beim Veto (10 Tage ohne Sonntage, Pocket Veto), Regeln im Senat (60 Stimmen sind Geschäftsordnung, nicht Verfassung).</div>
+</div>
+<style>
+.leg{font-size:12.5px;color:#9fb0c8;margin:0 0 8px}
+svg{width:100%;height:auto;display:block}
+svg text{fill:#eaf0fb;font-size:13px;font-family:system-ui,Segoe UI,sans-serif}
+svg .sub{font-size:11px;fill:#16303f}svg .nt{fill:#0b1620;font-weight:700}
+svg .lab{font-size:11.5px;paint-order:stroke;stroke:#0c1220;stroke-width:5px;stroke-linejoin:round}
+svg .zt{font-size:12px;fill:#9fb0c8;letter-spacing:.08em;text-transform:uppercase}
+.fl{cursor:pointer}.fl:hover .l,.fl.on .l{stroke-width:6!important;opacity:1!important}
+.nd{cursor:pointer}.nd:hover rect,.nd:hover polygon,.nd.on rect,.nd.on polygon{stroke:#fff!important;stroke-width:3.5!important}
+.info{margin-top:10px;min-height:48px;font-size:14px;border-top:1px solid var(--rand);padding-top:10px;color:var(--t2)}.info b{color:#eaf0fb}
+</style>
 <script>
-const esc=s=>String(s).replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
-/* ===================== INHALT DER KÄSTEN ===================== */
+const GK="#6cb8f2",GW="#b48ae6",GR="#ffd166";
+const C={kongress:"#4cc38a",praes:"#5aa9e6",court:"#f2a65a",staaten:"#9aa7b5",volk:"#b48ae6",verf:"#ffd166"};
 const N={
- waehler:{k:"wa",t:"Wähler",s:"Wahlsystem, Vorwahlen",
-  was:"Wahlberechtigt sind US-Bürger ab 18 Jahren. In fast allen Staaten müssen sie sich vorher registrieren, die Regeln dafür (Fristen, Ausweis, Briefwahl) legt jeder Staat selbst fest. Gewählt wird immer an einem Dienstag im November: Präsidentschaftswahl alle 4 Jahre, Zwischenwahlen alle 2 Jahre.",
-  l:["Vorwahlen (Primaries, Caucuses) im Wahljahr, meist Januar bis Juni: Die Anhänger jeder Partei bestimmen ihre Kandidaten. Parteitage im Sommer bestätigen sie.","Hauptwahl: Am Dienstag nach dem ersten Montag im November.","Direkt gewählt werden Abgeordnete (Haus), Senatoren (seit 1913 per Volkswahl), Gouverneure und die Parlamente der Staaten. Der Präsident wird nicht direkt gewählt, sondern über die Wahlmänner.","Zwischenwahlen: das ganze Repräsentantenhaus, etwa ein Drittel des Senats, viele Gouverneure und Staatsparlamente. Nächster Termin: 03.11.2026."],
-  zus:"Die Stimmverteilung bestimmt, wer in Bund und Staaten die Mehrheiten stellt. Die Staaten organisieren die Wahl selbst, der Bund gibt nur einen Rahmen vor."},
- wahlmaenner:{k:"wa",t:"Wahlmänner",s:"Electoral College, 538 Stimmen",
-  was:"Wer im November für einen Präsidentschaftskandidaten stimmt, wählt eigentlich die Wahlleute seines Staates, die später den Präsidenten bestimmen. Jeder Staat hat so viele Wahlleute wie Abgeordnete plus zwei Senatoren, Washington D.C. hat drei. Insgesamt sind es 538, für den Sieg braucht man 270.",
-  l:["48 Staaten und D.C. vergeben alle Stimmen an den Sieger im Staat („winner takes all“). Maine und Nebraska vergeben zwei Stimmen an den Staatssieger und je eine pro Wahlbezirk.","Die Wahlleute treten Mitte Dezember in ihren Staaten zusammen, der Kongress zählt die Stimmen am 6. Januar, die Amtseinführung ist am 20. Januar.","Ein Kandidat kann gewinnen, obwohl er landesweit weniger Stimmen hat (2000 und 2016). Der Grund: Große Staaten haben mehr Wahlleute, aber je Einwohner weniger als kleine Staaten.","Erreicht niemand 270, entscheidet das Repräsentantenhaus, dabei hat jeder Staat eine Stimme.","Der Supreme Court hat 2020 entschieden (Chiafalo gegen Washington), dass Staaten ihre Wahlleute an das Wahlergebnis binden dürfen.","Ergebnis 2024: 312 zu 226 Wahlleute (siehe Karte, Ebene „Präsidentschaftswahl 2024“)."],
-  zus:"Das Electoral College verbindet die Staatsebene mit der Bundesebene: Die Staaten entscheiden mit ihren Wahlleuten, wer Präsident wird. Wahlkämpfe konzentrieren sich deshalb auf knappe Staaten."},
- praesident:{k:"ex",t:"Präsident",s:"Staats- und Regierungschef",
-  was:"Der Präsident führt die Exekutive: Er leitet Regierung und Bundesbehörden, ist Oberbefehlshaber der Streitkräfte und vertritt die USA nach außen. Er muss mindestens 35 Jahre alt und gebürtiger Staatsbürger sein, die Amtszeit beträgt 4 Jahre, höchstens zwei Amtszeiten (22. Zusatzartikel).",
-  l:["Gesetze unterschreiben oder mit Veto stoppen (Aufhebung durch den Kongress mit Zweidrittelmehrheit in beiden Kammern).","Dekrete (Executive Orders) für Bundesbehörden, aber nur im Rahmen von Verfassung und Gesetzen.","Ernennungen: Kabinett, Richter, Botschafter, Fed-Spitze (Senat bestätigt).","Verträge aushandeln (der Senat muss mit Zweidrittelmehrheit zustimmen), Begnadigungen auf Bundesebene.","Der Vizepräsident ist Stellvertreter, Vorsitzender des Senats (nur Stimme bei Gleichstand) und Mitglied des Kabinetts."],
-  zus:"Für Gesetze und Geld braucht der Präsident den Kongress, für Ernennungen den Senat. Die Gerichte prüfen sein Handeln, das Repräsentantenhaus kann ihn anklagen (Amtsenthebung, Urteil im Senat mit Zweidrittelmehrheit). Aktuell: Donald Trump, zweite Amtszeit seit Januar 2025."},
- kabinett:{k:"ex",t:"Kabinett",s:"Vizepräsident + 15 Minister",
-  was:"Das Kabinett besteht aus dem Vizepräsidenten und den Leitern der 15 Ministerien (Außen, Finanzen, Verteidigung, Justiz, Inneres, Landwirtschaft, Handel, Arbeit, Gesundheit, Wohnen, Verkehr, Energie, Bildung, Veteranen, Heimatschutz) sowie weiteren Mitgliedern auf Kabinettsrang. Es berät den Präsidenten.",
-  l:["Jeder Minister leitet eine Bundesbehörde mit Hunderttausenden Beschäftigten und setzt Gesetze um.","Alle Minister werden vom Präsidenten ernannt und vom Senat mit einfacher Mehrheit bestätigt. Der Präsident kann sie entlassen.","Das Kabinett ist in der Verfassung nur angedeutet und hat keine Beschlussbefugnis: Entschieden wird allein vom Präsidenten.","Wichtige Ressorts für die Wirtschaft: Finanzministerium (Treasury, Staatsschulden), Handelsministerium, Arbeitsministerium (Arbeitsmarktdaten)."],
-  zus:"Das Kabinett ist das Bindeglied zwischen Präsident und Verwaltung. Haushaltsmittel erhält es vom Kongress, der es auch befragen und kontrollieren kann."},
- militaer:{k:"mi",t:"Militär",s:"Oberbefehl: Präsident",
-  was:"Der Präsident ist Oberbefehlshaber der Streitkräfte (Verfassung, Artikel II). Die Kontrolle ist zivil: Der Verteidigungsminister ist ein Zivilist und führt das Pentagon. Die Teilstreitkräfte sind Heer, Marine, Luftwaffe, Marineinfanterie und Weltraumstreitkräfte, die Küstenwache untersteht im Frieden dem Heimatschutzministerium.",
-  l:["Der Präsident befiehlt Einsätze. Der Kongress allein erklärt Kriege, bewilligt das Militärbudget und stellt Streitkräfte auf (Artikel I).","War Powers Resolution (1973): Der Präsident muss den Kongress binnen 48 Stunden über einen Einsatz informieren, nach 60 Tagen ist grundsätzlich eine Zustimmung nötig. Die Auslegung ist umstritten.","Die Nationalgarde steht je nach Lage unter dem Gouverneur oder dem Bund.","Der Senat bestätigt die Spitzenoffiziere und den Verteidigungsminister. Beratung durch die Generalstabschefs (Joint Chiefs of Staff)."],
-  zus:"Hier zeigt sich Gewaltenteilung besonders deutlich: Der Präsident führt, der Kongress finanziert und autorisiert, die Gerichte entscheiden nur selten über Einsätze."},
- behoerden:{k:"ex",t:"Behörden & Fed",s:"Ausführung, unabhängige Stellen",
-  was:"Ministerien und Bundesbehörden setzen Gesetze um. Einzelne Stellen (zum Beispiel die Zentralbank Fed, die Börsenaufsicht SEC) sind gesetzlich vom Präsidenten stärker abgeschirmt.",
-  l:["Die Spitzen werden vom Präsidenten ernannt und vom Senat bestätigt.","Wie weit der Schutz vor Entlassung reicht, entscheiden die Gerichte (Beispiel Fed-Gouverneurin Cook, Urteil vom 29.06.2026).","Die Fed hat zwei gesetzliche Ziele: maximale Beschäftigung und stabile Preise (Details Oberthema 3)."],
-  zus:"Behörden brauchen vom Kongress Mittel und gesetzliche Aufträge, und sie unterliegen gerichtlicher Kontrolle."},
- kongress:{k:"le",t:"Kongress",s:"Senat + Repräsentantenhaus",
-  was:"Der Kongress besteht aus zwei gleichberechtigten Kammern. Beide müssen einem Gesetz zustimmen. Er bestimmt Steuern, Haushalt, Schuldenobergrenze und Handel mit dem Ausland, erklärt Kriege und kontrolliert die Regierung (Anhörungen, Untersuchungen).",
-  l:["Haushaltsgesetze (zwölf Ausgabengesetze pro Jahr) und Steuergesetze.","Amtsenthebung: das Haus klagt an (einfache Mehrheit), der Senat urteilt (zwei Drittel).","Verfassungsänderungen: Zweidrittelmehrheit beider Kammern plus Zustimmung von drei Vierteln der Staaten."],
-  zus:"Mehrheiten in beiden Kammern setzen die Grenzen für den Präsidenten. Der Kongress ist die Verbindung zu den Staaten: Jeder Staat stellt zwei Senatoren und nach Bevölkerung Abgeordnete."},
- senat:{k:"le",t:"Senat",s:"100 Sitze, 6 Jahre",
-  was:"Zwei Senatoren je Staat, unabhängig von der Größe. Wahl auf 6 Jahre, etwa ein Drittel alle 2 Jahre. Der Vizepräsident führt den Vorsitz und stimmt nur bei Gleichstand ab.",
-  l:["Bestätigt Minister, Richter (auch Supreme Court), Botschafter, Fed-Spitze.","Stimmt Verträgen mit Zweidrittelmehrheit zu.","Für die meisten Gesetze sind 60 Stimmen nötig, um Dauerreden zu beenden („Filibuster“, Cloture). Haushaltsgesetze können per „Reconciliation“ mit einfacher Mehrheit laufen.","Urteilt über Amtsenthebungsverfahren."],
-  zus:"Der Senat hat die stärkere Rolle bei Personal und Außenpolitik, das Haus bei Geld: Einnahmengesetze beginnen traditionell im Haus."},
- haus:{k:"le",t:"Repräsentantenhaus",s:"435 Sitze, 2 Jahre",
-  was:"435 Abgeordnete, verteilt nach der Bevölkerung der Staaten (jeder Staat mindestens einer), alle 2 Jahre komplett neu gewählt. Der Sprecher (Speaker) führt das Haus, aktuell Mike Johnson.",
-  l:["Beginnt Steuer- und Einnahmengesetze.","Klagt Amtsträger an (Impeachment).","Entscheidet bei fehlender Mehrheit im Electoral College über den Präsidenten.","Die Wahlbezirke werden von den Staaten gezogen, Streit um den Zuschnitt (Gerrymandering) landet regelmäßig vor Gericht."],
-  zus:"Weil das Haus alle 2 Jahre gewählt wird, ändern sich Mehrheiten schneller als im Senat."},
- scotus:{k:"ju",t:"Supreme Court",s:"Oberster Gerichtshof, 9 Richter",
-  was:"Der Supreme Court ist die letzte Instanz in Verfassungsfragen und Bundesrecht. Neun Richter auf Lebenszeit, vom Präsidenten ernannt und vom Senat bestätigt. Er prüft, ob Gesetze und Regierungshandeln mit der Verfassung vereinbar sind („Judicial Review“, seit Marbury gegen Madison, 1803).",
-  l:["Er wählt die Fälle selbst aus: Nur ein kleiner Teil der Anträge wird angenommen.","Entscheidungen binden alle Gerichte und Behörden. Der Kongress kann nur durch ein neues Gesetz oder eine Verfassungsänderung antworten.","Beispiel: Am 20.02.2026 erklärte er Zölle auf Basis des Notstandsgesetzes IEEPA für unzulässig (6 zu 3)."],
-  zus:"Er kontrolliert beide anderen Gewalten und die Staaten (Vorrang des Bundesrechts). Seine Zusammensetzung hängt an Ernennungen und damit an Präsident und Senat."},
- bgerichte:{k:"ju",t:"Bundesgerichte",s:"94 Bezirks-, 13 Berufungsgerichte",
-  was:"Unter dem Supreme Court stehen 13 Berufungsgerichte und 94 Bezirksgerichte des Bundes. Sie entscheiden Streitfälle zu Bundesrecht und zwischen den Staaten.",
-  l:["Richter werden vom Präsidenten ernannt und vom Senat bestätigt, ebenfalls auf Lebenszeit.","Bezirksgerichte können Regierungsmaßnahmen vorläufig stoppen, höhere Gerichte und der Supreme Court korrigieren dann."],
-  zus:"Viele politische Streitfälle werden zuerst hier ausgetragen, bevor sie den Supreme Court erreichen."},
- staaten:{k:"bu",t:"Bundesstaaten",s:"50 Staaten, eigene Regierung",
-  was:"Jeder der 50 Staaten hat eine eigene Verfassung und drei eigene Gewalten, im Kleinen wie im Bund. Die Aufgaben, die die Verfassung nicht dem Bund zuweist, bleiben bei den Staaten (10. Zusatzartikel).",
-  l:["Zuständig für Polizei und Strafrecht, Schulen, Familien- und Vertragsrecht, Gesundheits- und Sicherheitsvorschriften, Lizenzen, Straßen, Wahlablauf.","Eigene Steuern: Einkommen-, Umsatz- und Grundsteuer. Fast alle Staaten müssen ausgeglichene Haushalte vorlegen.","Gemeinsam mit dem Bund: Medicaid (Krankenversicherung für Einkommensschwache), Infrastruktur, Bildungsprogramme.","Grenzen: Bundesrecht hat Vorrang (Supremacy Clause, Artikel VI). Währung, Außenhandel und Verteidigung sind Sache des Bundes."],
-  zus:"Die Staaten stellen Abgeordnete und Senatoren, organisieren Wahlen und bestimmen über ihre Wahlleute den Präsidenten mit. In den Staaten können andere Parteien regieren als im Bund (siehe Karte)."},
- gouverneur:{k:"bu",t:"Gouverneur",s:"Exekutive im Staat",
-  was:"Der Gouverneur ist Regierungschef des Staates, direkt gewählt (meist 4 Jahre).",
-  l:["Unterschreibt oder legt Veto gegen Gesetze des Staatsparlaments (bei den meisten Staaten, Überstimmung durch das Parlament möglich).","Ernennt Behördenleiter und Richter (je nach Staat auch Volkswahl der Richter).","Befehligt die Nationalgarde seines Staates, ruft den Notstand aus, begnadigt bei Staatsdelikten (Umfang je nach Staat)."],
-  zus:"Er führt Bundesprogramme im Staat aus und verhandelt mit der Bundesregierung."},
- parlament:{k:"bu",t:"Staatsparlament",s:"Legislative im Staat",
-  was:"Jeder Staat hat ein Parlament, in 49 Staaten mit zwei Kammern (Senat und Haus), nur Nebraska hat eine Kammer.",
-  l:["Beschließt Staatsgesetze, Staatshaushalt und Staatssteuern.","Zieht in den meisten Staaten die Wahlbezirke für Abgeordnete im Kongress (Neuzuschnitt nach der Volkszählung alle 10 Jahre).","Mehrheiten stehen auf der Karte: „Staatsregierung heute“."],
-  zus:"Viele politische Streitthemen werden zuerst auf Staatsebene entschieden (zum Beispiel Wahlrecht, Abtreibung, Waffenrecht)."},
- sgerichte:{k:"bu",t:"Staatsgerichte",s:"Judikative im Staat",
-  was:"Jeder Staat hat ein eigenes Gerichtswesen bis zu einem obersten Staatsgericht. Die meisten Verfahren in den USA laufen hier, nicht vor Bundesgerichten.",
-  l:["Entscheiden über Staatsrecht, Strafrecht und Zivilsachen.","Richter werden je nach Staat gewählt oder ernannt.","Bei Bundesrecht oder der Bundesverfassung kann der Supreme Court angerufen werden."],
-  zus:"Zwei Rechtssysteme nebeneinander: Bund und Staaten, mit dem Supreme Court an der Spitze für Bundesfragen."},
- verfassung:{k:"vf",t:"Verfassung",s:"seit 1788, 27 Zusatzartikel",
-  was:"Die Verfassung von 1787 (in Kraft seit 1788) ist der Rahmen für alle Institutionen. Sie legt fest, was Bund, Staaten und die drei Gewalten dürfen. Sie wurde durch 27 Zusatzartikel ergänzt, die ersten zehn bilden die Grundrechte (Bill of Rights).",
-  l:["Änderung: Zweidrittelmehrheit beider Kammern und Zustimmung von drei Vierteln der Staaten.","Aufbau: Artikel I Kongress, II Präsident, III Gerichte, IV Staaten, V Änderungen, VI Vorrang des Bundesrechts.","Stärken und Schwächen: siehe Tabelle unten."],
-  zus:"Alle Pfeile im Schaubild gehen auf diese Verfassung zurück."},
- /* Prozess-Schritte */
- ausschuss:{k:"vf",t:"Ausschuss",s:"Gesetzentwurf wird geprüft",
-  was:"Jedes Gesetz beginnt als Entwurf (Bill), den ein Abgeordneter oder Senator einbringt. Der Fachausschuss prüft, ändert und lässt ihn zu oder lässt ihn liegen.",
-  l:["Die meisten Entwürfe scheitern hier, weil der Ausschuss sie nie behandelt.","Der Präsident kann Gesetze anregen, aber nicht einbringen."],
-  zus:"Es folgen beide Kammern."},
- hausabst:{k:"vf",t:"Haus: Abstimmung",s:"einfache Mehrheit",
-  was:"Das Repräsentantenhaus stimmt über den Entwurf ab, einfache Mehrheit genügt. Der Sprecher und der Geschäftsordnungsausschuss steuern, was zur Abstimmung kommt.",l:[],zus:"Danach (oder parallel) stimmt der Senat ab."},
- senatabst:{k:"vf",t:"Senat: 60 Stimmen",s:"Filibuster-Hürde",
-  was:"Im Senat sind für die meisten Gesetze 60 von 100 Stimmen nötig, um die Debatte zu beenden. Weichen die Fassungen beider Kammern ab, wird ein gemeinsamer Text verhandelt und beide stimmen noch einmal ab.",
-  l:["Ausnahme: Haushaltsgesetze mit „Reconciliation“ brauchen nur eine einfache Mehrheit."],zus:"Danach geht der Text an den Präsidenten."},
- vetoweg:{k:"vf",t:"Präsident: Unterschrift oder Veto",s:"10 Tage Zeit",
-  was:"Der Präsident unterschreibt, dann ist es Gesetz, oder legt Veto ein. Ein Veto kann der Kongress mit Zweidrittelmehrheit in beiden Kammern aufheben.",
-  l:["Unterschreibt er nicht innerhalb von 10 Tagen (ohne Sonntage), wird das Gesetz in der Regel trotzdem wirksam, solange der Kongress tagt."],zus:"Danach können Gerichte prüfen, ob das Gesetz verfassungsgemäß ist."},
- gerichtsweg:{k:"vf",t:"Gerichte prüfen",s:"Verfassungsmäßigkeit",
-  was:"Wer betroffen ist, kann gegen ein Gesetz oder Dekret klagen. Die Bundesgerichte bis zum Supreme Court entscheiden, ob es mit der Verfassung vereinbar ist.",l:[],zus:"Ein aufgehobenes Gesetz kann der Kongress nur neu fassen."},
- budget:{k:"vf",t:"Budgetvorschlag",s:"Präsident, Frühjahr",
-  was:"Der Präsident legt einen Haushaltsvorschlag vor. Er ist nur ein Vorschlag, den Haushalt beschließt der Kongress.",l:[],zus:"Es folgen die Haushaltsausschüsse."},
- approp:{k:"vf",t:"12 Ausgabengesetze",s:"Kongress",
-  was:"Der Kongress beschließt jedes Jahr zwölf Ausgabengesetze (Appropriations) für die Bereiche der Bundesregierung. Daneben laufen die großen Sozialprogramme (zum Beispiel Social Security, Medicare) über Dauergesetze.",l:[],zus:"Frist ist der Beginn des Haushaltsjahres."},
- fj:{k:"vf",t:"Haushaltsjahr 1. Oktober",s:"Frist, Übergang oder Stillstand",
-  was:"Das Haushaltsjahr beginnt am 1. Oktober. Fehlt bis dahin ein Gesetz, hilft eine Übergangsfinanzierung (Continuing Resolution). Fehlt auch die, stellt die Bundesverwaltung teilweise den Betrieb ein („Shutdown“).",
-  l:["Aktuell: Übergangsfinanzierung bis 11.12.2026."],zus:"Ein Stillstand betrifft Bundesbeschäftigte und Behörden, nicht die Zinszahlungen."},
- schuld:{k:"vf",t:"Schuldenobergrenze",s:"Kongress, Treasury zahlt",
-  was:"Der Kongress legt fest, wie viel Schulden der Bund insgesamt machen darf. Das Finanzministerium (Treasury) zahlt die vom Kongress beschlossenen Ausgaben aus und nimmt dafür Kredit auf (Details: Oberthema 2).",l:[],zus:"Wird die Grenze erreicht, muss der Kongress sie anheben oder aussetzen."}
+volk:{t:"Wähler",s:"das Volk",was:"Die Macht geht vom Volk aus. Es wählt das Repräsentantenhaus alle 2 Jahre, den Senat alle 6 Jahre (ein Drittel alle 2 Jahre) und den Präsidenten alle 4 Jahre indirekt über das Electoral College (538 Wahlmänner, 270 nötig). Das Wahlrecht wurde erweitert: 15. (1870), 19. (1920, Frauen) und 26. Zusatzartikel (1971, ab 18 Jahren)."},
+staaten:{t:"Bundesstaaten",s:"50, eigene Verfassung",was:"50 Staaten mit eigener Verfassung und eigenen drei Gewalten. Was der Bund nicht darf, bleibt bei den Staaten (10. Zusatzartikel), bei Konflikt geht Bundesrecht vor (Artikel VI). Die Staaten organisieren die Wahlen, stellen die Wahlmänner und die Senatoren (2 je Staat) und ratifizieren Verfassungsänderungen (3/4)."},
+kongress:{t:"Kongress",s:"Haus 435 · Senat 100",was:"Artikel I. Macht die Gesetze, beschließt Haushalt und Steuern, erklärt Krieg. Repräsentantenhaus (435 Sitze, 2 Jahre) und Senat (100 Sitze, 2 je Staat, 6 Jahre). Nur das Haus bringt Steuergesetze ein und klagt bei der Amtsenthebung an, nur der Senat urteilt darüber (2/3), billigt Verträge (2/3) und bestätigt Minister und Richter."},
+praes:{t:"Präsident",s:"führt aus, 4 Jahre",was:"Artikel II. Führt die Gesetze aus und die Regierung (15 Ministerien, Behörden), ist Oberbefehlshaber, verhandelt Verträge, ernennt Minister, Richter und Botschafter (der Senat bestätigt) und kann Gesetze mit einem Veto stoppen. Höchstens zwei Amtszeiten (22. Zusatzartikel)."},
+court:{t:"Supreme Court",s:"9 Richter, Lebenszeit",was:"Artikel III. Entscheidet Rechtsstreitigkeiten und prüft, ob Gesetze und Regierungshandeln zur Verfassung passen (Normenkontrolle, seit Marbury v. Madison 1803, nicht ausdrücklich im Text). 9 Richter (Zahl per Gesetz) auf Lebenszeit. Darunter 13 Berufungsgerichte und 94 Bezirksgerichte. Schützt auch die Grundrechte der Bill of Rights."},
+verf:{t:"Verfassung",s:"Rahmen für alle",was:"Beschlossen 1787, ratifiziert 1788, in Kraft seit 1789: 7 Artikel, 27 Zusatzartikel. Die ersten 10 sind die Bill of Rights (1791) mit Grundrechten wie Meinungs-, Presse- und Religionsfreiheit, fairem Verfahren und dem Recht auf Waffenbesitz. Die Verfassung steht über jedem Gesetz (Artikel VI). Änderung nur mit zwei Dritteln von Haus und Senat und drei Vierteln der Staaten (38 von 50)."}
 };
-const farbe={wa:"the",ex:"exe",le:"leg",ju:"jud",bu:"zeit",mi:"mil",vf:"zeit"};
-const nk0=(id,kl)=>{const n=N[id];return '<button type="button" class="nk '+n.k+(kl?' klein':'')+'" data-id="'+id+'"><b>'+esc(n.t)+'</b><span>'+esc(n.s)+'</span></button>'};
-const pf=(r,t)=>'<div class="pf2"><i>'+r+'</i>'+esc(t)+'</div>';
-
-const T={
- wahl:{n:"Wahl und Legitimation",c:"#7a58a0"},
- gesetz:{n:"Gesetze und Ausführung",c:"#2f8a52"},
- personal:{n:"Personal und Amtsenthebung",c:"#2f6f9f"},
- geld:{n:"Haushalt und Geld",c:"#b97a00"},
- militaer:{n:"Militär",c:"#b03a3a"},
- aussen:{n:"Außenpolitik und Verträge",c:"#0f8b8d"},
- gericht:{n:"Gerichtliche Kontrolle",c:"#8a5a2b"},
- foed:{n:"Bund und Staaten",c:"#6a6964"},
- grund:{n:"Verfassung als Grundlage",c:"#c0408f"}
-};
-/* a = wer handelt, b = worauf es wirkt */
-const R=[
- {t:"wahl",a:"waehler",b:"wahlmaenner",l:"wählen die Wahlleute",x:"Bei der Präsidentschaftswahl im November stimmen die Bürger formal über die Wahlleute ihres Staates ab. Die Namen der Kandidaten stehen auf dem Stimmzettel, gewählt werden aber die Wahlleute.",g:"Art. II Abs. 1; 12. Zusatzartikel"},
- {t:"wahl",a:"wahlmaenner",b:"praesident",l:"wählen den Präsidenten",x:"Im Dezember geben die Wahlleute ihre Stimmen ab. 270 von 538 Stimmen entscheiden. Amtsbeginn am 20. Januar.",g:"Art. II Abs. 1; 12. und 20. Zusatzartikel"},
- {t:"wahl",a:"kongress",b:"wahlmaenner",l:"zählt die Wahlleute-Stimmen (6. Januar)",x:"Der Kongress zählt in gemeinsamer Sitzung die Stimmen der Wahlleute. Einwände gegen Wahlleute eines Staates sind seit der Reform von 2022 nur mit hohen Hürden möglich.",g:"12. Zusatzartikel; Electoral Count Reform Act (2022)"},
- {t:"wahl",a:"staaten",b:"wahlmaenner",l:"bestimmen Zahl und Vergabe der Wahlleute",x:"Jeder Staat hat so viele Wahlleute wie Abgeordnete und Senatoren zusammen. Die Staaten legen fest, wie sie vergeben werden (in 48 Staaten und D.C. alle an den Sieger).",g:"Art. II Abs. 1"},
- {t:"wahl",a:"waehler",b:"haus",l:"wählen alle 2 Jahre das ganze Haus",x:"Alle 435 Abgeordneten werden alle zwei Jahre direkt gewählt, jeder in seinem Wahlbezirk.",g:"Art. I Abs. 2"},
- {t:"wahl",a:"waehler",b:"senat",l:"wählen die Senatoren (6 Jahre)",x:"Senatoren werden seit 1913 direkt gewählt, ein Drittel alle zwei Jahre.",g:"Art. I Abs. 3; 17. Zusatzartikel"},
- {t:"wahl",a:"staaten",b:"senat",l:"entsenden je zwei Senatoren",x:"Jeder Staat stellt zwei Senatoren, unabhängig von seiner Größe.",g:"Art. I Abs. 3"},
- {t:"wahl",a:"staaten",b:"haus",l:"ziehen Wahlbezirke, organisieren die Wahl",x:"Die Sitze im Haus richten sich nach der Bevölkerung. Die Staaten bestimmen Wahlbezirke und Ablauf der Wahl, der Kongress kann Regeln per Gesetz ändern.",g:"Art. I Abs. 2 und 4"},
- {t:"wahl",a:"waehler",b:"gouverneur",l:"wählen den Gouverneur",x:"Gouverneure werden in allen Staaten direkt gewählt (meist für 4 Jahre).",g:"Staatsverfassungen"},
- {t:"wahl",a:"waehler",b:"parlament",l:"wählen das Staatsparlament",x:"Die Mitglieder beider Kammern der Staatsparlamente werden direkt gewählt (Nebraska hat nur eine Kammer).",g:"Staatsverfassungen"},
-
- {t:"gesetz",a:"haus",b:"senat",l:"beide Kammern müssen zustimmen",x:"Ein Gesetz braucht in Haus und Senat denselben Text. Weichen die Fassungen ab, wird ein gemeinsamer Text verhandelt und beide stimmen noch einmal ab. Im Senat sind meist 60 Stimmen nötig.",g:"Art. I Abs. 7"},
- {t:"gesetz",a:"kongress",b:"praesident",l:"legt das Gesetz zur Unterschrift vor",x:"Unterschreibt der Präsident, wird der Text Gesetz.",g:"Art. I Abs. 7"},
- {t:"gesetz",a:"praesident",b:"kongress",l:"Veto: kann ein Gesetz stoppen",x:"Der Kongress kann das Veto mit Zweidrittelmehrheit in beiden Kammern aufheben.",g:"Art. I Abs. 7"},
- {t:"gesetz",a:"praesident",b:"kabinett",l:"führt Gesetze aus, erlässt Dekrete",x:"Der Präsident sorgt dafür, dass Gesetze ausgeführt werden. Dekrete (Executive Orders) wirken nur für die Bundesbehörden und nur im Rahmen von Verfassung und Gesetzen.",g:"Art. II Abs. 3"},
- {t:"gesetz",a:"kabinett",b:"behoerden",l:"leiten die Behörden",x:"Jeder Minister leitet eine Bundesbehörde, die Gesetze umsetzt.",g:"Art. II Abs. 2; Gesetze zu den Ministerien"},
- {t:"gesetz",a:"kongress",b:"behoerden",l:"schafft Behörden, gibt Aufträge, kontrolliert",x:"Behörden gibt es nur aufgrund von Gesetzen. Der Kongress kann Anhörungen und Untersuchungen durchführen.",g:"Art. I Abs. 8 (Necessary and Proper Clause)"},
-
- {t:"personal",a:"praesident",b:"kabinett",l:"ernennt und entlässt Minister",x:"Der Präsident wählt seine Minister aus und kann sie jederzeit entlassen.",g:"Art. II Abs. 2"},
- {t:"personal",a:"senat",b:"kabinett",l:"bestätigt die Minister",x:"Einfache Mehrheit im Senat („Rat und Zustimmung“). Ohne Bestätigung kein Amt.",g:"Art. II Abs. 2"},
- {t:"personal",a:"senat",b:"behoerden",l:"bestätigt Behördenleiter (zum Beispiel Fed-Vorsitz)",x:"Der Präsident nominiert, der Senat bestätigt. Das gilt auch für die Spitze der Fed und für Botschafter.",g:"Art. II Abs. 2"},
- {t:"personal",a:"praesident",b:"scotus",l:"nominiert die Richter",x:"Der Präsident schlägt Richter für den Supreme Court vor.",g:"Art. II Abs. 2"},
- {t:"personal",a:"senat",b:"scotus",l:"bestätigt die Richter",x:"Einfache Mehrheit im Senat. Die Richter sind danach auf Lebenszeit im Amt.",g:"Art. II Abs. 2; Art. III Abs. 1"},
- {t:"personal",a:"praesident",b:"bgerichte",l:"ernennt Bundesrichter",x:"Auch die Richter der Berufungs- und Bezirksgerichte werden vom Präsidenten ernannt.",g:"Art. II Abs. 2"},
- {t:"personal",a:"haus",b:"praesident",l:"kann ihn anklagen (Impeachment)",x:"Einfache Mehrheit im Haus. Das ist nur die Anklage, noch keine Absetzung.",g:"Art. I Abs. 2; Art. II Abs. 4"},
- {t:"personal",a:"senat",b:"praesident",l:"urteilt: Absetzung bei Zweidrittelmehrheit",x:"Der Senat führt das Verfahren. Für eine Absetzung sind zwei Drittel der anwesenden Senatoren nötig.",g:"Art. I Abs. 3"},
-
- {t:"geld",a:"praesident",b:"kongress",l:"legt einen Haushaltsvorschlag vor",x:"Das Budget ist nur ein Vorschlag. Der Kongress entscheidet.",g:"Gesetz (Budget and Accounting Act, 1921)"},
- {t:"geld",a:"kongress",b:"behoerden",l:"bewilligt die Mittel",x:"Geld darf nur aufgrund von Gesetzen ausgegeben werden (zwölf Ausgabengesetze pro Jahr, Haushaltsjahr ab 1. Oktober).",g:"Art. I Abs. 9"},
- {t:"geld",a:"kongress",b:"militaer",l:"bewilligt das Militärbudget",x:"Mittel für Streitkräfte dürfen höchstens für zwei Jahre bewilligt werden.",g:"Art. I Abs. 8"},
- {t:"geld",a:"kongress",b:"staaten",l:"zahlt Bundesmittel an die Staaten",x:"Zum Beispiel für Medicaid, Straßen oder Schulen, oft mit Auflagen.",g:"Art. I Abs. 8 (Ausgabenbefugnis)"},
-
- {t:"militaer",a:"praesident",b:"militaer",l:"Oberbefehl",x:"Der Präsident ist Oberbefehlshaber der Streitkräfte und befiehlt Einsätze.",g:"Art. II Abs. 2"},
- {t:"militaer",a:"kabinett",b:"militaer",l:"Verteidigungsminister führt zivil",x:"Das Militär wird zivil geführt: Der Verteidigungsminister ist Zivilist.",g:"Gesetz (National Security Act, 1947)"},
- {t:"militaer",a:"kongress",b:"militaer",l:"Kriegserklärung, Aufstellen der Streitkräfte",x:"Nur der Kongress kann Krieg erklären und Streitkräfte aufstellen. Die War Powers Resolution (1973) verlangt Meldung binnen 48 Stunden, ihre Auslegung ist umstritten.",g:"Art. I Abs. 8"},
- {t:"militaer",a:"gouverneur",b:"militaer",l:"befehligt die Nationalgarde im Staat",x:"Die Nationalgarde steht je nach Lage unter dem Gouverneur oder wird vom Bund eingesetzt.",g:"Art. I Abs. 8; Bundesgesetz zur Nationalgarde"},
-
- {t:"aussen",a:"praesident",b:"senat",l:"handelt Verträge aus",x:"Der Präsident handelt völkerrechtliche Verträge aus und legt sie dem Senat vor.",g:"Art. II Abs. 2"},
- {t:"aussen",a:"senat",b:"praesident",l:"stimmt Verträgen mit 2/3 zu",x:"Ein Vertrag tritt nur in Kraft, wenn zwei Drittel der anwesenden Senatoren zustimmen.",g:"Art. II Abs. 2"},
- {t:"aussen",a:"kongress",b:"praesident",l:"regelt Handel und Zölle, kann Befugnisse übertragen",x:"Handel mit dem Ausland und Zölle sind Sache des Kongresses. Er kann per Gesetz Teile davon an den Präsidenten übertragen (zum Beispiel Notstandsgesetz IEEPA, Handelsgesetze).",g:"Art. I Abs. 8"},
-
- {t:"gericht",a:"scotus",b:"kongress",l:"kippt verfassungswidrige Gesetze",x:"Der Supreme Court prüft, ob ein Gesetz zur Verfassung passt („Judicial Review“). Das steht nicht ausdrücklich in der Verfassung, sondern geht auf das Urteil Marbury gegen Madison (1803) zurück.",g:"Art. III; Marbury v. Madison (1803)"},
- {t:"gericht",a:"scotus",b:"praesident",l:"prüft Dekrete und Regierungshandeln",x:"Beispiel: Am 20.02.2026 erklärte der Supreme Court Zölle auf Basis des Notstandsgesetzes IEEPA für unzulässig (6 zu 3).",g:"Art. III"},
- {t:"gericht",a:"scotus",b:"behoerden",l:"prüft Verwaltungshandeln",x:"Auch Behörden müssen sich vor Gericht verantworten. Beispiel: Streit um den Entlassungsschutz der Fed-Gouverneurin Cook (Urteil vom 29.06.2026).",g:"Art. III"},
- {t:"gericht",a:"scotus",b:"staaten",l:"kippt Staatsrecht, das Bundesrecht verletzt",x:"Bundesrecht und Verfassung haben Vorrang vor Staatsrecht.",g:"Art. VI (Supremacy Clause)"},
- {t:"gericht",a:"bgerichte",b:"scotus",l:"Berufung im Instanzenzug",x:"Entscheidungen der Bezirks- und Berufungsgerichte können bis zum Supreme Court gehen. Er wählt aus, welche Fälle er annimmt.",g:"Art. III Abs. 2"},
- {t:"gericht",a:"sgerichte",b:"scotus",l:"Fälle mit Bundesrecht gehen nach oben",x:"Staatsgerichte entscheiden die meisten Verfahren. Geht es um Bundesrecht oder die Bundesverfassung, kann der Supreme Court angerufen werden.",g:"Art. III Abs. 2; Art. VI"},
- {t:"gericht",a:"kongress",b:"bgerichte",l:"richtet Gerichte ein, legt ihre Größe fest",x:"Der Kongress bestimmt Zahl und Aufbau der Bundesgerichte unterhalb des Supreme Court (auch die Zahl der Richter am Supreme Court, derzeit neun).",g:"Art. III Abs. 1"},
-
- {t:"foed",a:"kongress",b:"staaten",l:"Bundesgesetze gelten in den Staaten",x:"Bundesrecht bricht Staatsrecht. Bund und Staaten teilen sich viele Aufgaben (zum Beispiel Medicaid).",g:"Art. VI; 10. Zusatzartikel"},
- {t:"foed",a:"staaten",b:"gouverneur",l:"Staatsverfassung: Exekutive des Staates",x:"Jeder Staat hat eine eigene Verfassung, die wie im Bund die drei Gewalten trennt. Die Exekutive führt der Gouverneur.",g:"Staatsverfassungen"},
- {t:"foed",a:"staaten",b:"parlament",l:"Staatsverfassung: Legislative des Staates",x:"Die Staatsverfassung legt fest, wie das Staatsparlament aufgebaut ist und was es beschließen darf.",g:"Staatsverfassungen"},
- {t:"foed",a:"staaten",b:"sgerichte",l:"Staatsverfassung: Judikative des Staates",x:"Die Staatsverfassung ordnet das Gerichtswesen des Staates bis zum obersten Staatsgericht.",g:"Staatsverfassungen"},
- {t:"foed",a:"gouverneur",b:"parlament",l:"Veto gegen Staatsgesetze",x:"Wie der Präsident kann der Gouverneur Gesetze des Staatsparlaments stoppen, das Parlament kann das Veto meist überstimmen.",g:"Staatsverfassungen"},
- {t:"foed",a:"parlament",b:"gouverneur",l:"Gesetze und Haushalt des Staates",x:"Das Staatsparlament beschließt Staatsgesetze, Staatshaushalt und Staatssteuern. Fast alle Staaten müssen ausgeglichene Haushalte vorlegen.",g:"Staatsverfassungen"},
-
- {t:"grund",a:"verfassung",b:"kongress",l:"Artikel I: Befugnisse und Grenzen",x:"Artikel I beschreibt Aufbau, Wahl und Befugnisse des Kongresses.",g:"Art. I"},
- {t:"grund",a:"verfassung",b:"praesident",l:"Artikel II: Befugnisse und Grenzen",x:"Artikel II beschreibt Wahl, Amtszeit und Befugnisse des Präsidenten.",g:"Art. II; 22. Zusatzartikel"},
- {t:"grund",a:"verfassung",b:"scotus",l:"Artikel III: Gerichte",x:"Artikel III schafft den Supreme Court und erlaubt dem Kongress weitere Bundesgerichte.",g:"Art. III"},
- {t:"grund",a:"verfassung",b:"staaten",l:"Artikel IV und 10. Zusatzartikel: Rechte der Staaten",x:"Alles, was die Verfassung nicht dem Bund zuweist, bleibt bei den Staaten. Artikel IV regelt das Verhältnis der Staaten untereinander und zum Bund.",g:"Art. IV; 10. Zusatzartikel"},
- {t:"grund",a:"scotus",b:"verfassung",l:"legt die Verfassung verbindlich aus",x:"Die Auslegung des Supreme Court bindet alle Gerichte und Behörden. Sie ändert den Text nicht, kann aber seine Bedeutung verschieben.",g:"Art. III; Marbury v. Madison (1803)"},
- {t:"grund",a:"kongress",b:"verfassung",l:"schlägt Änderungen vor (2/3 beider Kammern)",x:"Eine Änderung beginnt mit zwei Dritteln in Haus und Senat oder mit einem Konvent auf Antrag von zwei Dritteln der Staaten.",g:"Art. V"},
- {t:"grund",a:"staaten",b:"verfassung",l:"ratifizieren Änderungen (3/4 der Staaten)",x:"Eine Änderung tritt erst in Kraft, wenn drei Viertel der Staaten (38 von 50) zustimmen.",g:"Art. V"}
+/* [von, nach, Text, Erklaerung, Art] */
+const F=[
+["volk","staaten","wählt in den Staaten","Wahlen laufen in den Bundesstaaten, nach deren Regeln im Rahmen der Verfassung.","w"],
+["staaten","kongress","Abgeordnete, Senatoren","Jeder Staat entsendet 2 Senatoren, das Repräsentantenhaus verteilt sich nach der Bevölkerung.","w"],
+["volk","praes","wählt über Wahlmänner","Indirekte Wahl über das Electoral College: Jeder Staat stellt Wahlmänner (538 insgesamt, 270 nötig).","w"],
+["kongress","praes","Gesetze, Haushalt, Amtsenthebung","Der Kongress beschließt Gesetze und den Haushalt, bestätigt Minister im Senat, kann ein Veto mit 2/3 überstimmen und den Präsidenten per Amtsenthebung (Haus klagt an, Senat urteilt mit 2/3) absetzen.","k"],
+["praes","kongress","Veto","Der Präsident kann ein Gesetz ablehnen. Der Kongress kann das Veto mit Zwei-Drittel-Mehrheit beider Kammern überstimmen.","k"],
+["praes","court","ernennt Richter","Der Präsident ernennt die Richter des Supreme Court und der Bundesgerichte, der Senat muss sie bestätigen. Der Kongress legt Richterzahl und Aufbau der Bundesgerichte fest.","k"],
+["court","praes","prüft Handlungen","Das Gericht prüft, ob der Präsident und die Behörden im Rahmen von Verfassung und Gesetz handeln.","k"],
+["court","kongress","prüft Gesetze","Das Gericht kann Gesetze für verfassungswidrig erklären (Marbury v. Madison, 1803).","k"],
+["court","volk","schützt Grundrechte","Urteile schützen die Grundrechte der Bill of Rights und wirken auf alle: Bürger, Staaten und Behörden.","r"],
+["kongress","verf","ändert mit 2/3","Änderungen der Verfassung brauchen zuerst zwei Drittel von Haus und Senat (oder einen Konvent auf Antrag von 2/3 der Staaten).","r"],
+["staaten","verf","ratifizieren mit 3/4","Danach müssen drei Viertel der Staaten (38 von 50) zustimmen. Der Präsident hat dabei kein Veto. 27 Änderungen seit 1789.","r"]
 ];
-R.forEach((r,i)=>r.n=i+1);
-
-
-const PAL={wahl:"#b794f4",gesetz:"#4ade80",personal:"#60a5fa",geld:"#fbbf24",militaer:"#f87171",aussen:"#2dd4bf",gericht:"#fb923c",foed:"#cbd5e1",grund:"#f472b6"};
-/* ===================== STUFEN ===================== */
-/* Nr. der Verbindung (siehe Liste unten) -> Stufe. Stufe 1 = wichtigste, 2 = mittlere, 3 = uebrige */
-const W1=[1,2,5,6,11,12,13,14,20,21,23,24,26,29,31,36,37,43,49,50,51,52];
-const W2=[3,16,17,18,19,22,27,28,30,33,34,35,38,39,53,54,55];
-R.forEach(r=>{r.w=W1.includes(r.n)?1:W2.includes(r.n)?2:3});
-const STUFEN=[[1,"Stufe 1 · Wichtigste"],[2,"Stufe 2 · + mittlere"],[3,"Stufe 3 · + übrige (alle)"]];
-let stufe=2,aus={},labelsAn=false,sel={node:null,rel:null,bund:null};
-const KLEIN=["senat","haus","scotus","bgerichte","gouverneur","parlament","sgerichte"];
-const AUS={kongress:"gh2",staaten:"gh2"};
-const stage=document.getElementById("stage"),det=document.getElementById("detail"),vp=document.getElementById("vp"),pan=document.getElementById("pan");
-const NS="http://www.w3.org/2000/svg";
-const nm=id=>N[id].t;
-const el=id=>stage.querySelector('.nk[data-id="'+id+'"]');
-const slot=id=>'<div data-slot="'+id+'"></div>';
-function stageBauen(){
- stage.innerHTML='<div class="L1"><div class="oben"><div style="grid-column:1">'+slot("waehler")+'</div><div style="grid-column:3">'+slot("wahlmaenner")+'</div><div style="grid-column:5">'+slot("verfassung")+'</div></div>'
-  +'<div class="pill3">'
-  +'<div class="grp le"><div class="gh">LEGISLATIVE<small>macht Gesetze und Haushalt</small></div>'+slot("haus")+slot("senat")+slot("kongress")+'</div><div></div>'
-  +'<div class="grp ex"><div class="gh">EXEKUTIVE<small>führt aus</small></div>'+slot("praesident")+slot("kabinett")+slot("behoerden")+slot("militaer")+'</div><div></div>'
-  +'<div class="grp ju"><div class="gh">JUDIKATIVE<small>prüft die Verfassung</small></div>'+slot("scotus")+slot("bgerichte")+'</div></div>'
-  +'<div class="grp bu unten2"><div class="gh">BUNDESSTAATEN<small>eigene Verfassung, drei eigene Gewalten</small></div>'+slot("staaten")+'<div class="zeile" style="grid-template-columns:repeat(3,1fr);display:grid;gap:60px">'+slot("gouverneur")+slot("parlament")+slot("sgerichte")+'</div></div></div>'
-  +'<svg id="lin" class="lin ebene" aria-hidden="true"></svg><svg id="bd" class="lin ebene"></svg>';
- stage.querySelectorAll("[data-slot]").forEach(s=>{const id=s.dataset.slot,n=N[id];
-  s.innerHTML='<button type="button" class="nk '+n.k+(AUS[id]?' gh2':'')+(KLEIN.includes(id)?' klein':'')+'" data-id="'+id+'"><b>'+esc(n.t)+'</b><span>'+esc(n.s)+'</span></button>';
-  if(AUS[id])s.firstElementChild.style.setProperty("--c","var(--"+(id==="kongress"?"leg":"zeit")+")");
-  s.firstElementChild.addEventListener("click",()=>zeige(id));
-  s.firstElementChild.addEventListener("mouseenter",()=>{if(!sel.node&&!sel.rel&&!sel.bund)hervor(id)});
-  s.firstElementChild.addEventListener("mouseleave",()=>{if(!sel.node&&!sel.rel&&!sel.bund)hervor(null)})});
-}
-/* Bedienleiste */
-function leisteBauen(){
- document.getElementById("stufen").innerHTML=STUFEN.map(s=>'<button type="button" data-s="'+s[0]+'" aria-pressed="'+(stufe===s[0])+'">'+s[1]+' ('+R.filter(r=>r.w<=s[0]).length+')</button>').join("");
- document.querySelectorAll("#stufen button").forEach(b=>b.addEventListener("click",()=>{stufe=+b.dataset.s;sel={node:null,rel:null,bund:null};leisteBauen();zeichnen()}));
-}
-let solo=null;
-document.getElementById("arten").innerHTML='<button type="button" class="tool" data-f="#alle" aria-pressed="true">Alle Arten</button>'+Object.keys(T).map(k=>'<button type="button" class="tool" data-f="'+k+'" aria-pressed="false"><i style="display:inline-block;width:11px;height:11px;border-radius:3px;background:'+PAL[k]+';margin-right:6px"></i>'+esc(T[k].n)+'</button>').join("");
-document.querySelectorAll("#arten .tool").forEach(b=>b.addEventListener("click",()=>{const f=b.dataset.f;solo=(f==="#alle"||solo===f)?null:f;aus={};if(solo)Object.keys(T).forEach(k=>{if(k!==solo)aus[k]=true});
- document.querySelectorAll("#arten .tool").forEach(x=>x.setAttribute("aria-pressed",x.dataset.f==="#alle"?!solo:x.dataset.f===solo));sel={node:null,rel:null,bund:null};zeichnen()}));
-document.getElementById("lbl").addEventListener("change",e=>{labelsAn=e.target.checked;zeichnen()});
-/* Zoom und Verschieben */
-const Zm={s:1,x:0,y:0};let justDragged=false;
-function setT(){pan.style.transform="translate("+Zm.x.toFixed(1)+"px,"+Zm.y.toFixed(1)+"px) scale("+Zm.s.toFixed(4)+")";
- /* Beschriftungen und Zahlen wachsen beim Zoomen nur langsam mit: Bildschirmgroesse ca. 11 px * Zoom^0,3 */
- stage.style.setProperty("--k",Math.min(2,Math.max(.2,11*Math.pow(Zm.s,-.7)/13)).toFixed(3))}
-function passen(){const sw=stage.offsetWidth,sh=stage.offsetHeight,s=Math.min(vp.clientWidth/sw,vp.clientHeight/sh)*.98;Zm.s=s;Zm.x=(vp.clientWidth-sw*s)/2;Zm.y=(vp.clientHeight-sh*s)/2;setT()}
-function zoomAt(mx,my,f){const ns=Math.min(3,Math.max(.12,Zm.s*f)),k=ns/Zm.s;Zm.x=mx-(mx-Zm.x)*k;Zm.y=my-(my-Zm.y)*k;Zm.s=ns;setT()}
-vp.addEventListener("wheel",e=>{e.preventDefault();const r=vp.getBoundingClientRect();zoomAt(e.clientX-r.left,e.clientY-r.top,Math.exp(-e.deltaY*.0016))},{passive:false});
-const ptrs=new Map();let drag=null,pin=null;
-vp.addEventListener("pointerdown",e=>{ptrs.set(e.pointerId,{x:e.clientX,y:e.clientY});
- if(ptrs.size===1)drag={x:e.clientX,y:e.clientY,zx:Zm.x,zy:Zm.y,moved:false};
- else if(ptrs.size===2){const p=[...ptrs.values()];pin={d:Math.hypot(p[0].x-p[1].x,p[0].y-p[1].y),s:Zm.s};drag=null}});
-vp.addEventListener("pointermove",e=>{if(!ptrs.has(e.pointerId))return;ptrs.set(e.pointerId,{x:e.clientX,y:e.clientY});
- if(pin&&ptrs.size===2){const p=[...ptrs.values()],d=Math.hypot(p[0].x-p[1].x,p[0].y-p[1].y),r=vp.getBoundingClientRect();zoomAt((p[0].x+p[1].x)/2-r.left,(p[0].y+p[1].y)/2-r.top,pin.s*d/pin.d/Zm.s);justDragged=true;return}
- if(drag){const dx=e.clientX-drag.x,dy=e.clientY-drag.y;if(!drag.moved&&Math.abs(dx)+Math.abs(dy)>5){drag.moved=true;vp.classList.add("zieht");try{vp.setPointerCapture(e.pointerId)}catch(_){}}
-  if(drag.moved){Zm.x=drag.zx+dx;Zm.y=drag.zy+dy;setT()}}});
-const ende=e=>{if(drag&&drag.moved)justDragged=true;ptrs.delete(e.pointerId);if(ptrs.size<2)pin=null;if(!ptrs.size){drag=null;vp.classList.remove("zieht")}setTimeout(()=>{justDragged=false},60)};
-vp.addEventListener("pointerup",ende);vp.addEventListener("pointercancel",ende);
-vp.addEventListener("click",e=>{if(justDragged){e.stopPropagation();e.preventDefault()}},true);
-document.getElementById("zp").addEventListener("click",()=>zoomAt(vp.clientWidth/2,vp.clientHeight/2,1.3));
-document.getElementById("zm").addEventListener("click",()=>zoomAt(vp.clientWidth/2,vp.clientHeight/2,1/1.3));
-document.getElementById("zf").addEventListener("click",passen);
-
-/* ===================== ZEICHNEN: rechtwinklige Wege, gebuendelt ===================== */
-function rechteck(id){const s=stage.getBoundingClientRect(),r=el(id).getBoundingClientRect();return {l:r.left-s.left,r:r.right-s.left,t:r.top-s.top,b:r.bottom-s.top,cx:(r.left+r.right)/2-s.left,cy:(r.top+r.bottom)/2-s.top}}
-function sichtbar(){return R.filter(r=>!aus[r.t]&&r.w<=stufe)}
-const GR=6,TURN=4,OVL=4.5,CRS=0.7;
-class Heap{constructor(){this.a=[]}push(k,v){const a=this.a;a.push([k,v]);let i=a.length-1;while(i>0){const p=(i-1)>>1;if(a[p][0]<=a[i][0])break;[a[p],a[i]]=[a[i],a[p]];i=p}}
- pop(){const a=this.a,t=a[0],l=a.pop();if(a.length){a[0]=l;let i=0;for(;;){let c=2*i+1;if(c>=a.length)break;if(c+1<a.length&&a[c+1][0]<a[c][0])c++;if(a[i][0]<=a[c][0])break;[a[i],a[c]]=[a[c],a[i]];i=c}}return t}get n(){return this.a.length}}
-const DX=[1,0,-1,0],DY=[0,1,0,-1];
-function buendel(V){const m={};V.forEach(r=>{const k=r.a+">"+r.b+">"+r.t;(m[k]=m[k]||{key:k,a:r.a,b:r.b,rs:[]}).rs.push(r)});return Object.values(m)}
-function wege(B,W,H){
- const cols=Math.ceil(W/GR)+2,rows=Math.ceil(H/GR)+2,N_=cols*rows;
- const blocked=new Uint8Array(N_),usedH=new Uint8Array(N_),usedV=new Uint8Array(N_);
- const rc={};Object.keys(N).forEach(id=>{if(el(id))rc[id]=rechteck(id)});
- const box=(Rc,m)=>({c0:Math.floor(Rc.l/GR)-m,c1:Math.floor(Rc.r/GR)+m,r0:Math.floor(Rc.t/GR)-m,r1:Math.floor(Rc.b/GR)+m});
- const sperre=bx=>{for(let y=Math.max(0,bx.r0);y<=Math.min(rows-1,bx.r1);y++)for(let x=Math.max(0,bx.c0);x<=Math.min(cols-1,bx.c1);x++)blocked[y*cols+x]=1};
- Object.values(rc).forEach(Rc=>sperre(box(Rc,1)));
- const sr=stage.getBoundingClientRect();stage.querySelectorAll(".gh").forEach(g=>{const r=g.getBoundingClientRect();sperre(box({l:r.left-sr.left,r:r.right-sr.left,t:r.top-sr.top,b:r.bottom-sr.top},0))});
- const out={};
- const ring=Rc=>{
-  const bx=box(Rc,1),L=[];
-  for(let y=Math.floor(Rc.t/GR);y<=Math.floor(Rc.b/GR);y++){L.push([bx.c0-1,y,2,"l"]);L.push([bx.c1+1,y,0,"r"])}
-  for(let x=Math.floor(Rc.l/GR);x<=Math.floor(Rc.r/GR);x++){L.push([x,bx.r0-1,3,"t"]);L.push([x,bx.r1+1,1,"b"])}
-  return L.filter(q=>q[0]>=0&&q[1]>=0&&q[0]<cols&&q[1]<rows&&!blocked[q[1]*cols+q[0]])};
- const sorted=B.slice().sort((p,q)=>{const d=o=>Math.abs(rc[o.a].cx-rc[o.b].cx)+Math.abs(rc[o.a].cy-rc[o.b].cy);return d(p)-d(q)});
- sorted.forEach(bd=>{
-  const A=rc[bd.a],Bb=rc[bd.b];const S=ring(A),G=ring(Bb);
-  const goal=new Map();G.forEach(q=>{goal.set((q[1]*cols+q[0])*4+((q[2]+2)%4),q)});
-  const gx=Math.floor(Bb.cx/GR),gy=Math.floor(Bb.cy/GR),hw=Math.floor((Bb.r-Bb.l)/GR/2),hh=Math.floor((Bb.b-Bb.t)/GR/2);
-  const heu=(x,y)=>Math.max(0,Math.abs(x-gx)-hw-2)+Math.max(0,Math.abs(y-gy)-hh-2);
-  const g=new Float32Array(N_*4).fill(1e9),par=new Int32Array(N_*4).fill(-1),hp=new Heap();
-  S.forEach(q=>{const st=(q[1]*cols+q[0])*4+q[2];g[st]=0;hp.push(heu(q[0],q[1]),st)});
-  let ende=-1,it=0;
-  while(hp.n&&it<500000){it++;const [f,st]=hp.pop();const d=st&3,cell=st>>2,cx_=cell%cols,cy_=Math.floor(cell/cols);
-   if(f-heu(cx_,cy_)>g[st]+1e-6)continue;
-   if(goal.has(st)){ende=st;break}
-   for(let nd=0;nd<4;nd++){if(nd===((d+2)&3))continue;const nx=cx_+DX[nd],ny=cy_+DY[nd];if(nx<0||ny<0||nx>=cols||ny>=rows)continue;const nc=ny*cols+nx;if(blocked[nc])continue;
-    let c=1+(nd!==d?TURN:0);const hz=(nd&1)===0;c+=hz?(usedH[nc]*OVL+usedV[nc]*CRS):(usedV[nc]*OVL+usedH[nc]*CRS);
-    const ns=nc*4+nd,ng=g[st]+c;if(ng<g[ns]){g[ns]=ng;par[ns]=st;hp.push(ng+heu(nx,ny),ns)}}}
-  if(ende<0){out[bd.key]=null;return}
-  const cells=[];for(let st=ende;st>=0;st=par[st])cells.push(st);cells.reverse();
-  const pts=cells.map(st=>{const c=st>>2;return [(c%cols)*GR+GR/2,Math.floor(c/cols)*GR+GR/2]});
-  cells.forEach(st=>{const c=st>>2,d=st&3,x=c%cols,y=Math.floor(c/cols);const hz=(d&1)===0;const U=hz?usedH:usedV;U[c]=1;
-   [[1,0],[-1,0],[0,1],[0,-1]].forEach(([ax,ay])=>{if((hz&&ay!==0)||(!hz&&ax!==0)){const n=(y+ay)*cols+x+ax;if(n>=0&&n<N_)U[n]=1}})});
-  const q0=S.find(q=>(q[1]*cols+q[0])*4+q[2]===cells[0]),q1=goal.get(ende);
-  const rand=(Rc,seite,p)=>seite==="l"?[Rc.l,p[1]]:seite==="r"?[Rc.r,p[1]]:seite==="t"?[p[0],Rc.t]:[p[0],Rc.b];
-  pts.unshift(rand(A,q0[3],pts[0]));pts.push(rand(Bb,q1[3],pts[pts.length-1]));
-  out[bd.key]=vereinfache(pts)});
- return out}
-function vereinfache(p){const o=[p[0]];for(let i=1;i<p.length-1;i++){const a=o[o.length-1],b=p[i],c=p[i+1];if((a[0]===b[0]&&b[0]===c[0])||(a[1]===b[1]&&b[1]===c[1]))continue;o.push(b)}o.push(p[p.length-1]);return o}
-function pfadD(p,r){let d="M"+p[0][0].toFixed(1)+","+p[0][1].toFixed(1);
- for(let i=1;i<p.length-1;i++){const a=p[i-1],b=p[i],c=p[i+1];const l1=Math.hypot(b[0]-a[0],b[1]-a[1])||1,l2=Math.hypot(c[0]-b[0],c[1]-b[1])||1,k=Math.min(r,l1/2,l2/2);
-  const u=[(a[0]-b[0])/l1,(a[1]-b[1])/l1],v=[(c[0]-b[0])/l2,(c[1]-b[1])/l2];
-  d+=" L"+(b[0]+u[0]*k).toFixed(1)+","+(b[1]+u[1]*k).toFixed(1)+" Q"+b[0].toFixed(1)+","+b[1].toFixed(1)+" "+(b[0]+v[0]*k).toFixed(1)+","+(b[1]+v[1]*k).toFixed(1)}
- const e=p[p.length-1];return d+" L"+e[0].toFixed(1)+","+e[1].toFixed(1)}
-function marke(p){let best=0,bi=0;for(let i=0;i<p.length-1;i++){const l=Math.hypot(p[i+1][0]-p[i][0],p[i+1][1]-p[i][1]);if(l>best){best=l;bi=i}}
- return [(p[bi][0]+p[bi+1][0])/2,(p[bi][1]+p[bi+1][1])/2]}
-const MIX="#4a4945";
-const farbeArt=k=>PAL[k];
-const MS=()=>5;
-let items=[];
-function zeichnen(){
- 
- const svg=document.getElementById("lin"),bsvg=document.getElementById("bd");const w=stage.clientWidth,h=stage.clientHeight;
- [svg,bsvg].forEach(s=>{s.innerHTML="";s.setAttribute("viewBox","0 0 "+w+" "+h)});
- svg.insertAdjacentHTML("beforeend",'<defs>'+Object.keys(T).concat(["mix"]).map(k=>'<marker id="m_'+k+'" viewBox="0 0 10 10" refX="8.5" refY="5" markerWidth="'+MS()+'" markerHeight="'+MS()+'" orient="auto"><path d="M0,0 L10,5 L0,10 z" fill="'+(k==="mix"?MIX:farbeArt(k))+'"/></marker>').join("")+'</defs>');
- const V=sichtbar(),B=buendel(V);const W=wege(B,w,h);items=[];
- B.forEach(bd=>{const p=W[bd.key];if(!p)return;const typen=[...new Set(bd.rs.map(r=>r.t))];const einfarbig=typen.length===1;const col=einfarbig?farbeArt(typen[0]):MIX;const mk=einfarbig?typen[0]:"mix";
-  const grp=document.createElementNS(NS,"g");grp.setAttribute("class","arr");
-  const d=pfadD(p,7);
-  const halo=document.createElementNS(NS,"path");halo.setAttribute("d",d);halo.setAttribute("class","halo");grp.appendChild(halo);
-  const pa=document.createElementNS(NS,"path");pa.setAttribute("d",d);pa.setAttribute("class","l");pa.setAttribute("stroke",col);pa.setAttribute("marker-end","url(#m_"+mk+")");
-  pa.addEventListener("click",()=>waehleBuendel(bd.key));const ti=document.createElementNS(NS,"title");ti.textContent=nm(bd.a)+" → "+nm(bd.b)+": "+bd.rs.map(r=>r.l).join("; ");pa.appendChild(ti);grp.appendChild(pa);svg.appendChild(grp);
-  const m=marke(p);const g=document.createElementNS(NS,"g");g.setAttribute("class","bd");g.setAttribute("tabindex","0");g.setAttribute("role","button");g.setAttribute("aria-label",nm(bd.a)+" "+bd.rs.length+" Verbindung(en) zu "+nm(bd.b));
-  const txt=bd.rs.length>1?String(bd.rs.length):String(bd.rs[0].n);
-  g.innerHTML='<circle cx="'+m[0].toFixed(1)+'" cy="'+m[1].toFixed(1)+'" r="'+(bd.rs.length>1?10.5:9)+'" fill="'+col+'"/><text x="'+m[0].toFixed(1)+'" y="'+m[1].toFixed(1)+'">'+txt+'</text>';
-  g.addEventListener("click",()=>waehleBuendel(bd.key));g.addEventListener("keydown",e=>{if(e.key==="Enter"||e.key===" "){e.preventDefault();waehleBuendel(bd.key)}});bsvg.appendChild(g);
-  const lt=document.createElementNS(NS,"text");lt.setAttribute("class","lb");lt.setAttribute("x",(m[0]+14).toFixed(1));lt.setAttribute("y",(m[1]+4).toFixed(1));lt.setAttribute("fill",einfarbig?col:"var(--text)");lt.textContent=bd.rs[0].l+(bd.rs.length>1?" (+"+(bd.rs.length-1)+")":"");bsvg.appendChild(lt);
-  items.push({bd:bd,grp:grp,p:pa,bub:g,lab:lt})});
- anwenden();listeBauen();
-}
-function hervor(id){anwenden(id)}
-function anwenden(hov){
- 
- const fk=sel.node||hov||null;const fb=sel.bund||null;
- const aktiv=it=>fk?(it.bd.a===fk||it.bd.b===fk):fb?it.bd.key===fb:sel.rel?it.bd.rs.some(r=>r.n===sel.rel):true;
- const fokus=!!(fk||fb||sel.rel);
- const nahe=new Set();if(fokus)items.forEach(it=>{if(aktiv(it)){nahe.add(it.bd.a);nahe.add(it.bd.b)}});
- document.querySelectorAll(".nk").forEach(b=>{b.classList.toggle("dim",fokus&&!nahe.has(b.dataset.id));b.classList.toggle("aktiv",b.dataset.id===sel.node)});
- items.forEach(it=>{const an=aktiv(it);it.grp.classList.toggle("dim",!an);it.bub.style.opacity=an?1:.08;it.p.classList.toggle("sel",fokus&&an&&!fk);
-  it.lab.style.display=(labelsAn&&an)||(fokus&&an)?"":"none"})}
-function waehleBuendel(key){const it=items.find(x=>x.bd.key===key);if(!it)return;const bd=it.bd;
- if(bd.rs.length===1){waehleRel(bd.rs[0].n);return}
- sel={node:null,rel:null,bund:key};document.querySelectorAll(".chips .tool").forEach(b=>b.classList.remove("aktiv"));
- det.style.setProperty("--dc",MIX);
- det.innerHTML='<h4>'+esc(nm(bd.a))+' → '+esc(nm(bd.b))+' · '+bd.rs.length+' Verbindungen</h4>'+bd.rs.map(r=>'<p><b style="color:'+T[r.t].c+'">'+r.n+' · '+esc(T[r.t].n)+':</b> '+esc(r.l)+'.<br>'+esc(r.x)+'<br><span class="quelle">Rechtsgrundlage: '+esc(r.g)+'</span></p>').join("")
-  +'<p><button type="button" class="tool" id="zuA">Alles zu „'+esc(nm(bd.a))+'“</button> <button type="button" class="tool" id="zuB">Alles zu „'+esc(nm(bd.b))+'“</button> <button type="button" class="tool" id="zuAlle">Alle Pfeile zeigen</button></p>';
- document.getElementById("zuA").addEventListener("click",()=>zeige(bd.a));document.getElementById("zuB").addEventListener("click",()=>zeige(bd.b));document.getElementById("zuAlle").addEventListener("click",()=>{sel={node:null,rel:null,bund:null};anwenden();listeBauen()});
- anwenden();listeBauen()}
-
-/* Zeichnen mit zurueckgesetzter Skalierung (Messung in unskalierten Pixeln) */
-const zeichnenRoh=zeichnen;
-zeichnen=function(){const t=pan.style.transform;pan.style.transform="none";try{zeichnenRoh()}finally{pan.style.transform=t}};
-function listeBauen(){const V=sichtbar();const tb=document.getElementById("rel");
- tb.innerHTML='<tr><th>Nr</th><th>Stufe</th><th>Von → Nach</th><th>Was gilt</th><th>Rechtsgrundlage</th></tr>'+V.map(r=>'<tr class="r'+(sel.rel===r.n?' sel':'')+'" data-n="'+r.n+'"><td class="nr"><b style="background:'+PAL[r.t]+'">'+r.n+'</b></td><td><span class="stufe">'+r.w+'</span></td><td>'+esc(nm(r.a))+' → '+esc(nm(r.b))+'</td><td>'+esc(r.l)+'</td><td class="rg">'+esc(r.g)+'</td></tr>').join("");
- tb.querySelectorAll("tr.r").forEach(tr=>tr.addEventListener("click",()=>waehleRel(+tr.dataset.n)))}
-function waehleRel(n){const r=R.find(x=>x.n===n);sel={node:null,rel:n,bund:null};
- det.style.setProperty("--dc",PAL[r.t]);
- det.innerHTML='<h4>'+r.n+' · '+esc(nm(r.a))+' → '+esc(nm(r.b))+'</h4><p><b style="color:'+PAL[r.t]+'">'+esc(T[r.t].n)+':</b> '+esc(r.l)+'. <span class="stufe">Stufe '+r.w+'</span></p><p>'+esc(r.x)+'</p><p class="quelle">Rechtsgrundlage: '+esc(r.g)+'</p>'
-  +'<p><button type="button" class="tool" id="zuA">Alles zu „'+esc(nm(r.a))+'“</button> <button type="button" class="tool" id="zuB">Alles zu „'+esc(nm(r.b))+'“</button> <button type="button" class="tool" id="zuAlle">Alle Pfeile zeigen</button></p>';
- document.getElementById("zuA").addEventListener("click",()=>zeige(r.a));document.getElementById("zuB").addEventListener("click",()=>zeige(r.b));document.getElementById("zuAlle").addEventListener("click",()=>{sel={node:null,rel:null,bund:null};anwenden();listeBauen()});
- anwenden();listeBauen();det.scrollIntoView({block:"nearest",behavior:"smooth"})}
-function knotenText(id){const n=N[id];const mit=R.filter(r=>(r.a===id||r.b===id)&&r.w<=stufe);
- return '<h4>'+esc(n.t)+'</h4><p><b>Was ist das?</b> '+esc(n.was)+'</p>'+(n.l&&n.l.length?'<p><b>Befugnisse und Details</b></p><ul>'+n.l.map(x=>'<li>'+esc(x)+'</li>').join("")+'</ul>':'')+'<p><b>Wie hängt es zusammen?</b> '+esc(n.zus)+'</p>'
-  +'<p><b>Verbindungen im gewählten Detailgrad ('+mit.length+'):</b></p><ul>'+mit.map(r=>'<li><b>'+r.n+'</b> '+(r.a===id?'→ '+esc(nm(r.b)):'← '+esc(nm(r.a)))+': '+esc(r.l)+'</li>').join("")+'</ul>'}
-function zeige(id){const n=N[id];
- if(sel.node===id){sel={node:null,rel:null,bund:null};anwenden();listeBauen();return}
- sel={node:id,rel:null,bund:null};det.style.setProperty("--dc","var(--"+farbe[n.k]+")");
- det.innerHTML=knotenText(id)+'<p class="quelle">Zum Zurückkehren denselben Kasten noch einmal anklicken.</p>';
- anwenden();listeBauen();det.scrollIntoView({block:"nearest",behavior:"smooth"})}
-/* Start */
-{const h=location.hash;if(/vorschau/.test(h)){document.body.classList.add("vorschau");stufe=1}else{const m=h.match(/s([123])/);if(m)stufe=+m[1]}}
-stageBauen();leisteBauen();
-const startFit=()=>{zeichnen();passen()};
-startFit();addEventListener("resize",()=>{passen()});
-if(document.fonts&&document.fonts.ready)document.fonts.ready.then(startFit);
-
+const NS="http://www.w3.org/2000/svg",W=150,H=54;
+function el(n,a,p){const e=document.createElementNS(NS,n);for(const k in a)e.setAttribute(k,a[k]);if(p)p.appendChild(e);return e}
+function farbe(a){return a==="w"?GW:a==="r"?GR:GK}
+(function(){
+ const pos={kongress:[250,130],praes:[850,130],court:[950,400],volk:[550,610],staaten:[150,400],verf:[550,330]};
+ const svg=document.getElementById("kr"),info=document.getElementById("kri");
+ const defs=el("defs",{},svg);
+ [["k",GK],["w",GW],["r",GR]].forEach(k=>{const m=el("marker",{id:"kr"+k[0],viewBox:"0 0 10 10",refX:9,refY:5,markerWidth:6,markerHeight:6,orient:"auto"},defs);el("path",{d:"M0 0L10 5L0 10z",fill:k[1]},m)});
+ el("ellipse",{cx:550,cy:370,rx:500,ry:300,fill:"rgba(255,209,102,.04)",stroke:"#4a4125","stroke-dasharray":"7 6"},svg);
+ const z=el("text",{class:"zt",x:550,y:392,"text-anchor":"middle"},svg);z.textContent="Rahmen: die Verfassung gilt für alle";
+ const liste=id=>"<br>Gibt ab: "+(F.filter(f=>f[0]===id).map(f=>f[2]).join(", ")||"nichts")+".<br>Bekommt: "+(F.filter(f=>f[1]===id).map(f=>f[2]).join(", ")||"nichts")+".";
+ F.forEach(f=>{const a=pos[f[0]],b=pos[f[1]];
+  const dx=b[0]-a[0],dy=b[1]-a[1],L=Math.hypot(dx,dy),ux=dx/L,uy=dy/L;
+  const paar=F.some(q=>q[0]===f[1]&&q[1]===f[0]),off=paar?20:0,px=-uy*off,py=ux*off;
+  const t=Math.min(Math.abs(ux)<1e-6?1e9:(W/2+5)/Math.abs(ux),Math.abs(uy)<1e-6?1e9:(H/2+5)/Math.abs(uy));
+  const x1=a[0]+px+ux*t,y1=a[1]+py+uy*t,x2=b[0]+px-ux*t,y2=b[1]+py-uy*t;
+  const g=el("g",{class:"fl"},svg);
+  el("line",{x1:x1,y1:y1,x2:x2,y2:y2,stroke:"transparent","stroke-width":16},g);
+  el("line",{class:"l",x1:x1,y1:y1,x2:x2,y2:y2,stroke:farbe(f[4]),"stroke-width":3.4,opacity:.95,"marker-end":"url(#kr"+f[4]+")"},g);
+  let ang=Math.atan2(y2-y1,x2-x1)*180/Math.PI;if(ang>90)ang-=180;if(ang<-90)ang+=180;
+  const tx=el("text",{class:"lab",x:0,y:15,"text-anchor":"middle",transform:"translate("+((x1+x2)/2)+","+((y1+y2)/2)+") rotate("+ang+")"},g);tx.textContent=f[2];
+  g.addEventListener("click",()=>{svg.querySelectorAll(".on").forEach(x=>x.classList.remove("on"));g.classList.add("on");
+   info.innerHTML="<b>"+f[2]+"</b> ("+N[f[0]].t+" → "+N[f[1]].t+"): "+f[3]})});
+ Object.keys(pos).forEach(k=>{const p=pos[k],g=el("g",{class:"nd"},svg);
+  el("rect",{x:p[0]-W/2,y:p[1]-H/2,width:W,height:H,rx:H/2,fill:C[k],stroke:"#0c1220","stroke-width":2},g);
+  const a=el("text",{class:"nt",x:p[0],y:p[1]-3,"text-anchor":"middle"},g);a.textContent=N[k].t;
+  const b=el("text",{class:"sub",x:p[0],y:p[1]+14,"text-anchor":"middle"},g);b.textContent=N[k].s;
+  g.addEventListener("click",()=>{svg.querySelectorAll(".on").forEach(x=>x.classList.remove("on"));g.classList.add("on");
+   info.innerHTML="<b>"+N[k].t+":</b> "+N[k].was+liste(k)})})
+})();
+/* Prozessdiagramm */
+(function(){
+ const svg=document.getElementById("pz"),info=document.getElementById("pzi");
+ const defs=el("defs",{},svg);
+ [["a","#9fb0c8"],["j","#4cc38a"],["n","#ef6f6f"]].forEach(k=>{const m=el("marker",{id:"pz"+k[0],viewBox:"0 0 10 10",refX:9,refY:5,markerWidth:6,markerHeight:6,orient:"auto"},defs);el("path",{d:"M0 0L10 5L0 10z",fill:k[1]},m)});
+ const COL={k:"#4cc38a",p:"#5aa9e6",g:"#f2a65a",ok:"#8be0a8",no:"#ef6f6f"};
+ /* Knoten: id, Art (s=Schritt, d=Entscheidung, t=Ergebnis), x, y, Farbe, Zeilen, Erklaerung */
+ const K=[
+ {id:"a1",a:"t",x:300,y:55,c:"k",l:["Gesetzentwurf (Bill)"],e:"Jedes Mitglied von Haus oder Senat kann einen Entwurf einbringen. Der Präsident kann Gesetze anregen, aber nicht selbst einbringen. Steuergesetze müssen im Repräsentantenhaus beginnen (Artikel I, Abschnitt 7)."},
+ {id:"a2",a:"s",x:300,y:150,c:"k",l:["Ausschüsse beraten","und ändern den Entwurf"],e:"Fachausschüsse beraten, ändern und verwerfen viele Entwürfe. Das regelt der Kongress selbst, der Verfassungstext nennt es nicht im Einzelnen."},
+ {id:"a3",a:"d",x:300,y:260,c:"k",l:["Erste Kammer:","Mehrheit?"],e:"Die erste Kammer (Haus oder Senat) stimmt ab, einfache Mehrheit. Im Senat gilt nach Geschäftsordnung oft eine Hürde von 60 Stimmen, um die Debatte zu beenden (Filibuster), das steht nicht in der Verfassung."},
+ {id:"a4",a:"d",x:300,y:380,c:"k",l:["Zweite Kammer:","Mehrheit?"],e:"Die andere Kammer muss denselben Text beschließen. Weichen die Fassungen ab, werden sie angeglichen (oft in einem Vermittlungsausschuss). Ohne beide Kammern gibt es kein Gesetz."},
+ {id:"a5",a:"d",x:300,y:500,c:"p",l:["Präsident","unterschreibt?"],e:"Der Präsident hat 10 Tage (ohne Sonntage). Unterschrift = Gesetz. Tut er nichts, wird es ebenfalls Gesetz, außer der Kongress hat sich inzwischen vertagt (sogenanntes Pocket Veto). Mit Veto geht der Entwurf zurück."},
+ {id:"v1",a:"s",x:700,y:500,c:"p",l:["Veto: Rückgabe","an den Kongress"],e:"Der Präsident gibt den Entwurf mit seinen Einwänden an die Kammer zurück, in der er begann."},
+ {id:"v2",a:"d",x:700,y:610,c:"k",l:["Beide Kammern:","2/3 Mehrheit?"],e:"Der Kongress kann das Veto mit Zwei-Drittel-Mehrheit in beiden Kammern überstimmen. Dann wird das Gesetz ohne Unterschrift gültig."},
+ {id:"g1",a:"t",x:300,y:630,c:"ok",l:["Gesetz tritt in Kraft"],e:"Das Gesetz ist Bundesrecht. Bei einem Konflikt geht es dem Recht der Bundesstaaten vor (Artikel VI). Behörden unter dem Präsidenten führen es aus."},
+ {id:"c1",a:"d",x:300,y:740,c:"g",l:["Klage vor","Gericht?"],e:"Wer vom Gesetz betroffen ist, kann klagen. Der Weg führt über Bezirksgericht (94) und Berufungsgericht (13) bis zum Supreme Court."},
+ {id:"c2",a:"d",x:300,y:850,c:"g",l:["Gericht: mit der","Verfassung vereinbar?"],e:"Das Gericht prüft das Gesetz an der Verfassung (Normenkontrolle, seit Marbury v. Madison 1803, nicht ausdrücklich im Text)."},
+ {id:"n1",a:"t",x:700,y:260,c:"no",l:["Entwurf gescheitert"],e:"Ohne Mehrheit in der ersten Kammer ist der Entwurf gescheitert."},
+ {id:"n2",a:"t",x:700,y:380,c:"no",l:["Entwurf gescheitert"],e:"Ohne Mehrheit in der zweiten Kammer ist der Entwurf gescheitert."},
+ {id:"n3",a:"t",x:980,y:610,c:"no",l:["Veto bleibt"],e:"Ohne Zwei-Drittel-Mehrheit in beiden Kammern bleibt das Veto bestehen, der Entwurf ist gescheitert."},
+ {id:"o1",a:"t",x:700,y:740,c:"ok",l:["Gesetz gilt weiter"],e:"Ohne Klage gilt das Gesetz weiter."},
+ {id:"o2",a:"t",x:700,y:850,c:"ok",l:["Gesetz bleibt gültig"],e:"Das Gericht bestätigt das Gesetz."},
+ {id:"o3",a:"t",x:300,y:960,c:"no",l:["Gesetz gekippt"],e:"Das Gericht erklärt das Gesetz ganz oder teilweise für verfassungswidrig. Der Kongress kann es neu fassen oder die Verfassung ändern (Artikel V)."}
+ ];
+ const kk=Object.fromEntries(K.map(k=>[k.id,k]));
+ /* Pfeile: von, nach, Beschriftung, Typ, Punkte */
+ const P=[
+ ["a1","a2","","a",[[300,80],[300,122]]],
+ ["a2","a3","","a",[[300,178],[300,214]]],
+ ["a3","a4","Ja","j",[[300,306],[300,334]]],
+ ["a3","n1","Nein","n",[[390,260],[588,260]]],
+ ["a4","a5","Ja","j",[[300,426],[300,454]]],
+ ["a4","n2","Nein","n",[[390,380],[588,380]]],
+ ["a5","g1","Ja","j",[[300,546],[300,604]]],
+ ["a5","v1","Nein (Veto)","n",[[390,500],[578,500]]],
+ ["v1","v2","","a",[[700,528],[700,564]]],
+ ["v2","g1","Ja","j",[[610,610],[520,610],[520,630],[412,630]]],
+ ["v2","n3","Nein","n",[[790,610],[868,610]]],
+ ["g1","c1","","a",[[300,656],[300,694]]],
+ ["c1","c2","Ja","a",[[300,786],[300,804]]],
+ ["c1","o1","Nein","a",[[390,740],[588,740]]],
+ ["c2","o2","Ja","j",[[390,850],[588,850]]],
+ ["c2","o3","Nein","n",[[300,896],[300,934]]]
+ ];
+ /* Pfeile zuerst */
+ P.forEach(p=>{const pts=p[4],d="M"+pts.map(q=>q.join(",")).join(" L");
+  el("path",{d:d,fill:"none",stroke:p[3]==="j"?"#4cc38a":p[3]==="n"?"#ef6f6f":"#9fb0c8","stroke-width":2.6,"marker-end":"url(#pz"+p[3]+")"},svg);
+  if(p[2]){const m=pts.length===2?[(pts[0][0]+pts[1][0])/2,(pts[0][1]+pts[1][1])/2]:[pts[0][0]+30,pts[0][1]];
+   const t=el("text",{class:"lab",x:p[4][0][0]===p[4][1][0]?m[0]+18:m[0],y:p[4][0][0]===p[4][1][0]?m[1]+4:m[1]-8,"text-anchor":p[4][0][0]===p[4][1][0]?"start":"middle"},svg);t.textContent=p[2]}});
+ K.forEach(k=>{const g=el("g",{class:"nd"},svg),c=COL[k.c];
+  if(k.a==="d"){const w=130,h=44;el("polygon",{points:[[k.x,k.y-h],[k.x+w/2+25,k.y],[k.x,k.y+h],[k.x-w/2-25,k.y]].map(q=>q.join(",")).join(" "),fill:"#18233a",stroke:c,"stroke-width":2.6},g)}
+  else if(k.a==="s"){el("rect",{x:k.x-120,y:k.y-26,width:240,height:52,rx:8,fill:"#18233a",stroke:c,"stroke-width":2.6},g)}
+  else{el("rect",{x:k.x-110,y:k.y-24,width:220,height:48,rx:24,fill:c,stroke:"#0c1220","stroke-width":2},g)}
+  const dark=k.a==="t";k.l.forEach((s,i)=>{const t=el("text",{x:k.x,y:k.y+4+(i-(k.l.length-1)/2)*16,"text-anchor":"middle","font-weight":700},g);t.textContent=s;t.style.fill=dark?"#0b1620":"#eaf0fb";t.style.fontSize="12.5px"});
+  g.addEventListener("click",()=>{svg.querySelectorAll(".on").forEach(x=>x.classList.remove("on"));g.classList.add("on");info.innerHTML="<b>"+k.l.join(" ")+":</b> "+k.e})});
+})();
 </script>
+<script src="seitenhintergrund.js?v=20261023"></script>
 </body>
 </html>

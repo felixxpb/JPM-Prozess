@@ -104,6 +104,13 @@ svg.chart{width:100%;height:auto;display:block;touch-action:none}
 .nk b{display:block;font-size:13.5px}.nk span{display:block;font-size:11.5px;color:var(--text2);margin-top:1px}
 .pf2{font-size:11px;color:var(--text2);text-align:center;line-height:1.25;padding:0 3px}
 .pf2 i{display:block;font-style:normal;font-size:18px;color:var(--text);line-height:1}
+.fl2k{background:#0c1220;border:1px solid #26334b;border-radius:14px;padding:8px;margin:8px 0 4px}
+.fl2k svg{width:100%;height:auto;display:block}
+.fl2k text{font-family:inherit}.fl2k .ebt{font-size:12px;fill:#9fb0c8;letter-spacing:.08em;text-transform:uppercase}
+.fl2k .zt{font-size:19px;font-weight:800;fill:#7fc0f5}
+.fl2k .nd-t{font-size:13px;font-weight:700;fill:#0b1620}.fl2k .nd-s{font-size:11px;fill:#16303f}
+.fl2k .fl-t{font-size:11.5px;fill:#eaf0fb;paint-order:stroke;stroke:#0c1220;stroke-width:5px;stroke-linejoin:round}
+.fl2k .flz,.fl2k .ndz{cursor:pointer;outline:none}.fl2k .flz:hover .fl-l,.fl2k .flz:focus-visible .fl-l{stroke-width:6.5}.fl2k .ndz:hover rect,.fl2k .ndz:focus-visible rect{stroke:#fff;stroke-width:3.5}
 .nk.n1{--c:var(--c1)}.nk.n2{--c:var(--c3)}.nk.n3{--c:var(--c4)}.nk.n4{--c:var(--c2)}.nk.n5{--c:var(--c2)}.nk.n6{--c:var(--c1)}.nk.n7{--c:var(--cb)}
 .bed{display:grid;grid-template-columns:repeat(2,1fr);gap:10px;margin-top:4px}
 .bed div{background:var(--ebene);border:1px solid var(--rand);border-radius:9px;padding:8px 11px;font-size:13.5px}
@@ -112,12 +119,13 @@ svg.chart{width:100%;height:auto;display:block;touch-action:none}
 .chip:hover{border-color:var(--text)}
 @media (max-width:980px){.fluss{grid-template-columns:1fr;grid-template-rows:none;gap:8px}.pf2{display:none}.bed{grid-template-columns:1fr}}
 </style>
+<style>.zurueck-knopf{display:inline-flex;align-items:center;gap:8px;font-size:14.5px;font-weight:600;color:var(--text);text-decoration:none;background:var(--flaeche);border:1.5px solid var(--achse);border-radius:12px;padding:8px 16px;margin-bottom:10px;box-shadow:var(--schatten)}.zurueck-knopf:hover,.zurueck-knopf:focus-visible{border-color:var(--text2);outline:none}</style>
 </head>
-<body>
+<body data-flagge="../bilder/flaggen/usa.jpg">
 <div class="wrap">
 <header>
   <div>
-    <a href="usa.html" style="font-size:13px;color:var(--text2)">← USA, alle Oberthemen</a>
+    <a href="usa.html" class="zurueck-knopf">← USA, alle Oberthemen</a>
     <h1>USA – Zentralbank (Federal Reserve)</h1>
     <div class="unter">Länderanalyse, Oberthema 3 · Daten und Fakten, keine Bewertung · Struktur: Entwurf 2026-10-19 (Review: April 2027) · Kennzahlen aktualisieren sich automatisch, das Datum steht in jeder Kachel</div>
   </div>
@@ -126,11 +134,11 @@ svg.chart{width:100%;height:auto;display:block;touch-action:none}
 <div class="legende">
   <span><i class="pkt auto"></i>automatisch (FRED-Abruf, zweimal täglich)</span>
   <span><i class="pkt man"></i>manuell gepflegt (Quelle und Stand in der Kachel)</span>
-  <span>Kästen im Kreislauf und Kacheln anklicken: Erklärung, Chart mit Historie, Quellen</span>
+  <span>Bausteine, Pfeile und Kacheln anklicken: Erklärung, Chart mit Historie, Quellen</span>
 </div>
 <section class="versteh" aria-labelledby="vt">
   <h2 id="vt">Zuerst verstehen: Wie die Federal Reserve aufgebaut ist und wirkt</h2>
-  <p class="lead">Die Daten darunter sind Belege für diesen Aufbau. Wichtiger als jede einzelne Zahl ist, wer entscheidet, womit und auf welchem Weg die Entscheidung in der Wirtschaft ankommt. Die Kästen im Kreislauf sind anklickbar.</p>
+  <p class="lead">Die Daten darunter sind Belege für diesen Aufbau. Wichtiger als jede einzelne Zahl ist, wer entscheidet, womit und auf welchem Weg die Entscheidung in der Wirtschaft ankommt. Die Bausteine und Pfeile im Schaubild sind anklickbar.</p>
 
   <details open>
     <summary>Die Grundidee in sieben Punkten</summary>
@@ -146,10 +154,10 @@ svg.chart{width:100%;height:auto;display:block;touch-action:none}
   </details>
 
   <details open>
-    <summary>Der Kreislauf (Kästen anklicken)</summary>
+    <summary>Der Regelkreis (Bausteine und Pfeile anklicken)</summary>
     <div class="inh">
-      <div class="fluss" id="fluss"></div>
-      <p style="font-size:12.5px;color:var(--text2);margin:6px 0 0">Lesart: Oben die Entscheidungsseite (Politik besetzt die Fed, das FOMC beschließt, die Instrumente setzen um). In der Mitte läuft die Transmission zurück bis zur Wirtschaft. Unten wird die Lage am Mandat gemessen und kommuniziert. Aus dieser Lage entsteht die nächste Entscheidung.</p>
+      <div class="fl2k"><svg id="fluss" viewBox="0 0 1100 700" role="group" aria-label="Regelkreis der Geldpolitik der Fed"></svg></div>
+      <p style="font-size:12.5px;color:var(--text2);margin:6px 0 0">Lesart: Die blaue Fläche ist die Fed selbst (Board &amp; FOMC, Kommunikation, Instrumente). Das Mandat und die Besetzung durch die Politik kommen von außen. Der Beschluss läuft über Geldmarkt, Banken und Anleihemarkt in die Wirtschaft. Von dort geht es zurück: Die Wirkung wird am Mandat gemessen (Ist gegen Ziel), und die Lage wirkt über Wahlen und Druck auf die Politik. Bausteine und Pfeile sind anklickbar.</p>
     </div>
   </details>
 
@@ -334,52 +342,91 @@ function zeichne(k,tage){const all=DATA[k.s];let p=all;if(tage){const lim=new Da
   svg.onpointermove=mv;svg.onpointerdown=mv;svg.onpointerleave=()=>{$("#cv").setAttribute("opacity",0);$("#cd").setAttribute("opacity",0)}}
 /* ================== VERSTÄNDNIS-KREISLAUF ================== */
 const NK=[
- {id:"politik",n:"n4",pos:[1,1],t:"Politik & Unabhängigkeit",s:"Ernennung, Bestätigung, Gericht",
+ {id:"politik",t:"Politik & Gericht",s:"Ernennung, Senat, Urteile",
   was:"Der Präsident ernennt Gouverneure, der Senat bestätigt sie. Die Fed entscheidet ohne Weisung der Regierung. Wie weit Entlassungen möglich sind, klärt derzeit der Fall Cook vor dem Supreme Court (Eilentscheidung 29.06.2026, 5:4).",
   zus:"Die Besetzung bestimmt langfristig, wer im FOMC mitentscheidet. Wahlen und Gesetze (Oberthema 1) wirken so indirekt auf die Geldpolitik.",
   daten:["cook","vorsitz"]},
- {id:"fomc",n:"n1",pos:[3,1],t:"Board & FOMC",s:"Wer entscheidet",
+ {id:"fomc",t:"Board & FOMC",s:"Wer entscheidet",
   was:"Das FOMC hat 12 Stimmen: 7 Gouverneure, der Präsident der Fed New York und 4 rotierende Regionalpräsidenten. Es trifft sich acht Mal im Jahr, viermal mit neuen Projektionen. Vorsitzender ist Kevin Warsh.",
   zus:"Es legt das Zielband fest und gibt dem Desk in New York den Auftrag zur Umsetzung. Seine Beschlüsse und Projektionen steuern die Erwartungen am Markt.",
   daten:["fomc","dots"]},
- {id:"instrumente",n:"n3",pos:[5,1],t:"Instrumente",s:"Zielband, IORB, Bilanz",
+ {id:"instrumente",t:"Instrumente",s:"Zielband, IORB, Bilanz",
   was:"Zielband für den Leitzins, Zins auf Bankreserven (IORB), Reverse-Repo und Standing-Repo-Fazilität als Grenzen des Geldmarkts, dazu Bilanzabbau (QT) und Käufe von Anleihen.",
   zus:"Sie setzen das Zielband im Geldmarkt durch und bestimmen mit der Bilanz die Menge der Reserven im Bankensystem.",
   daten:["zielband","iorb","walcl","rmp"]},
- {id:"wirtschaft",n:"n2",pos:[1,3],t:"Wirtschaft",s:"Nachfrage, Preise, Beschäftigung",
+ {id:"wirtschaft",t:"Haushalte & Firmen",s:"Nachfrage, Preise, Jobs",
   was:"Haushalte und Unternehmen reagieren auf Kreditkosten und Finanzierungsbedingungen mit Konsum, Investitionen und Einstellungen. Daraus entstehen Preise und Arbeitsmarktlage.",
   zus:"Die Reaktion zeigt sich mit Verzögerung. Hier entstehen die Messgrößen, an denen das Mandat gemessen wird.",
   daten:["kernpce","unrate"]},
- {id:"kredit",n:"n6",pos:[3,3],t:"Kredit & Finanzbedingungen",s:"Banken, Anleihen, Vermögenspreise",
-  was:"Banken geben höhere oder niedrigere Kreditkosten weiter, Renditen am Anleihemarkt passen sich an, Vermögenspreise reagieren. Diese Kanäle bilden zusammen die finanziellen Bedingungen.",
+ {id:"banken",t:"Banken & Kredit",s:"Kreditkosten, Standards",
+  was:"Banken geben höhere oder niedrigere Refinanzierungskosten an Kunden weiter und verschärfen oder lockern ihre Kreditstandards.",
   zus:"Hier trifft die Fed-Entscheidung auf die Struktur aus Oberthema 2 (Banken, Staat, Nichtbanken).",
   daten:[]},
- {id:"geldmarkt",n:"n5",pos:[5,3],t:"Geldmarkt",s:"Tagesgeld, Repo, SOFR",
+ {id:"geldmarkt",t:"Geldmarkt",s:"Tagesgeld, Repo, SOFR",
   was:"Am Geldmarkt leihen sich Banken und Fonds Geld über Nacht. Hier kommt der Beschluss der Fed zuerst an: Der effektive Tagesgeldsatz (EFFR) liegt im Zielband, SOFR folgt.",
   zus:"Er verbindet Fed, Banken und Anleihemarkt. Bei Knappheit an Reserven zeigt sich das hier zuerst (Details im Makro-Dashboard).",
   daten:["dff"]},
- {id:"mandat",n:"n7",pos:[1,5],t:"Mandat",s:"Preisstabilität, Beschäftigung",
+ {id:"mandat",t:"Mandat",s:"Preisstabilität, Beschäftigung",
   was:"Der gesetzliche Auftrag der Fed. Das Inflationsziel liegt bei 2 %. Für Beschäftigung gibt es keine feste Zahl, das FOMC schätzt das Niveau jeweils selbst ein (Longer-run-Projektion).",
   zus:"Die Entscheider vergleichen die aktuelle Lage mit dem Auftrag und leiten daraus die Richtung ab. Das Ergebnis wird kommuniziert.",
   daten:["kernpce","unrate"]},
- {id:"komm",n:"n3",pos:[3,5],t:"Kommunikation & Erwartungen",s:"Statement, Dot Plot, Minutes",
+ {id:"komm",t:"Kommunikation",s:"Statement, Dot Plot, Minutes",
   was:"Statement und Pressekonferenz am Sitzungstag, vierteljährlich die Projektionen (SEP, Dot Plot), drei Wochen später das Protokoll. Dazu kommen Reden einzelner Mitglieder.",
   zus:"Sie legen offen, wie das FOMC die Lage sieht und wie viel Uneinigkeit besteht. Die Erwartungen am Markt hängen an diesen Signalen.",
-  daten:["dots"]}
+  daten:["dots"]},
+ {id:"anleihen",t:"Anleihemarkt",s:"Renditen, Hypothekenzinsen",
+  was:"Die Renditen für Staatsanleihen reagieren auf die aktuellen Leitzinsen und noch stärker auf die Erwartungen an künftige Zinsen. Sie sind die Preisbasis für Hypotheken, Firmenkredite und Bewertungen.",
+  zus:"Die Fed wirkt hier über Ankündigungen (Kommunikation), über kurze Zinsen aus dem Geldmarkt und über ihre Anleihekäufe oder den Bilanzabbau (QT). Details zur Struktur: Oberthema 2.",
+  daten:[]}
 ];
-const PF=[
- {t:"Ernennung, Bestätigung",r:"→",pos:[2,1]},{t:"Beschluss",r:"→",pos:[4,1]},
- {t:"Umsetzung",r:"⇅",pos:[5,2]},{t:"Zinskosten",r:"→",pos:[4,3],links:true},{t:"Nachfrage",r:"→",pos:[2,3],links:true},
- {t:"Wahlen, Druck",r:"⇅",pos:[1,2]},{t:"Ist gegen Ziel",r:"⇅",pos:[1,4]},{t:"Lagebild",r:"→",pos:[2,5]},{t:"Erwartungen",r:"⇅",pos:[3,4]}
+const FARBE={politik:"#b48ae6",fomc:"#5aa9e6",mandat:"#9aa7b5",komm:"#ef7fb0",instrumente:"#3d8fd6",geldmarkt:"#4fd1c5",banken:"#4cc38a",anleihen:"#7fd6a8",wirtschaft:"#f2a65a"};
+const POS={mandat:[180,100],fomc:[550,60],instrumente:[920,130],geldmarkt:[960,330],anleihen:[760,520],banken:[990,520],wirtschaft:[450,630],komm:[550,230],politik:[150,330]};
+const FL=[
+["politik","fomc","Ernennung, Bestätigung","Der Präsident ernennt, der Senat bestätigt. So entscheidet die Besetzung langfristig, wer im FOMC mitstimmt."],
+["mandat","fomc","Auftrag, Ziel","Das FOMC vergleicht die Lage mit dem Auftrag (2 % Inflation, maximale Beschäftigung) und leitet daraus die Richtung ab."],
+["fomc","instrumente","Beschluss","Das FOMC legt das Zielband fest und gibt dem Desk in New York den Auftrag zur Umsetzung."],
+["fomc","komm","Statement, Projektionen","Jeder Beschluss wird erklärt: Statement, Pressekonferenz, vierteljährlich Projektionen."],
+["komm","anleihen","Erwartungen","Was die Fed ankündigt, bewegt Renditen, noch bevor sich die Leitzinsen ändern."],
+["instrumente","geldmarkt","Zielband, Reserven","Zielband, IORB und die Fazilitäten halten den Tagesgeldsatz im Band, die Bilanz steuert die Reserven."],
+["geldmarkt","banken","Tagesgeldkosten","Die Refinanzierungskosten der Banken folgen dem Geldmarkt. Banken geben sie an Kunden weiter."],
+["geldmarkt","anleihen","kurze Zinsen","Kurzfristige Zinsen sind die Basis für die Zinskurve."],
+["instrumente","anleihen","Anleihekäufe, QT","Käufe von Staatsanleihen senken tendenziell Renditen, Abbau (QT) wirkt umgekehrt."],
+["banken","wirtschaft","Kreditkosten","Kreditzinsen und Kreditstandards entscheiden, wie viel Geld in der Wirtschaft ankommt."],
+["anleihen","wirtschaft","Renditen, Hypotheken","Die 10-jährige Rendite ist Referenz für Hypotheken, Unternehmenskredite und Bewertungen."],
+["wirtschaft","mandat","Preise, Beschäftigung","Die Wirkung (Inflation, Arbeitsmarkt) wird am Auftrag gemessen: Ist gegen Ziel. Das schließt den Regelkreis, mit Verzögerung."],
+["wirtschaft","politik","Wahlen, Druck","Die Wirtschaftslage beeinflusst Wahlen und den politischen Druck auf die Fed, und damit langfristig die Besetzung."]
 ];
+function svgEl(n,a,p){const e=document.createElementNS("http://www.w3.org/2000/svg",n);for(const k in a)e.setAttribute(k,a[k]);if(p)p.appendChild(e);return e}
 function flussBauen(){
-  const f=document.getElementById("fluss");if(!f)return;
-  PF.forEach(p=>{const d=document.createElement("div");d.className="pf2";d.style.gridColumn=p.pos[0];d.style.gridRow=p.pos[1];d.innerHTML="<i>"+(p.links?"←":p.r)+"</i>"+esc(p.t);f.appendChild(d)});
-  NK.forEach(n=>{const b=document.createElement("button");b.type="button";b.className="nk "+n.n;b.style.gridColumn=n.pos[0];b.style.gridRow=n.pos[1];
-    b.innerHTML="<b>"+esc(n.t)+"</b><span>"+esc(n.s)+"</span>";b.addEventListener("click",()=>knoten(n.id));f.appendChild(b)})}
+  const svg=document.getElementById("fluss");if(!svg)return;const W=150,H=54;
+  const defs=svgEl("defs",{},svg);
+  Object.keys(FARBE).forEach(k=>{const m=svgEl("marker",{id:"pf-"+k,viewBox:"0 0 10 10",refX:9,refY:5,markerWidth:6,markerHeight:6,orient:"auto"},defs);svgEl("path",{d:"M0 0L10 5L0 10z",fill:FARBE[k]},m)});
+  svgEl("ellipse",{cx:570,cy:350,rx:470,ry:290,fill:"rgba(90,169,230,.05)",stroke:"#2b3b58","stroke-dasharray":"7 6"},svg);
+  const r=svgEl("text",{class:"ebt",x:560,y:420,"text-anchor":"middle"},svg);r.textContent="Regelkreis der Geldpolitik";
+  svgEl("rect",{x:425,y:12,width:610,height:292,rx:26,fill:"rgba(90,169,230,.13)",stroke:"#5aa9e6","stroke-width":2.5},svg);
+  const z=svgEl("text",{class:"zt",x:445,y:292},svg);z.textContent="FED (Federal Reserve)";
+  FL.forEach((f,idx)=>{const a=POS[f[0]],b=POS[f[1]];
+    const dx=b[0]-a[0],dy=b[1]-a[1],L=Math.hypot(dx,dy),ux=dx/L,uy=dy/L,px=-uy*8,py=ux*8;
+    const t=Math.min(Math.abs(ux)<1e-6?1e9:(W/2+5)/Math.abs(ux),Math.abs(uy)<1e-6?1e9:(H/2+5)/Math.abs(uy));
+    const x1=a[0]+px+ux*t,y1=a[1]+py+uy*t,x2=b[0]+px-ux*t,y2=b[1]+py-uy*t;
+    const g=svgEl("g",{class:"flz",tabindex:0,role:"button","aria-label":f[2]},svg);
+    svgEl("line",{x1:x1,y1:y1,x2:x2,y2:y2,stroke:"transparent","stroke-width":16},g);
+    svgEl("line",{class:"fl-l",x1:x1,y1:y1,x2:x2,y2:y2,stroke:FARBE[f[0]],"stroke-width":4,"marker-end":"url(#pf-"+f[0]+")"},g);
+    const tx=svgEl("text",{class:"fl-t",x:(x1+x2)/2,y:(y1+y2)/2+4,"text-anchor":"middle"},g);tx.textContent=f[2];
+    const op=()=>geldfluss(idx);g.addEventListener("click",op);g.addEventListener("keydown",e=>{if(e.key==="Enter"||e.key===" "){e.preventDefault();op()}})});
+  NK.forEach(n=>{const p=POS[n.id],g=svgEl("g",{class:"ndz",tabindex:0,role:"button","aria-label":n.t},svg);
+    svgEl("rect",{x:p[0]-W/2,y:p[1]-H/2,width:W,height:H,rx:H/2,fill:FARBE[n.id],stroke:"#0c1220","stroke-width":2},g);
+    const a=svgEl("text",{class:"nd-t",x:p[0],y:p[1]-3,"text-anchor":"middle"},g);a.textContent=n.t;
+    const b=svgEl("text",{class:"nd-s",x:p[0],y:p[1]+14,"text-anchor":"middle"},g);b.textContent=n.s;
+    const op=()=>knoten(n.id);g.addEventListener("click",op);g.addEventListener("keydown",e=>{if(e.key==="Enter"||e.key===" "){e.preventDefault();op()}})})}
+function geldfluss(i){const f=FL[i];const von=NK.find(x=>x.id===f[0]),nach=NK.find(x=>x.id===f[1]);aktiv=null;letzterFokus=document.activeElement;
+  Object.values(tiles).forEach(t=>t.classList.remove("aktiv"));dr.style.setProperty("--c",FARBE[f[0]]);
+  dr.innerHTML='<div class="dk"><div><div class="gr">Wirkungsweg</div><h2 id="dt">'+esc(f[2])+'</h2></div><button class="zu" type="button" aria-label="Schließen">×</button></div><div class="db"><h3>Von wem zu wem?</h3><p>'+esc(von.t)+' → '+esc(nach.t)+'</p><h3>Was passiert?</h3><p>'+esc(f[3])+'</p><h3>Beteiligte Bausteine</h3><p><button class="chip" type="button" data-k="'+von.id+'">'+esc(von.t)+'</button><button class="chip" type="button" data-k="'+nach.id+'">'+esc(nach.t)+'</button></p></div>';
+  dr.classList.add("offen");sh.classList.add("offen");dr.querySelector(".zu").addEventListener("click",schliessen);
+  dr.querySelectorAll(".chip").forEach(c=>c.addEventListener("click",()=>knoten(c.dataset.k)));dr.focus()}
 function knoten(id){const n=NK.find(x=>x.id===id);aktiv=null;letzterFokus=document.activeElement;
   Object.values(tiles).forEach(t=>t.classList.remove("aktiv"));
-  dr.style.setProperty("--c",n.n==="n1"||n.n==="n6"?"var(--c1)":n.n==="n2"?"var(--c3)":n.n==="n3"?"var(--c4)":n.n==="n7"?"var(--cb)":"var(--c2)");
+  dr.style.setProperty("--c",FARBE[n.id]);
   dr.innerHTML='<div class="dk"><div><div class="gr">Baustein des Systems</div><h2 id="dt">'+esc(n.t)+'</h2></div><button class="zu" type="button" aria-label="Schließen">×</button></div><div class="db"><h3>Was ist das?</h3><p>'+esc(n.was)+'</p><h3>Wie hängt es zusammen?</h3><p>'+esc(n.zus)+'</p><h3>Wo sieht man es in den Daten?</h3><p>'+(n.daten.length?'':'Keine eigene Kachel hier. Die Detaildaten liegen im Makro-Dashboard.')+n.daten.map(i=>'<button class="chip" type="button" data-t="'+i+'">'+esc(byId[i].titel)+'</button>').join("")+'</p></div>';
   dr.classList.add("offen");sh.classList.add("offen");dr.querySelector(".zu").addEventListener("click",schliessen);
   dr.querySelectorAll(".chip").forEach(c=>c.addEventListener("click",()=>oeffnen(c.dataset.t)));dr.focus()}
@@ -436,5 +483,6 @@ $("#theme").addEventListener("click",()=>{const r=document.documentElement;r.dat
 bauen();
 const hh=/#(\w+)/.exec(location.hash);if(hh&&byId[hh[1]])oeffnen(hh[1]);
 </script>
+<script src="seitenhintergrund.js?v=20261023"></script>
 </body>
 </html>

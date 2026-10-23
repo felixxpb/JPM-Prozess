@@ -104,6 +104,12 @@ svg.chart{width:100%;height:auto;display:block;touch-action:none}
 .nk b{display:block;font-size:13.5px}.nk span{display:block;font-size:11.5px;color:var(--text2);margin-top:1px}
 .pf2{font-size:11px;color:var(--text2);text-align:center;line-height:1.25;padding:0 3px}
 .pf2 i{display:block;font-style:normal;font-size:18px;color:var(--text);line-height:1}
+.fl2k{background:#0c1220;border:1px solid #26334b;border-radius:14px;padding:8px;margin:8px 0 4px}
+.fl2k svg{width:100%;height:auto;display:block}
+.fl2k text{font-family:inherit}.fl2k .ebt{font-size:12px;fill:#9fb0c8;letter-spacing:.08em;text-transform:uppercase}
+.fl2k .nd-t{font-size:13px;font-weight:700;fill:#0b1620}.fl2k .nd-s{font-size:11px;fill:#16303f}
+.fl2k .fl-t{font-size:11.5px;fill:#eaf0fb;paint-order:stroke;stroke:#0c1220;stroke-width:5px;stroke-linejoin:round}
+.fl2k .flz,.fl2k .ndz{cursor:pointer;outline:none}.fl2k .flz:hover .fl-l,.fl2k .flz:focus-visible .fl-l{stroke-width:6.5}.fl2k .ndz:hover rect,.fl2k .ndz:focus-visible rect{stroke:#fff;stroke-width:3.5}
 .nk.n1{--c:var(--c1)}.nk.n2{--c:var(--c3)}.nk.n3{--c:var(--c4)}.nk.n4{--c:var(--c2)}.nk.n5{--c:var(--c2)}.nk.n6{--c:var(--c1)}.nk.n7{--c:var(--cb)}
 .bed{display:grid;grid-template-columns:repeat(2,1fr);gap:10px;margin-top:4px}
 .bed div{background:var(--ebene);border:1px solid var(--rand);border-radius:9px;padding:8px 11px;font-size:13.5px}
@@ -112,12 +118,13 @@ svg.chart{width:100%;height:auto;display:block;touch-action:none}
 .chip:hover{border-color:var(--text)}
 @media (max-width:980px){.fluss{grid-template-columns:1fr;grid-template-rows:none;gap:8px}.pf2{display:none}.bed{grid-template-columns:1fr}}
 </style>
+<style>.zurueck-knopf{display:inline-flex;align-items:center;gap:8px;font-size:14.5px;font-weight:600;color:var(--text);text-decoration:none;background:var(--flaeche);border:1.5px solid var(--achse);border-radius:12px;padding:8px 16px;margin-bottom:10px;box-shadow:var(--schatten)}.zurueck-knopf:hover,.zurueck-knopf:focus-visible{border-color:var(--text2);outline:none}</style>
 </head>
-<body>
+<body data-flagge="../bilder/flaggen/usa.jpg">
 <div class="wrap">
 <header>
   <div>
-    <a href="usa.html" style="font-size:13px;color:var(--text2)">← USA, alle Oberthemen</a>
+    <a href="usa.html" class="zurueck-knopf">← USA, alle Oberthemen</a>
     <h1>USA – Finanz- und Kreditsystem </h1>
     <div class="unter">Länderanalyse, Oberthema 2 · Daten und Fakten, keine Bewertung · Struktur geprüft 2026-10-18 (nächster Review: April 2027) · Kennzahlen aktualisieren sich automatisch, das Datum steht in jeder Kachel</div>
   </div>
@@ -126,11 +133,11 @@ svg.chart{width:100%;height:auto;display:block;touch-action:none}
 <div class="legende">
   <span><i class="pkt auto"></i>automatisch (täglicher FRED-Abruf)</span>
   <span><i class="pkt man"></i>manuell gepflegt (Text-Quellen)</span>
-  <span>Kästen im Kreislauf und Kacheln anklicken: Erklärung, Chart mit Historie, Quellen</span>
+  <span>Bausteine, Pfeile und Kacheln anklicken: Erklärung, Chart mit Historie, Quellen</span>
 </div>
 <section class="versteh" aria-labelledby="vt">
   <h2 id="vt">Zuerst verstehen: Wie das Finanz- und Kreditsystem der USA aufgebaut ist</h2>
-  <p class="lead">Die Daten darunter sind Belege für diesen Aufbau. Wichtiger als jede einzelne Zahl ist, wie die Teile zusammenhängen. Die Kästen im Kreislauf sind anklickbar.</p>
+  <p class="lead">Die Daten darunter sind Belege für diesen Aufbau. Wichtiger als jede einzelne Zahl ist, wie die Teile zusammenhängen. Die Bausteine und Pfeile im Schaubild sind anklickbar.</p>
 
   <details open>
     <summary>Die Grundidee in sechs Punkten</summary>
@@ -145,10 +152,10 @@ svg.chart{width:100%;height:auto;display:block;touch-action:none}
   </details>
 
   <details open>
-    <summary>Der Kreislauf (Kästen anklicken)</summary>
+    <summary>Das Schaubild (Bausteine und Pfeile anklicken)</summary>
     <div class="inh">
-      <div class="fluss" id="fluss"></div>
-      <p style="font-size:12.5px;color:var(--text2);margin:6px 0 0">Lesart: Links oben beginnt die Steuerung (Fed), rechts oben kommt das Geld in der Wirtschaft an. Unten läuft der Staat über den Anleihemarkt zurück in den Geldmarkt, wo Staatsanleihen als Sicherheit gebraucht werden. Nichtbanken und Ausland hängen an mehreren Stellen mit dran.</p>
+      <div class="fl2k"><svg id="fluss" viewBox="0 0 1100 710" role="group" aria-label="Schaubild des Finanz- und Kreditsystems in drei Ebenen"></svg></div>
+      <p style="font-size:12.5px;color:var(--text2);margin:6px 0 0">Lesart: Oben die Steuerung (Fed und Staat), in der Mitte das Finanzsystem (Banken, Geldmarkt, Anleihemarkt, Nichtbanken, Ausland), unten die Haushalte und Firmen. Die Pfeile zeigen, was fließt, die Farbe ist die des Absenders. Bausteine und Pfeile sind anklickbar.</p>
     </div>
   </details>
 
@@ -326,7 +333,7 @@ const NK=[
   was:"Geschäftsbanken nehmen Einlagen an und vergeben Kredite. Mit jedem Kredit entsteht neues Geld. Sie halten außerdem Staatsanleihen als Liquiditätsreserve und unterliegen Kapitalregeln.",
   zus:"Sie geben die Konditionen der Fed an Haushalte und Unternehmen weiter. Ihre Bereitschaft zur Kreditvergabe (Kreditstandards, Ausfälle) bestimmt, wie viel Geld in der Wirtschaft ankommt.",
   daten:["standards"]},
- {id:"wirtschaft",n:"n3",pos:[5,1],t:"Haushalte & Unternehmen",s:"Kreditnehmer",
+ {id:"wirtschaft",n:"n3",pos:[5,1],t:"Haushalte & Firmen",s:"Kreditnehmer",
   was:"Haushalte nehmen vor allem Hypotheken, Auto-, Studien- und Kreditkartenkredite auf, Unternehmen Bankkredite, Anleihen oder Private Credit. Aus Krediten wird Konsum und Investition, aus Einkommen werden Zins und Tilgung.",
   zus:"Hier zeigt sich, ob das System trägt: Wie hoch ist die Schuldenlast, wie viele Kredite fallen aus, wie teuer ist die Finanzierung (Kreditaufschläge)?",
   daten:["hh","hy"]},
@@ -342,25 +349,63 @@ const NK=[
   was:"Das Finanzministerium finanziert Defizite durch Staatsanleihen, bei Auktionen. Der Kongress bestimmt Haushalt und Schuldenobergrenze (siehe Oberthema 1).",
   zus:"Hohe Schulden bedeuten ein hohes Angebot neuer Anleihen, das der Markt aufnehmen muss. Steuern aus Einkommen und Gewinnen fließen zurück an den Staat.",
   daten:["schuld"]},
- {id:"nichtbank",n:"n7",pos:[3,5],t:"Nichtbanken & Ausland",s:"Fonds, Private Credit, Käufer",
-  was:"Neben Banken gibt es Geldmarktfonds, Hedgefonds, Versicherer, Private-Credit-Fonds, Stablecoin-Emittenten und ausländische Zentralbanken und Investoren. Sie kaufen Staatsanleihen, vergeben Kredite und stellen Liquidität bereit.",
+ {id:"nichtbank",n:"n7",pos:[3,5],t:"Nichtbanken",s:"Private Credit, Fonds",
+  was:"Neben Banken gibt es Hedgefonds, Versicherer, Private-Credit-Fonds, Verbriefungen und Stablecoin-Emittenten. Sie kaufen Staatsanleihen, vergeben Kredite und stellen Liquidität bereit.",
   zus:"Sie sind über Kreditlinien, Sicherheiten und Anleihebestände mit Banken und Geldmarkt verbunden. Spannungen bei ihnen können sich auf das System übertragen.",
+  daten:[]},
+ {id:"ausland",t:"Ausland",s:"Zentralbanken, Investoren",
+  was:"Ausländische Zentralbanken und Investoren kaufen Staatsanleihen und halten Dollar. Weltweit laufen Geschäfte und Schulden in Dollar.",
+  zus:"Sie helfen dem Staat, sich zu finanzieren, und tragen Dollar-Spannungen in andere Länder. Ziehen sie sich zurück, steigen tendenziell die Renditen.",
   daten:[]}
 ];
-const PF=[
- {t:"Zins, Reserven",r:"→",pos:[2,1]},{t:"Kredit",r:"→",pos:[4,1]},
- {t:"Steuern, Auktionen",r:"→",pos:[4,3],links:true},{t:"Staatsanleihen als Sicherheit",r:"→",pos:[2,3],links:true},
- {t:"Steuerung SOFR, ON RRP",r:"⇅",pos:[1,2]},{t:"Anleihebestände",r:"⇅",pos:[3,2]},{t:"Einkommen, Steuern",r:"⇅",pos:[5,2]},
- {t:"Kredit, Käufe",r:"⇅",pos:[3,4]}
+const FARBE={fed:"#5aa9e6",banken:"#4cc38a",wirtschaft:"#f2a65a",staat:"#b48ae6",anleihen:"#4fd1c5",geldmarkt:"#4fd1c5",nichtbank:"#ef7fb0",ausland:"#9aa7b5"};
+const POS={fed:[300,85],staat:[800,85],banken:[200,400],geldmarkt:[450,295],nichtbank:[450,400],anleihen:[780,295],ausland:[970,400],wirtschaft:[500,620]};
+const EBENEN=[[20,140,"Steuerung"],[215,230,"Finanzsystem"],[520,175,"Realwirtschaft"]];
+const FL=[
+["fed","banken","Leitzins, Reserven","Die Fed bestimmt den Leitzins und die Menge an Reserven. Das legt fest, wie teuer und reichlich Geld für Banken ist."],
+["banken","wirtschaft","Kredite (neues Geld)","Mit jedem Kredit schreibt die Bank ein Guthaben gut, das vorher nicht existierte. So kommt Geld in die Wirtschaft."],
+["wirtschaft","banken","Zins, Tilgung, Einlagen","Kreditnehmer zahlen Zins und Tilgung. Ausgegebenes Geld landet als Einlage meist wieder bei Banken."],
+["staat","anleihen","neue Staatsanleihen","Der Staat verkauft zur Finanzierung seiner Defizite neue Treasuries (Auktionen)."],
+["anleihen","staat","Geld für den Haushalt","Die Käufer der Anleihen zahlen. Dieses Geld finanziert den Staatshaushalt."],
+["anleihen","geldmarkt","Anleihen als Sicherheit","Staatsanleihen sind die Hauptsicherheit im Geldmarkt. Wer Tagesgeld leiht, hinterlegt sie."],
+["geldmarkt","banken","Tagesgeld (Repo)","Über den Geldmarkt kommt kurzfristige Liquidität zu den Banken (Preis: SOFR). Wird sie knapp, zeigt es sich hier zuerst."],
+["fed","anleihen","Käufe und Verkäufe","Die Fed kauft oder verkauft Staatsanleihen und beeinflusst damit Reserven und Renditen."],
+["ausland","anleihen","kauft Treasuries","Ausländische Käufer halten einen großen Teil der Staatsanleihen und helfen dem Staat, sich zu finanzieren."],
+["banken","nichtbank","Kreditlinien","Banken stellen Nichtbanken Kreditlinien bereit. Dadurch hängen beide zusammen, Stress kann übertragen werden."],
+["nichtbank","wirtschaft","Private Credit","Nichtbanken vergeben Kredite direkt an Unternehmen, außerhalb der Bankbilanz."],
+["wirtschaft","staat","Steuern","Steuern auf Einkommen und Gewinne fließen an den Staat."],
+["fed","geldmarkt","Steuerung SOFR, ON RRP","Die Fed steuert den Tagesgeldzins am Geldmarkt über ihre Fazilitäten (z. B. ON RRP)."]
 ];
+function svgEl(n,a,p){const e=document.createElementNS("http://www.w3.org/2000/svg",n);for(const k in a)e.setAttribute(k,a[k]);if(p)p.appendChild(e);return e}
 function flussBauen(){
-  const f=document.getElementById("fluss");if(!f)return;
-  PF.forEach(p=>{const d=document.createElement("div");d.className="pf2";d.style.gridColumn=p.pos[0];d.style.gridRow=p.pos[1];d.innerHTML="<i>"+(p.links?"←":p.r)+"</i>"+esc(p.t);f.appendChild(d)});
-  NK.forEach(n=>{const b=document.createElement("button");b.type="button";b.className="nk "+n.n;b.style.gridColumn=n.pos[0];b.style.gridRow=n.pos[1];
-    b.innerHTML="<b>"+esc(n.t)+"</b><span>"+esc(n.s)+"</span>";b.addEventListener("click",()=>knoten(n.id));f.appendChild(b)})}
+  const svg=document.getElementById("fluss");if(!svg)return;const W=150,H=54;
+  const defs=svgEl("defs",{},svg);
+  Object.keys(FARBE).forEach(k=>{const m=svgEl("marker",{id:"pf-"+k,viewBox:"0 0 10 10",refX:9,refY:5,markerWidth:6,markerHeight:6,orient:"auto"},defs);svgEl("path",{d:"M0 0L10 5L0 10z",fill:FARBE[k]},m)});
+  EBENEN.forEach((b,i)=>{svgEl("rect",{x:15,y:b[0],width:1070,height:b[1],rx:20,fill:i===1?"#131d31":"#111a2c",stroke:"#1e2b44"},svg);
+    const t=svgEl("text",{class:"ebt",x:32,y:b[0]+24},svg);t.textContent=b[2]});
+  FL.forEach((f,idx)=>{const a=POS[f[0]],b=POS[f[1]];
+    const dx=b[0]-a[0],dy=b[1]-a[1],L=Math.hypot(dx,dy),ux=dx/L,uy=dy/L,px=-uy*9,py=ux*9;
+    const t=Math.min(Math.abs(ux)<1e-6?1e9:(W/2+5)/Math.abs(ux),Math.abs(uy)<1e-6?1e9:(H/2+5)/Math.abs(uy));
+    const x1=a[0]+px+ux*t,y1=a[1]+py+uy*t,x2=b[0]+px-ux*t,y2=b[1]+py-uy*t;
+    const ri=FL.findIndex(q=>q[0]===f[1]&&q[1]===f[0]),fr=ri<0?.5:(idx<ri?.36:.64),vert=ri>=0&&Math.abs(ux)<.5;
+    const g=svgEl("g",{class:"flz",tabindex:0,role:"button","aria-label":f[2]},svg);
+    svgEl("line",{x1:x1,y1:y1,x2:x2,y2:y2,stroke:"transparent","stroke-width":16},g);
+    svgEl("line",{class:"fl-l",x1:x1,y1:y1,x2:x2,y2:y2,stroke:FARBE[f[0]],"stroke-width":4,"marker-end":"url(#pf-"+f[0]+")"},g);
+    const tx=svgEl("text",{class:"fl-t",x:x1+(x2-x1)*(vert?.5:fr)+(vert?(idx<ri?-12:12):0),y:y1+(y2-y1)*(vert?.5:fr)+4,"text-anchor":vert?(idx<ri?"end":"start"):"middle"},g);tx.textContent=f[2];
+    const op=()=>geldfluss(idx);g.addEventListener("click",op);g.addEventListener("keydown",e=>{if(e.key==="Enter"||e.key===" "){e.preventDefault();op()}})});
+  NK.forEach(n=>{const p=POS[n.id],g=svgEl("g",{class:"ndz",tabindex:0,role:"button","aria-label":n.t},svg);
+    svgEl("rect",{x:p[0]-W/2,y:p[1]-H/2,width:W,height:H,rx:H/2,fill:FARBE[n.id],stroke:"#0c1220","stroke-width":2},g);
+    const a=svgEl("text",{class:"nd-t",x:p[0],y:p[1]-3,"text-anchor":"middle"},g);a.textContent=n.t;
+    const b=svgEl("text",{class:"nd-s",x:p[0],y:p[1]+14,"text-anchor":"middle"},g);b.textContent=n.s;
+    const op=()=>knoten(n.id);g.addEventListener("click",op);g.addEventListener("keydown",e=>{if(e.key==="Enter"||e.key===" "){e.preventDefault();op()}})})}
+function geldfluss(i){const f=FL[i];const von=NK.find(x=>x.id===f[0]),nach=NK.find(x=>x.id===f[1]);aktiv=null;letzterFokus=document.activeElement;
+  Object.values(tiles).forEach(t=>t.classList.remove("aktiv"));dr.style.setProperty("--c",FARBE[f[0]]);
+  dr.innerHTML='<div class="dk"><div><div class="gr">Geldfluss</div><h2 id="dt">'+esc(f[2])+'</h2></div><button class="zu" type="button" aria-label="Schließen">×</button></div><div class="db"><h3>Von wem zu wem?</h3><p>'+esc(von.t)+' → '+esc(nach.t)+'</p><h3>Was passiert?</h3><p>'+esc(f[3])+'</p><h3>Beteiligte Bausteine</h3><p><button class="chip" type="button" data-k="'+von.id+'">'+esc(von.t)+'</button><button class="chip" type="button" data-k="'+nach.id+'">'+esc(nach.t)+'</button></p></div>';
+  dr.classList.add("offen");sh.classList.add("offen");dr.querySelector(".zu").addEventListener("click",schliessen);
+  dr.querySelectorAll(".chip").forEach(c=>c.addEventListener("click",()=>knoten(c.dataset.k)));dr.focus()}
 function knoten(id){const n=NK.find(x=>x.id===id);aktiv=null;letzterFokus=document.activeElement;
   Object.values(tiles).forEach(t=>t.classList.remove("aktiv"));
-  dr.style.setProperty("--c",n.n==="n1"||n.n==="n6"?"var(--c1)":n.n==="n2"?"var(--c3)":n.n==="n3"?"var(--c4)":n.n==="n7"?"var(--cb)":"var(--c2)");
+  dr.style.setProperty("--c",FARBE[n.id]);
   dr.innerHTML='<div class="dk"><div><div class="gr">Baustein des Systems</div><h2 id="dt">'+esc(n.t)+'</h2></div><button class="zu" type="button" aria-label="Schließen">×</button></div><div class="db"><h3>Was ist das?</h3><p>'+esc(n.was)+'</p><h3>Wie hängt es zusammen?</h3><p>'+esc(n.zus)+'</p><h3>Wo sieht man es in den Daten?</h3><p>'+(n.daten.length?'':'Keine eigene Kachel hier. Die Detaildaten liegen im Makro-Dashboard.')+n.daten.map(i=>'<button class="chip" type="button" data-t="'+i+'">'+esc(byId[i].titel)+'</button>').join("")+'</p></div>';
   dr.classList.add("offen");sh.classList.add("offen");dr.querySelector(".zu").addEventListener("click",schliessen);
   dr.querySelectorAll(".chip").forEach(c=>c.addEventListener("click",()=>oeffnen(c.dataset.t)));dr.focus()}
@@ -383,5 +428,6 @@ $("#theme").addEventListener("click",()=>{const r=document.documentElement;r.dat
 bauen();
 const hh=/#(\w+)/.exec(location.hash);if(hh&&byId[hh[1]])oeffnen(hh[1]);
 </script>
+<script src="seitenhintergrund.js?v=20261023"></script>
 </body>
 </html>

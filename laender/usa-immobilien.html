@@ -1,0 +1,533 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>JPM Prozess · Länderanalyse USA · Immobilien</title>
+<style>
+:root{
+  --flaeche:#fcfcfb; --ebene:#f9f9f7; --text:#0b0b0b; --text2:#52514e; --stumm:#898781;
+  --raster:#e1e0d9; --achse:#c3c2b7; --rand:rgba(11,11,11,.10);
+  --c1:#2f6f9f; --c2:#6b4f8a; --c3:#3d7a56; --c4:#8a5a2b; --cb:#52514e;
+  --h1:#e6f0f7; --h2:#eee9f4; --h3:#e5f2ea; --h4:#f4ebe1; --hb:#efeee9;
+  --gut:#006300; --warn:#b97a00; --schatten:0 1px 2px rgba(11,11,11,.04),0 4px 16px rgba(11,11,11,.06);
+  color-scheme:light;
+}
+:root[data-theme="dark"]{
+  --flaeche:#1a1a19; --ebene:#0d0d0d; --text:#fff; --text2:#c3c2b7; --stumm:#898781;
+  --raster:#2c2c2a; --achse:#383835; --rand:rgba(255,255,255,.12);
+  --c1:#5fa0d3; --c2:#ab8fd0; --c3:#56b27d; --c4:#d39a5a; --cb:#c3c2b7;
+  --h1:#16222c; --h2:#221b2c; --h3:#16261d; --h4:#2a2016; --hb:#232321;
+  --gut:#0ca30c; --warn:#fab219; --schatten:none; color-scheme:dark;
+}
+*{box-sizing:border-box}
+body{margin:0;padding:0 20px 56px;background:var(--ebene);color:var(--text);font-family:system-ui,-apple-system,"Segoe UI",sans-serif;font-size:15px;line-height:1.5}
+.wrap{max-width:1280px;margin:0 auto}
+header{padding:20px 0 6px;display:flex;gap:16px;justify-content:space-between;align-items:flex-start;flex-wrap:wrap}
+h1{margin:0;font-size:21px;font-weight:650}
+.unter{color:var(--text2);font-size:13px}
+.entwurf{display:inline-block;margin-left:8px;padding:1px 8px;border-radius:99px;border:1px solid var(--warn);color:var(--warn);font-size:12px;font-weight:600;vertical-align:middle}
+.tool{font:inherit;font-size:13px;background:var(--flaeche);color:var(--text);border:1px solid var(--rand);border-radius:8px;padding:6px 12px;cursor:pointer}
+.legende{display:flex;gap:16px;flex-wrap:wrap;font-size:12px;color:var(--text2);margin:6px 0 12px}
+.pkt{width:8px;height:8px;border-radius:50%;display:inline-block;margin-right:5px}.pkt.auto{background:var(--gut)}.pkt.man{background:var(--stumm)}
+/* Kachel */
+.k{all:unset;box-sizing:border-box;display:block;width:100%;cursor:pointer;background:var(--flaeche);border:1px solid var(--rand);border-radius:9px;padding:9px 11px 8px;box-shadow:var(--schatten);transition:transform .15s,border-color .15s}
+.k:hover{transform:translateY(-1px);border-color:var(--c)}.k:focus-visible{outline:2px solid var(--c);outline-offset:2px}
+.k.aktiv{border-color:var(--c);box-shadow:0 0 0 2px var(--c)}
+.kt{display:flex;justify-content:space-between;align-items:baseline;gap:6px}
+.kn{font-size:12.5px;color:var(--text2);font-weight:600}
+.kd{font-size:11px;color:var(--stumm);white-space:nowrap}
+.kw{font-size:23px;font-weight:700;line-height:1.15;font-variant-numeric:tabular-nums;margin-top:1px}
+.ks{font-size:11.8px;color:var(--text2);display:flex;justify-content:space-between;gap:6px;align-items:center;margin-top:1px}
+.dl{white-space:nowrap}
+.spark{display:block;width:100%;height:30px;margin-top:3px}
+.c1{--c:var(--c1)}.c2{--c:var(--c2)}.c3{--c:var(--c3)}.c4{--c:var(--c4)}.cb{--c:var(--cb)}
+/* Layout */
+.band{background:var(--hb);border:1px solid var(--rand);border-radius:12px;padding:8px 10px 10px;margin-bottom:14px}
+.bandkopf{font-size:12px;font-weight:700;color:var(--text2);text-transform:uppercase;letter-spacing:.05em;margin:2px 2px 6px}
+.bandinhalt{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}
+.raster{display:grid;grid-template-columns:1fr 54px 1fr 54px 1fr 54px 1fr;align-items:stretch}
+.sp{padding:8px;border-radius:12px;display:flex;flex-direction:column;gap:9px}
+.sp.s1{background:var(--h1)}.sp.s2{background:var(--h2)}.sp.s3{background:var(--h3)}.sp.s4{background:var(--h4)}
+.spkopf{color:#fff;font-weight:700;text-align:center;padding:9px 6px;border-radius:9px;font-size:13px;background:var(--c)}
+.pill{all:unset;cursor:pointer;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;font-size:10.5px;text-align:center;color:var(--text2);padding:4px 2px}
+.pill .pf{font-size:20px;color:var(--text);line-height:1}.pill:hover,.pill.aktiv{color:var(--text)}.pill:focus-visible{outline:2px solid var(--text);border-radius:6px}
+.termine{margin-top:16px;background:var(--flaeche);border:1px solid var(--rand);border-radius:10px;padding:10px 14px;box-shadow:var(--schatten)}
+.termine h2{margin:0 0 4px;font-size:13px;color:var(--text2);text-transform:uppercase;letter-spacing:.05em}
+.termin{display:flex;gap:10px;align-items:baseline;padding:5px 0;border-top:1px solid var(--raster);font-size:13px}
+.termin:first-of-type{border-top:0}.termin .d{width:96px;font-weight:600}.termin .t{flex:1}.termin .r{color:var(--text2);white-space:nowrap}.termin.n .r{color:var(--warn);font-weight:700}
+.fuss{margin-top:6px;font-size:11.5px;color:var(--stumm)}
+/* Drawer */
+#schatten{position:fixed;inset:0;background:rgba(0,0,0,.28);opacity:0;pointer-events:none;transition:opacity .2s;z-index:20}
+#schatten.offen{opacity:1;pointer-events:auto}
+#drawer{position:fixed;top:0;right:0;height:100%;width:min(560px,100%);background:var(--flaeche);border-left:1px solid var(--rand);box-shadow:-8px 0 30px rgba(0,0,0,.18);transform:translateX(100%);transition:transform .22s ease;z-index:21;overflow-y:auto;padding:0}
+#drawer.offen{transform:none}
+.dk{position:sticky;top:0;background:var(--flaeche);border-bottom:1px solid var(--rand);border-top:4px solid var(--c);padding:14px 18px 10px;display:flex;justify-content:space-between;gap:10px;align-items:flex-start;z-index:2}
+.dk h2{margin:0;font-size:18px}.dk .gr{font-size:12px;color:var(--c);text-transform:uppercase;letter-spacing:.05em;font-weight:700}
+.zu{all:unset;cursor:pointer;font-size:22px;line-height:1;padding:2px 8px;border-radius:6px;color:var(--text2)}.zu:hover{background:var(--raster)}.zu:focus-visible{outline:2px solid var(--text)}
+.db{padding:14px 18px 40px}
+.gross{font-size:34px;font-weight:700;font-variant-numeric:tabular-nums;line-height:1.1}
+.gsub{font-size:13px;color:var(--text2);margin-bottom:8px}
+.btns{display:flex;gap:6px;margin:6px 0 4px}
+.btn{font:inherit;font-size:12px;background:var(--ebene);color:var(--text);border:1px solid var(--rand);border-radius:7px;padding:3px 10px;cursor:pointer}
+.btn[aria-pressed="true"]{background:var(--text);color:var(--flaeche);border-color:var(--text)}
+svg.chart{width:100%;height:auto;display:block;touch-action:none}
+.tip{font-size:12.5px;color:var(--text2);min-height:18px;margin-bottom:4px;font-variant-numeric:tabular-nums}
+.db h3{font-size:12px;text-transform:uppercase;letter-spacing:.05em;color:var(--text2);margin:18px 0 4px}
+.db p{margin:0 0 8px;font-size:14px}
+.db table{width:100%;border-collapse:collapse;font-size:13px}
+.db th{font-weight:600;text-align:left;color:var(--text2);font-size:11.5px;border-bottom:1px solid var(--rand);padding:3px 8px 3px 0}
+.db td{padding:5px 8px 5px 0;border-bottom:1px solid var(--raster);vertical-align:top}
+.db .hin{background:var(--ebene);border-left:3px solid var(--warn);border-radius:4px;padding:6px 10px;font-size:13px;color:var(--text2)}
+.db ul{margin:4px 0 0;padding-left:18px;font-size:13.5px}
+.db a{color:inherit}
+@media (max-width:980px){
+  .raster{grid-template-columns:1fr}.pill{display:none}.sp{margin-bottom:12px}.bandinhalt{grid-template-columns:1fr}
+}
+@media (prefers-reduced-motion:reduce){#drawer,#schatten,.k{transition:none}}
+/* Verständnis-Block */
+.versteh{background:var(--flaeche);border:1px solid var(--rand);border-radius:12px;padding:6px 18px 14px;box-shadow:var(--schatten);margin-bottom:14px}
+.versteh>h2{margin:12px 0 2px;font-size:17px}
+.versteh .lead{margin:0 0 8px;color:var(--text2);font-size:13.5px}
+.versteh details{border-top:1px solid var(--raster);padding:6px 0}
+.versteh details:first-of-type{border-top:0}
+.versteh summary{cursor:pointer;font-weight:650;font-size:14.5px;padding:4px 0;list-style:none}
+.versteh summary::-webkit-details-marker{display:none}
+.versteh summary:before{content:"▸";display:inline-block;width:18px;color:var(--text2);transition:transform .15s}
+.versteh details[open]>summary:before{transform:rotate(90deg)}
+.versteh summary:focus-visible{outline:2px solid var(--text);outline-offset:2px;border-radius:4px}
+.versteh .inh{padding:2px 0 6px 18px;font-size:14px}
+.versteh ol.kern{margin:4px 0 4px;padding-left:20px}.versteh ol.kern li{margin:3px 0}
+.fluss{display:grid;grid-template-columns:1fr 78px 1fr 78px 1fr;grid-template-rows:auto 56px auto 56px auto;align-items:center;gap:0;margin:8px 0 4px}
+.nk{all:unset;box-sizing:border-box;display:block;width:100%;cursor:pointer;background:var(--ebene);border:1px solid var(--rand);border-top:3px solid var(--c);border-radius:9px;padding:8px 10px;text-align:center;transition:transform .15s,border-color .15s}
+.nk:hover{transform:translateY(-1px);border-color:var(--c)}.nk:focus-visible{outline:2px solid var(--c);outline-offset:2px}
+.nk b{display:block;font-size:13.5px}.nk span{display:block;font-size:11.5px;color:var(--text2);margin-top:1px}
+.pf2{font-size:11px;color:var(--text2);text-align:center;line-height:1.25;padding:0 3px}
+.pf2 i{display:block;font-style:normal;font-size:18px;color:var(--text);line-height:1}
+.nk.n1{--c:var(--c1)}.nk.n2{--c:var(--c3)}.nk.n3{--c:var(--c4)}.nk.n4{--c:var(--c2)}.nk.n5{--c:var(--c2)}.nk.n6{--c:var(--c1)}.nk.n7{--c:var(--cb)}
+.bed{display:grid;grid-template-columns:repeat(2,1fr);gap:10px;margin-top:4px}
+.bed div{background:var(--ebene);border:1px solid var(--rand);border-radius:9px;padding:8px 11px;font-size:13.5px}
+.bed b{display:block;font-size:13px;margin-bottom:2px}
+.chip{display:inline-block;font-size:11.5px;border:1px solid var(--rand);border-radius:99px;padding:0 9px;margin:2px 3px 0 0;background:var(--ebene);cursor:pointer;color:var(--text)}
+.chip:hover{border-color:var(--text)}
+@media (max-width:980px){.fluss{grid-template-columns:1fr;grid-template-rows:none;gap:8px}.pf2{display:none}.bed{grid-template-columns:1fr}}
+
+.struktur{background:var(--flaeche);border:1px solid var(--rand);border-radius:12px;padding:10px 14px 14px;box-shadow:var(--schatten);margin-bottom:14px}
+.skraster{display:grid;grid-template-columns:minmax(240px,320px) 1fr;gap:18px;align-items:center}
+#kuchen{width:100%;max-width:1000px;height:auto;display:block;margin:0 auto}
+.kmitte{margin:4px 0 0}
+.leg{display:none}
+#kuchen text{font-size:14px;fill:var(--text);cursor:pointer}
+#kuchen text b,#kuchen .pz{font-weight:700;font-variant-numeric:tabular-nums}
+#kuchen text:hover{text-decoration:underline}
+#kuchen .fl{stroke:var(--achse);stroke-width:1;fill:none}
+#kuchen .gk2{font-size:12px;fill:var(--text2);cursor:default;text-transform:uppercase;letter-spacing:.05em;font-weight:700}
+#kuchen path{cursor:pointer;stroke:var(--flaeche);stroke-width:1.5;transition:opacity .15s}
+#kuchen path:hover,#kuchen path:focus{opacity:.8;outline:none}
+.leg{display:none;grid-template-columns:repeat(2,1fr);gap:3px 14px}
+.leg button{all:unset;cursor:pointer;display:flex;align-items:center;gap:8px;font-size:13px;padding:3px 6px;border-radius:6px}
+.leg button:hover,.leg button:focus-visible{background:var(--ebene);outline:none}
+.leg i{width:11px;height:11px;border-radius:3px;flex:none}
+.leg b{margin-left:auto;font-variant-numeric:tabular-nums}
+.leg .gk{grid-column:1/-1;font-size:11.5px;font-weight:700;text-transform:uppercase;letter-spacing:.05em;color:var(--text2);margin-top:6px}
+.balken{display:flex;height:44px;border-radius:9px;overflow:hidden;margin-top:6px;border:1px solid var(--rand)}
+.balken button{all:unset;cursor:pointer;display:flex;align-items:center;justify-content:center;text-align:center;font-size:13px;font-weight:700;color:#fff;overflow:hidden;white-space:nowrap}
+.balken button:hover,.balken button:focus-visible{filter:brightness(1.12);outline:none}
+.bhin{font-size:11.5px;color:var(--stumm);margin-top:6px}
+.bandinhalt{grid-template-columns:repeat(4,1fr)!important}
+@media (max-width:980px){.bandinhalt{grid-template-columns:1fr!important}}
+@media (max-width:760px){#kuchen .lbl{display:none}#kuchen{max-width:360px}.leg{display:grid;grid-template-columns:1fr;margin-top:8px}}
+
+.kreislauf svg{width:100%;height:auto;display:block}
+.kreislauf .nd{cursor:pointer}
+.kreislauf .nd rect{fill:var(--ebene);stroke:var(--c);stroke-width:2;transition:fill .15s}
+.kreislauf .nd:hover rect,.kreislauf .nd:focus rect{fill:var(--flaeche)}
+.kreislauf .nd:focus{outline:none}.kreislauf .nd:focus rect{stroke-width:3.5}
+.kreislauf .nd text{pointer-events:none}
+.kreislauf .nt{font-size:15px;font-weight:700;fill:var(--text)}
+.kreislauf .ns{font-size:11.5px;fill:var(--text2)}
+.kreislauf .mk rect{fill:var(--h2);stroke-dasharray:none}
+.kreislauf .fr{stroke:var(--c1);stroke-width:2.4;fill:none}
+.kreislauf .fg{stroke:var(--c4);stroke-width:2.2;fill:none;stroke-dasharray:6 4}
+.kreislauf .fz{stroke:var(--text2);stroke-width:1.8;fill:none}
+.kreislauf .fl2{font-size:11.5px;fill:var(--text2)}
+.kreislauf .mitte{font-size:13px;font-weight:700;fill:var(--text2);text-anchor:middle}
+.kreislauf .mitte2{font-size:11.5px;fill:var(--stumm);text-anchor:middle}
+.kl-liste{display:none}
+@media (max-width:760px){.kreislauf .nd text.ns,.kreislauf .fl2{display:none}.kl-liste{display:flex;flex-wrap:wrap;gap:6px;margin-top:8px}}
+/* Inflation: eigene Ergänzungen */
+.bandinhalt{grid-template-columns:repeat(3,1fr)!important}
+.bandinhalt.v4{grid-template-columns:repeat(4,1fr)!important}
+@media (max-width:980px){.bandinhalt,.bandinhalt.v4{grid-template-columns:1fr!important}}
+.kuchenkopf{display:flex;justify-content:space-between;gap:10px;align-items:baseline;flex-wrap:wrap}
+.kuchenkopf h3{margin:0;font-size:16px}
+.kuchenkopf span{font-size:12px;color:var(--text2)}
+.pie{width:100%;max-width:1100px;height:auto;display:block;margin:0 auto}
+.pie path{cursor:pointer;stroke:var(--flaeche);stroke-width:.8;transition:opacity .15s}
+.pie path:hover,.pie path:focus{opacity:.75;outline:none}
+.pie text{font-size:13px;fill:var(--text);cursor:pointer}
+.pie text:hover{text-decoration:underline}
+.pie .pz{font-weight:700;font-variant-numeric:tabular-nums}
+.pie .fl{stroke:var(--achse);stroke-width:1;fill:none}
+.pie .mt{font-size:12px;fill:var(--text2);text-anchor:middle;cursor:default;font-weight:700}
+.pie .mt2{font-size:11px;fill:var(--stumm);text-anchor:middle;cursor:default}
+.balken2{display:flex;height:40px;border-radius:9px;overflow:hidden;margin-top:6px;border:1px solid var(--rand)}
+.balken2 button{all:unset;cursor:pointer;display:flex;align-items:center;justify-content:center;text-align:center;font-size:12px;font-weight:700;color:#fff;overflow:hidden;white-space:nowrap;padding:0 3px}
+.balken2 button:hover,.balken2 button:focus-visible{filter:brightness(1.12);outline:none}
+.liste summary{cursor:pointer;font-size:13px;font-weight:650;padding:6px 0}
+.liste input{font:inherit;font-size:13px;padding:5px 9px;border:1px solid var(--rand);border-radius:7px;background:var(--ebene);color:var(--text);width:min(360px,100%);margin:4px 0 8px}
+.liste .tab{max-height:420px;overflow:auto;border:1px solid var(--rand);border-radius:8px}
+.liste table{width:100%;border-collapse:collapse;font-size:12.5px}
+.liste th{position:sticky;top:0;background:var(--flaeche);text-align:left;font-size:11.5px;color:var(--text2);padding:5px 8px;border-bottom:1px solid var(--rand)}
+.liste td{padding:3px 8px;border-bottom:1px solid var(--raster)}
+.liste tr[data-id]{cursor:pointer}.liste tr[data-id]:hover{background:var(--ebene)}
+.liste td.zahl,.db td.zahl{text-align:right;font-variant-numeric:tabular-nums;white-space:nowrap}
+.sw{display:inline-block;width:10px;height:10px;border-radius:3px;margin-right:6px;vertical-align:baseline}
+.vgl{width:100%;border-collapse:collapse;font-size:13px;margin:4px 0}
+.vgl th{text-align:left;font-size:11.5px;color:var(--text2);border-bottom:1px solid var(--rand);padding:4px 8px 4px 0}
+.vgl td{padding:6px 8px 6px 0;border-bottom:1px solid var(--raster);vertical-align:top}
+.vgl td:first-child{font-weight:650;white-space:nowrap}
+.db .pfad{font-size:12.5px;color:var(--text2);margin:2px 0 6px}
+.gwb{height:12px;background:var(--raster);border-radius:6px;overflow:hidden;margin:4px 0 2px}.gwb i{display:block;height:100%}
+@media (max-width:760px){.pie .lbl{display:none}}
+
+.bandinhalt{grid-template-columns:repeat(3,1fr)!important}
+@media (max-width:980px){.bandinhalt{grid-template-columns:1fr!important}}
+.sektion{margin:22px 0 6px;font-size:16px;font-weight:650}
+.sektion small{display:block;font-size:13px;font-weight:400;color:var(--text2);margin-top:2px;max-width:900px}
+.kasten{background:var(--flaeche);border:1px solid var(--rand);border-radius:12px;padding:16px 18px;box-shadow:var(--schatten)}
+.dl{margin:0 0 6px;font-size:12px;letter-spacing:.06em;text-transform:uppercase;color:var(--text2);font-weight:700}
+.ginfo{margin-top:12px;border-top:1px solid var(--rand);padding-top:10px;font-size:14px;min-height:46px}
+.klein{font-size:12px;color:var(--text2);margin:8px 2px 0}
+/* Kreislauf */
+svg.kl{width:100%;height:auto;display:block}
+svg.kl text{fill:var(--text);font-size:13px}
+svg.kl .fl{cursor:pointer}svg.kl .nd{cursor:pointer}
+svg.kl .fl:hover .l,svg.kl .fl.on .l{stroke-width:5!important;opacity:1!important}
+svg.kl .nd:hover rect{filter:brightness(1.12)}
+svg.kl .lb{font-size:11.5px;fill:var(--text2);paint-order:stroke;stroke:var(--flaeche);stroke-width:5px}
+svg.kl .zl{font-weight:700;letter-spacing:.06em;font-size:12px;fill:var(--stumm)}
+.kpfad{margin-top:10px;display:flex;flex-wrap:wrap;gap:6px 14px;font-size:12.5px;color:var(--text2)}
+.kpfad i{display:inline-block;width:18px;height:3px;border-radius:2px;vertical-align:middle;margin-right:5px}
+@media (max-width:760px){svg.kl .lb{display:none}}
+/* Zeitleiste, Ticker */
+.zl2{display:grid}
+.zl2 .e{display:grid;grid-template-columns:104px 1fr;gap:12px;padding:9px 0;border-top:1px solid var(--raster);font-size:13.5px}
+.zl2 .e:first-child{border-top:0}
+.zl2 .d{font-weight:700;color:var(--c2);font-variant-numeric:tabular-nums}.zl2 .e.zk .d{color:var(--warn)}
+.zl2 .t b{display:block}.zl2 .t span{color:var(--text2);font-size:12.5px}
+.tick{width:100%;border-collapse:collapse;font-size:12.8px}
+.tick td{padding:5px 8px 5px 0;border-bottom:1px solid var(--raster);vertical-align:top}
+.tick td.d{white-space:nowrap;color:var(--text2);width:92px}.tick td.a{white-space:nowrap;font-weight:650;width:52px}.tick a{color:inherit}
+/* Firmen */
+.sparten{display:grid;grid-template-columns:repeat(3,1fr);gap:12px}
+@media (max-width:980px){.sparten{grid-template-columns:1fr}}
+.sparte{background:var(--flaeche);border:1px solid var(--rand);border-top:4px solid var(--c);border-radius:11px;padding:12px 12px 8px;box-shadow:var(--schatten)}
+.sparte h3{margin:0;font-size:14.5px}.sparte p{margin:0 0 6px;font-size:12px;color:var(--text2)}
+.firma{all:unset;box-sizing:border-box;cursor:pointer;display:block;width:100%;padding:7px 8px;border-top:1px solid var(--raster);border-radius:6px}
+.firma:hover{background:var(--ebene)}.firma:focus-visible{outline:2px solid var(--c)}
+.firma .z1{display:flex;justify-content:space-between;gap:8px;font-size:14px;font-weight:650}.firma .z1 em{font-style:normal;font-variant-numeric:tabular-nums}
+.firma .z2{font-size:11.5px;color:var(--text2);margin-top:1px}
+.firma i{display:block;height:5px;border-radius:3px;background:var(--c);opacity:.7;margin-top:4px}
+</style>
+<style>.zurueck-knopf{display:inline-flex;align-items:center;gap:8px;font-size:14.5px;font-weight:600;color:var(--text);text-decoration:none;background:var(--flaeche);border:1.5px solid var(--achse);border-radius:12px;padding:8px 16px;margin-bottom:10px;box-shadow:var(--schatten)}.zurueck-knopf:hover,.zurueck-knopf:focus-visible{border-color:var(--text2);outline:none}</style>
+</head>
+<body data-flagge="../bilder/flaggen/usa.jpg">
+<div class="wrap">
+<header>
+  <div>
+    <a href="usa.html" class="zurueck-knopf">← USA, alle Oberthemen</a>
+    <h1>USA – Immobilien <span class="entwurf">Vorschau, nicht freigegeben</span></h1>
+    <div class="unter">Länderanalyse, Oberthema 11 (Wohnen) · Daten und Fakten, keine Bewertung · Struktur: Entwurf 2026-10-22 (Review: April 2027) · Oben das System (Kreislauf), darunter die aktuelle Lage in Kennzahlen mit „auto" (aktualisieren sich selbst) oder „manuell" (von Hand mit Datum und Quelle)</div>
+  </div>
+  <button class="tool" id="theme" type="button">Dunkel / Hell</button>
+</header>
+<div class="legende">
+  <span><i class="pkt auto"></i>automatisch (FRED, SEC, Federal Register, zweimal täglich)</span>
+  <span><i class="pkt man"></i>manuell (Gesetze, Zölle, Behörden)</span>
+  <span>Alles Farbige ist anklickbar: Einordnung, Verlauf, Quelle</span>
+</div>
+
+<section class="versteh" aria-labelledby="vt">
+  <h2 id="vt">Zuerst verstehen: Wie Wohnen in den USA finanziert wird</h2>
+  <p class="lead">Die meisten Haushalte kaufen ein Haus mit einem Kredit (Hypothek) oder mieten. Banken vergeben die Kredite, verkaufen sie weiter, und staatlich gestützte Agenturen bündeln sie zu Wertpapieren, die Anleger kaufen. Der Hypothekenzins steuert, wie teuer das für den Haushalt ist, und wirkt auf Nachfrage, Preise und Bautätigkeit. Die Zahlen stammen vom Census Bureau, von der Federal Reserve, von Freddie Mac, BLS, FHFA und der SEC.</p>
+  <details open>
+    <summary>Die Grundidee in sechs Punkten</summary>
+    <div class="inh"><ol class="kern">
+      <li><b>Wohnen läuft über Kredit:</b> Hypothekenschulden sind die größte Schuldenposition der Haushalte. Der Hypothekenzins entscheidet über die Monatsrate.</li>
+      <li><b>Der Zins folgt dem Anleihemarkt:</b> Hypothekenzinsen orientieren sich an der Rendite der 10-jährigen Staatsanleihen plus einem Aufschlag. Die Federal Reserve wirkt über Leitzins und Anleihekäufe darauf ein.</li>
+      <li><b>Kredite werden weiterverkauft:</b> Fannie Mae, Freddie Mac und Ginnie Mae kaufen und bündeln Hypotheken zu Wertpapieren und garantieren die Zahlung. So haben Banken wieder Geld für neue Kredite.</li>
+      <li><b>Preise ergeben sich aus Nachfrage und Angebot:</b> Das Angebot hängt vom Neubau ab. Baukredite, Genehmigungen, Baukosten und Zölle auf Baustoffe bestimmen, wie viel gebaut wird.</li>
+      <li><b>Miete ist die Alternative:</b> Mieten und Kaufpreise beeinflussen sich. Wohnkosten sind ein großer Teil des Verbraucherpreisindex.</li>
+      <li><b>Politik setzt den Rahmen:</b> Aufsicht und Garantien, Steuerabzug und Förderkredite, Baurecht, Zölle und Regeln für Investoren verändern das System.</li>
+    </ol></div>
+  </details>
+  <details open>
+    <summary>Die Bausteine dieser Seite</summary>
+    <div class="inh">
+      <table class="vgl">
+        <tr><th>Baustein</th><th>Was er beschreibt</th><th>Kennzahlen auf dieser Seite</th></tr>
+        <tr><td>Finanzierung</td><td>Was Kredite kosten und wie belastet Haushalte sind.</td><td>Hypothekenzins, Abstand zur Staatsanleihe, Hypothekenbelastung, Zahlungsausfälle</td></tr>
+        <tr><td>Preise</td><td>Was Häuser kosten und wie sich der Markt bewegt.</td><td>Case-Shiller, Medianpreise, FHFA-Index</td></tr>
+        <tr><td>Angebot und Bau</td><td>Wie viel gebaut wird und wie viel zum Verkauf steht.</td><td>Baubeginne, Genehmigungen, Fertigstellungen, Bauausgaben, Monate Angebot</td></tr>
+        <tr><td>Nachfrage</td><td>Wie viele Häuser den Besitzer wechseln und wie viele Haushalte Eigentümer sind.</td><td>Verkäufe, Eigenheimquote, Leerstand</td></tr>
+        <tr><td>Mieten</td><td>Was Wohnen zur Miete kostet.</td><td>CPI Wohnen, Mieten, unterstellte Miete der Eigentümer</td></tr>
+        <tr><td>Politik</td><td>Gesetze und Regeln für Finanzierung, Bau und Eigentum.</td><td>Zeitleiste, Ticker HUD und FHFA</td></tr>
+      </table>
+      <p style="font-size:12.5px;color:var(--text2);margin:6px 0 0">Quellen: FRED (Freddie Mac, S&amp;P Cotality, Census, HUD, BLS, Federal Reserve), SEC, Federal Register.</p>
+    </div>
+  </details>
+  <details open>
+    <summary>Was das strukturell bedeutet</summary>
+    <div class="inh"><ul style="margin:4px 0 0;padding-left:18px;font-size:14px">
+      <li>Wohnkosten (Shelter) sind einer der größten Teile des Verbraucherpreisindex (Seite 6, Inflation).</li>
+      <li>Die Federal Reserve wirkt über Leitzins und ihren Bestand an Hypothekenpapieren auf den Markt (Seite 3, Fed).</li>
+      <li>Der Hypothekenmarkt ist ein großer Teil des Kreditsystems (Seite 2, Finanz- und Kreditsystem).</li>
+      <li>Wohneigentum ist ein großer Teil des Haushaltsvermögens und beeinflusst Konsum und Stimmung (Seite 8, Verbraucher).</li>
+    </ul>
+    <p style="font-size:12.5px;color:var(--text2);margin:8px 0 0">Die Wirkung auf Märkte und Währungen wird hier bewusst nicht beschrieben. Sie folgt später in der Ableitung.</p></div>
+  </details>
+</section>
+
+<h2 class="sektion">Der Kreislauf der Wohnungsfinanzierung<small>Das System mit allen Akteuren und Bausteinen, ohne aktuelle Zahlen. Die Lage steht in den Kennzahlen darunter. Klicke einen Akteur oder einen Pfeil an für eine Erklärung.</small></h2>
+<div class="kasten">
+  <svg class="kl" id="kl" viewBox="0 0 1100 700" role="img" aria-label="Kreislauf der Wohnungsfinanzierung"></svg>
+  <div class="ginfo" id="kli">Klicke auf einen Akteur oder einen Pfeil.</div>
+  <div class="kpfad">Die Pfeilfarbe zeigt den Absender. Gestrichelt: Rückfluss oder Wirkung. Pfeile mit zwei Spitzen laufen in beide Richtungen.</div>
+</div>
+
+<h2 class="sektion">Die Lage in Kennzahlen</h2>
+<div class="band"><div class="bandkopf">Zinsen und Finanzierung</div><div class="bandinhalt" id="b1"></div></div>
+<div class="band"><div class="bandkopf">Preise</div><div class="bandinhalt" id="b2"></div></div>
+<div class="band"><div class="bandkopf">Angebot und Bau</div><div class="bandinhalt" id="b3"></div></div>
+<div class="band"><div class="bandkopf">Nachfrage und Umsatz</div><div class="bandinhalt" id="b4"></div></div>
+<div class="band"><div class="bandkopf">Mieten und Wohnkosten</div><div class="bandinhalt" id="b5"></div></div>
+<div class="band"><div class="bandkopf">Politik in Kürze</div><div class="bandinhalt" id="b6"></div></div>
+
+<h2 class="sektion">Politik und Regulierung<small>Die Zeitleiste ist von Hand gepflegt (Stand 22.10.2026). Der Ticker holt die neuesten Regeln von HUD und FHFA automatisch aus dem Federal Register.</small></h2>
+<div class="sparten" style="grid-template-columns:1.25fr 1fr">
+  <div class="kasten"><div class="dl">Zeitleiste (von Hand)</div><div class="zl2" id="zl"></div></div>
+  <div class="kasten"><div class="dl">Neueste Regelungen (automatisch)</div><div id="ticker"></div></div>
+</div>
+
+<h2 class="sektion">Die größten Unternehmen nach Sparte<small>Umsatz und Nettoergebnis des letzten Geschäftsjahres aus den SEC-Berichten (automatisch). Firma anklicken für Details und die Stelle im Kreislauf. Kein Börsenwert, keine Bewertung.</small></h2>
+<div class="sparten" id="sparten"></div>
+<div class="klein">Die Geschäftsjahre enden je Firma zu unterschiedlichen Zeiten (Datum im Detailfenster). „Umsatz" ist der von der Firma gemeldete Gesamtumsatz (bei Rocket der Umsatz nach Zinsaufwand), „Nettoergebnis" der Gewinn nach Steuern und kann Einmaleffekte enthalten. Fannie Mae, Freddie Mac und Ginnie Mae sind im Kreislauf enthalten, aber hier nicht aufgeführt, weil ihre Berichte nicht mit Unternehmensumsätzen vergleichbar sind.</div>
+
+<div class="fuss">Quellen: FRED (Freddie Mac, S&amp;P Cotality, Census, NAR, HUD, BLS, Federal Reserve), SEC EDGAR, Federal Register, Mayer Brown (Gesetzeszusammenfassung), Baker Donelson, Thomson Reuters (Zölle). Alle Angaben ohne Bewertung. Gesetzes- und Zolldaten sind aus Sekundärquellen zusammengestellt und vor Freigabe gegen den Gesetzestext zu prüfen.</div>
+</div>
+<div id="schatten"></div>
+<aside id="drawer" role="dialog" aria-modal="true" aria-labelledby="dt" tabindex="-1"></aside>
+
+<script src="daten/usa.js?v=1"></script>
+<script>
+try{const g=localStorage.getItem("dashboard-thema");document.documentElement.dataset.theme=g||"dark"}catch(e){document.documentElement.dataset.theme="dark"}
+document.getElementById("theme").addEventListener("click",()=>{const d=document.documentElement;d.dataset.theme=d.dataset.theme==="dark"?"light":"dark";try{localStorage.setItem("dashboard-thema",d.dataset.theme)}catch(e){}});
+const DATA=(window.USA_DATEN&&window.USA_DATEN.fred)||{};
+const IM=(window.USA_DATEN&&window.USA_DATEN.immobilien)||{};
+/* Abstand Hypothekenzins zu 10-jaehrigen Staatsanleihen */
+(function(){const a=DATA.MORTGAGE30US,b=DATA.DGS10;if(!a||!b)return;const m={};b.forEach(x=>m[x[0]]=x[1]);const r=[];let last=null;
+ a.forEach(x=>{if(m[x[0]]!==undefined)last=m[x[0]];else{const d=new Date(x[0]);for(let i=1;i<6&&last===null;i++){const q=new Date(d);q.setDate(d.getDate()-i);const k=q.toISOString().slice(0,10);if(m[k]!==undefined)last=m[k]}}
+ if(last!==null&&x[0]>=b[0][0])r.push([x[0],x[1]-last])});if(r.length>4)DATA.__SPREAD=r})();
+const P1={div:1,dec:1,suf:" %"},P2={div:1,dec:2,suf:" %"};
+/* ================== KACHELN ================== */
+const K=[
+ {id:"z30",sp:1,b:"b1",gr:"Zinsen und Finanzierung",titel:"Hypothekenzins, 30 Jahre fest",s:"MORTGAGE30US",f:P2,rhythm:"w",was:"Durchschnittlicher Zins für eine neue Hypothek mit 30 Jahren fester Laufzeit, wöchentliche Umfrage von Freddie Mac unter Kreditgebern. Er bestimmt die Monatsrate beim Hauskauf.",hin:"Es ist ein Umfragedurchschnitt, der Zins des einzelnen Haushalts hängt von Bonität, Eigenkapital und Region ab.",q:"FRED MORTGAGE30US (Freddie Mac Primary Mortgage Market Survey)"},
+ {id:"z15",sp:1,b:"b1",gr:"Zinsen und Finanzierung",titel:"Hypothekenzins, 15 Jahre fest",s:"MORTGAGE15US",f:P2,rhythm:"w",was:"Durchschnittlicher Zins für eine Hypothek mit 15 Jahren fester Laufzeit (Freddie Mac). Kürzere Laufzeit, höhere Rate, geringerer Zins.",hin:"",q:"FRED MORTGAGE15US (Freddie Mac)"},
+ {id:"spr",sp:1,b:"b1",gr:"Zinsen und Finanzierung",titel:"Abstand zur 10-jährigen Staatsanleihe",s:"__SPREAD",f:{div:1,dec:2,suf:" Pkt"},rhythm:"w",was:"Hypothekenzins (30 Jahre) minus Rendite der 10-jährigen US-Staatsanleihe. Zeigt den Aufschlag, den Hypotheken über Staatsanleihen kosten, und wie stark der Zins vom Anleihemarkt statt vom Kreditmarkt kommt.",hin:"Eigene Berechnung aus zwei FRED-Reihen. Beide Werte werden am selben Tag oder dem letzten verfügbaren Handelstag zugeordnet.",q:"FRED MORTGAGE30US und DGS10, eigene Berechnung"},
+ {id:"leit",sp:1,b:"b1",gr:"Zinsen und Finanzierung",titel:"Leitzins der Fed (Obergrenze)",s:"DFEDTARU",f:P2,was:"Obergrenze des Zielbands des Leitzinses der Federal Reserve (Seite 3). Er wirkt auf die Kosten der Banken und indirekt auf Hypothekenzinsen.",hin:"Hypothekenzinsen folgen eher den langen Renditen als dem Leitzins.",q:"FRED DFEDTARU (Federal Reserve)"},
+ {id:"mdsp",sp:1,b:"b1",gr:"Zinsen und Finanzierung",titel:"Hypothekenbelastung der Haushalte",s:"MDSP",f:P1,rhythm:"q",was:"Anteil des verfügbaren Einkommens, den alle Haushalte für Hypothekenzahlungen (Zins und Tilgung) aufbringen. Quartalswert der Federal Reserve.",hin:"Durchschnitt über alle Haushalte mit und ohne Hypothek.",q:"FRED MDSP (Federal Reserve)"},
+ {id:"aus",sp:1,b:"b1",gr:"Zinsen und Finanzierung",titel:"Zahlungsausfälle bei Hypotheken",s:"DRSFRMACBS",f:P2,rhythm:"q",was:"Anteil der Hypotheken auf Einfamilienhäuser bei Geschäftsbanken, die im Zahlungsrückstand sind (Federal Reserve, Quartal).",hin:"Gilt für Geschäftsbanken, nicht für den gesamten Markt.",q:"FRED DRSFRMACBS (Federal Reserve)"},
+ {id:"hhs",sp:1,b:"b1",gr:"Zinsen und Finanzierung",titel:"Hypothekenschulden der Haushalte",s:"HHMSDODNS",f:{div:1e6,dec:2,suf:" Bio. USD"},rhythm:"q",was:"Bestand an Hypothekenkrediten auf Ein- bis Vierfamilienhäuser bei privaten Haushalten und Organisationen ohne Erwerbszweck (Federal Reserve Z.1, Quartal).",hin:"Der Wert wird nachträglich revidiert.",q:"FRED HHMSDODNS (Federal Reserve Z.1)"},
+ {id:"cs",sp:2,b:"b2",gr:"Preise",titel:"Case-Shiller Hauspreisindex (zum Vorjahr)",s:"CS_YOY",f:P1,rhythm:"m",was:"Veränderung des nationalen Hauspreisindex von S&P Cotality Case-Shiller zum Vorjahresmonat. Er misst wiederholte Verkäufe derselben Häuser und ist deshalb preisbereinigt für die Hausqualität.",hin:"Der Index hat einen Verzug von etwa zwei Monaten und ist ein gleitender Dreimonatsdurchschnitt.",q:"FRED CSUSHPINSA (S&P Cotality), eigene Umrechnung"},
+ {id:"med",sp:2,b:"b2",gr:"Preise",titel:"Medianpreis bestehender Häuser",s:"HOSMEDUSM052N",f:{div:1000,dec:1,suf:" Tsd. USD"},rhythm:"m",was:"Mittlerer Verkaufspreis bestehender Häuser (National Association of Realtors). Die Hälfte der Häuser wird teurer, die Hälfte günstiger verkauft.",hin:"Der Median schwankt mit der Saison und der Zusammensetzung der Verkäufe.",q:"FRED HOSMEDUSM052N (NAR)"},
+ {id:"neup",sp:2,b:"b2",gr:"Preise",titel:"Medianpreis neuer Häuser",s:"MSPUS",f:{div:1000,dec:1,suf:" Tsd. USD"},rhythm:"q",was:"Mittlerer Verkaufspreis neu gebauter Häuser (Census, Quartal).",hin:"Neubauten werden anders ausgestattet und gebaut als bestehende Häuser, die Werte sind nur grob vergleichbar.",q:"FRED MSPUS (Census)"},
+ {id:"fhfa",sp:2,b:"b2",gr:"Preise",titel:"FHFA Hauspreisindex (zum Vorjahr)",s:"FHFA_YOY",f:P1,rhythm:"q",was:"Veränderung des Hauspreisindex der Aufsichtsbehörde FHFA (alle Transaktionen) zum Vorjahr. Er basiert auf Krediten, die Fannie Mae und Freddie Mac kaufen oder garantieren.",hin:"Quartalswert mit Verzug.",q:"FRED USSTHPI (FHFA), eigene Umrechnung"},
+ {id:"sta",sp:3,b:"b3",gr:"Angebot und Bau",titel:"Baubeginne",s:"HOUST",f:{div:1000,dec:2,suf:" Mio."},rhythm:"m",was:"Neu begonnene Wohneinheiten, Jahresrate (Census). Zeigt, wie viel neu gebaut wird.",hin:"Monatszahlen schwanken stark und werden revidiert.",q:"FRED HOUST (Census)"},
+ {id:"gen",sp:3,b:"b3",gr:"Angebot und Bau",titel:"Baugenehmigungen",s:"PERMIT",f:{div:1000,dec:2,suf:" Mio."},rhythm:"m",was:"Genehmigte neue Wohneinheiten, Jahresrate (Census). Genehmigungen kommen vor den Baubeginnen.",hin:"",q:"FRED PERMIT (Census)"},
+ {id:"fer",sp:3,b:"b3",gr:"Angebot und Bau",titel:"Fertiggestellte Wohneinheiten",s:"COMPUTSA",f:{div:1000,dec:2,suf:" Mio."},rhythm:"m",was:"Fertiggestellte Wohneinheiten, Jahresrate (Census). Sie erweitern das Angebot.",hin:"",q:"FRED COMPUTSA (Census)"},
+ {id:"bau",sp:3,b:"b3",gr:"Angebot und Bau",titel:"Bauausgaben insgesamt",s:"TTLCON",f:{div:1000,dec:0,suf:" Mrd. USD"},rhythm:"m",was:"Alle Bauausgaben in den USA (Wohnbau, Gewerbe, öffentlich), Jahresrate (Census).",hin:"Enthält auch Gewerbe und öffentliche Bauten, nicht nur Wohnen.",q:"FRED TTLCON (Census)"},
+ {id:"ang",sp:3,b:"b3",gr:"Angebot und Bau",titel:"Angebot neuer Häuser in Monaten",s:"MSACSR",f:{div:1,dec:1,suf:" Monate"},rhythm:"m",was:"Wie viele Monate es bei der aktuellen Verkaufsrate dauert, alle zum Verkauf stehenden neuen Häuser zu verkaufen (Census).",hin:"",q:"FRED MSACSR (Census)"},
+ {id:"ex",sp:4,b:"b4",gr:"Nachfrage und Umsatz",titel:"Verkäufe bestehender Häuser",s:"EXHOSLUSM495S",f:{div:1e6,dec:2,suf:" Mio."},rhythm:"m",was:"Verkaufte bestehende Häuser, Jahresrate (National Association of Realtors). Der größte Teil aller Hausverkäufe.",hin:"",q:"FRED EXHOSLUSM495S (NAR)"},
+ {id:"neu",sp:4,b:"b4",gr:"Nachfrage und Umsatz",titel:"Verkäufe neuer Häuser",s:"HSN1F",f:{div:1,dec:0,suf:" Tsd."},rhythm:"m",was:"Verkaufte neu gebaute Einfamilienhäuser, Jahresrate (Census).",hin:"Wird stark revidiert.",q:"FRED HSN1F (Census)"},
+ {id:"eig",sp:4,b:"b4",gr:"Nachfrage und Umsatz",titel:"Eigenheimquote",s:"RHORUSQ156N",f:P1,rhythm:"q",was:"Anteil der Haushalte, die in Wohneigentum leben (Census, Quartal).",hin:"",q:"FRED RHORUSQ156N (Census)"},
+ {id:"leer",sp:4,b:"b4",gr:"Nachfrage und Umsatz",titel:"Leerstandsquote bei Mietwohnungen",s:"RRVRUSQ156N",f:P1,rhythm:"q",was:"Anteil leerstehender Mietwohnungen (Census, Quartal). Ein höherer Wert bedeutet mehr freies Angebot.",hin:"",q:"FRED RRVRUSQ156N (Census)"},
+ {id:"shel",sp:3,b:"b5",gr:"Mieten und Wohnkosten",titel:"CPI Wohnen (zum Vorjahr)",s:"CUSR0000SAH1_YOY",f:P1,rhythm:"m",was:"Preisentwicklung der gesamten Wohnkosten im Verbraucherpreisindex (Miete, unterstellte Miete der Eigentümer, Nebenkosten, Hotels) zum Vorjahr. Einer der größten Blöcke des CPI (Seite 6).",hin:"Der CPI misst Mieten verzögert, weil Bestandsmieten nur selten angepasst werden.",q:"FRED CUSR0000SAH1 (BLS), eigene Umrechnung"},
+ {id:"miete",sp:3,b:"b5",gr:"Mieten und Wohnkosten",titel:"CPI Mieten (zum Vorjahr)",s:"CPI_MIETE_YOY",f:P1,rhythm:"m",was:"Preisentwicklung der tatsächlich gezahlten Mieten für Hauptwohnsitze (BLS) zum Vorjahr.",hin:"",q:"FRED CUSR0000SEHA (BLS), eigene Umrechnung"},
+ {id:"oer",sp:3,b:"b5",gr:"Mieten und Wohnkosten",titel:"CPI unterstellte Miete der Eigentümer (zum Vorjahr)",s:"CPI_OER_YOY",f:P1,rhythm:"m",was:"Geschätzte Miete, die Eigentümer für ihr eigenes Haus zahlen müssten (Owners' Equivalent Rent). Der größte Einzelposten im CPI.",hin:"Kein echter Zahlungsstrom, sondern eine Schätzung auf Basis von Mieten.",q:"FRED CUSR0000SEHC (BLS), eigene Umrechnung"},
+ /* Politik in Kuerze (manuell) */
+ {id:"holz",sp:2,b:"b6",gr:"Politik in Kürze",titel:"Zölle auf Bauholz und Schränke",kpi:["10 % Bauholz","25 % Schränke, ab 01.01.2026 laut Quellen 30 bis 50 %"],auto:false,stand:"Proklamation Section 232, Stand der Quellen Oktober 2025",was:"Seit 14.10.2025 gelten Zölle auf Weichholz und Bauholz (10 %) sowie auf Küchenschränke und Badezimmerwaschtische (25 %, ab 01.01.2026 nach den Quellen 30 beziehungsweise 50 %). Für Länder mit Handelsabkommen gelten Obergrenzen (Großbritannien 10 %, EU und Japan 15 %). Der Verband der Hausbauer (NAHB) schätzt Mehrkosten von 5.000 bis 10.000 USD je neuem Haus.",hin:"Die Quellen stammen vom Herbst 2025. Aktuelle Sätze und Ausnahmen sind gegen die Proklamation zu prüfen. Das Handelsministerium sollte bis 01.10.2026 über Harthölzer berichten, ob das geschehen ist, ist nicht bestätigt. Die NAHB-Zahl ist eine Branchenschätzung.",q:"Thomson Reuters (14.10.2025), Baker Donelson, ProBuilder; NAHB"},
+ {id:"inv",sp:2,b:"b6",gr:"Politik in Kürze",titel:"Verbot für Großinvestoren beim Hauskauf",kpi:["seit 11.07.2026","gilt 15 Jahre, Altbestand muss nicht verkauft werden"],auto:false,stand:"21st Century ROAD to Housing Act, Stand 22.10.2026",was:"Der 21st Century ROAD to Housing Act verbietet großen institutionellen Investoren den Kauf von Ein- und Zweifamilienhäusern (ohne Fertighäuser). Neubauten für Seniorengemeinden und Umstrukturierungen sind ausgenommen, vor dem Gesetz gekaufte Häuser müssen nicht verkauft werden. Das Gesetz endet nach 15 Jahren von selbst. Senat 85 zu 5 (22.06.2026), Repräsentantenhaus 358 zu 32 (23.06.2026).",hin:"Nach der Zusammenfassung von Mayer Brown wurde das Gesetz ohne Unterschrift des Präsidenten wirksam. Die Details der Definition „großer Investor“ sind im Gesetzestext zu prüfen.",q:"Mayer Brown, Client Alerts vom 13.03.2026 und 15.07.2026"},
+ {id:"gse",sp:2,b:"b6",gr:"Politik in Kürze",titel:"Fannie Mae und Freddie Mac",kpi:["seit 2008 unter Staatsaufsicht","Börsengang offen"],auto:false,stand:"Berichte bis Februar 2026",was:"Fannie Mae und Freddie Mac stehen seit September 2008 unter Verwaltung der Aufsichtsbehörde FHFA. Eine Rückführung an den Markt (Börsengang mit 5 bis 15 % der Anteile, Bewertung 500 bis 700 Mrd. USD in Berichten) wurde mehrfach diskutiert. Im Februar 2026 sagte FHFA-Chef Pulte, ein Börsengang sei nicht zwingend, die Berichte widersprechen sich.",hin:"Der aktuelle Stand im Oktober 2026 konnte nicht bestätigt werden. Bei FHFA und der Berichterstattung nachsehen.",q:"Scotsman Guide, The MortgagePoint (03.02.2026), Politico (zitiert), FHFA"}
+];
+const byId={};K.forEach(k=>byId[k.id]=k);
+const $=s=>document.querySelector(s), heute=new Date(); heute.setHours(0,0,0,0);
+const esc=s=>String(s).replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+const nf=(v,d)=>new Intl.NumberFormat("de-DE",{minimumFractionDigits:d,maximumFractionDigits:d}).format(v);
+const dts=d=>{const[y,m,t]=d.split("-");return t+"."+m+"."+y};
+const tageBis=d=>Math.round((new Date(d+"T00:00:00")-heute)/86400000);
+const farbe=sp=>sp===0?"cb":"c"+sp;
+function fmtv(k,v){const f=k.f;return nf(v/f.div,f.dec)+f.suf}
+function letzte(k){const p=DATA[k.s];return p[p.length-1]}
+function veraenderung(k){const p=DATA[k.s];const l=p[p.length-1];
+  let ref;
+  if(k.rhythm==="q"||k.rhythm==="m"){ref=p[p.length-2]}
+  else{const lim=new Date(l[0]);lim.setDate(lim.getDate()-30);ref=[...p].reverse().find(x=>new Date(x[0])<=lim)}
+  if(!ref)return null;const dv=l[1]-ref[1];const txt=(dv>0?"▲ ":dv<0?"▼ ":"= ")+nf(Math.abs(dv)/k.f.div,k.f.dec)+(k.f.suf.includes("%")?" Pkt":k.f.suf);
+  return {txt,ref:ref[0],q:k.rhythm==="q",m:k.rhythm==="m"}}
+function spark(p,col){const n=p.slice(-Math.min(p.length,k_n(p)));const w=200,h=30;const xs=n.map(x=>x[1]);const mn=Math.min(...xs),mx=Math.max(...xs),sp=(mx-mn)||1;
+  const pts=n.map((x,i)=>(i/(n.length-1)*w).toFixed(1)+","+(h-2-(x[1]-mn)/sp*(h-4)).toFixed(1)).join(" ");
+  return '<svg class="spark" viewBox="0 0 '+w+' '+h+'" preserveAspectRatio="none" aria-hidden="true"><polyline fill="none" stroke="'+col+'" stroke-width="1.6" vector-effect="non-scaling-stroke" points="'+pts+'"/></svg>'}
+function k_n(p){return p.length>300?130:p.length>100?100:p.length>40?24:p.length}
+let tiles={}, aktiv=null, letzterFokus=null;
+function kachel(k){
+  const b=document.createElement("button");b.type="button";b.className="k "+farbe(k.sp);b.dataset.id=k.id;
+  let h='<div class="kt"><span class="kn">'+esc(k.titel)+'</span>';
+  if(k.s){const l=letzte(k);h+='<span class="kd">'+dts(l[0])+'</span></div><div class="kw">'+esc(fmtv(k,l[1]))+'</div>';
+    const v=veraenderung(k);h+='<div class="ks"><span>'+(v?esc(v.txt)+" ("+(v.q?"Vorquartal":v.m?"Vormonat":"30 Tage")+")":"")+'</span><span><i class="pkt auto"></i>auto</span></div>'+spark(DATA[k.s],"var(--c)")}
+  else{h+='<span class="kd"></span></div><div class="kw" style="font-size:20px">'+esc(k.kpi[0])+'</div><div class="ks"><span>'+esc(k.kpi[1])+'</span><span><i class="pkt '+(k.auto?'auto':'man')+'"></i>'+(k.auto?'auto':'manuell')+'</span></div>'}
+  b.innerHTML=h;b.addEventListener("click",()=>oeffnen(k.id));tiles[k.id]=b;return b}
+function bauen(){K.forEach(k=>{if(k.s&&!DATA[k.s])return;const c=document.getElementById(k.b);if(c)c.appendChild(kachel(k))})}
+const dr=$("#drawer"), sh=$("#schatten");
+function kopf(gr,titel,farbeCss){dr.style.setProperty("--c",farbeCss||"var(--cb)");return '<div class="dk"><div><div class="gr">'+esc(gr)+'</div><h2 id="dt">'+esc(titel)+'</h2></div><button class="zu" type="button" aria-label="Schließen">×</button></div>'}
+function zeigen(h){dr.innerHTML=h;dr.classList.add("offen");sh.classList.add("offen");dr.querySelector(".zu").addEventListener("click",schliessen);dr.focus()}
+function lage(k){const p=DATA[k.s],l=p[p.length-1],mx=p.reduce((a,b)=>b[1]>a[1]?b:a),mn=p.reduce((a,b)=>b[1]<a[1]?b:a);
+  return 'Aktuell '+fmtv(k,l[1])+' ('+dts(l[0])+'). Im gezeigten Zeitraum ab '+dts(p[0][0])+': Höchstwert '+fmtv(k,mx[1])+' ('+dts(mx[0])+'), Tiefstwert '+fmtv(k,mn[1])+' ('+dts(mn[0])+').'}
+function oeffnen(id,extra){const k=byId[id];letzterFokus=document.activeElement;
+  Object.values(tiles).forEach(t=>t.classList.toggle("aktiv",t.dataset.id===id));
+  const fc=k.sp?"var(--c"+k.sp+")":"var(--cb)";let h=kopf(k.gr,k.titel,fc)+'<div class="db">';
+  if(!k.s){h+='<div class="gross" style="font-size:28px">'+esc(k.kpi[0])+'</div><div class="gsub">'+esc(k.kpi[1])+'</div><div class="gsub"><i class="pkt man"></i>manuell gepflegt · '+esc(k.stand||"")+'</div>';
+    h+='<h3>Was ist das?</h3><p>'+esc(k.was)+'</p>';if(k.hin)h+='<h3>Hinweis</h3><div class="hin">'+esc(k.hin)+'</div>';
+    h+='<h3>Quelle</h3><p style="font-size:13px;color:var(--text2)">'+esc(k.q)+'</p></div>';zeigen(h);return}
+  const l=letzte(k);h+='<div class="gross">'+esc(fmtv(k,l[1]))+'</div><div class="gsub">Stand '+dts(l[0])+' · <i class="pkt auto"></i>automatisch (FRED)</div>';
+  h+='<div class="btns" role="group" aria-label="Zeitraum"></div><div class="tip" id="tip"> </div><svg class="chart" id="chart" viewBox="0 0 560 230" role="img" aria-label="Verlauf '+esc(k.titel)+'"></svg>';
+  h+=(extra||'')+'<h3>Was ist das?</h3><p>'+esc(k.was)+'</p><h3>Aktuelle Lage</h3><p>'+esc(lage(k))+'</p>';
+  if(k.hin)h+='<h3>Hinweis</h3><div class="hin">'+esc(k.hin)+'</div>';
+  h+='<h3>Quelle</h3><p style="font-size:13px;color:var(--text2)">'+esc(k.q)+'</p></div>';
+  zeigen(h);chartInit(k)}
+function schliessen(){dr.classList.remove("offen");sh.classList.remove("offen");Object.values(tiles).forEach(t=>t.classList.remove("aktiv"));if(letzterFokus&&letzterFokus.focus)letzterFokus.focus()}
+sh.addEventListener("click",schliessen);addEventListener("keydown",e=>{if(e.key==="Escape"&&dr.classList.contains("offen"))schliessen()});
+const ZR=[["3 Mon.",92],["6 Mon.",183],["1 Jahr",365],["Alles",0]];
+function chartInit(k){const box=dr.querySelector(".btns");let sel=(k.rhythm==="q"||k.rhythm==="m")?3:(k.rhythm==="w"?3:2);
+  ZR.forEach((z,i)=>{const b=document.createElement("button");b.type="button";b.className="btn";b.textContent=z[0];b.setAttribute("aria-pressed",i===sel);
+    if((k.rhythm==="q"||k.rhythm==="m")&&i<2){b.disabled=true;b.style.opacity=.4}
+    b.addEventListener("click",()=>{sel=i;[...box.children].forEach((c,j)=>c.setAttribute("aria-pressed",j===i));zeichne(k,ZR[i][1])});box.appendChild(b)});
+  zeichne(k,ZR[sel][1])}
+function zeichne(k,tage){const all=DATA[k.s];let p=all;if(tage){const lim=new Date(all[all.length-1][0]);lim.setDate(lim.getDate()-tage);p=all.filter(x=>new Date(x[0])>=lim)}
+  if(p.length<2)p=all.slice(-2);
+  const svg=$("#chart"),W=560,H=230,L=52,R=12,T=10,B=26;const ys=p.map(x=>x[1]/k.f.div);let mn=Math.min(...ys),mx=Math.max(...ys);const pad=(mx-mn||1)*.08;mn-=pad;mx+=pad;
+  const t0=new Date(p[0][0]).getTime(),t1=new Date(p[p.length-1][0]).getTime(),X=d=>L+(new Date(d).getTime()-t0)/((t1-t0)||1)*(W-L-R),Y=v=>T+(1-(v-mn)/(mx-mn))*(H-T-B);
+  let s="";for(let i=0;i<=4;i++){const v=mn+(mx-mn)*i/4,y=Y(v);s+='<line x1="'+L+'" x2="'+(W-R)+'" y1="'+y+'" y2="'+y+'" stroke="var(--raster)"/><text x="'+(L-6)+'" y="'+(y+4)+'" text-anchor="end" font-size="10.5" fill="var(--stumm)">'+nf(v,k.f.dec>1?1:k.f.dec)+'</text>'}
+  s+='<text x="'+L+'" y="'+(H-6)+'" font-size="10.5" fill="var(--stumm)">'+dts(p[0][0])+'</text><text x="'+(W-R)+'" y="'+(H-6)+'" text-anchor="end" font-size="10.5" fill="var(--stumm)">'+dts(p[p.length-1][0])+'</text>';
+  const pts=p.map(x=>X(x[0]).toFixed(1)+","+Y(x[1]/k.f.div).toFixed(1)).join(" ");
+  s+='<polyline fill="none" stroke="var(--c)" stroke-width="2" stroke-linejoin="round" points="'+pts+'"/>';
+  const lp=p[p.length-1];s+='<circle cx="'+X(lp[0])+'" cy="'+Y(lp[1]/k.f.div)+'" r="3.5" fill="var(--c)"/><line id="cv" y1="'+T+'" y2="'+(H-B)+'" stroke="var(--text)" stroke-width="1" opacity="0"/><circle id="cd" r="4" fill="var(--c)" stroke="var(--flaeche)" stroke-width="2" opacity="0"/>';
+  svg.innerHTML=s;const tip=$("#tip");tip.textContent="Mit Maus oder Finger über den Verlauf fahren, um einzelne Werte zu sehen.";
+  const mv=e=>{const r=svg.getBoundingClientRect();const x=((e.clientX-r.left)/r.width)*W;let b=0,bd=1e9;p.forEach((q,i)=>{const d=Math.abs(X(q[0])-x);if(d<bd){bd=d;b=i}});const q=p[b];
+    const cv=$("#cv"),cd=$("#cd");cv.setAttribute("x1",X(q[0]));cv.setAttribute("x2",X(q[0]));cv.setAttribute("opacity",.4);cd.setAttribute("cx",X(q[0]));cd.setAttribute("cy",Y(q[1]/k.f.div));cd.setAttribute("opacity",1);tip.textContent=dts(q[0])+": "+fmtv(k,q[1])};
+  svg.onpointermove=mv;svg.onpointerdown=mv;svg.onpointerleave=()=>{$("#cv").setAttribute("opacity",0);$("#cd").setAttribute("opacity",0)}}
+/* ================== KREISLAUF ================== */
+const COL={hh:"#3f8fd6",bk:"#2fa46a",ag:"#d9962b",inv:"#8b79e8",fed:"#e0605e",st:"#7b8899",bau:"#1fa3a3",vk:"#c9a227",vm:"#c2569f"};
+const A={
+ hh:{n:"Haushalte",s:"Käufer, Eigentümer, Mieter",t:"Menschen, die Wohnraum brauchen. Sie kaufen mit einem Kredit (Hypothek) oder mieten. Sie zahlen Zins und Tilgung, Miete und Steuern."},
+ bk:{n:"Banken und Vergeber",s:"vergeben Hypotheken",t:"Banken und spezialisierte Hypothekenanbieter prüfen Anträge und vergeben die Kredite. Sie verkaufen die meisten Kredite weiter, um neue vergeben zu können."},
+ ag:{n:"Fannie, Freddie, Ginnie",s:"bündeln und garantieren",t:"Fannie Mae und Freddie Mac (staatlich kontrollierte Unternehmen) und Ginnie Mae (Bundesbehörde) kaufen Kredite, bündeln sie zu Wertpapieren und garantieren die Zahlung an die Anleger."},
+ inv:{n:"Anleger",s:"Fonds, Versicherer, Ausland",t:"Pensionsfonds, Versicherer, Banken, Staatsfonds und Privatleute kaufen die Hypothekenpapiere. Ihre Renditeforderung bestimmt, wie teuer neue Hypotheken sind."},
+ fed:{n:"Federal Reserve",s:"Zentralbank",t:"Die Zentralbank setzt den Leitzins und kauft oder verkauft Staatsanleihen und Hypothekenpapiere. Das wirkt auf den Marktzins, an dem sich Hypothekenzinsen orientieren."},
+ st:{n:"Staat",s:"Bund, Länder, Kommunen",t:"Er beaufsichtigt die Agenturen (FHFA), garantiert Ginnie-Mae-Papiere, fördert Kredite (FHA, VA), erlaubt den Steuerabzug von Hypothekenzinsen, erhebt die Grundsteuer und setzt Baurecht und Genehmigungen."},
+ bau:{n:"Bauherren",s:"Entwickler und Hausbauer",t:"Sie bauen neue Häuser und Wohnungen, finanziert über Baukredite. Genehmigungen, Baukosten und Zinsen bestimmen, wie viel gebaut wird."},
+ vk:{n:"Verkäufer und Makler",s:"bestehende und neue Häuser",t:"Eigentümer, die verkaufen, und Makler, die vermitteln. Der Kaufpreis ist ein Ergebnis aus Nachfrage und Angebot."},
+ vm:{n:"Vermieter",s:"Mietwohnungen",t:"Besitzer von Mietwohnungen. Sie vermieten Wohnraum gegen Miete und sind für Haushalte die Alternative zum Kauf."}
+};
+const W=176,H=56,P={fed:[230,60],st:[640,60],inv:[370,225],ag:[185,400],bk:[370,575],hh:[555,400],vk:[740,225],bau:[925,400],vm:[740,575]};
+const CL=[370,400],CR=[740,400];
+function clip(c,o,w,h,pad){const dx=o[0]-c[0],dy=o[1]-c[1];const sx=dx?(w/2+pad)/Math.abs(dx):1e9,sy=dy?(h/2+pad)/Math.abs(dy):1e9;const s=Math.min(sx,sy);return [c[0]+dx*s,c[1]+dy*s]}
+const outw=(p,c,d)=>{const dx=p[0]-c[0],dy=p[1]-c[1],l=Math.hypot(dx,dy)||1;return [p[0]+dx/l*d,p[1]+dy/l*d]};
+const E=[
+ ["a1","inv","ag","Geld der Anleger",CL,36,0,0,"Anleger zahlen Geld für Hypothekenpapiere an die Agenturen."],
+ ["a2","ag","bk","Geld für neue Kredite",CL,36,0,0,"Die Agenturen kaufen Kredite von den Banken und garantieren den Anlegern die Zahlung. So haben Banken wieder Geld für neue Kredite."],
+ ["a3","bk","hh","Hypothekenkredit",CL,36,0,0,"Die Bank zahlt den Kredit an die Haushalte, zusammen mit deren Eigenkapital reicht er für den Kaufpreis.",-48],
+ ["a4","hh","inv","Zins und Tilgung zurück",CL,60,1,0,"Haushalte zahlen jeden Monat Zins und Tilgung. Der Strom wird über Banken und Agenturen an die Anleger weitergeleitet. So schließt sich der Finanzierungskreislauf.",34],
+ ["b1","hh","vk","Kaufpreis gegen Haus",CR,36,0,1,"Haushalte zahlen den Kaufpreis und erhalten das Haus. Der Preis ergibt sich aus Nachfrage und Angebot."],
+ ["b2","vk","bau","Preise: Anreiz zu bauen",CR,36,0,0,"Hohe Preise und viele Verkäufe sind für Bauherren der Anreiz, neue Häuser zu bauen.",40],
+ ["b3","bau","vm","Neubau für Vermietung",CR,36,0,0,"Bauherren bauen auch Mietwohnungen."],
+ ["b4","vm","hh","Wohnraum gegen Miete",CR,36,0,1,"Vermieter stellen Wohnraum bereit, Haushalte zahlen Miete. Mieten und Kaufpreise beeinflussen sich, weil beides Wohnen ersetzt.",-48],
+ ["b5","bau","vk","neue Häuser",CR,0,1,0,"Bauherren bringen neue Häuser auf den Markt (Angebot).",-26]
+];
+const FR=[
+ ["c1","fed",330,208,"Leitzins, Käufe von Anleihen und Papieren","Die Federal Reserve setzt den Leitzins, versorgt Banken mit Geld und kauft oder verkauft Staatsanleihen und Hypothekenpapiere. Das wirkt auf den Marktzins, an dem sich Hypothekenzinsen orientieren.",0,0],
+ ["c2","st",430,225,"Aufsicht und Garantie (Agenturen)","Der Staat beaufsichtigt Fannie und Freddie (FHFA) und garantiert Ginnie-Mae-Papiere.",0,0],
+ ["c3","st",555,372,"Förderung, Steuern","Steuerabzug für Hypothekenzinsen, FHA- und VA-Kredite (Förderung). Dafür zahlen Eigentümer Grundsteuer an die Kommunen.",1,-62],
+ ["c4","st",810,200,"Baurecht und Genehmigungen","Kommunen und Länder bestimmen mit Flächen, Auflagen und Genehmigungen, wie viel gebaut werden darf.",0,0]
+];
+(function(){const svg=document.getElementById("kl"),inf=document.getElementById("kli"),T={};
+ const ids=new Set();let s='<defs>';
+ Object.keys(COL).forEach(k=>{s+='<marker id="mk'+k+'" viewBox="0 0 10 10" refX="9" refY="5" markerUnits="userSpaceOnUse" markerWidth="16" markerHeight="16" orient="auto-start-reverse"><path d="M0 0L10 5L0 10z" fill="'+COL[k]+'"/></marker>'});
+ s+='</defs><circle cx="370" cy="400" r="190" fill="#4a7fc0" fill-opacity=".09" stroke="var(--achse)"/><circle cx="740" cy="400" r="190" fill="#3fb07a" fill-opacity=".09" stroke="var(--achse)"/>';
+ const path=(id,k,d,bi,dash,lx,ly,t)=>'<g class="fl" data-id="'+id+'"><path class="l" '+(dash?'stroke-dasharray="6 5" ':'')+'style="stroke:'+COL[k]+';stroke-width:3.2;opacity:.8;fill:none;stroke-linecap:round" d="'+d+'" marker-end="url(#mk'+k+')"'+(bi?' marker-start="url(#mk'+k+')"':'')+'/><text class="lb" x="'+lx.toFixed(1)+'" y="'+ly.toFixed(1)+'" text-anchor="middle">'+esc(t)+'</text></g>';
+ E.forEach(e=>{const [id,a,b,l,c,bend,dash,bi,text,lo]=e;const A1=P[a],B1=P[b],p1=clip(A1,B1,W,H,5),p2=clip(B1,A1,W,H,5),m=[(p1[0]+p2[0])/2,(p1[1]+p2[1])/2],cc=bend?outw(m,c,bend):m,lp=outw(cc,c,lo===undefined?20:lo);T[id]=text;
+  s+=path(id,a,"M"+p1[0].toFixed(1)+" "+p1[1].toFixed(1)+" Q"+cc[0].toFixed(1)+" "+cc[1].toFixed(1)+" "+p2[0].toFixed(1)+" "+p2[1].toFixed(1),bi,dash,lp[0],lp[1],l)});
+ T.b6="Banken finanzieren Bauherren mit Baukrediten. Ohne Kredit wird weniger gebaut.";s+=path("b6","bk","M370 603 C370 700 925 700 925 428",0,0,647,672,"Baukredite");
+ FR.forEach(f=>{const [id,a,x,y,l,text,bi,dx]=f;const p=clip(P[a],[x,y],W,H,5),m=[(p[0]+x)/2,(p[1]+y)/2];T[id]=text;s+=path(id,a,"M"+p[0].toFixed(1)+" "+p[1].toFixed(1)+" L"+x+" "+y,bi,0,m[0]+dx,m[1]-4,l)});
+ s+='<text class="zl" x="370" y="395" text-anchor="middle">FINANZIERUNGS-</text><text class="zl" x="370" y="412" text-anchor="middle">KREISLAUF</text><text class="zl" x="740" y="395" text-anchor="middle">WOHNUNGS-</text><text class="zl" x="740" y="412" text-anchor="middle">KREISLAUF</text>';
+ Object.keys(P).forEach(k=>{const p=P[k];s+='<g class="nd" data-k="'+k+'"><rect x="'+(p[0]-W/2)+'" y="'+(p[1]-H/2)+'" width="'+W+'" height="'+H+'" rx="28" fill="'+COL[k]+'"/><text x="'+p[0]+'" y="'+(p[1]-2)+'" text-anchor="middle" style="font-weight:700;fill:#0b1220">'+esc(A[k].n)+'</text><text x="'+p[0]+'" y="'+(p[1]+15)+'" text-anchor="middle" style="fill:#0b1220;opacity:.78;font-size:11.5px">'+esc(A[k].s)+'</text></g>'});
+ svg.innerHTML=s;
+ svg.querySelectorAll(".fl").forEach(g=>g.onclick=()=>{svg.querySelectorAll(".fl").forEach(x=>x.classList.toggle("on",x===g));inf.innerHTML="<b>"+esc(g.querySelector("text").textContent)+"</b>: "+esc(T[g.dataset.id])});
+ svg.querySelectorAll(".nd").forEach(g=>g.onclick=()=>{inf.innerHTML="<b>"+esc(A[g.dataset.k].n)+"</b> ("+esc(A[g.dataset.k].s)+"): "+esc(A[g.dataset.k].t)})})();
+/* ================== ZEITLEISTE ================== */
+const ZL=[
+ ["06.09.2008","Fannie Mae und Freddie Mac unter Verwaltung der FHFA","Beide Agenturen stehen seitdem unter staatlicher Verwaltung (Conservatorship). Eine Rückführung an den Markt wird immer wieder diskutiert."],
+ ["04.07.2025","One Big Beautiful Bill Act (OBBBA) unterzeichnet","Enthält nach Berichten auch wohnungsrelevante Steuerregeln (Hypothekenzinsabzug, Förderung von Mietwohnungsbau). Details vor Freigabe gegen den Gesetzestext prüfen."],
+ ["14.10.2025","Zölle auf Bauholz und Schränke (Section 232)","10 % auf Weichholz und Bauholz, 25 % auf Küchenschränke und Waschtische, ab 01.01.2026 nach den Quellen 30 beziehungsweise 50 %. Obergrenzen für Handelspartner (UK 10 %, EU und Japan 15 %)."],
+ ["03.02.2026","FHFA-Chef: Börsengang von Fannie und Freddie nicht zwingend","Berichte widersprechen sich. Frühere Pläne nannten 5 bis 15 % Anteile bei 500 bis 700 Mrd. USD Bewertung."],
+ ["13.03.2026","US-Senat bringt Wohnungsgesetz voran","Enthält das Verbot für Großinvestoren beim Kauf von Einfamilienhäusern."],
+ ["22./23.06.2026","Senat 85 zu 5, Repräsentantenhaus 358 zu 32","Zustimmung zum 21st Century ROAD to Housing Act."],
+ ["11.07.2026","ROAD to Housing Act wird Gesetz","Verbot für große Investoren beim Kauf von Ein- und Zweifamilienhäusern, gilt 15 Jahre, Altbestand bleibt. Wirksam ohne Unterschrift des Präsidenten (laut Mayer Brown)."],
+ ["01.10.2026","Bericht des Handelsministeriums zu Harthölzern fällig","Könnte zu weiteren Zöllen führen. Ob der Bericht erschienen ist, ist nicht bestätigt.","zk"]
+];
+document.getElementById("zl").innerHTML=ZL.map(e=>'<div class="e'+(e[3]?' zk':'')+'"><div class="d">'+esc(e[0])+'</div><div class="t"><b>'+esc(e[1])+'</b><span>'+esc(e[2])+'</span></div></div>').join("")+'<div class="klein" style="margin-top:8px">Stand 22.10.2026, von Hand aus Fachberichten (Mayer Brown, Thomson Reuters, Baker Donelson, Scotsman Guide). Orange = noch offen. Daten und Fristen vor Freigabe gegen den Gesetzestext prüfen.</div>';
+(function(){const R=IM.regelungen&&IM.regelungen.liste;const T=document.getElementById("ticker");
+ if(!R||!R.length){T.innerHTML='<p class="klein">Die Daten werden beim nächsten automatischen Abruf geladen.</p>';return}
+ T.innerHTML='<table class="tick">'+R.map(r=>'<tr><td class="d">'+dts(r.d)+'</td><td class="a">'+esc(r.a)+'</td><td><a href="'+esc(r.u)+'" target="_blank" rel="noopener">'+esc(r.t)+'</a> <span style="color:var(--text2)">('+esc(r.art)+')</span></td></tr>').join("")+'</table><div class="klein">Quelle: Federal Register (HUD und FHFA, endgültige Regeln und Entwürfe), Abruf zweimal täglich.</div>'})();
+/* ================== UNTERNEHMEN ================== */
+const SPARTEN=[
+ {id:"hausbau",n:"Hausbauer",t:"Bauherren: bauen und verkaufen Häuser",c:"var(--c3)"},
+ {id:"hypothek",n:"Hypothekenvergeber",t:"Banken und Vergeber: vergeben Kredite",c:"var(--c1)"},
+ {id:"plattform",n:"Vermittlung und Plattformen",t:"Makler, Portale und Daten",c:"var(--c4)"},
+ {id:"reit",n:"Vermieter (Wohn-REITs)",t:"Vermieter von Häusern und Wohnungen",c:"var(--c2)"},
+ {id:"baumarkt",n:"Baustoffe und Baumärkte",t:"Zulieferer für Bau und Renovierung",c:"var(--cb)"}];
+const ROLLE={
+ "D.R. Horton":"Einer der größten Hausbauer der USA nach Häuserzahl. Baut Einfamilienhäuser und verkauft sie an Haushalte, finanziert den Bau über Kredite. Stelle im Kreislauf: Bauherren.",
+ "Lennar":"Großer Hausbauer der USA, zugleich mit Finanzierungs- und Titelgeschäft. Stelle im Kreislauf: Bauherren.",
+ "PulteGroup":"Hausbauer mit Marken für Einsteiger, Aufsteiger und Senioren. Stelle im Kreislauf: Bauherren.",
+ "NVR":"Hausbauer, der Land meist nur über Optionen sichert und eine eigene Hypothekensparte betreibt. Stelle im Kreislauf: Bauherren.",
+ "Rocket Companies":"Großer Hypothekenvergeber der USA mit Onlinegeschäft. Vergibt Kredite und verkauft sie über die Agenturen weiter. Stelle im Kreislauf: Banken und Vergeber.",
+ "UWM Holdings":"Großer Hypothekenvergeber, der nur über unabhängige Makler (Broker) arbeitet. Stelle im Kreislauf: Banken und Vergeber.",
+ "Zillow":"Immobilienportal mit Vermittlung und Mietplattform. Stelle im Kreislauf: Verkäufer und Makler (Information und Vermittlung).",
+ "Compass":"Großes Maklerhaus der USA. Stelle im Kreislauf: Verkäufer und Makler.",
+ "CoStar":"Anbieter von Immobiliendaten und Portalen (Apartments.com, Homes.com). Stelle im Kreislauf: Information für Käufer, Mieter und Vermieter.",
+ "Invitation Homes":"Großer Vermieter von Einfamilienhäusern (REIT). Stelle im Kreislauf: Vermieter. Unterliegt dem neuen Verbot für Großinvestoren beim Kauf weiterer Häuser.",
+ "AvalonBay":"Vermieter großer Wohnanlagen (Mehrfamilien-REIT) mit eigener Entwicklungstätigkeit. Stelle im Kreislauf: Vermieter und Bauherr.",
+ "Home Depot":"Größte Baumarktkette der USA. Zulieferer für Bau und Renovierung, hängt an Hausverkäufen und Renovierungen. Stelle im Kreislauf: Zulieferer der Bauherren und Eigentümer.",
+ "Lowe's":"Zweitgrößte Baumarktkette der USA. Zulieferer für Bau und Renovierung. Stelle im Kreislauf: Zulieferer der Bauherren und Eigentümer."};
+const mf=v=>v==null?"–":(Math.abs(v)<1?nf(v*1000,0)+" Mio. USD":nf(v,1)+" Mrd. USD");
+const mk2=v=>Math.abs(v)<1?nf(v*1000,0)+" Mio.":nf(v,1)+" Mrd.";
+const sg=(a,b)=>b?((a>=b?"+":"−")+nf(Math.abs(a/b-1)*100,1)+" %"):"–";
+(function(){const F=IM.firmen&&IM.firmen.liste;const C=document.getElementById("sparten");
+ if(!F||!F.length){C.innerHTML='<p class="klein">Die Unternehmensdaten werden beim nächsten automatischen Abruf geladen.</p>';return}
+ SPARTEN.forEach(s=>{const arr=F.filter(f=>f.sp===s.id).sort((a,b)=>b.um-a.um);if(!arr.length)return;const mx=arr[0].um;
+  const d=document.createElement("div");d.className="sparte";d.style.setProperty("--c",s.c);
+  d.innerHTML='<h3>'+esc(s.n)+'</h3><p>'+esc(s.t)+'</p>'+arr.map(f=>'<button type="button" class="firma" data-n="'+esc(f.n)+'"><div class="z1"><span>'+esc(f.n)+'</span><em>'+nf(f.um,1)+' Mrd. USD</em></div><div class="z2">Umsatz, Geschäftsjahr bis '+dts(f.ende)+(f.ge!=null?' · Nettoergebnis '+mk2(f.ge):'')+'</div><i style="width:'+(100*f.um/mx)+'%"></i></button>').join("");
+  C.appendChild(d)});
+ C.onclick=e=>{const b=e.target.closest(".firma");if(!b)return;const f=F.find(x=>x.n===b.dataset.n),s=SPARTEN.find(x=>x.id===f.sp);letzterFokus=b;
+  const z=(a,c)=>'<tr><td>'+a+'</td><td class="zahl"><b>'+c+'</b></td></tr>';const arr=F.filter(x=>x.sp===f.sp);const sum=arr.reduce((a,x)=>a+x.um,0);
+  let h=kopf(s.n,f.n,s.c)+'<div class="db"><div class="gross">'+nf(f.um,1)+' Mrd. USD</div><div class="gsub">Umsatz, Geschäftsjahr bis '+dts(f.ende)+' · <i class="pkt auto"></i>automatisch (SEC)</div>';
+  h+='<h3>Kennzahlen</h3><table>'+z("Umsatz",mf(f.um))+z("Umsatz im Vorjahr",mf(f.um_v))+z("Veränderung zum Vorjahr",sg(f.um,f.um_v))+z("Nettoergebnis",mf(f.ge))+z("Nettoergebnis im Vorjahr",mf(f.ge_v))+z("Anteil am Umsatz der gezeigten Firmen dieser Sparte",nf(100*f.um/sum,0)+" %")+'</table>';
+  h+='<h3>Stelle im Kreislauf</h3><p>'+esc(ROLLE[f.n]||"")+'</p>';
+  h+='<h3>Hinweis</h3><div class="hin">Umsatz und Nettoergebnis stammen aus den Jahresberichten (10-K) bei der SEC. Das Nettoergebnis kann Einmaleffekte enthalten. Es gibt keine Bewertung und keinen Börsenwert. Die Auswahl zeigt die größten oder bekanntesten Firmen je Sparte, nicht alle.</div>';
+  h+='<h3>Quelle</h3><p style="font-size:13px;color:var(--text2)">SEC EDGAR (XBRL-Daten der Jahresberichte)</p></div>';zeigen(h)}})();
+bauen();
+</script>
+<script src="seitenhintergrund.js?v=20261023"></script>
+</body>
+</html>

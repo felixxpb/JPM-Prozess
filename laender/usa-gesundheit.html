@@ -1,0 +1,616 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>JPM Prozess · Länderanalyse USA · Gesundheitswesen</title>
+<style>
+:root{
+  --flaeche:#fcfcfb; --ebene:#f9f9f7; --text:#0b0b0b; --text2:#52514e; --stumm:#898781;
+  --raster:#e1e0d9; --achse:#c3c2b7; --rand:rgba(11,11,11,.10);
+  --c1:#2f6f9f; --c2:#6b4f8a; --c3:#3d7a56; --c4:#8a5a2b; --cb:#52514e;
+  --h1:#e6f0f7; --h2:#eee9f4; --h3:#e5f2ea; --h4:#f4ebe1; --hb:#efeee9;
+  --gut:#006300; --warn:#b97a00; --schatten:0 1px 2px rgba(11,11,11,.04),0 4px 16px rgba(11,11,11,.06);
+  color-scheme:light;
+}
+:root[data-theme="dark"]{
+  --flaeche:#1a1a19; --ebene:#0d0d0d; --text:#fff; --text2:#c3c2b7; --stumm:#898781;
+  --raster:#2c2c2a; --achse:#383835; --rand:rgba(255,255,255,.12);
+  --c1:#5fa0d3; --c2:#ab8fd0; --c3:#56b27d; --c4:#d39a5a; --cb:#c3c2b7;
+  --h1:#16222c; --h2:#221b2c; --h3:#16261d; --h4:#2a2016; --hb:#232321;
+  --gut:#0ca30c; --warn:#fab219; --schatten:none; color-scheme:dark;
+}
+*{box-sizing:border-box}
+body{margin:0;padding:0 20px 56px;background:var(--ebene);color:var(--text);font-family:system-ui,-apple-system,"Segoe UI",sans-serif;font-size:15px;line-height:1.5}
+.wrap{max-width:1280px;margin:0 auto}
+header{padding:20px 0 6px;display:flex;gap:16px;justify-content:space-between;align-items:flex-start;flex-wrap:wrap}
+h1{margin:0;font-size:21px;font-weight:650}
+.unter{color:var(--text2);font-size:13px}
+.entwurf{display:inline-block;margin-left:8px;padding:1px 8px;border-radius:99px;border:1px solid var(--warn);color:var(--warn);font-size:12px;font-weight:600;vertical-align:middle}
+.tool{font:inherit;font-size:13px;background:var(--flaeche);color:var(--text);border:1px solid var(--rand);border-radius:8px;padding:6px 12px;cursor:pointer}
+.legende{display:flex;gap:16px;flex-wrap:wrap;font-size:12px;color:var(--text2);margin:6px 0 12px}
+.pkt{width:8px;height:8px;border-radius:50%;display:inline-block;margin-right:5px}.pkt.auto{background:var(--gut)}.pkt.man{background:var(--stumm)}
+/* Kachel */
+.k{all:unset;box-sizing:border-box;display:block;width:100%;cursor:pointer;background:var(--flaeche);border:1px solid var(--rand);border-radius:9px;padding:9px 11px 8px;box-shadow:var(--schatten);transition:transform .15s,border-color .15s}
+.k:hover{transform:translateY(-1px);border-color:var(--c)}.k:focus-visible{outline:2px solid var(--c);outline-offset:2px}
+.k.aktiv{border-color:var(--c);box-shadow:0 0 0 2px var(--c)}
+.kt{display:flex;justify-content:space-between;align-items:baseline;gap:6px}
+.kn{font-size:12.5px;color:var(--text2);font-weight:600}
+.kd{font-size:11px;color:var(--stumm);white-space:nowrap}
+.kw{font-size:23px;font-weight:700;line-height:1.15;font-variant-numeric:tabular-nums;margin-top:1px}
+.ks{font-size:11.8px;color:var(--text2);display:flex;justify-content:space-between;gap:6px;align-items:center;margin-top:1px}
+.dl{white-space:nowrap}
+.spark{display:block;width:100%;height:30px;margin-top:3px}
+.c1{--c:var(--c1)}.c2{--c:var(--c2)}.c3{--c:var(--c3)}.c4{--c:var(--c4)}.cb{--c:var(--cb)}
+/* Layout */
+.band{background:var(--hb);border:1px solid var(--rand);border-radius:12px;padding:8px 10px 10px;margin-bottom:14px}
+.bandkopf{font-size:12px;font-weight:700;color:var(--text2);text-transform:uppercase;letter-spacing:.05em;margin:2px 2px 6px}
+.bandinhalt{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}
+.raster{display:grid;grid-template-columns:1fr 54px 1fr 54px 1fr 54px 1fr;align-items:stretch}
+.sp{padding:8px;border-radius:12px;display:flex;flex-direction:column;gap:9px}
+.sp.s1{background:var(--h1)}.sp.s2{background:var(--h2)}.sp.s3{background:var(--h3)}.sp.s4{background:var(--h4)}
+.spkopf{color:#fff;font-weight:700;text-align:center;padding:9px 6px;border-radius:9px;font-size:13px;background:var(--c)}
+.pill{all:unset;cursor:pointer;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;font-size:10.5px;text-align:center;color:var(--text2);padding:4px 2px}
+.pill .pf{font-size:20px;color:var(--text);line-height:1}.pill:hover,.pill.aktiv{color:var(--text)}.pill:focus-visible{outline:2px solid var(--text);border-radius:6px}
+.termine{margin-top:16px;background:var(--flaeche);border:1px solid var(--rand);border-radius:10px;padding:10px 14px;box-shadow:var(--schatten)}
+.termine h2{margin:0 0 4px;font-size:13px;color:var(--text2);text-transform:uppercase;letter-spacing:.05em}
+.termin{display:flex;gap:10px;align-items:baseline;padding:5px 0;border-top:1px solid var(--raster);font-size:13px}
+.termin:first-of-type{border-top:0}.termin .d{width:96px;font-weight:600}.termin .t{flex:1}.termin .r{color:var(--text2);white-space:nowrap}.termin.n .r{color:var(--warn);font-weight:700}
+.fuss{margin-top:6px;font-size:11.5px;color:var(--stumm)}
+/* Drawer */
+#schatten{position:fixed;inset:0;background:rgba(0,0,0,.28);opacity:0;pointer-events:none;transition:opacity .2s;z-index:20}
+#schatten.offen{opacity:1;pointer-events:auto}
+#drawer{position:fixed;top:0;right:0;height:100%;width:min(560px,100%);background:var(--flaeche);border-left:1px solid var(--rand);box-shadow:-8px 0 30px rgba(0,0,0,.18);transform:translateX(100%);transition:transform .22s ease;z-index:21;overflow-y:auto;padding:0}
+#drawer.offen{transform:none}
+.dk{position:sticky;top:0;background:var(--flaeche);border-bottom:1px solid var(--rand);border-top:4px solid var(--c);padding:14px 18px 10px;display:flex;justify-content:space-between;gap:10px;align-items:flex-start;z-index:2}
+.dk h2{margin:0;font-size:18px}.dk .gr{font-size:12px;color:var(--c);text-transform:uppercase;letter-spacing:.05em;font-weight:700}
+.zu{all:unset;cursor:pointer;font-size:22px;line-height:1;padding:2px 8px;border-radius:6px;color:var(--text2)}.zu:hover{background:var(--raster)}.zu:focus-visible{outline:2px solid var(--text)}
+.db{padding:14px 18px 40px}
+.gross{font-size:34px;font-weight:700;font-variant-numeric:tabular-nums;line-height:1.1}
+.gsub{font-size:13px;color:var(--text2);margin-bottom:8px}
+.btns{display:flex;gap:6px;margin:6px 0 4px}
+.btn{font:inherit;font-size:12px;background:var(--ebene);color:var(--text);border:1px solid var(--rand);border-radius:7px;padding:3px 10px;cursor:pointer}
+.btn[aria-pressed="true"]{background:var(--text);color:var(--flaeche);border-color:var(--text)}
+svg.chart{width:100%;height:auto;display:block;touch-action:none}
+.tip{font-size:12.5px;color:var(--text2);min-height:18px;margin-bottom:4px;font-variant-numeric:tabular-nums}
+.db h3{font-size:12px;text-transform:uppercase;letter-spacing:.05em;color:var(--text2);margin:18px 0 4px}
+.db p{margin:0 0 8px;font-size:14px}
+.db table{width:100%;border-collapse:collapse;font-size:13px}
+.db th{font-weight:600;text-align:left;color:var(--text2);font-size:11.5px;border-bottom:1px solid var(--rand);padding:3px 8px 3px 0}
+.db td{padding:5px 8px 5px 0;border-bottom:1px solid var(--raster);vertical-align:top}
+.db .hin{background:var(--ebene);border-left:3px solid var(--warn);border-radius:4px;padding:6px 10px;font-size:13px;color:var(--text2)}
+.db ul{margin:4px 0 0;padding-left:18px;font-size:13.5px}
+.db a{color:inherit}
+@media (max-width:980px){
+  .raster{grid-template-columns:1fr}.pill{display:none}.sp{margin-bottom:12px}.bandinhalt{grid-template-columns:1fr}
+}
+@media (prefers-reduced-motion:reduce){#drawer,#schatten,.k{transition:none}}
+/* Verständnis-Block */
+.versteh{background:var(--flaeche);border:1px solid var(--rand);border-radius:12px;padding:6px 18px 14px;box-shadow:var(--schatten);margin-bottom:14px}
+.versteh>h2{margin:12px 0 2px;font-size:17px}
+.versteh .lead{margin:0 0 8px;color:var(--text2);font-size:13.5px}
+.versteh details{border-top:1px solid var(--raster);padding:6px 0}
+.versteh details:first-of-type{border-top:0}
+.versteh summary{cursor:pointer;font-weight:650;font-size:14.5px;padding:4px 0;list-style:none}
+.versteh summary::-webkit-details-marker{display:none}
+.versteh summary:before{content:"▸";display:inline-block;width:18px;color:var(--text2);transition:transform .15s}
+.versteh details[open]>summary:before{transform:rotate(90deg)}
+.versteh summary:focus-visible{outline:2px solid var(--text);outline-offset:2px;border-radius:4px}
+.versteh .inh{padding:2px 0 6px 18px;font-size:14px}
+.versteh ol.kern{margin:4px 0 4px;padding-left:20px}.versteh ol.kern li{margin:3px 0}
+.fluss{display:grid;grid-template-columns:1fr 78px 1fr 78px 1fr;grid-template-rows:auto 56px auto 56px auto;align-items:center;gap:0;margin:8px 0 4px}
+.nk{all:unset;box-sizing:border-box;display:block;width:100%;cursor:pointer;background:var(--ebene);border:1px solid var(--rand);border-top:3px solid var(--c);border-radius:9px;padding:8px 10px;text-align:center;transition:transform .15s,border-color .15s}
+.nk:hover{transform:translateY(-1px);border-color:var(--c)}.nk:focus-visible{outline:2px solid var(--c);outline-offset:2px}
+.nk b{display:block;font-size:13.5px}.nk span{display:block;font-size:11.5px;color:var(--text2);margin-top:1px}
+.pf2{font-size:11px;color:var(--text2);text-align:center;line-height:1.25;padding:0 3px}
+.pf2 i{display:block;font-style:normal;font-size:18px;color:var(--text);line-height:1}
+.nk.n1{--c:var(--c1)}.nk.n2{--c:var(--c3)}.nk.n3{--c:var(--c4)}.nk.n4{--c:var(--c2)}.nk.n5{--c:var(--c2)}.nk.n6{--c:var(--c1)}.nk.n7{--c:var(--cb)}
+.bed{display:grid;grid-template-columns:repeat(2,1fr);gap:10px;margin-top:4px}
+.bed div{background:var(--ebene);border:1px solid var(--rand);border-radius:9px;padding:8px 11px;font-size:13.5px}
+.bed b{display:block;font-size:13px;margin-bottom:2px}
+.chip{display:inline-block;font-size:11.5px;border:1px solid var(--rand);border-radius:99px;padding:0 9px;margin:2px 3px 0 0;background:var(--ebene);cursor:pointer;color:var(--text)}
+.chip:hover{border-color:var(--text)}
+@media (max-width:980px){.fluss{grid-template-columns:1fr;grid-template-rows:none;gap:8px}.pf2{display:none}.bed{grid-template-columns:1fr}}
+
+.struktur{background:var(--flaeche);border:1px solid var(--rand);border-radius:12px;padding:10px 14px 14px;box-shadow:var(--schatten);margin-bottom:14px}
+.skraster{display:grid;grid-template-columns:minmax(240px,320px) 1fr;gap:18px;align-items:center}
+#kuchen{width:100%;max-width:1000px;height:auto;display:block;margin:0 auto}
+.kmitte{margin:4px 0 0}
+.leg{display:none}
+#kuchen text{font-size:14px;fill:var(--text);cursor:pointer}
+#kuchen text b,#kuchen .pz{font-weight:700;font-variant-numeric:tabular-nums}
+#kuchen text:hover{text-decoration:underline}
+#kuchen .fl{stroke:var(--achse);stroke-width:1;fill:none}
+#kuchen .gk2{font-size:12px;fill:var(--text2);cursor:default;text-transform:uppercase;letter-spacing:.05em;font-weight:700}
+#kuchen path{cursor:pointer;stroke:var(--flaeche);stroke-width:1.5;transition:opacity .15s}
+#kuchen path:hover,#kuchen path:focus{opacity:.8;outline:none}
+.leg{display:none;grid-template-columns:repeat(2,1fr);gap:3px 14px}
+.leg button{all:unset;cursor:pointer;display:flex;align-items:center;gap:8px;font-size:13px;padding:3px 6px;border-radius:6px}
+.leg button:hover,.leg button:focus-visible{background:var(--ebene);outline:none}
+.leg i{width:11px;height:11px;border-radius:3px;flex:none}
+.leg b{margin-left:auto;font-variant-numeric:tabular-nums}
+.leg .gk{grid-column:1/-1;font-size:11.5px;font-weight:700;text-transform:uppercase;letter-spacing:.05em;color:var(--text2);margin-top:6px}
+.balken{display:flex;height:44px;border-radius:9px;overflow:hidden;margin-top:6px;border:1px solid var(--rand)}
+.balken button{all:unset;cursor:pointer;display:flex;align-items:center;justify-content:center;text-align:center;font-size:13px;font-weight:700;color:#fff;overflow:hidden;white-space:nowrap}
+.balken button:hover,.balken button:focus-visible{filter:brightness(1.12);outline:none}
+.bhin{font-size:11.5px;color:var(--stumm);margin-top:6px}
+.bandinhalt{grid-template-columns:repeat(4,1fr)!important}
+@media (max-width:980px){.bandinhalt{grid-template-columns:1fr!important}}
+@media (max-width:760px){#kuchen .lbl{display:none}#kuchen{max-width:360px}.leg{display:grid;grid-template-columns:1fr;margin-top:8px}}
+
+.kreislauf svg{width:100%;height:auto;display:block}
+.kreislauf .nd{cursor:pointer}
+.kreislauf .nd rect{fill:var(--ebene);stroke:var(--c);stroke-width:2;transition:fill .15s}
+.kreislauf .nd:hover rect,.kreislauf .nd:focus rect{fill:var(--flaeche)}
+.kreislauf .nd:focus{outline:none}.kreislauf .nd:focus rect{stroke-width:3.5}
+.kreislauf .nd text{pointer-events:none}
+.kreislauf .nt{font-size:15px;font-weight:700;fill:var(--text)}
+.kreislauf .ns{font-size:11.5px;fill:var(--text2)}
+.kreislauf .mk rect{fill:var(--h2);stroke-dasharray:none}
+.kreislauf .fr{stroke:var(--c1);stroke-width:2.4;fill:none}
+.kreislauf .fg{stroke:var(--c4);stroke-width:2.2;fill:none;stroke-dasharray:6 4}
+.kreislauf .fz{stroke:var(--text2);stroke-width:1.8;fill:none}
+.kreislauf .fl2{font-size:11.5px;fill:var(--text2)}
+.kreislauf .mitte{font-size:13px;font-weight:700;fill:var(--text2);text-anchor:middle}
+.kreislauf .mitte2{font-size:11.5px;fill:var(--stumm);text-anchor:middle}
+.kl-liste{display:none}
+@media (max-width:760px){.kreislauf .nd text.ns,.kreislauf .fl2{display:none}.kl-liste{display:flex;flex-wrap:wrap;gap:6px;margin-top:8px}}
+/* Inflation: eigene Ergänzungen */
+.bandinhalt{grid-template-columns:repeat(3,1fr)!important}
+.bandinhalt.v4{grid-template-columns:repeat(4,1fr)!important}
+@media (max-width:980px){.bandinhalt,.bandinhalt.v4{grid-template-columns:1fr!important}}
+.kuchenkopf{display:flex;justify-content:space-between;gap:10px;align-items:baseline;flex-wrap:wrap}
+.kuchenkopf h3{margin:0;font-size:16px}
+.kuchenkopf span{font-size:12px;color:var(--text2)}
+.pie{width:100%;max-width:1100px;height:auto;display:block;margin:0 auto}
+.pie path{cursor:pointer;stroke:var(--flaeche);stroke-width:.8;transition:opacity .15s}
+.pie path:hover,.pie path:focus{opacity:.75;outline:none}
+.pie text{font-size:13px;fill:var(--text);cursor:pointer}
+.pie text:hover{text-decoration:underline}
+.pie .pz{font-weight:700;font-variant-numeric:tabular-nums}
+.pie .fl{stroke:var(--achse);stroke-width:1;fill:none}
+.pie .mt{font-size:12px;fill:var(--text2);text-anchor:middle;cursor:default;font-weight:700}
+.pie .mt2{font-size:11px;fill:var(--stumm);text-anchor:middle;cursor:default}
+.balken2{display:flex;height:40px;border-radius:9px;overflow:hidden;margin-top:6px;border:1px solid var(--rand)}
+.balken2 button{all:unset;cursor:pointer;display:flex;align-items:center;justify-content:center;text-align:center;font-size:12px;font-weight:700;color:#fff;overflow:hidden;white-space:nowrap;padding:0 3px}
+.balken2 button:hover,.balken2 button:focus-visible{filter:brightness(1.12);outline:none}
+.liste summary{cursor:pointer;font-size:13px;font-weight:650;padding:6px 0}
+.liste input{font:inherit;font-size:13px;padding:5px 9px;border:1px solid var(--rand);border-radius:7px;background:var(--ebene);color:var(--text);width:min(360px,100%);margin:4px 0 8px}
+.liste .tab{max-height:420px;overflow:auto;border:1px solid var(--rand);border-radius:8px}
+.liste table{width:100%;border-collapse:collapse;font-size:12.5px}
+.liste th{position:sticky;top:0;background:var(--flaeche);text-align:left;font-size:11.5px;color:var(--text2);padding:5px 8px;border-bottom:1px solid var(--rand)}
+.liste td{padding:3px 8px;border-bottom:1px solid var(--raster)}
+.liste tr[data-id]{cursor:pointer}.liste tr[data-id]:hover{background:var(--ebene)}
+.liste td.zahl,.db td.zahl{text-align:right;font-variant-numeric:tabular-nums;white-space:nowrap}
+.sw{display:inline-block;width:10px;height:10px;border-radius:3px;margin-right:6px;vertical-align:baseline}
+.vgl{width:100%;border-collapse:collapse;font-size:13px;margin:4px 0}
+.vgl th{text-align:left;font-size:11.5px;color:var(--text2);border-bottom:1px solid var(--rand);padding:4px 8px 4px 0}
+.vgl td{padding:6px 8px 6px 0;border-bottom:1px solid var(--raster);vertical-align:top}
+.vgl td:first-child{font-weight:650;white-space:nowrap}
+.db .pfad{font-size:12.5px;color:var(--text2);margin:2px 0 6px}
+.gwb{height:12px;background:var(--raster);border-radius:6px;overflow:hidden;margin:4px 0 2px}.gwb i{display:block;height:100%}
+@media (max-width:760px){.pie .lbl{display:none}}
+
+.bandinhalt{grid-template-columns:repeat(3,1fr)!important}
+@media (max-width:980px){.bandinhalt{grid-template-columns:1fr!important}}
+.sektion{margin:22px 0 6px;font-size:16px;font-weight:650}
+.sektion small{display:block;font-size:13px;font-weight:400;color:var(--text2);margin-top:2px;max-width:900px}
+.kasten{background:var(--flaeche);border:1px solid var(--rand);border-radius:12px;padding:16px 18px;box-shadow:var(--schatten)}
+.kpis{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin:10px 0 4px}
+.kpi{background:var(--flaeche);border:1px solid var(--rand);border-radius:10px;padding:10px 14px;box-shadow:var(--schatten)}
+.kpi b{display:block;font-size:22px;font-variant-numeric:tabular-nums}.kpi span{font-size:12px;color:var(--text2)}
+@media (max-width:900px){.kpis{grid-template-columns:1fr 1fr}}
+/* Geldfluss-Balken */
+.dl{margin:4px 0 5px;font-size:12px;letter-spacing:.06em;text-transform:uppercase;color:var(--text2);font-weight:700}
+.gbar{display:flex;gap:2px;height:78px}
+.gbar .seg{all:unset;box-sizing:border-box;cursor:pointer;display:flex;flex-direction:column;justify-content:center;align-items:center;text-align:center;color:#fff;font-size:12.5px;font-weight:700;line-height:1.25;overflow:hidden;min-width:0;padding:0 3px;transition:opacity .15s}
+.gbar .seg:first-child{border-radius:9px 0 0 9px}.gbar .seg:last-child{border-radius:0 9px 9px 0}
+.gbar .seg small{font-weight:500;font-size:12px;opacity:.95}
+.gbar.sel .seg{opacity:.35}.gbar.sel .seg.on{opacity:1}
+.gbar .seg:focus-visible{outline:2px solid var(--text);outline-offset:-2px}
+.ginfo{margin-top:12px;border-top:1px solid var(--rand);padding-top:10px;font-size:14px;min-height:40px}
+.ginfo table{width:100%;border-collapse:collapse;font-size:13.5px;margin-top:6px}
+.ginfo td{padding:4px 8px 4px 0;border-bottom:1px solid var(--raster)}
+.ginfo td.zahl{text-align:right;font-variant-numeric:tabular-nums;white-space:nowrap;font-weight:650}
+.ginfo td.bar{width:42%}.ginfo td.bar i{display:block;height:9px;border-radius:5px}
+/* Sankey */
+svg.sk{width:100%;height:auto;display:block}
+svg.sk text{fill:var(--text);font-size:13px}svg.sk .t2{fill:var(--text2);font-size:11.5px}svg.sk .kop{fill:var(--text2);font-size:11px;letter-spacing:.08em;text-transform:uppercase;font-weight:700}
+svg.sk .nd{cursor:pointer}svg.sk .band2{transition:fill-opacity .15s}
+svg.sk .pill rect{fill:var(--flaeche);stroke:var(--achse)}svg.sk .pill text{font-weight:700;font-size:12.5px}
+.zeile{display:flex;flex-wrap:wrap;gap:6px 18px;margin-top:10px;font-size:13.5px}
+.zeile span b{font-variant-numeric:tabular-nums}
+/* Zeitleiste und Ticker */
+.zl{display:grid;gap:0}
+.zl .e{display:grid;grid-template-columns:104px 1fr;gap:12px;padding:9px 0;border-top:1px solid var(--raster);font-size:13.5px}
+.zl .e:first-child{border-top:0}
+.zl .d{font-weight:700;color:var(--c2);font-variant-numeric:tabular-nums}
+.zl .e.zk .d{color:var(--warn)}
+.zl .t b{display:block}.zl .t span{color:var(--text2);font-size:12.5px}
+.tick{width:100%;border-collapse:collapse;font-size:12.8px}
+.tick td{padding:5px 8px 5px 0;border-bottom:1px solid var(--raster);vertical-align:top}
+.tick td.d{white-space:nowrap;color:var(--text2);width:92px}.tick td.a{white-space:nowrap;font-weight:650;width:48px}
+.tick a{color:inherit}
+/* Firmen */
+.sparten{display:grid;grid-template-columns:repeat(3,1fr);gap:12px}
+@media (max-width:980px){.sparten{grid-template-columns:1fr}}
+.sparte{background:var(--flaeche);border:1px solid var(--rand);border-top:4px solid var(--c);border-radius:11px;padding:12px 12px 8px;box-shadow:var(--schatten)}
+.sparte h3{margin:0;font-size:14.5px}.sparte p{margin:0 0 6px;font-size:12px;color:var(--text2)}
+.firma{all:unset;box-sizing:border-box;cursor:pointer;display:block;width:100%;padding:7px 8px;border-top:1px solid var(--raster);border-radius:6px}
+.firma:hover{background:var(--ebene)}.firma:focus-visible{outline:2px solid var(--c)}
+.firma .z1{display:flex;justify-content:space-between;gap:8px;font-size:14px;font-weight:650}
+.firma .z1 em{font-style:normal;font-variant-numeric:tabular-nums}
+.firma .z2{font-size:11.5px;color:var(--text2);margin-top:1px}
+.firma i{display:block;height:5px;border-radius:3px;background:var(--c);opacity:.7;margin-top:4px}
+.klein{font-size:12px;color:var(--text2);margin:8px 2px 0}
+</style>
+<style>.zurueck-knopf{display:inline-flex;align-items:center;gap:8px;font-size:14.5px;font-weight:600;color:var(--text);text-decoration:none;background:var(--flaeche);border:1.5px solid var(--achse);border-radius:12px;padding:8px 16px;margin-bottom:10px;box-shadow:var(--schatten)}.zurueck-knopf:hover,.zurueck-knopf:focus-visible{border-color:var(--text2);outline:none}</style>
+</head>
+<body data-flagge="../bilder/flaggen/usa.jpg">
+<div class="wrap">
+<header>
+  <div>
+    <a href="usa.html" class="zurueck-knopf">← USA, alle Oberthemen</a>
+    <h1>USA – Gesundheitswesen <span class="entwurf">Vorschau, nicht freigegeben</span></h1>
+    <div class="unter">Länderanalyse, Oberthema 10 · Daten und Fakten, keine Bewertung · Struktur: Entwurf 2026-10-22 (Review: April 2027) · Kennzahlen mit „auto" aktualisieren sich selbst, „manuell" sind von Hand gepflegt (Datum und Quelle stehen im Detailfenster)</div>
+  </div>
+  <button class="tool" id="theme" type="button">Dunkel / Hell</button>
+</header>
+<div class="legende">
+  <span><i class="pkt auto"></i>automatisch (FRED, SEC, Federal Register, zweimal täglich)</span>
+  <span><i class="pkt man"></i>manuell (CMS jährlich, Census, KFF, Gesetzestexte)</span>
+  <span>Alles Farbige ist anklickbar: Einordnung, Verlauf, Quelle</span>
+</div>
+
+<section class="versteh" aria-labelledby="vt">
+  <h2 id="vt">Zuerst verstehen: Wie das Geld im US-Gesundheitswesen fließt</h2>
+  <p class="lead">Es gibt in den USA keine einheitliche Krankenversicherung, sondern ein Mischsystem. Haushalte, Arbeitgeber und der Staat zahlen Beiträge, Prämien und Steuern. Versicherer und Staatsprogramme (Medicare, Medicaid) bezahlen damit Krankenhäuser, Ärzte, Medikamente und Pflege. Ein Teil wird direkt von den Patienten bezahlt. Die Zahlen stammen vom Centers for Medicare &amp; Medicaid Services (CMS), vom Census Bureau, vom BLS und von der SEC.</p>
+  <details open>
+    <summary>Die Grundidee in sechs Punkten</summary>
+    <div class="inh"><ol class="kern">
+      <li><b>Sehr großer Sektor:</b> Die Gesundheitsausgaben lagen 2024 bei 5,28 Bio. USD, das sind 18,0 % des BIP und 15.474 USD je Einwohner (CMS).</li>
+      <li><b>Mischsystem:</b> 2025 waren 53,5 % der Menschen über den Arbeitgeber versichert, 20,1 % über Medicare, 17,1 % über Medicaid, 7,9 % hatten keine Versicherung (Census).</li>
+      <li><b>Der Staat zahlt viel:</b> Medicare, Medicaid und CHIP machen zusammen 39 % aller Gesundheitsausgaben aus. Dazu kommen Militär und Veteranen.</li>
+      <li><b>Preise werden verhandelt, nicht gesetzt:</b> Versicherer und Anbieter handeln Preise aus. Bei Medikamenten kommen gesetzliche Verhandlungen (Medicare), Preisabkommen und Zölle dazu.</li>
+      <li><b>Großer Arbeitgeber:</b> Gesundheit und Soziales ist einer der größten Beschäftigungsbereiche und trägt regelmäßig einen großen Teil der neuen Stellen.</li>
+      <li><b>Die Politik verschiebt die Zahler:</b> Auslaufen der ACA-Zuschüsse, neue Medicaid-Regeln (One Big Beautiful Bill Act) und Pharmazölle verändern, wer wie viel zahlt.</li>
+    </ol></div>
+  </details>
+  <details open>
+    <summary>Die Bausteine dieser Seite</summary>
+    <div class="inh">
+      <table class="vgl">
+        <tr><th>Baustein</th><th>Was er beschreibt</th><th>Kennzahlen auf dieser Seite</th></tr>
+        <tr><td>Zahler</td><td>Wer das Geld aufbringt: private Versicherer, Medicare, Medicaid, Patienten selbst.</td><td>Geldfluss, Ausgaben, Versicherungsschutz</td></tr>
+        <tr><td>Anbieter</td><td>Wer das Geld bekommt: Krankenhäuser, Ärzte, Pharma, Pflege.</td><td>Geldfluss, Ausgabenkuchen, Unternehmen</td></tr>
+        <tr><td>Preise und Arbeit</td><td>Was Leistungen kosten und wie viele Menschen im Sektor arbeiten.</td><td>CPI Medical Care, Beschäftigung</td></tr>
+        <tr><td>Politik</td><td>Gesetze und Regeln, die Zahler, Preise und Leistungen verändern.</td><td>Zeitleiste, Ticker „Neueste Regelungen"</td></tr>
+      </table>
+      <p style="font-size:12.5px;color:var(--text2);margin:6px 0 0">Quellen: CMS National Health Expenditure Data, Census Bureau, BLS, BEA, SEC, Federal Register, KFF.</p>
+    </div>
+  </details>
+  <details open>
+    <summary>Was das strukturell bedeutet</summary>
+    <div class="inh"><ul style="margin:4px 0 0;padding-left:18px;font-size:14px">
+      <li>Gesundheitspreise sind ein eigener Teil der Inflation (Seite 6, CPI Medical Care) und werden hier mit Unterpositionen gezeigt.</li>
+      <li>Medicare und Medicaid sind große Posten der Bundesfinanzen (Seite 2, Finanz- und Kreditsystem).</li>
+      <li>Der Gesundheitssektor trägt einen großen Teil der neuen Stellen (Seite 7, Arbeitsmarkt).</li>
+      <li>Zölle auf Medikamente verbinden das Thema mit dem Handel (Seite 5).</li>
+    </ul>
+    <p style="font-size:12.5px;color:var(--text2);margin:8px 0 0">Die Wirkung auf Märkte und Währungen wird hier bewusst nicht beschrieben. Sie folgt später in der Ableitung.</p></div>
+  </details>
+</section>
+
+<div class="kpis" id="kpis"></div>
+
+<h2 class="sektion">Der Geldfluss im Überblick: wer zahlt, wer bekommt<small>Persönliche Gesundheitsleistungen 2024, Beträge in Milliarden US-Dollar (CMS). Klicke ein Stück an, dann siehst du, wie es sich auf die andere Seite verteilt.</small></h2>
+<div class="kasten">
+  <div class="dl">Wer zahlt? (zusammen <span id="gs1"></span>)</div><div class="gbar" id="g1"></div>
+  <div class="dl" style="margin-top:16px">An wen geht das Geld?</div><div class="gbar" id="g2"></div>
+  <div class="ginfo" id="gi">Klicke auf ein Stück.</div>
+  <div class="klein">Ohne Verwaltungskosten (372 Mrd. USD), öffentliche Gesundheitsvorsorge (158 Mrd. USD) und Investitionen (239 Mrd. USD): Die CMS-Tabelle teilt sie nicht nach Zahlern auf. Sie stehen im Ausgabenkuchen weiter unten. „Übrige" = Arbeitsunfallversicherung, Militär und Veteranen, Länder- und Schulprogramme.</div>
+</div>
+
+<h2 class="sektion">Wer zahlt wie viel an wen: das Flussdiagramm<small>Klicke links einen Zahler an. Nur sein Geld ist farbig, die Beträge stehen direkt an den Bändern, jeweils vor dem Empfänger.</small></h2>
+<div class="kasten">
+  <svg class="sk" id="sk" viewBox="0 0 1100 500" role="img" aria-label="Flussdiagramm vom Zahler zu den Leistungserbringern"></svg>
+  <div class="ginfo" id="ski"></div>
+</div>
+
+<h2 class="sektion">Wohin das Geld fließt: der Ausgabenkuchen<small>Alle Gesundheitsausgaben 2024 nach Verwendung (CMS), einschließlich Verwaltung, Vorsorge und Investitionen. Stück anklicken für Verlauf seit 2000.</small></h2>
+<div class="kasten">
+  <div class="kuchenkopf"><h3>Gesundheitsausgaben nach Verwendung, 2024 (<span id="pk-sum"></span>)</h3><span>Anteil an allen Ausgaben in %</span></div>
+  <svg class="pie" id="pk-pie" viewBox="0 0 1100 620" role="img" aria-label="Kuchendiagramm der Gesundheitsausgaben"></svg>
+  <div class="klein">Quelle: CMS National Health Expenditure Data 2024 (jährlich, manuell eingepflegt, nächste Ausgabe Ende 2027). Zahnärzte, Heimpflege und „Sonstige" sind Leistungen mehrerer kleiner Anbieter.</div>
+</div>
+
+<h2 class="sektion">Die Daten dazu</h2>
+<div class="band"><div class="bandkopf">Ausgaben</div><div class="bandinhalt" id="b1"></div></div>
+<div class="band"><div class="bandkopf">Versicherungsschutz</div><div class="bandinhalt" id="b2"></div></div>
+<div class="band"><div class="bandkopf">Preise</div><div class="bandinhalt" id="b3"></div></div>
+<div class="band"><div class="bandkopf">Arbeitsmarkt Gesundheit</div><div class="bandinhalt" id="b4"></div></div>
+<div class="band"><div class="bandkopf">Bevölkerung</div><div class="bandinhalt" id="b5"></div></div>
+<div class="band"><div class="bandkopf">Pharma und Medikamente</div><div class="bandinhalt" id="b6"></div></div>
+
+<h2 class="sektion">Politik und Regulierung<small>Die Zeitleiste ist von Hand gepflegt (Stand 22.10.2026, Quellen darunter). Der Ticker daneben holt die neuesten Regeln von CMS und FDA automatisch aus dem Federal Register.</small></h2>
+<div class="sparten" style="grid-template-columns:1.25fr 1fr">
+  <div class="kasten"><div class="dl">Zeitleiste (von Hand)</div><div class="zl" id="zl"></div></div>
+  <div class="kasten"><div class="dl">Neueste Regelungen (automatisch)</div><div id="ticker"></div></div>
+</div>
+
+<h2 class="sektion">Die größten Unternehmen nach Sparte<small>Umsatz und Nettoergebnis des letzten Geschäftsjahres aus den SEC-Berichten (automatisch). Firma anklicken für Details und die Stelle im Geldfluss. Kein Börsenwert, keine Bewertung.</small></h2>
+<div class="sparten" id="sparten"></div>
+<div class="klein">Die Geschäftsjahre enden je Firma zu unterschiedlichen Zeiten (Datum im Detailfenster). „Umsatz" ist der von der Firma gemeldete Gesamtumsatz, „Nettoergebnis" der Gewinn nach Steuern und kann Einmaleffekte enthalten (zum Beispiel Abschreibungen oder Verkäufe).</div>
+
+<div class="fuss">Quellen: CMS National Health Expenditure Data, Census Bureau (P60-291), KFF, FRED (BLS, BEA, Weltbank), SEC EDGAR, Federal Register, White House, Congressional Budget Office. Alle Angaben ohne Bewertung. Rechtsfristen und Gesetzesdaten sind aus Sekundärquellen zusammengestellt und vor Freigabe gegen den Gesetzestext zu prüfen.</div>
+</div>
+<div id="schatten"></div>
+<aside id="drawer" role="dialog" aria-modal="true" aria-labelledby="dt" tabindex="-1"></aside>
+
+<script src="daten/usa.js?v=1"></script>
+<script>
+try{const g=localStorage.getItem("dashboard-thema");document.documentElement.dataset.theme=g||"dark"}catch(e){document.documentElement.dataset.theme="dark"}
+document.getElementById("theme").addEventListener("click",()=>{const d=document.documentElement;d.dataset.theme=d.dataset.theme==="dark"?"light":"dark";try{localStorage.setItem("dashboard-thema",d.dataset.theme)}catch(e){}});
+const DATA=(window.USA_DATEN&&window.USA_DATEN.fred)||{};
+const GES=(window.USA_DATEN&&window.USA_DATEN.gesundheit)||{};
+const NHE={"total":[["2000",1365184],["2001",1482478],["2002",1630533],["2003",1770023],["2004",1894161],["2005",2026262],["2006",2163806],["2007",2304160],["2008",2400950],["2009",2491503],["2010",2588734],["2011",2676377],["2012",2784281],["2013",2859107],["2014",3010322],["2015",3177216],["2016",3324095],["2017",3464208],["2018",3637678],["2019",3805121],["2020",4204311],["2021",4376932],["2022",4586625],["2023",4925324],["2024",5278588]],"kat":[{"id":"hosp","name":"Krankenhäuser","t":"Behandlung und Aufenthalt in Krankenhäusern (stationär und ambulant).","reihe":[["2000",415532],["2001",449360],["2002",486482],["2003",525892],["2004",565327],["2005",608600],["2006",651209],["2007",691887],["2008",721630],["2009",771040],["2010",808795],["2011",833246],["2012",877968],["2013",906804],["2014",940526],["2015",988971],["2016",1035398],["2017",1077580],["2018",1120614],["2019",1189276],["2020",1259476],["2021",1319072],["2022",1357453],["2023",1501149],["2024",1634738]]},{"id":"phys","name":"Ärzte und Kliniken","t":"Praxen niedergelassener Ärzte und ambulante Kliniken.","reihe":[["2000",287678],["2001",312061],["2002",336918],["2003",363397],["2004",383596],["2005",408593],["2006",431606],["2007",455706],["2008",479646],["2009",495461],["2010",510143],["2011",533326],["2012",554434],["2013",565400],["2014",595260],["2015",634179],["2016",673230],["2017",706064],["2018",741317],["2019",781693],["2020",837167],["2021",904822],["2022",956541],["2023",1026887],["2024",1109681]]},{"id":"rx","name":"Rezeptpflichtige Medikamente","t":"Medikamente mit Rezept (Apotheken, Versand, Kliniken-Apotheken).","reihe":[["2000",122003],["2001",140583],["2002",159812],["2003",179654],["2004",195638],["2005",208595],["2006",228099],["2007",239335],["2008",244324],["2009",254254],["2010",253371],["2011",256404],["2012",257062],["2013",259484],["2014",290866],["2015",312464],["2016",313764],["2017",316219],["2018",321313],["2019",333763],["2020",345475],["2021",365871],["2022",390611],["2023",432946],["2024",466968]]},{"id":"nurs","name":"Pflegeheime","t":"Pflegeheime und Einrichtungen mit dauerhafter Pflege.","reihe":[["2000",85045],["2001",90778],["2002",94500],["2003",100098],["2004",105073],["2005",111414],["2006",115897],["2007",124894],["2008",130419],["2009",135175],["2010",140452],["2011",145331],["2012",147342],["2013",148740],["2014",152562],["2015",156771],["2016",161971],["2017",163400],["2018",166860],["2019",172599],["2020",192303],["2021",179010],["2022",188610],["2023",204954],["2024",219903]]},{"id":"dent","name":"Zahnärzte","t":"Zahnärztliche Leistungen.","reihe":[["2000",62133],["2001",67709],["2002",73636],["2003",76316],["2004",82189],["2005",87201],["2006",91766],["2007",97732],["2008",102762],["2009",103380],["2010",105899],["2011",107972],["2012",109525],["2013",111355],["2014",114687],["2015",119878],["2016",126068],["2017",131127],["2018",137791],["2019",144501],["2020",140444],["2021",166416],["2022",166782],["2023",177456],["2024",189179]]},{"id":"othp","name":"Andere Fachberufe","t":"Physiotherapie, Chiropraktik, Optik, Psychologen und andere Fachberufe.","reihe":[["2000",36647],["2001",40266],["2002",43338],["2003",46523],["2004",50211],["2005",52795],["2006",55264],["2007",60055],["2008",64486],["2009",67037],["2010",69889],["2011",72794],["2012",76429],["2013",78017],["2014",82363],["2015",87334],["2016",92087],["2017",96924],["2018",104916],["2019",111832],["2020",119447],["2021",136731],["2022",147361],["2023",166912],["2024",184859]]},{"id":"home","name":"Häusliche Pflege","t":"Pflegedienste, die zu Hause behandeln.","reihe":[["2000",32294],["2001",34271],["2002",36465],["2003",40179],["2004",44641],["2005",49343],["2006",52052],["2007",57475],["2008",62165],["2009",66999],["2010",70525],["2011",74623],["2012",78076],["2013",80865],["2014",84974],["2015",89699],["2016",94273],["2017",99890],["2018",106593],["2019",113878],["2020",126202],["2021",127425],["2022",138246],["2023",153627],["2024",169365]]},{"id":"goods","name":"Sonstige Güter","t":"Frei verkäufliche Medikamente, Verbandsstoffe, Hilfsmittel und langlebige Geräte wie Rollstühle.","reihe":[["2000",51209],["2001",51411],["2002",57546],["2003",61051],["2004",65932],["2005",71689],["2006",78297],["2007",85082],["2008",87945],["2009",89002],["2010",91772],["2011",97124],["2012",104472],["2013",108188],["2014",112573],["2015",119124],["2016",123703],["2017",128845],["2018",136887],["2019",145170],["2020",155172],["2021",178162],["2022",192728],["2023",205193],["2024",215060]]},{"id":"othh","name":"Sonstige Dienste","t":"Andere Gesundheits-, Wohn- und Betreuungsleistungen (zum Beispiel Behindertenhilfe, Schulen, Gemeinschaftsdienste).","reihe":[["2000",63704],["2001",69736],["2002",76355],["2003",82475],["2004",89362],["2005",95413],["2006",101121],["2007",108139],["2008",112595],["2009",122130],["2010",128991],["2011",133113],["2012",141909],["2013",149007],["2014",158156],["2015",173503],["2016",186000],["2017",198209],["2018",206012],["2019",212544],["2020",230118],["2021",244136],["2022",267854],["2023",293708],["2024",320469]]},{"id":"admin","name":"Verwaltung, Versicherer","t":"Verwaltungskosten der Versicherer und Programme sowie Kosten und Gewinne der Versicherer (Non-Medical Insurance).","reihe":[["2000",80235],["2001",89537],["2002",111825],["2003",131654],["2004",140329],["2005",149835],["2006",164603],["2007",171674],["2008",167144],["2009",165634],["2010",181073],["2011",189269],["2012",196715],["2013",206678],["2014",234060],["2015",244955],["2016",258419],["2017",266791],["2018",302941],["2019",292990],["2020",355151],["2021",323541],["2022",347617],["2023",371051],["2024",372132]]},{"id":"pub","name":"Öffentliche Vorsorge","t":"Impfprogramme, Seuchenschutz, Gesundheitsämter von Bund und Ländern.","reihe":[["2000",43050],["2001",46792],["2002",52201],["2003",54228],["2004",54934],["2005",57252],["2006",60892],["2007",65969],["2008",71559],["2009",74191],["2010",75696],["2011",74425],["2012",77188],["2013",81478],["2014",84397],["2015",85454],["2016",90141],["2017",95879],["2018",99740],["2019",108558],["2020",243444],["2021",213951],["2022",208840],["2023",157993],["2024",157569]]},{"id":"inv","name":"Investitionen","t":"Forschung, Bauten und Ausrüstung.","reihe":[["2000",85653],["2001",89974],["2002",101453],["2003",108556],["2004",116929],["2005",125531],["2006",132998],["2007",146212],["2008",156274],["2009",147201],["2010",152127],["2011",158749],["2012",163161],["2013",163091],["2014",159900],["2015",164883],["2016",169040],["2017",183279],["2018",192695],["2019",198318],["2020",199910],["2021",217794],["2022",223982],["2023",233449],["2024",238664]]}],"zahler":{"Krankenhäuser":{"selbst":40609,"privat":558936,"medicare":439834,"medicaid":326700,"militaer":95454,"sonst":173205},"Ärzte und Kliniken":{"selbst":94260,"privat":505059,"medicare":251190,"medicaid":119378,"militaer":41073,"sonst":98722},"Medikamente":{"selbst":54973,"privat":172095,"medicare":162769,"medicaid":57743,"militaer":13087,"sonst":6301},"Pflegeheime":{"selbst":48699,"privat":19257,"medicare":47258,"medicaid":78954,"militaer":7021,"sonst":18714},"Zahn, Heim, Geräte, Sonstige":{"selbst":318012,"privat":212788,"medicare":144335,"medicaid":289339,"militaer":5793,"sonst":108666}}};
+const jahr=a=>a.map(x=>[x[0]+"-12-31",x[1]]);
+DATA.__NHE=jahr(NHE.total);NHE.kat.forEach(k=>{DATA["__P_"+k.id]=jahr(k.reihe)});
+const MRD={div:1,dec:0,suf:" Mrd. USD"},P1={div:1,dec:1,suf:" %"},MIO={div:1000,dec:1,suf:" Mio."};
+const J={div:1000,dec:0,suf:" Mrd. USD"};
+/* ================== KACHELN ================== */
+const K=[
+ /* Ausgaben */
+ {id:"nhe",sp:1,b:"b1",gr:"Ausgaben",titel:"Gesundheitsausgaben insgesamt (jährlich)",s:"__NHE",f:{div:1e6,dec:2,suf:" Bio. USD"},rhythm:"q",jahr:true,was:"Alle Ausgaben für Gesundheit in den USA in einem Kalenderjahr: Behandlungen, Medikamente, Verwaltung, öffentliche Vorsorge und Investitionen (National Health Expenditures, NHE). Der Wert ist in Billionen US-Dollar.",hin:"Die CMS-Zahlen werden einmal im Jahr veröffentlicht (zuletzt für 2024) und rückwirkend angepasst. Hier eingepflegt von Hand.",q:"CMS National Health Expenditure Data (cms.gov), Tabelle NHE Type of Service and Source of Funds"},
+ {id:"pce",sp:1,b:"b1",gr:"Ausgaben",titel:"Konsumausgaben für Gesundheit (BEA, Quartal)",s:"DHLCRC1Q027SBEA",f:MRD,rhythm:"q",was:"Was Haushalte nach der Volkswirtschaftlichen Gesamtrechnung für Gesundheitsleistungen ausgeben (ohne Ausgaben des Staates und der Versicherer an sich). Jahresrate in Milliarden US-Dollar, vierteljährlich, deshalb aktueller als die jährliche CMS-Zahl.",hin:"Die Abgrenzung unterscheidet sich von der CMS-Zahl, die Werte sind nicht direkt vergleichbar.",q:"FRED DHLCRC1Q027SBEA (BEA)"},
+ {id:"bip",sp:1,b:"b1",gr:"Ausgaben",titel:"Anteil am BIP (2024)",kpi:["18,0 %","2023: 17,7 %, 2022: 17,6 %"],auto:false,stand:"Jahreswert 2024",was:"Anteil der gesamten Gesundheitsausgaben an der Wirtschaftsleistung der USA.",hin:"Jahreswert, wird einmal im Jahr von CMS aktualisiert.",q:"CMS NHE Summary 2024 (Tabelle 1)"},
+ {id:"kopf",sp:1,b:"b1",gr:"Ausgaben",titel:"Ausgaben je Einwohner (2024)",kpi:["15.474 USD","2023: 14.580 USD, 2022: 13.689 USD"],auto:false,stand:"Jahreswert 2024",was:"Gesundheitsausgaben geteilt durch die Bevölkerung (341 Millionen). Persönliche Gesundheitsleistungen allein liegen bei 13.222 USD je Einwohner.",hin:"Jahreswert, wird einmal im Jahr von CMS aktualisiert.",q:"CMS NHE Summary 2024 (Tabelle 1)"},
+ {id:"wachs",sp:1,b:"b1",gr:"Ausgaben",titel:"Wachstum der Ausgaben (2024)",kpi:["+7,2 %","Persönliche Leistungen +8,3 %, BIP +5,3 %"],auto:false,stand:"Jahreswert 2024",was:"Veränderung der gesamten Gesundheitsausgaben gegenüber dem Vorjahr, im Vergleich zum Wachstum des nominalen BIP.",hin:"Jahreswert, wird einmal im Jahr von CMS aktualisiert.",q:"CMS NHE Summary 2024 (Tabelle 1)"},
+ {id:"rx",sp:1,b:"b1",gr:"Ausgaben",titel:"Ausgaben für verschreibungspflichtige Medikamente",s:"__P_rx",f:J,rhythm:"q",jahr:true,was:"Ausgaben für Medikamente mit Rezept in Apotheken, Kliniken und Versandhandel (ohne die Medikamente, die im Krankenhaus direkt abgerechnet werden). Jahreswert in Milliarden US-Dollar.",hin:"Jährliche CMS-Zahl, von Hand eingepflegt.",q:"CMS National Health Expenditure Data (cms.gov)"},
+ /* Versicherungsschutz */
+ {id:"unv",sp:2,b:"b2",gr:"Versicherungsschutz",titel:"Unversicherte (2025)",kpi:["7,9 %","26,7 Mio. Menschen, 2024: 8,0 % (27,1 Mio.)"],auto:false,stand:"Census-Bericht P60-291, veröffentlicht 15.09.2026",was:"Anteil der Menschen ohne jede Krankenversicherung im gesamten Jahr. Gemessen vom Census Bureau (Current Population Survey). Die Rate ist statistisch nicht anders als 2024 und nahe am historischen Tiefstand.",hin:"Das CDC misst mit einer anderen Umfrage (NHIS) ebenfalls rund 8 %. Die Zahlen für 2026 werden höher erwartet, weil die ACA-Zuschüsse ausgelaufen sind (siehe Zeitleiste).",q:"U.S. Census Bureau, Health Insurance Coverage in the United States: 2025 (P60-291)"},
+ {id:"mix",sp:2,b:"b2",gr:"Versicherungsschutz",titel:"Woher der Versicherungsschutz kommt (2025)",kpi:["53,5 % Arbeitgeber","Medicare 20,1 % · Medicaid 17,1 %"],auto:false,stand:"Census-Bericht P60-291, veröffentlicht 15.09.2026",was:"Anteil der Bevölkerung nach Art des Versicherungsschutzes. Menschen können mehrere Arten haben, deshalb ergibt die Summe mehr als 100 %. Öffentlich insgesamt: 35,8 %. Medicare stieg um 0,6 Punkte, Medicaid fiel um 0,5 Punkte.",hin:"Mehrfachnennungen möglich.",q:"U.S. Census Bureau, Health Insurance Coverage in the United States: 2025 (P60-291)"},
+ {id:"markt",sp:2,b:"b2",gr:"Versicherungsschutz",titel:"ACA-Marktplatz: Versicherte (Feb. 2026)",kpi:["19,2 Mio.","2025 Höchststand: 22,1 Mio."],auto:false,stand:"KFF-Auswertung von HHS-Daten, Juni 2026",was:"Menschen mit einer über die ACA-Marktplätze (Healthcare.gov und Länderbörsen) gekauften Versicherung. Das Minus folgt dem Auslaufen der erhöhten Prämienzuschüsse Ende 2025. Zahlende Versicherte (effectuated): 17,5 Mio.",hin:"KFF und HHS nennen je nach Stichtag unterschiedliche Werte (Anmeldungen, zahlende Versicherte). Die Zahl ist ein Stichtagswert.",q:"KFF, ACA Marketplace Enrollment is Down in 2026 (kff.org)"},
+ {id:"praem",sp:2,b:"b2",gr:"Versicherungsschutz",titel:"Prämien nach Ende der Zuschüsse (2026)",kpi:["+114 %","Zahlung der Versicherten mit Zuschuss, im Schnitt"],auto:false,stand:"KFF, Februar 2026",was:"Geschätzte Veränderung dessen, was Marktplatz-Versicherte mit Zuschuss nach dem Auslaufen der erhöhten Zuschüsse für denselben Tarif selbst zahlen. Viele wechselten in billigere Tarife mit höherem Selbstbehalt (Bronze).",hin:"Durchschnittswert, einzelne Haushalte weichen stark ab.",q:"KFF, Februar 2026"},
+ {id:"mwork",sp:2,b:"b2",gr:"Versicherungsschutz",titel:"Medicaid: Arbeitsnachweis",kpi:["ab 01.01.2027","80 Std. im Monat, Alter 19 bis 64 (Erweiterungsgruppe)"],auto:false,stand:"Stand 22.10.2026",was:"Der One Big Beautiful Bill Act verlangt von Erwachsenen der Medicaid-Erweiterungsgruppe einen Arbeits-, Ausbildungs- oder Gemeinwohlnachweis von 80 Stunden im Monat. CMS veröffentlichte dazu am 01.06.2026 eine vorläufige Endregel (Interim Final Rule). CMS erwartet rund 2,3 Mio. weniger Eingeschriebene im Haushaltsjahr 2027.",hin:"Quellen nennen unterschiedliche Daten für das Inkrafttreten der Regel (31.07.2026) und die Pflicht der Länder (01.01.2027) sowie die Zahl der betroffenen Länder (41 oder 43 plus DC). Vor Freigabe gegen die Regel prüfen.",q:"CMS Interim Final Rule vom 01.06.2026, Public Law 119-21 (OBBBA); Zusammenfassungen von Foley Hoag, McDermott+"},
+ {id:"cbo",sp:2,b:"b2",gr:"Versicherungsschutz",titel:"Erwartete Folge der Medicaid-Änderungen (CBO)",kpi:["ca. 10 Mio.","mehr Unversicherte in zehn Jahren"],auto:false,stand:"CBO-Schätzung, wiedergegeben Stand 22.10.2026",was:"Schätzung des überparteilichen Congressional Budget Office zur Zahl zusätzlich Unversicherter über zehn Jahre durch die Medicaid-Änderungen des OBBBA.",hin:"Eine Projektion, keine Messung. Annahmen und Folgen von Rechtsänderungen können abweichen.",q:"Congressional Budget Office (cbo.gov), zitiert in der Berichterstattung zum Census-Bericht 2025"},
+ /* Preise */
+ {id:"cpimed",sp:3,b:"b3",gr:"Preise",titel:"CPI Medical Care (zum Vorjahr)",s:"CPI_MED_YOY",f:P1,rhythm:"m",was:"Preisentwicklung aller medizinischen Güter und Dienste für städtische Verbraucher gegenüber dem Vorjahresmonat. Ein Teil des gesamten Verbraucherpreisindex (CPI, Seite 6).",hin:"Der CPI misst Preise, die Verbraucher selbst bezahlen. Kosten, die Versicherer oder der Staat tragen, kommen nur indirekt vor (zum Beispiel Versicherungsprämien).",q:"FRED CPIMEDSL (BLS), eigene Umrechnung auf Vorjahresveränderung"},
+ {id:"cpiserv",sp:3,b:"b3",gr:"Preise",titel:"CPI Medizinische Dienste (zum Vorjahr)",s:"CPI_MEDSERV_YOY",f:P1,rhythm:"m",was:"Preise für ärztliche Behandlungen, Krankenhausleistungen, Pflege und Versicherung.",hin:"",q:"FRED CUSR0000SAM2 (BLS), eigene Umrechnung"},
+ {id:"cpiwaren",sp:3,b:"b3",gr:"Preise",titel:"CPI Medizinische Güter (zum Vorjahr)",s:"CPI_MEDWAREN_YOY",f:P1,rhythm:"m",was:"Preise für Medikamente (rezeptpflichtig und frei verkäuflich) und medizinische Hilfsmittel.",hin:"",q:"FRED CUSR0000SAM1 (BLS), eigene Umrechnung"},
+ {id:"cpihosp",sp:3,b:"b3",gr:"Preise",titel:"CPI Krankenhausleistungen (zum Vorjahr)",s:"CPI_KRANKENHAUS_YOY",f:P1,rhythm:"m",was:"Preise für Krankenhaus- und verwandte Leistungen.",hin:"",q:"FRED CUSR0000SEMD (BLS), eigene Umrechnung"},
+ {id:"cpidoc",sp:3,b:"b3",gr:"Preise",titel:"CPI Fachdienste, Ärzte u. a. (zum Vorjahr)",s:"CPI_AERZTE_YOY",f:P1,rhythm:"m",was:"Preise für ärztliche und andere fachliche Dienste (Ärzte, Zahnärzte, Augenoptik, Therapeuten).",hin:"Die BLS-Gruppe enthält mehrere Berufsgruppen, nicht nur Ärzte.",q:"FRED CUSR0000SEMC (BLS), eigene Umrechnung"},
+ /* Arbeitsmarkt */
+ {id:"emp",sp:4,b:"b4",gr:"Arbeitsmarkt",titel:"Beschäftigte Gesundheit und Soziales",s:"CES6562000001",f:MIO,rhythm:"m",was:"Anzahl der Beschäftigten im Bereich Gesundheitswesen und Sozialhilfe (BLS, Beschäftigtenstatistik der Betriebe).",hin:"Der Bereich enthält auch Kinderbetreuung und Sozialdienste, nicht nur Medizin.",q:"FRED CES6562000001 (BLS)"},
+ {id:"empchg",sp:4,b:"b4",gr:"Arbeitsmarkt",titel:"Zuwachs Beschäftigte (zum Vormonat)",s:"GESUND_CHG",f:{div:1,dec:0,suf:" Tsd."},rhythm:"m",was:"Veränderung der Beschäftigtenzahl im Bereich Gesundheit und Soziales gegenüber dem Vormonat, in Tausend.",hin:"Monatszahlen werden in den Folgemonaten revidiert.",q:"FRED CES6562000001 (BLS), eigene Umrechnung"},
+ {id:"empamb",sp:4,b:"b4",gr:"Arbeitsmarkt",titel:"Ambulante Dienste",s:"CES6562100001",f:MIO,rhythm:"m",was:"Beschäftigte in Arztpraxen, ambulanten Zentren, Labors und häuslicher Pflege.",hin:"",q:"FRED CES6562100001 (BLS)"},
+ {id:"empklinik",sp:4,b:"b4",gr:"Arbeitsmarkt",titel:"Krankenhäuser",s:"CES6562200001",f:MIO,rhythm:"m",was:"Beschäftigte in Krankenhäusern.",hin:"",q:"FRED CES6562200001 (BLS)"},
+ {id:"emppfl",sp:4,b:"b4",gr:"Arbeitsmarkt",titel:"Pflegeheime und Betreutes Wohnen",s:"CES6562300001",f:MIO,rhythm:"m",was:"Beschäftigte in Pflegeheimen und betreuten Wohneinrichtungen.",hin:"",q:"FRED CES6562300001 (BLS)"},
+ /* Bevölkerung */
+ {id:"le",sp:0,b:"b5",gr:"Bevölkerung",titel:"Lebenserwartung bei Geburt",s:"SPDYNLE00INUSA",f:{div:1,dec:1,suf:" Jahre"},rhythm:"q",jahr:true,was:"Durchschnittliche Lebenserwartung eines Neugeborenen in den USA (Weltbank, jährlich). Der Wert ist die Grundlage für den Medicare-Bedarf, weil mit dem Alter die Ausgaben steigen.",hin:"Jahreswert, wird mit zeitlichem Abstand veröffentlicht.",q:"FRED SPDYNLE00INUSA (Weltbank)"},
+ {id:"pop",sp:0,b:"b5",gr:"Bevölkerung",titel:"Bevölkerung",s:"B230RC0Q173SBEA",f:MIO,rhythm:"q",was:"Gesamtbevölkerung der USA nach der Gesamtrechnung (BEA), vierteljährlich.",hin:"",q:"FRED B230RC0Q173SBEA (BEA)"},
+ /* Pharma */
+ {id:"zoll",sp:2,b:"b6",gr:"Pharma und Medikamente",titel:"Zölle auf Arzneimittel (Section 232)",kpi:["100 % Grundzoll","15 % für EU, Japan, Südkorea, Schweiz"],auto:false,stand:"Proklamation vom 02.04.2026, Stand 22.10.2026",was:"Patentierte Arzneimittel und Wirkstoffe unterliegen einem Grundzoll von 100 %. Ermäßigt: 15 % für Länder mit Handelsabkommen (EU, Japan, Südkorea, Schweiz), 10 % Großbritannien, 20 % für Firmen mit Plänen zur Produktion in den USA, 0 % bis 20.01.2029 für Firmen mit Preisabkommen (MFN) und Produktionsplan. Generika und Biosimilars sind ausgenommen. Die Zölle gelten für 17 große Hersteller seit 31.07.2026, für alle übrigen Markenhersteller seit 29.09.2026.",hin:"Zusammengestellt aus Rechtsberichten (Mayer Brown, Gibson Dunn und andere). Vor Freigabe gegen den Proklamationstext prüfen.",q:"Proklamation Section 232 vom 02.04.2026; Mayer Brown, Gibson Dunn (Zusammenfassungen)"},
+ {id:"mfn",sp:2,b:"b6",gr:"Pharma und Medikamente",titel:"Preisabkommen (Most Favored Nation)",kpi:["26 Firmen","laut Weißem Haus 89 % des Markts für Markenmedikamente"],auto:false,stand:"Ankündigung vom 31.08.2026",was:"Am 31.08.2026 meldete das Weiße Haus Abkommen mit neun weiteren Herstellern, zusammen 26. Die Firmen sagen niedrigere Preise für Medicaid zu und erhalten dafür günstigere Zollbedingungen.",hin:"Die Angabe zu 89 % des Marktes stammt vom Weißen Haus und wurde nicht unabhängig geprüft.",q:"The White House, Fact Sheet vom 31.08.2026 (über Gibson Dunn, Biotech Briefings)"},
+ {id:"verh",sp:2,b:"b6",gr:"Pharma und Medikamente",titel:"Medicare-Preisverhandlung, 3. Runde",kpi:["15 Medikamente","erstmals mit Part B, Ende Nov. 2026"],auto:false,stand:"CMS-Auswahl vom 29.01.2026",was:"Der Inflation Reduction Act erlaubt Medicare, Preise für teure Medikamente zu verhandeln. Die dritte Runde (Preise ab 2028) umfasst 15 Medikamente, darunter erstmals Medikamente aus Part B (zum Beispiel Botox, Biktarvy, Cimzia). Die Verhandlungsphase endet im November 2026.",hin:"Die Veröffentlichung der verhandelten Preise ist für Ende 2026 zu erwarten, das genaue Datum bei CMS prüfen. Die Liste ist hier nicht vollständig wiedergegeben.",q:"CMS (cms.gov), Milliman, Pharmaceutical Commerce"}
+];
+const byId={};K.forEach(k=>byId[k.id]=k);
+const $=s=>document.querySelector(s), heute=new Date(); heute.setHours(0,0,0,0);
+const esc=s=>String(s).replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+const nf=(v,d)=>new Intl.NumberFormat("de-DE",{minimumFractionDigits:d,maximumFractionDigits:d}).format(v);
+const dts=d=>{const[y,m,t]=d.split("-");return t+"."+m+"."+y};
+const tageBis=d=>Math.round((new Date(d+"T00:00:00")-heute)/86400000);
+const farbe=sp=>sp===0?"cb":"c"+sp;
+function fmtv(k,v){const f=k.f;return nf(v/f.div,f.dec)+f.suf}
+function letzte(k){const p=DATA[k.s];return p[p.length-1]}
+function veraenderung(k){const p=DATA[k.s];const l=p[p.length-1];
+  let ref;
+  if(k.rhythm==="q"||k.rhythm==="m"){ref=p[p.length-2]}
+  else{const lim=new Date(l[0]);lim.setDate(lim.getDate()-30);ref=[...p].reverse().find(x=>new Date(x[0])<=lim)}
+  if(!ref)return null;const dv=l[1]-ref[1];const txt=(dv>0?"▲ ":dv<0?"▼ ":"= ")+nf(Math.abs(dv)/k.f.div,k.f.dec)+(k.f.suf.includes("%")?" Pkt":k.f.suf);
+  return {txt,ref:ref[0],q:k.rhythm==="q",m:k.rhythm==="m"}}
+function spark(p,col){const n=p.slice(-Math.min(p.length,k_n(p)));const w=200,h=30;const xs=n.map(x=>x[1]);const mn=Math.min(...xs),mx=Math.max(...xs),sp=(mx-mn)||1;
+  const pts=n.map((x,i)=>(i/(n.length-1)*w).toFixed(1)+","+(h-2-(x[1]-mn)/sp*(h-4)).toFixed(1)).join(" ");
+  return '<svg class="spark" viewBox="0 0 '+w+' '+h+'" preserveAspectRatio="none" aria-hidden="true"><polyline fill="none" stroke="'+col+'" stroke-width="1.6" vector-effect="non-scaling-stroke" points="'+pts+'"/></svg>'}
+function k_n(p){return p.length>300?130:p.length>100?100:p.length>40?24:p.length}
+let tiles={}, aktiv=null, letzterFokus=null;
+function kachel(k){
+  const b=document.createElement("button");b.type="button";b.className="k "+farbe(k.sp);b.dataset.id=k.id;
+  let h='<div class="kt"><span class="kn">'+esc(k.titel)+'</span>';
+  if(k.s){const l=letzte(k);h+='<span class="kd">'+dts(l[0])+'</span></div><div class="kw">'+esc(fmtv(k,l[1]))+'</div>';
+    const v=veraenderung(k);h+='<div class="ks"><span>'+(v?esc(v.txt)+" ("+(v.q?"Vorquartal":v.m?"Vormonat":"30 Tage")+")":"")+'</span><span><i class="pkt auto"></i>auto</span></div>'+spark(DATA[k.s],"var(--c)")}
+  else{h+='<span class="kd"></span></div><div class="kw" style="font-size:20px">'+esc(k.kpi[0])+'</div><div class="ks"><span>'+esc(k.kpi[1])+'</span><span><i class="pkt '+(k.auto?'auto':'man')+'"></i>'+(k.auto?'auto':'manuell')+'</span></div>'}
+  b.innerHTML=h;b.addEventListener("click",()=>oeffnen(k.id));tiles[k.id]=b;return b}
+const _vo=veraenderung;
+function kachelBauen(k){const b=kachel(k);if(k.jahr){const t=b.querySelector(".ks span");if(t)t.textContent=t.textContent.replace("Vorquartal","Vorjahr")}return b}
+function bauen(){K.forEach(k=>{const c=document.getElementById(k.b);if(c)c.appendChild(kachelBauen(k))})}
+const dr=$("#drawer"), sh=$("#schatten");
+function kopf(gr,titel,farbeCss){dr.style.setProperty("--c",farbeCss||"var(--cb)");return '<div class="dk"><div><div class="gr">'+esc(gr)+'</div><h2 id="dt">'+esc(titel)+'</h2></div><button class="zu" type="button" aria-label="Schließen">×</button></div>'}
+function zeigen(h){dr.innerHTML=h;dr.classList.add("offen");sh.classList.add("offen");dr.querySelector(".zu").addEventListener("click",schliessen);dr.focus()}
+function lage(k){const p=DATA[k.s],l=p[p.length-1],mx=p.reduce((a,b)=>b[1]>a[1]?b:a),mn=p.reduce((a,b)=>b[1]<a[1]?b:a);
+  return 'Aktuell '+fmtv(k,l[1])+' ('+dts(l[0])+'). Im gezeigten Zeitraum ab '+dts(p[0][0])+': Höchstwert '+fmtv(k,mx[1])+' ('+dts(mx[0])+'), Tiefstwert '+fmtv(k,mn[1])+' ('+dts(mn[0])+').'}
+function oeffnen(id,extra){const k=byId[id];letzterFokus=document.activeElement;
+  Object.values(tiles).forEach(t=>t.classList.toggle("aktiv",t.dataset.id===id));
+  const fc=k.sp?"var(--c"+k.sp+")":"var(--cb)";let h=kopf(k.gr,k.titel,fc)+'<div class="db">';
+  if(!k.s){h+='<div class="gross" style="font-size:28px">'+esc(k.kpi[0])+'</div><div class="gsub">'+esc(k.kpi[1])+'</div><div class="gsub"><i class="pkt man"></i>manuell gepflegt · '+esc(k.stand||"")+'</div>';
+    h+='<h3>Was ist das?</h3><p>'+esc(k.was)+'</p>';if(k.hin)h+='<h3>Hinweis</h3><div class="hin">'+esc(k.hin)+'</div>';
+    h+='<h3>Quelle</h3><p style="font-size:13px;color:var(--text2)">'+esc(k.q)+'</p></div>';zeigen(h);return}
+  const l=letzte(k);h+='<div class="gross">'+esc(fmtv(k,l[1]))+'</div><div class="gsub">Stand '+dts(l[0])+' · <i class="pkt '+(k.s.startsWith("__")?"man":"auto")+'"></i>'+(k.s.startsWith("__")?"manuell (CMS, jährlich)":"automatisch (FRED)")+'</div>';
+  h+='<div class="btns" role="group" aria-label="Zeitraum"></div><div class="tip" id="tip"> </div><svg class="chart" id="chart" viewBox="0 0 560 230" role="img" aria-label="Verlauf '+esc(k.titel)+'"></svg>';
+  h+=(extra||'')+'<h3>Was ist das?</h3><p>'+esc(k.was)+'</p><h3>Aktuelle Lage</h3><p>'+esc(lage(k))+'</p>';
+  if(k.hin)h+='<h3>Hinweis</h3><div class="hin">'+esc(k.hin)+'</div>';
+  h+='<h3>Quelle</h3><p style="font-size:13px;color:var(--text2)">'+esc(k.q)+'</p></div>';
+  zeigen(h);chartInit(k)}
+function schliessen(){dr.classList.remove("offen");sh.classList.remove("offen");Object.values(tiles).forEach(t=>t.classList.remove("aktiv"));if(letzterFokus&&letzterFokus.focus)letzterFokus.focus()}
+sh.addEventListener("click",schliessen);addEventListener("keydown",e=>{if(e.key==="Escape"&&dr.classList.contains("offen"))schliessen()});
+const ZR=[["3 Mon.",92],["6 Mon.",183],["1 Jahr",365],["Alles",0]];
+function chartInit(k){const box=dr.querySelector(".btns");let sel=(k.rhythm==="q"||k.rhythm==="m")?3:(k.rhythm==="w"?3:2);
+  ZR.forEach((z,i)=>{const b=document.createElement("button");b.type="button";b.className="btn";b.textContent=z[0];b.setAttribute("aria-pressed",i===sel);
+    if((k.rhythm==="q"||k.rhythm==="m")&&i<2){b.disabled=true;b.style.opacity=.4}
+    b.addEventListener("click",()=>{sel=i;[...box.children].forEach((c,j)=>c.setAttribute("aria-pressed",j===i));zeichne(k,ZR[i][1])});box.appendChild(b)});
+  zeichne(k,ZR[sel][1])}
+function zeichne(k,tage){const all=DATA[k.s];let p=all;if(tage){const lim=new Date(all[all.length-1][0]);lim.setDate(lim.getDate()-tage);p=all.filter(x=>new Date(x[0])>=lim)}
+  if(p.length<2)p=all.slice(-2);
+  const svg=$("#chart"),W=560,H=230,L=52,R=12,T=10,B=26;const ys=p.map(x=>x[1]/k.f.div);let mn=Math.min(...ys),mx=Math.max(...ys);const pad=(mx-mn||1)*.08;mn-=pad;mx+=pad;
+  const t0=new Date(p[0][0]).getTime(),t1=new Date(p[p.length-1][0]).getTime(),X=d=>L+(new Date(d).getTime()-t0)/((t1-t0)||1)*(W-L-R),Y=v=>T+(1-(v-mn)/(mx-mn))*(H-T-B);
+  let s="";for(let i=0;i<=4;i++){const v=mn+(mx-mn)*i/4,y=Y(v);s+='<line x1="'+L+'" x2="'+(W-R)+'" y1="'+y+'" y2="'+y+'" stroke="var(--raster)"/><text x="'+(L-6)+'" y="'+(y+4)+'" text-anchor="end" font-size="10.5" fill="var(--stumm)">'+nf(v,k.f.dec>1?1:k.f.dec)+'</text>'}
+  s+='<text x="'+L+'" y="'+(H-6)+'" font-size="10.5" fill="var(--stumm)">'+dts(p[0][0])+'</text><text x="'+(W-R)+'" y="'+(H-6)+'" text-anchor="end" font-size="10.5" fill="var(--stumm)">'+dts(p[p.length-1][0])+'</text>';
+  const pts=p.map(x=>X(x[0]).toFixed(1)+","+Y(x[1]/k.f.div).toFixed(1)).join(" ");
+  s+='<polyline fill="none" stroke="var(--c)" stroke-width="2" stroke-linejoin="round" points="'+pts+'"/>';
+  const lp=p[p.length-1];s+='<circle cx="'+X(lp[0])+'" cy="'+Y(lp[1]/k.f.div)+'" r="3.5" fill="var(--c)"/><line id="cv" y1="'+T+'" y2="'+(H-B)+'" stroke="var(--text)" stroke-width="1" opacity="0"/><circle id="cd" r="4" fill="var(--c)" stroke="var(--flaeche)" stroke-width="2" opacity="0"/>';
+  svg.innerHTML=s;const tip=$("#tip");tip.textContent="Mit Maus oder Finger über den Verlauf fahren, um einzelne Werte zu sehen.";
+  const mv=e=>{const r=svg.getBoundingClientRect();const x=((e.clientX-r.left)/r.width)*W;let b=0,bd=1e9;p.forEach((q,i)=>{const d=Math.abs(X(q[0])-x);if(d<bd){bd=d;b=i}});const q=p[b];
+    const cv=$("#cv"),cd=$("#cd");cv.setAttribute("x1",X(q[0]));cv.setAttribute("x2",X(q[0]));cv.setAttribute("opacity",.4);cd.setAttribute("cx",X(q[0]));cd.setAttribute("cy",Y(q[1]/k.f.div));cd.setAttribute("opacity",1);tip.textContent=dts(q[0])+": "+fmtv(k,q[1])};
+  svg.onpointermove=mv;svg.onpointerdown=mv;svg.onpointerleave=()=>{$("#cv").setAttribute("opacity",0);$("#cd").setAttribute("opacity",0)}}
+const pf=(v,d)=>nf(v,d===undefined?1:d);
+/* Kuchen mit Beschriftung links und rechts */
+function kuchen(svgId,teile,opts){
+ const svg=document.getElementById(svgId),sum=teile.reduce((a,x)=>a+x.w,0);let w0=-Math.PI/2;const R=opts.R||225,cx=550,cy=310,H=620;
+ let pfade="";const lab={r:[],l:[]};
+ teile.forEach(x=>{const dw=x.w/sum*2*Math.PI,w1=w0+dw,wm=(w0+w1)/2;const p=(wk,r)=>[cx+r*Math.cos(wk),cy+r*Math.sin(wk)];const [x0,y0]=p(w0,R),[x1,y1]=p(w1,R);
+  const d=dw>=2*Math.PI-1e-6?"M"+(cx-R)+","+cy+" A"+R+","+R+" 0 1 1 "+(cx+R)+","+cy+" A"+R+","+R+" 0 1 1 "+(cx-R)+","+cy+" Z":"M"+cx+","+cy+" L"+x0.toFixed(2)+","+y0.toFixed(2)+" A"+R+","+R+" 0 "+(dw>Math.PI?1:0)+" 1 "+x1.toFixed(2)+","+y1.toFixed(2)+" Z";
+  pfade+='<path d="'+d+'" fill="'+x.c+'" tabindex="0" role="button" data-id="'+x.id+'" aria-label="'+esc(x.de||x.n)+' '+pf(x.w,2)+' Prozent"><title>'+esc(x.de||x.n)+': '+pf(x.w,2)+' %</title></path>';
+  if(x.w>=opts.min){const rechts=Math.cos(wm)>=0;lab[rechts?"r":"l"].push({x,a0:p(wm,R),a1:p(wm,R+20),y:p(wm,R+20)[1]})}
+  w0=w1});
+ const GAP=19;let linien="",texte="";
+ ["r","l"].forEach(seite=>{const arr=lab[seite].sort((m,n)=>m.y-n.y);
+  for(let i=1;i<arr.length;i++)if(arr[i].y<arr[i-1].y+GAP)arr[i].y=arr[i-1].y+GAP;
+  const ueber=arr.length?arr[arr.length-1].y-(H-12):0;if(ueber>0)arr.forEach(o=>o.y-=ueber);
+  for(let i=1;i<arr.length;i++)if(arr[i].y<arr[i-1].y+GAP)arr[i-1].y=arr[i].y-GAP;
+  const lx=seite==="r"?cx+R+54:cx-R-54;
+  arr.forEach(o=>{const x=o.x,ex=seite==="r"?lx-8:lx+8;
+   linien+='<polyline class="fl" points="'+o.a0[0].toFixed(1)+','+o.a0[1].toFixed(1)+' '+o.a1[0].toFixed(1)+','+o.a1[1].toFixed(1)+' '+ex+','+o.y.toFixed(1)+' '+lx+','+o.y.toFixed(1)+'"/><circle cx="'+o.a0[0].toFixed(1)+'" cy="'+o.a0[1].toFixed(1)+'" r="2" fill="var(--text)"/>';
+   const nm=esc(opts.kurz?opts.kurz(x):(x.de||x.n)),pz=pf(x.w,x.w<10?2:1)+" %";
+   texte+=seite==="r"?'<text class="lbl" data-id="'+x.id+'" x="'+(lx+6)+'" y="'+(o.y+4.5).toFixed(1)+'"><tspan class="pz">'+pz+'</tspan><tspan dx="8">'+nm+'</tspan></text>'
+    :'<text class="lbl" data-id="'+x.id+'" x="'+(lx-6)+'" y="'+(o.y+4.5).toFixed(1)+'" text-anchor="end"><tspan>'+nm+'</tspan><tspan dx="8" class="pz">'+pz+'</tspan></text>'})});
+ svg.innerHTML='<g class="lbl">'+linien+'</g>'+pfade+texte+'<text class="mt" x="'+cx+'" y="'+(cy+H/2-2)*0+'"></text>';
+ svg.querySelectorAll("path,text[data-id]").forEach(e=>{const f=()=>opts.klick(e.dataset.id);e.addEventListener("click",f);if(e.tagName==="path")e.addEventListener("keydown",ev=>{if(ev.key==="Enter"||ev.key===" "){ev.preventDefault();f()}})});
+}
+function balken(id,teile,klick){const sum=teile.reduce((a,x)=>a+x.w,0);const B=document.getElementById(id);
+ B.innerHTML=teile.map(x=>'<button type="button" data-id="'+x.id+'" style="width:'+(x.w/sum*100).toFixed(3)+'%;background:'+x.c+'" title="'+esc(x.de||x.n)+' '+pf(x.w,1)+' %">'+(((x.de||x.n).length+6)*6.1<x.w/sum*1100?esc(x.de||x.n)+" "+pf(x.w,1)+" %":x.w>=2.5?pf(x.w,1)+" %":"")+'</button>').join("");
+ B.querySelectorAll("button").forEach(b=>b.addEventListener("click",()=>klick(b.dataset.id)))}
+function gewBalken(w,max,c){return '<div class="gwb"><i style="width:'+Math.min(100,w/max*100).toFixed(1)+'%;background:'+c+'"></i></div>'}
+
+/* ================== GELDFLUSS ================== */
+const ZN=[["privat","Private Versicherung","Versicherungen über den Arbeitgeber oder privat gekauft","hsl(210,58%,44%)"],["medicare","Medicare","Bundesprogramm für Menschen ab 65 und mit Behinderung","hsl(150,45%,36%)"],["medicaid","Medicaid und CHIP","Programm für Geringverdiener und Kinder, von Bund und Bundesstaaten bezahlt","hsl(265,40%,50%)"],["selbst","Selbstzahler","Was Patienten direkt aus eigener Tasche bezahlen","hsl(30,65%,44%)"],["sonst","Übrige","Arbeitsunfallversicherung, Militär, Veteranen, Länder- und Schulprogramme","hsl(185,48%,34%)"]];
+const AN=[["Krankenhäuser","Krankenhäuser","hsl(210,50%,42%)"],["Ärzte und Kliniken","Ärzte und Kliniken","hsl(150,40%,34%)"],["Medikamente","Medikamente","hsl(30,62%,44%)"],["Pflegeheime","Pflegeheime","hsl(265,36%,48%)"],["Zahn, Heim, Geräte, Sonstige","Zahn, Heim, Geräte u. a.","hsl(0,0%,46%)"]];
+const D={};AN.forEach(a=>{const r=NHE.zahler[a[0]];D[a[1]]={privat:r.privat,medicare:r.medicare,medicaid:r.medicaid,selbst:r.selbst,sonst:r.sonst+r.militaer}});
+const zs=ZN.map(z=>({k:z[0],n:z[1],t:z[2],c:z[3],v:AN.reduce((s,a)=>s+D[a[1]][z[0]],0)}));
+const as=AN.map(a=>({n:a[1],c:a[2],v:Object.values(D[a[1]]).reduce((s,x)=>s+x,0)}));
+const TOT=zs.reduce((s,z)=>s+z.v,0);
+const mrd=v=>nf(v/1000,0)+" Mrd. USD";const pz=(v,t)=>nf(100*v/t,0)+" %";
+document.getElementById("gs1").textContent=nf(TOT/1e6,2)+" Bio. USD";
+(function(){
+ const a=document.getElementById("g1"),b=document.getElementById("g2"),inf=document.getElementById("gi");
+ const mk=(el,arr,cf)=>{el.innerHTML=arr.map((x,i)=>{const w=100*x.v/TOT,nm=w<6?x.n.replace("Pflegeheime","Pflege"):x.n;return '<button type="button" class="seg" data-i="'+i+'" style="width:'+w+'%;background:'+cf(x)+(w<6?';font-size:11px':'')+'" title="'+esc(x.n)+': '+mrd(x.v)+'"><span>'+esc(nm)+'</span><small>'+(w<6?nf(x.v/1000,0)+" Mrd.":mrd(x.v))+'</small></button>'}).join("")};
+ mk(a,zs,x=>x.c);mk(b,as,x=>x.c);
+ function sel(kind,i){a.classList.toggle("sel",kind==="z");b.classList.toggle("sel",kind==="a");
+  [...a.children].forEach((e,j)=>e.classList.toggle("on",kind==="z"&&j==i));[...b.children].forEach((e,j)=>e.classList.toggle("on",kind==="a"&&j==i));
+  let rows,t,tot,h;
+  if(kind==="z"){const z=zs[i];tot=z.v;rows=as.map(x=>({n:x.n,c:x.c,v:D[x.n][z.k]}));
+   h='<b>'+esc(z.n)+'</b>: '+esc(z.t)+'. Zahlt insgesamt <b>'+mrd(z.v)+'</b> ('+pz(z.v,TOT)+' aller Leistungen). Das Geld geht an:'}
+  else{const x=as[i];tot=x.v;rows=zs.map(z=>({n:z.n,c:z.c,v:D[x.n][z.k]}));
+   h='<b>'+esc(x.n)+'</b> erhalten insgesamt <b>'+mrd(x.v)+'</b> ('+pz(x.v,TOT)+' aller Leistungen). Bezahlt von:'}
+  rows.sort((p,q)=>q.v-p.v);
+  h+='<table>'+rows.map(r=>'<tr><td><span class="sw" style="background:'+r.c+'"></span>'+esc(r.n)+'</td><td class="zahl">'+mrd(r.v)+'</td><td class="zahl" style="color:var(--text2);font-weight:400">'+pz(r.v,tot)+'</td><td class="bar"><i style="width:'+(100*r.v/rows[0].v)+'%;background:'+r.c+'"></i></td></tr>').join("")+'</table>';
+  inf.innerHTML=h}
+ a.onclick=e=>{const s=e.target.closest(".seg");if(s)sel("z",+s.dataset.i)};b.onclick=e=>{const s=e.target.closest(".seg");if(s)sel("a",+s.dataset.i)};
+ sel("z",0)})();
+/* Flussdiagramm */
+(function(){
+ const W=1100,H=500,NW=18,LX=240,RX=W-260,GAP=22,TOP=28,sc=(H-TOP-10-GAP*4)/TOT;
+ const svg=document.getElementById("sk"),inf=document.getElementById("ski");
+ let y=TOP;zs.forEach(z=>{z.y=y;z.h=z.v*sc;y+=z.h+GAP;z.o=0});y=TOP;as.forEach(a=>{a.y=y;a.h=a.v*sc;y+=a.h+GAP;a.o=0});
+ const L=[];zs.forEach(z=>as.forEach(a=>{const v=D[a.n][z.k];const h=v*sc;L.push({z,a,v,h,y1:z.y+z.o,y2:a.y+a.o});z.o+=h;a.o+=h}));
+ let sel=0;
+ function draw(){
+  let s='<text class="kop" x="0" y="14">Zahler (anklicken)</text><text class="kop" x="'+(RX+NW+14)+'" y="14">Empfänger</text>';
+  L.forEach(l=>{const on=l.z===zs[sel],m=(LX+NW+RX)/2;
+   s+='<path class="band2" fill="'+l.z.c+'" fill-opacity="'+(on?.7:.07)+'" d="M'+(LX+NW)+' '+l.y1+' C'+m+' '+l.y1+' '+m+' '+l.y2+' '+RX+' '+l.y2+' L'+RX+' '+(l.y2+l.h)+' C'+m+' '+(l.y2+l.h)+' '+m+' '+(l.y1+l.h)+' '+(LX+NW)+' '+(l.y1+l.h)+'Z"/>'});
+  L.forEach(l=>{if(l.z!==zs[sel])return;const cy=l.y2+l.h/2,t=mrd(l.v),w=t.length*7.4+16;
+   s+='<g class="pill"><rect x="'+(RX-w-8)+'" y="'+(cy-11)+'" width="'+w+'" height="22" rx="11"/><text x="'+(RX-8-w/2)+'" y="'+(cy+4.5)+'" text-anchor="middle">'+t+'</text></g>'});
+  zs.forEach((z,i)=>{s+='<g class="nd" data-z="'+i+'"><rect x="'+LX+'" y="'+z.y+'" width="'+NW+'" height="'+z.h+'" rx="4" fill="'+z.c+'" opacity="'+(i===sel?1:.5)+'"/><text x="'+(LX-12)+'" y="'+(z.y+z.h/2-1)+'" text-anchor="end" style="font-weight:'+(i===sel?700:400)+'">'+esc(z.n)+'</text><text class="t2" x="'+(LX-12)+'" y="'+(z.y+z.h/2+14)+'" text-anchor="end">'+mrd(z.v)+'</text></g>'});
+  as.forEach(a=>{s+='<rect x="'+RX+'" y="'+a.y+'" width="'+NW+'" height="'+a.h+'" rx="4" fill="'+a.c+'"/><text x="'+(RX+NW+12)+'" y="'+(a.y+a.h/2-1)+'">'+esc(a.n)+'</text><text class="t2" x="'+(RX+NW+12)+'" y="'+(a.y+a.h/2+14)+'">insgesamt '+mrd(a.v)+'</text>'});
+  svg.innerHTML=s;
+  const z=zs[sel];const top=as.map(a=>({n:a.n,v:D[a.n][z.k],c:a.c})).sort((p,q)=>q.v-p.v);
+  inf.innerHTML='<b>'+esc(z.n)+'</b> zahlt insgesamt <b>'+mrd(z.v)+'</b>. Davon gehen an:<div class="zeile">'+top.map(r=>'<span><span class="sw" style="background:'+r.c+'"></span>'+esc(r.n)+': <b>'+mrd(r.v)+'</b></span>').join("")+'</div>';
+  svg.querySelectorAll("[data-z]").forEach(g=>g.onclick=()=>{sel=+g.dataset.z;draw()})}
+ draw()})();
+/* ================== AUSGABENKUCHEN ================== */
+const KP=[["hosp","hsl(210,55%,42%)"],["phys","hsl(150,42%,34%)"],["rx","hsl(30,62%,44%)"],["nurs","hsl(265,38%,48%)"],["dent","hsl(48,70%,44%)"],["othp","hsl(325,42%,48%)"],["home","hsl(185,45%,34%)"],["goods","hsl(95,40%,36%)"],["othh","hsl(0,0%,48%)"],["admin","hsl(0,50%,44%)"],["pub","hsl(240,30%,56%)"],["inv","hsl(20,30%,42%)"]];
+(function(){
+ const tot=DATA.__NHE[DATA.__NHE.length-1][1];
+ document.getElementById("pk-sum").textContent=nf(tot/1e6,2)+" Bio. USD";
+ const T=NHE.kat.map((k,i)=>{const p=DATA["__P_"+k.id],w=p[p.length-1][1];
+  const kc={id:"p_"+k.id,titel:k.name+" (Ausgaben)",s:"__P_"+k.id,f:J,rhythm:"q",jahr:true,sp:0,gr:"Ausgabenkuchen",was:k.t,hin:"Jährliche CMS-Zahl in Milliarden US-Dollar, rückwirkend angepasst. Von Hand eingepflegt.",q:"CMS National Health Expenditure Data 2024 (cms.gov)"};byId[kc.id]=kc;
+  return {id:"p_"+k.id,de:k.name,w:w/tot*100,abs:w,c:(KP.find(x=>x[0]===k.id)||[0,"hsl(0,0%,50%)"])[1],k:kc,p:p}});
+ const extra=x=>{const v1=x.p.length>1?x.p[x.p.length-2][1]:null;const z=(a,b)=>'<tr><td>'+a+'</td><td class="zahl"><b>'+b+'</b></td></tr>';
+  return '<h3>Einordnung</h3><table>'+z("Anteil an allen Gesundheitsausgaben",nf(x.w,1)+" %")+z("Ausgaben 2024",mrd(x.abs))+(v1?z("Veränderung zum Vorjahr",(x.abs>=v1?"+":"−")+nf(Math.abs(x.abs/v1-1)*100,1)+" %"):"")+'</table>'};
+ kuchen("pk-pie",T.map(x=>({id:x.id,de:x.de,n:x.de,w:x.w,c:x.c})),{min:1.2,klick:id=>{const x=T.find(y=>y.id===id);if(x)oeffnen(x.k.id,extra(x))},R:200,kurz:x=>x.de+" ("+nf(T.find(y=>y.id===x.id).abs/1000,0)+" Mrd.)"})})();
+/* ================== KENNZAHLEN OBEN ================== */
+document.getElementById("kpis").innerHTML=[["5,28 Bio. USD","Gesundheitsausgaben 2024 (CMS)"],["18,0 %","Anteil am BIP"],["15.474 USD","je Einwohner und Jahr"],["39 %","davon Medicare und Medicaid/CHIP"]].map(x=>'<div class="kpi"><b>'+x[0]+'</b><span>'+x[1]+'</span></div>').join("");
+/* ================== ZEITLEISTE ================== */
+const ZL=[
+ ["23.03.2010","Affordable Care Act (ACA) unterzeichnet","Grundlage der Marktplätze, Zuschüsse und der Medicaid-Erweiterung."],
+ ["16.08.2022","Inflation Reduction Act: Medicare darf Preise verhandeln","Erste verhandelte Preise für 10 Medikamente gelten ab 2026, für 15 weitere ab 2027, die dritte Runde (15 Medikamente, erstmals Part B) ab 2028."],
+ ["04.07.2025","One Big Beautiful Bill Act (OBBBA) unterzeichnet","Medicaid-Änderungen, darunter Arbeitsnachweis (ab 01.01.2027). Das CBO schätzt rund 10 Mio. mehr Unversicherte in zehn Jahren."],
+ ["31.12.2025","Erhöhte ACA-Prämienzuschüsse laufen aus","Marktplatz-Versicherte: 22,1 Mio. (2025) auf 19,2 Mio. (Feb. 2026). Prämienzahlung subventionierter Versicherter im Schnitt +114 % (KFF)."],
+ ["02.04.2026","Section-232-Zölle auf Arzneimittel verkündet","100 % Grundzoll, 15 % für EU, Japan, Südkorea, Schweiz, Generika ausgenommen. Gilt für 17 Hersteller seit 31.07.2026, für alle übrigen seit 29.09.2026."],
+ ["01.06.2026","CMS: vorläufige Endregel zum Medicaid-Arbeitsnachweis","Länder müssen ab 01.01.2027 umsetzen. CMS erwartet rund 2,3 Mio. weniger Eingeschriebene im Haushaltsjahr 2027."],
+ ["31.08.2026","Weißes Haus: 9 weitere Preisabkommen (MFN)","Insgesamt 26 Hersteller, laut Weißem Haus 89 % des Marktes für Markenmedikamente."],
+ ["15.09.2026","Census: Unversichertenquote 2025 bei 7,9 %","26,7 Mio. Menschen, nicht anders als 2024 (8,0 %)."],
+ ["Nov. 2026","Ende der Verhandlungsphase der 3. Medicare-Runde (erwartet)","Verhandelte Preise für 15 Medikamente, erstmals mit Part B. Genaues Datum bei CMS prüfen.","zk"],
+ ["01.01.2027","Medicaid-Arbeitsnachweis muss von den Ländern umgesetzt sein","80 Stunden im Monat, Alter 19 bis 64, Erweiterungsgruppe. Länder können eine befristete Ausnahme beantragen.","zk"]
+];
+document.getElementById("zl").innerHTML=ZL.map(e=>'<div class="e'+(e[3]?' zk':'')+'"><div class="d">'+esc(e[0])+'</div><div class="t"><b>'+esc(e[1])+'</b><span>'+esc(e[2])+'</span></div></div>').join("")+'<div class="klein" style="margin-top:8px">Stand 22.10.2026, von Hand aus Fachberichten zusammengestellt (KFF, CMS, Census, Kanzlei-Zusammenfassungen). Orange = noch bevorstehend. Rechtsfristen vor Freigabe gegen den Gesetzestext prüfen.</div>';
+/* Ticker */
+(function(){const R=GES.regelungen&&GES.regelungen.liste;const T=document.getElementById("ticker");
+ if(!R||!R.length){T.innerHTML='<p class="klein">Die Daten werden beim nächsten automatischen Abruf geladen.</p>';return}
+ T.innerHTML='<table class="tick">'+R.map(r=>'<tr><td class="d">'+dts(r.d)+'</td><td class="a">'+esc(r.a)+'</td><td><a href="'+esc(r.u)+'" target="_blank" rel="noopener">'+esc(r.t)+'</a> <span style="color:var(--text2)">('+esc(r.art)+')</span></td></tr>').join("")+'</table><div class="klein">Quelle: Federal Register (CMS und FDA, endgültige Regeln und Entwürfe), Abruf zweimal täglich.</div>'})();
+/* ================== UNTERNEHMEN ================== */
+const SPARTEN=[
+ {id:"versicherer",n:"Versicherer",t:"Zahler: Krankenkassen und Versicherungsprogramme",c:"var(--c1)"},
+ {id:"pharma",n:"Pharma",t:"Hersteller von Medikamenten",c:"var(--c3)"},
+ {id:"handel",n:"Apotheken und Großhandel",t:"Vertrieb von Medikamenten",c:"var(--c4)"},
+ {id:"kliniken",n:"Kliniken",t:"Betreiber von Krankenhäusern",c:"var(--c2)"},
+ {id:"geraete",n:"Geräte und Dienste",t:"Medizintechnik, Labor und Zulieferer",c:"var(--cb)"}];
+const ROLLE={
+ "UnitedHealth":"Größter privater Krankenversicherer der USA (UnitedHealthcare, auch Medicare Advantage und Medicaid-Pläne) mit der Dienstleistungs- und Praxissparte Optum. Sitzt im Geldfluss bei den Zahlern und teils bei den Anbietern.",
+ "Elevance Health":"Krankenversicherer (Anthem-Marken) mit Schwerpunkt auf privaten Plänen, Medicare Advantage und Medicaid-Plänen der Bundesstaaten. Zahler.",
+ "Cigna":"Krankenversicherer mit der Apotheken-Managementsparte Evernorth (Express Scripts). Zahler und Vermittler zwischen Versicherten, Apotheken und Herstellern.",
+ "Humana":"Krankenversicherer mit Schwerpunkt auf Medicare Advantage. Zahler, stark vom Medicare-Programm abhängig.",
+ "Centene":"Versicherer mit Schwerpunkt auf staatlichen Programmen (Medicaid-Pläne, ACA-Marktplatz, Medicare). Zahler.",
+ "Eli Lilly":"Pharmahersteller, bekannt für Diabetes- und Abnehmmedikamente. Anbieter von Medikamenten.",
+ "Johnson & Johnson":"Pharma- und Medizintechnikkonzern. Anbieter von Medikamenten und Geräten.",
+ "Merck":"Pharmahersteller, besonders Krebsmedikamente und Impfstoffe. Anbieter von Medikamenten.",
+ "Pfizer":"Pharmahersteller mit Impfstoffen, Krebs- und Herzmedikamenten. Anbieter von Medikamenten.",
+ "AbbVie":"Pharmahersteller mit Schwerpunkt auf Immunologie, Krebs und Neurologie. Anbieter von Medikamenten.",
+ "CVS Health":"Apothekenkette, zugleich Krankenversicherer (Aetna) und Apotheken-Manager (Caremark). Mehrere Stellen im Geldfluss: Zahler, Vermittler und Verkäufer.",
+ "McKesson":"Einer der drei großen Arzneimittel-Großhändler. Liefert Medikamente von Herstellern an Apotheken und Kliniken.",
+ "Cencora":"Einer der drei großen Arzneimittel-Großhändler. Liefert Medikamente von Herstellern an Apotheken und Kliniken.",
+ "Cardinal Health":"Einer der drei großen Arzneimittel-Großhändler, zudem Medizinbedarf. Liefert an Apotheken und Kliniken.",
+ "HCA Healthcare":"Größter privater Krankenhausbetreiber der USA. Anbieter, Einnahmen von Versicherern, Medicare und Medicaid.",
+ "Medtronic":"Hersteller von Medizintechnik (Herzschrittmacher, Insulinpumpen, chirurgische Geräte). Zulieferer von Kliniken.",
+ "Abbott":"Medizintechnik, Diagnostik und Ernährung (zum Beispiel Blutzuckermessgeräte). Zulieferer von Kliniken und Patienten.",
+ "Thermo Fisher":"Labor- und Analysegeräte, Reagenzien, Dienste für Forschung und Pharma. Zulieferer der Forschung und Hersteller."};
+const mf=v=>v==null?"–":(Math.abs(v)<1?nf(v*1000,0)+" Mio. USD":nf(v,1)+" Mrd. USD");
+const mk2=v=>Math.abs(v)<1?nf(v*1000,0)+" Mio.":nf(v,1)+" Mrd.";
+const sg=(a,b)=>b?((a>=b?"+":"−")+nf(Math.abs(a/b-1)*100,1)+" %"):"–";
+(function(){const F=GES.firmen&&GES.firmen.liste;const C=document.getElementById("sparten");
+ if(!F||!F.length){C.innerHTML='<p class="klein">Die Unternehmensdaten werden beim nächsten automatischen Abruf geladen.</p>';return}
+ SPARTEN.forEach(s=>{const arr=F.filter(f=>f.sp===s.id).sort((a,b)=>b.um-a.um);if(!arr.length)return;const mx=arr[0].um;
+  const d=document.createElement("div");d.className="sparte";d.style.setProperty("--c",s.c);
+  d.innerHTML='<h3>'+esc(s.n)+'</h3><p>'+esc(s.t)+'</p>'+arr.map(f=>'<button type="button" class="firma" data-n="'+esc(f.n)+'"><div class="z1"><span>'+esc(f.n)+'</span><em>'+nf(f.um,0)+' Mrd. USD</em></div><div class="z2">Umsatz, Geschäftsjahr bis '+dts(f.ende)+(f.ge!=null?' · Nettoergebnis '+mk2(f.ge):'')+'</div><i style="width:'+(100*f.um/mx)+'%"></i></button>').join("");
+  C.appendChild(d)});
+ C.onclick=e=>{const b=e.target.closest(".firma");if(!b)return;const f=F.find(x=>x.n===b.dataset.n),s=SPARTEN.find(x=>x.id===f.sp);letzterFokus=b;
+  const z=(a,c)=>'<tr><td>'+a+'</td><td class="zahl"><b>'+c+'</b></td></tr>';const arr=F.filter(x=>x.sp===f.sp);const sum=arr.reduce((a,x)=>a+x.um,0);
+  let h=kopf(s.n,f.n,s.c)+'<div class="db"><div class="gross">'+nf(f.um,1)+' Mrd. USD</div><div class="gsub">Umsatz, Geschäftsjahr bis '+dts(f.ende)+' · <i class="pkt auto"></i>automatisch (SEC)</div>';
+  h+='<h3>Kennzahlen</h3><table>'+z("Umsatz",mf(f.um))+z("Umsatz im Vorjahr",mf(f.um_v))+z("Veränderung zum Vorjahr",sg(f.um,f.um_v))+z("Nettoergebnis",mf(f.ge))+z("Nettoergebnis im Vorjahr",mf(f.ge_v))+z("Anteil am Umsatz der gezeigten Firmen dieser Sparte",nf(100*f.um/sum,0)+" %")+'</table>';
+  h+='<h3>Stelle im Geldfluss</h3><p>'+esc(ROLLE[f.n]||"")+'</p>';
+  h+='<h3>Hinweis</h3><div class="hin">Umsatz und Nettoergebnis stammen aus den Jahresberichten (10-K) bei der SEC. Das Nettoergebnis kann Einmaleffekte enthalten. Es gibt keine Bewertung und keinen Börsenwert. Die Auswahl zeigt die größten Firmen je Sparte, nicht alle.</div>';
+  h+='<h3>Quelle</h3><p style="font-size:13px;color:var(--text2)">SEC EDGAR (XBRL-Daten der Jahresberichte)</p></div>';zeigen(h)}})();
+bauen();
+</script>
+<script src="seitenhintergrund.js?v=20261023"></script>
+</body>
+</html>
