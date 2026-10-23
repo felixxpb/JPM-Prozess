@@ -19,7 +19,8 @@ Aufruf GitHub:     gleich, mit Umgebungsvariablen
    LAENDER_DATEN         Ausgabeordner (Standard: ..\\laender\\daten relativ zum Skript)
 Nur Python-Standardbibliothek, keine Installation noetig.
 """
-import json, os, re, sys, html, urllib.request, urllib.parse, datetime
+import json
+import time, os, re, sys, html, urllib.request, urllib.parse, datetime
 
 HIER = os.path.dirname(os.path.abspath(__file__))
 AUSGABE = os.environ.get("LAENDER_DATEN") or os.path.join(HIER, "..", "laender", "daten")
@@ -126,6 +127,9 @@ FRED_UMGERECHNET = {
 }
 
 
+FRED_PROBLEME = []
+
+
 def fred_key():
     k = os.environ.get("FRED_API_KEY")
     if k and k.strip():
@@ -142,19 +146,29 @@ def fred_key():
 
 
 def holen(url, versuche=3):
+    """Abruf mit Wiederholung. Bei HTTP 429 (zu viele Anfragen) wird laenger gewartet."""
     letzter = None
-    for _ in range(versuche):
+    for i in range(versuche):
         try:
             req = urllib.request.Request(url, headers={"User-Agent": UA})
             return urllib.request.urlopen(req, timeout=60).read().decode("utf-8")
+        except urllib.error.HTTPError as e:
+            letzter = e
+            if e.code == 429:
+                time.sleep(20 * (i + 1))
         except Exception as e:  # noqa
             letzter = e
     raise letzter
 
 
 def lade_fred():
+    """FRED-Reihen holen. FRED erlaubt ca. 120 Anfragen pro Minute: kurze Pause zwischen den Reihen,
+    bei 429 laengeres Warten. Faellt eine einzelne Reihe aus, bleibt ihr letzter guter Stand stehen
+    (und der Fehler wird gemeldet), statt alle anderen Reihen zu verwerfen."""
     key = fred_key()
     out = {}
+    alt_fred = (lade_alt().get("fred") or {})
+    probleme = []
     alle = {s: (s, None, st) for s, st in FRED.items()}
     alle.update(FRED_UMGERECHNET)
     for sid, (reihe, units, start) in alle.items():
@@ -163,15 +177,23 @@ def lade_fred():
         if units:
             u += "&units=" + units
         try:
-            obs = json.loads(holen(u))["observations"]
+            obs = json.loads(holen(u, versuche=5))["observations"]
+            pts = [[o["date"], float(o["value"])] for o in obs if o["value"] not in (".", "")]
+            if len(pts) > 600:  # lange Tagesreihen ausduennen, letzter Punkt bleibt
+                pts = pts[::2] + ([pts[-1]] if (len(pts) - 1) % 2 else [])
+            if len(pts) < 5:
+                raise ValueError("zu wenige Punkte")
+            out[sid] = pts
         except Exception as e:  # noqa
-            raise ValueError("FRED-Reihe %s: %s" % (sid, e))
-        pts = [[o["date"], float(o["value"])] for o in obs if o["value"] not in (".", "")]
-        if len(pts) > 600:  # lange Tagesreihen ausduennen, letzter Punkt bleibt
-            pts = pts[::2] + ([pts[-1]] if (len(pts) - 1) % 2 else [])
-        if len(pts) < 5:
-            raise ValueError("zu wenige Punkte fuer " + sid)
-        out[sid] = pts
+            probleme.append("%s: %s" % (sid, str(e)[:60]))
+            if sid in alt_fred:
+                out[sid] = alt_fred[sid]
+        time.sleep(0.6)
+    if probleme:
+        FRED_PROBLEME.extend(probleme)
+        print("FRED-Probleme (%d): %s" % (len(probleme), "; ".join(probleme[:8])))
+    if len(out) < len(alle) // 2:
+        raise ValueError("FRED: zu viele Reihen fehlen (%d von %d)" % (len(alle) - len(out), len(alle)))
     return out
 
 
@@ -1001,6 +1023,8 @@ def main():
             neu[name] = alt.get(name)
             neu["meta"]["fehler"][name] = str(e)[:200]
             print("FEHLER", name, str(e)[:200])
+    if FRED_PROBLEME:
+        neu["meta"]["fehler"]["fred_reihen"] = "%d Reihe(n) nicht geholt: %s" % (len(FRED_PROBLEME), "; ".join(FRED_PROBLEME[:6]))[:300]
     os.makedirs(AUSGABE, exist_ok=True)
     with open(DATEI, "w", encoding="utf-8") as f:
         f.write("window.USA_DATEN=" + json.dumps(neu, separators=(",", ":"), ensure_ascii=False) + ";\n")
