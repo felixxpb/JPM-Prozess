@@ -78,6 +78,14 @@ FRED = {
     "DGOERC1Q027SBEA": "2015-01-01", "DNRGRC1Q027SBEA": "2015-01-01", "DOTSRC1Q027SBEA": "2015-01-01",
     # Oberthema 9 (Umwelt und Klima): Energiepreise
     "APU000072610": "2019-01-01", "GASREGW": "2022-01-01", "DHOILNYH": "2024-10-01",
+    # Oberthema 10 (Gesundheitswesen): Beschaeftigung, Lebenserwartung (jaehrlich), Bevoelkerung
+    "CES6562000001": "2022-01-01", "CES6562100001": "2022-01-01", "CES6562200001": "2022-01-01", "CES6562300001": "2022-01-01",
+    "SPDYNLE00INUSA": "2000-01-01", "B230RC0Q173SBEA": "2015-01-01",
+    # Oberthema 11 (Immobilien): Zinsen, Finanzierung, Preise, Bau, Nachfrage
+    "MORTGAGE30US": "2022-01-01", "MORTGAGE15US": "2022-01-01", "MDSP": "2015-01-01", "DRSFRMACBS": "2015-01-01",
+    "HHMSDODNS": "2015-01-01", "CSUSHPINSA": "2019-01-01", "HOSMEDUSM052N": "2019-01-01", "MSPUS": "2015-01-01",
+    "HOUST": "2019-01-01", "PERMIT": "2019-01-01", "COMPUTSA": "2019-01-01", "TTLCON": "2019-01-01", "MSACSR": "2019-01-01",
+    "EXHOSLUSM495S": "2019-01-01", "HSN1F": "2019-01-01", "RHORUSQ156N": "2010-01-01", "RRVRUSQ156N": "2010-01-01",
 }
 # Reihen mit Umrechnung: Name -> (FRED-Reihe, Umrechnung, Start). pc1 = Veraenderung zum Vorjahr in Prozent
 FRED_UMGERECHNET = {
@@ -103,6 +111,18 @@ FRED_UMGERECHNET = {
     # Oberthema 9: Preisindizes Strom und Benzin, zum Vorjahr
     "CPI_STROM_YOY": ("CUSR0000SEHF01", "pc1", "2022-01-01"),
     "CPI_BENZIN_YOY": ("CUSR0000SETB01", "pc1", "2022-01-01"),
+    # Oberthema 10 (Gesundheitswesen): Preise (Medical Care und Unterpositionen), Beschaeftigtenaenderung
+    "CPI_MED_YOY": ("CPIMEDSL", "pc1", "2022-01-01"),
+    "CPI_MEDSERV_YOY": ("CUSR0000SAM2", "pc1", "2022-01-01"),
+    "CPI_MEDWAREN_YOY": ("CUSR0000SAM1", "pc1", "2022-01-01"),
+    "CPI_KRANKENHAUS_YOY": ("CUSR0000SEMD", "pc1", "2022-01-01"),
+    "CPI_AERZTE_YOY": ("CUSR0000SEMC", "pc1", "2022-01-01"),
+    "GESUND_CHG": ("CES6562000001", "chg", "2022-01-01"),
+    # Oberthema 11 (Immobilien): Preise und Mieten zum Vorjahr
+    "CS_YOY": ("CSUSHPINSA", "pc1", "2022-01-01"),
+    "FHFA_YOY": ("USSTHPI", "pc1", "2015-01-01"),
+    "CPI_MIETE_YOY": ("CUSR0000SEHA", "pc1", "2022-01-01"),
+    "CPI_OER_YOY": ("CUSR0000SEHC", "pc1", "2022-01-01"),
 }
 
 
@@ -803,6 +823,162 @@ def lade_umwelt(alt=None):
     return out
 
 
+# ---------------------------------------------------------------- Gesundheitswesen (Oberthema 10)
+SEC_FIRMEN = [  # Name, CIK, Sparte
+    ("UnitedHealth", 731766, "versicherer"), ("Elevance Health", 1156039, "versicherer"), ("Cigna", 1739940, "versicherer"),
+    ("Humana", 49071, "versicherer"), ("Centene", 1071739, "versicherer"),
+    ("Eli Lilly", 59478, "pharma"), ("Johnson & Johnson", 200406, "pharma"), ("Merck", 310158, "pharma"),
+    ("Pfizer", 78003, "pharma"), ("AbbVie", 1551152, "pharma"),
+    ("CVS Health", 64803, "handel"), ("McKesson", 927653, "handel"), ("Cencora", 1140859, "handel"), ("Cardinal Health", 721371, "handel"),
+    ("HCA Healthcare", 860730, "kliniken"),
+    ("Medtronic", 1613103, "geraete"), ("Abbott", 1800, "geraete"), ("Thermo Fisher", 97745, "geraete"),
+]
+UMSATZ_TAGS = ["Revenues", "RevenueFromContractWithCustomerExcludingAssessedTax", "SalesRevenueNet", "RevenuesNetOfInterestExpense"]
+GEWINN_TAGS = ["NetIncomeLoss", "ProfitLoss", "NetIncomeLossAvailableToCommonStockholdersBasic"]
+
+
+def sec_jahreswerte(fakten, tags, groesster=True):
+    """Liefert [(Ende, Wert), ...] der Jahreswerte (10-K, rund 1 Jahr) des Tags mit dem neuesten Berichtsjahr
+    (bei Gleichstand der Tag mit dem groessten Wert, denn manche Firmen melden Teilumsaetze unter 'Revenues')."""
+    best = None
+    for t in tags:
+        if t not in fakten:
+            continue
+        d = {}
+        for x in fakten[t]["units"].get("USD", []):
+            if x.get("form") != "10-K" or "start" not in x:
+                continue
+            a = datetime.date.fromisoformat(x["start"]); b = datetime.date.fromisoformat(x["end"])
+            if 350 <= (b - a).days <= 380:
+                d[x["end"]] = x["val"]
+        if not d:
+            continue
+        ende = max(d)
+        cand = (ende, d[ende] if groesster else 0, sorted(d.items()))
+        if best is None or (cand[0], cand[1]) > (best[0], best[1]):
+            best = cand
+    return best[2] if best else []
+
+
+def lade_firmen(firmen=None):
+    out, fehler = [], []
+    hdr = {"User-Agent": UA}
+    for name, cik, sparte in (firmen or SEC_FIRMEN):
+        try:
+            u = "https://data.sec.gov/api/xbrl/companyfacts/CIK%010d.json" % cik
+            req = urllib.request.Request(u, headers=hdr)
+            f = json.loads(urllib.request.urlopen(req, timeout=60).read().decode("utf-8"))["facts"]["us-gaap"]
+            um = sec_jahreswerte(f, UMSATZ_TAGS)
+            ge = sec_jahreswerte(f, GEWINN_TAGS, groesster=False)
+            if not um:
+                raise ValueError("kein Umsatz")
+            e = {"n": name, "sp": sparte, "ende": um[-1][0], "um": round(um[-1][1] / 1e9, 1),
+                 "um_v": round(um[-2][1] / 1e9, 1) if len(um) > 1 else None}
+            gd = dict(ge)
+            if um[-1][0] in gd:
+                e["ge"] = round(gd[um[-1][0]] / 1e9, 3)
+            vj = [k for k in gd if k < um[-1][0]]
+            if vj:
+                e["ge_v"] = round(gd[max(vj)] / 1e9, 3)
+            out.append(e)
+        except Exception as ex:  # noqa
+            fehler.append(name + ": " + str(ex)[:60])
+    if len(out) < 10:
+        raise ValueError("SEC: zu wenige Firmen " + "; ".join(fehler))
+    return {"liste": out, "fehler": fehler, "quelle": "https://www.sec.gov/edgar"}
+
+
+GES_FR = [("CMS", "centers-for-medicare-medicaid-services"), ("FDA", "food-and-drug-administration")]
+
+
+def lade_ges_regelungen():
+    treffer, fehler = {}, []
+    for name, agentur in GES_FR:
+        u = ("https://www.federalregister.gov/api/v1/documents.json?conditions%5Bagencies%5D%5B%5D=" + agentur
+             + "&conditions%5Btype%5D%5B%5D=RULE&conditions%5Btype%5D%5B%5D=PRORULE&order=newest&per_page=40"
+             + "&fields%5B%5D=title&fields%5B%5D=publication_date&fields%5B%5D=type&fields%5B%5D=html_url&fields%5B%5D=document_number")
+        try:
+            for d in json.loads(holen(u)).get("results", []):
+                # FDA veroeffentlicht viele Regeln zu Lebensmitteln und Tierfutter: hier nur Arzneimittel, Geraete, Biologika
+                if name == "FDA" and not re.search(r"drug|device|medic|biolog|pharma|clinical|opioid|vaccin|diagnos|health", d["title"], re.I):
+                    continue
+                treffer[d["document_number"]] = {"d": d["publication_date"], "t": d["title"], "a": name,
+                                                  "art": "Regel" if d["type"] == "Rule" else "Entwurf", "u": d["html_url"]}
+        except Exception as e:  # noqa
+            fehler.append(name + ": " + str(e)[:60])
+    liste = []
+    for name, _ in GES_FR:  # je Behoerde hoechstens 8, damit CMS nicht von FDA-Geraeteregeln verdraengt wird
+        liste += sorted([x for x in treffer.values() if x["a"] == name], key=lambda x: x["d"], reverse=True)[:8]
+    liste.sort(key=lambda x: x["d"], reverse=True)
+    if not liste:
+        raise ValueError("Federal Register (Gesundheit): keine Treffer " + "; ".join(fehler))
+    return {"liste": liste, "quelle": "https://www.federalregister.gov/", "fehler": fehler}
+
+
+def lade_gesundheit(alt=None):
+    out, fehler = {}, {}
+    alt = alt or {}
+    for name, fkt in (("firmen", lade_firmen), ("regelungen", lade_ges_regelungen)):
+        try:
+            out[name] = fkt()
+        except Exception as e:  # noqa
+            out[name] = alt.get(name)
+            fehler[name] = str(e)[:150]
+    if fehler:
+        out["fehler"] = fehler
+    if not any(out.get(k) for k in ("firmen", "regelungen")):
+        raise ValueError("Gesundheit: keine Quelle erreichbar " + str(fehler))
+    return out
+
+
+# ---------------------------------------------------------------- Immobilien (Oberthema 11)
+SEC_IMMO = [
+    ("D.R. Horton", 882184, "hausbau"), ("Lennar", 920760, "hausbau"), ("PulteGroup", 822416, "hausbau"), ("NVR", 906163, "hausbau"),
+    ("Rocket Companies", 1805284, "hypothek"), ("UWM Holdings", 1783398, "hypothek"),
+    ("Zillow", 1617640, "plattform"), ("Compass", 1563190, "plattform"), ("CoStar", 1057352, "plattform"),
+    ("Invitation Homes", 1687229, "reit"), ("AvalonBay", 915912, "reit"),
+    ("Home Depot", 354950, "baumarkt"), ("Lowe's", 60667, "baumarkt"),
+]
+IMMO_FR = [("HUD", "housing-and-urban-development-department"), ("FHFA", "federal-housing-finance-agency")]
+
+
+def lade_immo_regelungen():
+    treffer, fehler = {}, []
+    for name, agentur in IMMO_FR:
+        u = ("https://www.federalregister.gov/api/v1/documents.json?conditions%5Bagencies%5D%5B%5D=" + agentur
+             + "&conditions%5Btype%5D%5B%5D=RULE&conditions%5Btype%5D%5B%5D=PRORULE&order=newest&per_page=12"
+             + "&fields%5B%5D=title&fields%5B%5D=publication_date&fields%5B%5D=type&fields%5B%5D=html_url&fields%5B%5D=document_number")
+        try:
+            for d in json.loads(holen(u)).get("results", []):
+                treffer[d["document_number"]] = {"d": d["publication_date"], "t": d["title"], "a": name,
+                                                  "art": "Regel" if d["type"] == "Rule" else "Entwurf", "u": d["html_url"]}
+        except Exception as e:  # noqa
+            fehler.append(name + ": " + str(e)[:60])
+    liste = []
+    for name, _ in IMMO_FR:
+        liste += sorted([x for x in treffer.values() if x["a"] == name], key=lambda x: x["d"], reverse=True)[:8]
+    liste.sort(key=lambda x: x["d"], reverse=True)
+    if not liste:
+        raise ValueError("Federal Register (Immobilien): keine Treffer " + "; ".join(fehler))
+    return {"liste": liste, "quelle": "https://www.federalregister.gov/", "fehler": fehler}
+
+
+def lade_immobilien(alt=None):
+    out, fehler = {}, {}
+    alt = alt or {}
+    for name, fkt in (("firmen", lambda: lade_firmen(SEC_IMMO)), ("regelungen", lade_immo_regelungen)):
+        try:
+            out[name] = fkt()
+        except Exception as e:  # noqa
+            out[name] = alt.get(name)
+            fehler[name] = str(e)[:150]
+    if fehler:
+        out["fehler"] = fehler
+    if not any(out.get(k) for k in ("firmen", "regelungen")):
+        raise ValueError("Immobilien: keine Quelle erreichbar " + str(fehler))
+    return out
+
+
 def lade_alt():
     try:
         t = open(DATEI, encoding="utf-8").read()
@@ -816,9 +992,9 @@ def main():
     neu = {"meta": {"erstellt": datetime.datetime.now(datetime.timezone.utc).strftime("%Y-%m-%d %H:%M UTC"),
                     "fehler": {}, "stand": dict(alt.get("meta", {}).get("stand", {}))}}
     heute = datetime.date.today().isoformat()
-    for name, fkt in (("fred", lade_fred), ("wikipedia", lade_wikipedia), ("fed", lade_fed), ("eia", lade_eia), ("handel", lade_handel), ("zoll", lade_zoll), ("census", lade_census), ("umwelt", None)):
+    for name, fkt in (("fred", lade_fred), ("wikipedia", lade_wikipedia), ("fed", lade_fed), ("eia", lade_eia), ("handel", lade_handel), ("zoll", lade_zoll), ("census", lade_census), ("umwelt", None), ("gesundheit", None), ("immobilien", None)):
         try:
-            neu[name] = fkt() if fkt else lade_umwelt(alt.get("umwelt"))
+            neu[name] = fkt() if fkt else {"umwelt": lade_umwelt, "gesundheit": lade_gesundheit, "immobilien": lade_immobilien}[name](alt.get(name))
             neu["meta"]["stand"][name] = heute
             print("OK", name)
         except Exception as e:  # noqa
