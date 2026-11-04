@@ -1,0 +1,300 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>JPM Prozess · Länderanalyse Vereinigtes Königreich · Politik: Westminster verständlich</title>
+<style>
+:root{
+  --flaeche:#fcfcfb; --ebene:#f9f9f7; --text:#0b0b0b; --text2:#52514e; --stumm:#898781;
+  --raster:#e1e0d9; --achse:#c3c2b7; --rand:rgba(11,11,11,.10);
+  --c1:#2f6f9f; --c2:#6b4f8a; --c3:#3d7a56; --c4:#8a5a2b; --cb:#52514e;
+  --h1:#e6f0f7; --hb:#efeee9;
+  --gut:#006300; --warn:#b97a00; --schatten:0 1px 2px rgba(11,11,11,.04),0 4px 16px rgba(11,11,11,.06);
+  color-scheme:light;
+}
+:root[data-theme="dark"]{
+  --flaeche:#1a1a19; --ebene:#0d0d0d; --text:#fff; --text2:#c3c2b7; --stumm:#898781;
+  --raster:#2c2c2a; --achse:#383835; --rand:rgba(255,255,255,.12);
+  --c1:#5fa0d3; --c2:#ab8fd0; --c3:#56b27d; --c4:#d39a5a; --cb:#c3c2b7;
+  --h1:#16222c; --hb:#232321;
+  --gut:#0ca30c; --warn:#fab219; --schatten:none; color-scheme:dark;
+}
+*{box-sizing:border-box}
+body{margin:0;padding:0 20px 56px;background:var(--ebene);color:var(--text);font-family:system-ui,-apple-system,"Segoe UI",sans-serif;font-size:15px;line-height:1.5}
+.wrap{max-width:1280px;margin:0 auto}
+header{padding:20px 0 6px;display:flex;gap:16px;justify-content:space-between;align-items:flex-start;flex-wrap:wrap}
+h1{margin:0;font-size:21px;font-weight:650}
+.unter{color:var(--text2);font-size:13px}
+.entwurf{display:inline-block;margin-left:8px;padding:1px 8px;border-radius:99px;border:1px solid var(--warn);color:var(--warn);font-size:12px;font-weight:600;vertical-align:middle}
+.tool{font:inherit;font-size:13px;background:var(--flaeche);color:var(--text);border:1px solid var(--rand);border-radius:8px;padding:6px 12px;cursor:pointer}
+.zurueck-knopf{display:inline-flex;align-items:center;gap:8px;font-size:14.5px;font-weight:600;color:var(--text);text-decoration:none;background:var(--flaeche);border:1.5px solid var(--achse);border-radius:12px;padding:8px 16px;margin-bottom:10px;box-shadow:var(--schatten)}
+.zurueck-knopf:hover{border-color:var(--text)}
+.legende{display:flex;gap:16px;flex-wrap:wrap;font-size:12px;color:var(--text2);margin:6px 0 12px}
+.pkt{width:8px;height:8px;border-radius:50%;display:inline-block;margin-right:5px}.pkt.auto{background:var(--gut)}.pkt.man{background:var(--stumm)}
+/* Wichtig-Kasten */
+.wichtig{display:flex;gap:12px;background:var(--flaeche);border:1px solid var(--rand);border-left:6px solid var(--warn);border-radius:10px;padding:10px 14px;margin:10px 0 14px;box-shadow:var(--schatten)}
+.wichtig .wi{flex:none;width:26px;height:26px;border-radius:50%;background:var(--warn);color:#fff;font-weight:800;display:flex;align-items:center;justify-content:center;font-size:15px;margin-top:2px}
+:root[data-theme="dark"] .wichtig .wi{color:#111}
+.wichtig b.wt{display:block;font-size:12px;text-transform:uppercase;letter-spacing:.06em;color:var(--warn);margin-bottom:2px}
+.wichtig p{margin:0;font-size:14px}
+.wichtig .qq{font-size:11.5px;color:var(--stumm);margin-top:3px}
+/* Kacheln */
+.k{all:unset;box-sizing:border-box;display:block;width:100%;cursor:pointer;background:var(--flaeche);border:1px solid var(--rand);border-radius:9px;padding:9px 11px 8px;box-shadow:var(--schatten);transition:transform .15s,border-color .15s}
+.k:hover{transform:translateY(-1px);border-color:var(--c)}.k:focus-visible{outline:2px solid var(--c);outline-offset:2px}
+.kt{display:flex;justify-content:space-between;align-items:baseline;gap:6px}
+.kn{font-size:12.5px;color:var(--text2);font-weight:600}
+.kd{font-size:11px;color:var(--stumm);white-space:nowrap}
+.kw{font-size:23px;font-weight:700;line-height:1.15;font-variant-numeric:tabular-nums;margin-top:1px}
+.ks{font-size:11.8px;color:var(--text2);margin-top:1px}
+.spark{display:block;width:100%;height:30px;margin-top:3px}
+.k.offen{opacity:.8;border-style:dashed;cursor:default}.k.offen .kw{font-size:15px;color:var(--stumm)}
+.c1{--c:var(--c1)}.c2{--c:var(--c2)}.c3{--c:var(--c3)}.c4{--c:var(--c4)}.cb{--c:var(--cb)}
+.band{background:var(--hb);border:1px solid var(--rand);border-radius:12px;padding:8px 10px 10px;margin-bottom:14px}
+.bandkopf{font-size:12px;font-weight:700;color:var(--text2);text-transform:uppercase;letter-spacing:.05em;margin:2px 2px 6px}
+.bandinhalt{display:grid;grid-template-columns:repeat(4,1fr);gap:10px}
+/* Verstaendnis */
+.versteh{background:var(--flaeche);border:1px solid var(--rand);border-radius:12px;padding:6px 18px 14px;box-shadow:var(--schatten);margin-bottom:14px}
+.versteh>h2{margin:12px 0 2px;font-size:17px}
+.versteh .lead{margin:0 0 8px;color:var(--text2);font-size:13.5px}
+.versteh details{border-top:1px solid var(--raster);padding:6px 0}
+.versteh details:first-of-type{border-top:0}
+.versteh summary{cursor:pointer;font-weight:650;font-size:14.5px;padding:4px 0;list-style:none}
+.versteh summary::-webkit-details-marker{display:none}
+.versteh summary:before{content:"▸";display:inline-block;width:18px;color:var(--text2);transition:transform .15s}
+.versteh details[open]>summary:before{transform:rotate(90deg)}
+.versteh summary:focus-visible{outline:2px solid var(--text);outline-offset:2px;border-radius:4px}
+.versteh .inh{padding:2px 0 6px 18px;font-size:14px}
+.versteh ul{margin:4px 0;padding-left:20px}.versteh li{margin:3px 0}
+.dia{background:#0c1220;border:1px solid #26334b;border-radius:14px;padding:8px;margin:8px 0 4px}
+.dia svg{width:100%;height:auto;display:block}
+.dia text{font-family:inherit}
+.dia .nt{font-size:13px;font-weight:700;fill:#0b1620}.dia .ns{font-size:11px;fill:#16303f}
+.dia .lab{font-size:11.5px;fill:#eaf0fb;paint-order:stroke;stroke:#0c1220;stroke-width:5px;stroke-linejoin:round}
+.dia .zt{font-size:12px;fill:#9fb0c8;letter-spacing:.08em;text-transform:uppercase}
+.dia .nd,.dia .fl{cursor:pointer;outline:none}
+.dia .nd:hover rect,.dia .nd:hover polygon,.dia .nd:focus-visible rect,.dia .nd.on rect,.dia .nd.on polygon{stroke:#fff;stroke-width:3.5}
+.dia .fl:hover .l,.dia .fl.on .l{stroke-width:6}
+.leg{font-size:12.5px;color:var(--text2);margin:2px 0 4px}
+.info{background:var(--ebene);border:1px solid var(--rand);border-left:4px solid var(--c1);border-radius:8px;padding:8px 12px;font-size:13.5px;min-height:44px;margin-top:6px}
+/* Unterthemen */
+.ut{display:grid;grid-template-columns:repeat(2,1fr);gap:12px;margin-bottom:14px}
+.ut section{background:var(--flaeche);border:1px solid var(--rand);border-top:4px solid var(--c);border-radius:10px;padding:10px 14px 12px;box-shadow:var(--schatten)}
+.ut h3{margin:0 0 4px;font-size:15px}.ut h3 span{color:var(--c);margin-right:6px}
+.ut p,.ut li{font-size:13.5px;margin:3px 0}.ut ul{margin:4px 0;padding-left:18px}
+.tb{width:100%;border-collapse:collapse;font-size:13px;margin-top:6px}.tb th{text-align:left;font-size:11.5px;color:var(--text2);border-bottom:1px solid var(--rand);padding:3px 6px 3px 0}.tb td{padding:4px 6px 4px 0;border-bottom:1px solid var(--raster)}.tb td.hk{font-weight:700;color:var(--warn)}
+.ut .offenhin{font-size:12.5px;color:var(--warn);border-left:3px solid var(--warn);padding:2px 8px;margin-top:6px}
+.ut .wichtig{margin:8px 0 2px;padding:7px 10px}.ut .wichtig p{font-size:13px}
+/* Gilt-Kachel */
+.gilt{all:unset;box-sizing:border-box;display:block;width:100%;cursor:pointer;background:var(--flaeche);border:1px solid var(--rand);border-left:8px solid var(--c4);border-radius:12px;padding:16px 20px;box-shadow:var(--schatten);margin-bottom:14px;transition:transform .15s,border-color .15s}
+.gilt:hover{transform:translateY(-1px);border-color:var(--c4)}.gilt:focus-visible{outline:2px solid var(--c4);outline-offset:2px}
+.gilt h2{margin:0 0 2px;font-size:19px}.gilt .gs{color:var(--text2);font-size:13.5px}
+.gilt .gz{display:flex;gap:28px;flex-wrap:wrap;margin:10px 0 6px}
+.gilt .gz div b{display:block;font-size:26px;font-variant-numeric:tabular-nums}.gilt .gz div span{font-size:12px;color:var(--text2)}
+.gilt .oeffnen{display:inline-block;background:var(--text);color:var(--flaeche);border-radius:8px;padding:5px 14px;font-size:13px;font-weight:650}
+/* Zeitstrahl */
+.panel{background:var(--flaeche);border:1px solid var(--rand);border-radius:12px;padding:10px 16px 14px;box-shadow:var(--schatten);margin-bottom:14px}
+.panel h2{margin:4px 0 2px;font-size:17px}
+.ev{display:flex;gap:10px;padding:5px 0;border-top:1px solid var(--raster);font-size:13px}
+.ev:first-of-type{border-top:0}.ev .d{width:92px;font-weight:650;flex:none}
+.termine{background:var(--flaeche);border:1px solid var(--rand);border-radius:10px;padding:10px 14px;box-shadow:var(--schatten);margin-bottom:14px}
+.termine h2{margin:0 0 4px;font-size:13px;color:var(--text2);text-transform:uppercase;letter-spacing:.05em}
+.fuss{margin-top:6px;font-size:11.5px;color:var(--stumm)}
+/* Drawer + Overlay */
+#schatten{position:fixed;inset:0;background:rgba(0,0,0,.35);opacity:0;pointer-events:none;transition:opacity .2s;z-index:20}
+#schatten.offen{opacity:1;pointer-events:auto}
+#drawer{position:fixed;top:0;right:0;height:100%;width:min(580px,100%);background:var(--flaeche);border-left:1px solid var(--rand);box-shadow:-8px 0 30px rgba(0,0,0,.18);transform:translateX(100%);transition:transform .22s ease;z-index:21;overflow-y:auto}
+#drawer.offen{transform:none}
+#gp{position:fixed;inset:3vh 3vw;background:var(--flaeche);border:1px solid var(--rand);border-radius:14px;box-shadow:0 20px 60px rgba(0,0,0,.4);z-index:22;overflow-y:auto;display:none}
+#gp.offen{display:block}
+.dk{position:sticky;top:0;background:var(--flaeche);border-bottom:1px solid var(--rand);border-top:4px solid var(--c,var(--c1));padding:14px 18px 10px;display:flex;justify-content:space-between;gap:10px;align-items:flex-start;z-index:2}
+.dk h2{margin:0;font-size:18px}.dk .gr{font-size:12px;color:var(--c,var(--c1));text-transform:uppercase;letter-spacing:.05em;font-weight:700}
+.zu{all:unset;cursor:pointer;font-size:24px;line-height:1;padding:2px 10px;border-radius:6px;color:var(--text2)}.zu:hover{background:var(--raster)}.zu:focus-visible{outline:2px solid var(--text)}
+.db{padding:14px 18px 40px}
+.gross{font-size:34px;font-weight:700;font-variant-numeric:tabular-nums;line-height:1.1}
+.gsub{font-size:13px;color:var(--text2);margin-bottom:8px}
+.btns{display:flex;gap:6px;margin:6px 0 4px;flex-wrap:wrap}
+.btn{font:inherit;font-size:12px;background:var(--ebene);color:var(--text);border:1px solid var(--rand);border-radius:7px;padding:3px 10px;cursor:pointer}
+.btn[aria-pressed="true"]{background:var(--text);color:var(--flaeche);border-color:var(--text)}
+svg.chart{width:100%;height:auto;display:block;touch-action:none}
+.tip{font-size:12.5px;color:var(--text2);min-height:18px;margin-bottom:4px;font-variant-numeric:tabular-nums}
+.db h3{font-size:12px;text-transform:uppercase;letter-spacing:.05em;color:var(--text2);margin:18px 0 4px}
+.db p{margin:0 0 8px;font-size:14px}
+.db table{width:100%;border-collapse:collapse;font-size:13px}
+.db td{padding:5px 8px 5px 0;border-bottom:1px solid var(--raster);vertical-align:top}
+.db .hin{background:var(--ebene);border-left:3px solid var(--warn);border-radius:4px;padding:6px 10px;font-size:13px;color:var(--text2)}
+.db a{color:inherit}
+.tabs{display:flex;gap:6px;margin:0 0 10px;flex-wrap:wrap}
+.tab{font:inherit;font-size:13.5px;font-weight:600;background:var(--ebene);color:var(--text);border:1px solid var(--rand);border-radius:8px;padding:6px 14px;cursor:pointer}
+.tab[aria-selected="true"]{background:var(--text);color:var(--flaeche)}
+.schritt{all:unset;box-sizing:border-box;display:block;width:100%;cursor:pointer;background:var(--ebene);border:1px solid var(--rand);border-left:5px solid var(--c4);border-radius:9px;padding:8px 12px;margin:8px 0}
+.schritt:hover,.schritt[aria-expanded="true"]{border-color:var(--c4)}
+.schritt b{display:block;font-size:14px}.schritt .sd{font-size:12px;color:var(--c4);font-weight:700}
+.schritt .st{display:none;font-size:13.5px;margin-top:4px;color:var(--text2)}.schritt[aria-expanded="true"] .st{display:block}
+@media (max-width:980px){.bandinhalt{grid-template-columns:repeat(2,1fr)}.ut{grid-template-columns:1fr}}
+@media (prefers-reduced-motion:reduce){#drawer,#schatten,.k{transition:none}}
+
+.art{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-top:10px}
+.art div{background:var(--ebene);border:1px solid var(--rand);border-radius:8px;padding:6px 10px;font-size:13px}.art b{display:block}
+.prinz{display:flex;gap:8px;flex-wrap:wrap;margin:8px 0}.prinz span{border:1px solid var(--rand);background:var(--ebene);border-radius:99px;padding:2px 12px;font-size:12.5px;font-weight:600}
+.saeulen{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin:8px 0}
+.sl{background:var(--flaeche);border:1px solid var(--rand);border-top:5px solid var(--c);border-radius:12px;padding:10px 14px 12px;box-shadow:var(--schatten)}
+.sl.k{--c:#4cc38a}.sl.p{--c:#5aa9e6}.sl.g{--c:#f2a65a}
+.sl .art1{font-size:11.5px;font-weight:700;letter-spacing:.07em;color:var(--c)}.sl h3{margin:2px 0 2px;font-size:17px}.sl .kern{color:var(--text2);font-size:13.5px;margin:0 0 6px}
+.sl h4{margin:8px 0 2px;font-size:12px;text-transform:uppercase;letter-spacing:.05em;color:var(--text2)}.sl ul{margin:2px 0;padding-left:18px;font-size:13.5px}
+.zahl{display:flex;gap:10px}.zahl div{flex:1;background:var(--ebene);border-radius:8px;padding:6px 10px}.zahl b{font-size:22px;display:block}.zahl span{font-size:12px;color:var(--text2)}
+.h2{font-size:17px;margin:18px 0 4px}
+.was{color:var(--text2);font-size:13.5px;margin:0 0 6px}
+@media(max-width:900px){.saeulen{grid-template-columns:1fr}.art{grid-template-columns:repeat(2,1fr)}}
+</style>
+</head>
+<body data-flagge="../bilder/flaggen/uk.jpg">
+<div class="wrap">
+<a href="uk-politik.html" class="zurueck-knopf">← Vereinigtes Königreich, Politik</a>
+<h1>Vereinigtes Königreich – Politik: Westminster verständlich <span class="entwurf">Entwurf, nicht freigegeben</span></h1>
+<div class="unter">Länderanalyse, Oberthema 1 · Wie die Macht im Westminster-System verteilt ist: Fundament, die drei Gewalten, der Kreislauf und der Weg eines Gesetzes · Alles anklickbar, wo Pfeile und Bausteine stehen · Grundwissen, vor Freigabe gegen Parlamentsquellen zu prüfen · Daten und Fakten, keine Bewertung</div>
+
+<div class="wichtig"><div class="wi">!</div><div><b class="wt">Wichtig: Charakter des Vereinigten Königreichs</b>
+<p>Keine geschriebene Verfassung, Parlamentssouveränität: Das Parlament kann jedes Gesetz beschließen, und kein Gericht kann ein Gesetz des Parlaments aufheben. Die Regierung entsteht aus der Mehrheit im Unterhaus. Regierung und Parlament sind deshalb eng verzahnt, anders als bei den USA mit ihrer strikten Gewaltenteilung.</p></div></div>
+
+<h2 class="h2">1 · Das Fundament: Was die „Verfassung“ ist</h2>
+<div class="panel"><h3 style="margin:0 0 4px">Die ungeschriebene Verfassung</h3>
+<p style="margin:0">Es gibt kein einzelnes Verfassungsdokument. Sie besteht aus Gesetzen (Acts of Parliament), Gerichtsentscheidungen (Common Law) und Konventionen, also Regeln, die nicht erzwungen werden, aber eingehalten werden. Die Krone (König Charles III) ist Staatsoberhaupt mit überwiegend zeremonieller Rolle.</p>
+<div class="prinz"><span>Parlamentssouveränität</span><span>Rechtsstaat</span><span>Konventionen</span><span>Verantwortliche Regierung</span><span>Devolution</span><span>Rolle der Krone</span></div>
+<div class="art">
+<div><b>Magna Carta (1215)</b>frühe Begrenzung der Königsmacht</div>
+<div><b>Bill of Rights (1689)</b>Vorrang des Parlaments vor dem König</div>
+<div><b>Parliament Acts (1911, 1949)</b>Grenzen des Oberhauses</div>
+<div><b>Human Rights Act (1998)</b>Menschenrechte im britischen Recht</div>
+<div><b>Devolutionsgesetze (1998)</b>Schottland, Wales, Nordirland</div>
+<div><b>Constitutional Reform Act (2005)</b>Supreme Court seit 2009</div>
+</div></div>
+
+<h2 class="h2">2 · Die drei Gewalten</h2>
+<p class="was">Im Westminster-System sind Gesetzgebung und Regierung verbunden: Die Regierung sitzt im Parlament und braucht dessen Vertrauen. Die Gerichte sind unabhängig.</p>
+<div class="saeulen">
+<div class="sl k"><div class="art1">PARLAMENT · LEGISLATIVE</div><h3>Unterhaus und Oberhaus</h3><p class="kern">Beschließt Gesetze, bewilligt Steuern und kontrolliert die Regierung.</p>
+<div class="zahl"><div><b>650</b><span>Unterhaus (Commons), Mehrheitswahl</span></div><div><b>nicht gewählt</b><span>Oberhaus (Lords), meist auf Lebenszeit ernannt</span></div></div>
+<h4>Unterhaus</h4><ul><li>Gewählte Abgeordnete, je ein Wahlkreis</li><li>Entscheidet über Steuern und Haushalt</li><li>Spricht der Regierung das Vertrauen aus oder nicht</li></ul>
+<h4>Oberhaus</h4><ul><li>Prüft und ändert Gesetze</li><li>Kann Gesetze nur verzögern (Parliament Acts)</li></ul></div>
+<div class="sl p"><div class="art1">REGIERUNG · EXEKUTIVE</div><h3>Premierminister und Kabinett</h3><p class="kern">Führt Politik und Verwaltung, bringt die meisten Gesetze ein.</p>
+<div class="zahl"><div><b>1</b><span>Premierminister, führt die stärkste Partei</span></div><div><b>Kabinett</b><span>Ministerinnen und Minister, aus dem Parlament</span></div></div>
+<h4>Befugnisse</h4><ul><li>Gesetzentwürfe und Haushalt einbringen</li><li>Ministerien und Behörden leiten</li><li>Außenpolitik und Verteidigung (im Namen der Krone)</li><li>Ernennungen, auch Richter über Kommissionen</li></ul>
+<h4>Bindung</h4><ul><li>Braucht das Vertrauen des Unterhauses</li><li>Verliert es das Vertrauen, endet die Regierung (Rücktritt oder Neuwahl)</li></ul></div>
+<div class="sl g"><div class="art1">GERICHTE · JUDIKATIVE</div><h3>Supreme Court und Gerichte</h3><p class="kern">Legt Gesetze aus und prüft Handeln der Regierung.</p>
+<div class="zahl"><div><b>12</b><span>Richter am Supreme Court (seit 2009)</span></div><div><b>unabhängig</b><span>Ernennung über Auswahlkommission</span></div></div>
+<h4>Befugnisse</h4><ul><li>Streitfälle entscheiden und Recht auslegen</li><li>Regierungshandeln prüfen (Judicial Review)</li><li>Unvereinbarkeit mit Menschenrechten feststellen, das Gesetz bleibt aber gültig</li></ul>
+<h4>Grenze</h4><ul><li>Kein Gericht kann ein Gesetz des Parlaments aufheben</li></ul></div>
+</div>
+
+<h2 class="h2">3 · So funktioniert das System: der Kreislauf</h2>
+<p class="was">Das Volk wählt das Unterhaus. Aus der Mehrheit dort entsteht die Regierung. Das Unterhaus kontrolliert die Regierung, das Oberhaus prüft Gesetze, die Gerichte prüfen das Handeln der Regierung. Die Krone setzt formal ein. Die Landesteile haben von Westminster übertragene Befugnisse. Alles ist anklickbar.</p>
+<div class="panel">
+<p class="leg"><b style="color:#b48ae6">Lila</b>: Wahl und Vertretung · <b style="color:#6cb8f2">Blau</b>: Kontrolle · <b style="color:#ffd166">Gold</b>: Krone und übertragene Befugnisse</p>
+<div class="dia"><svg id="kr" viewBox="0 0 1100 720" role="group" aria-label="Kreislauf des Westminster-Systems"></svg></div>
+<div class="info" id="kri">Klicke auf einen Baustein oder einen Pfeil.</div>
+</div>
+
+<h2 class="h2">4 · Der Weg eines Gesetzes (Prozessdiagramm)</h2>
+<p class="was">Von der Idee bis zum gültigen Gesetz: Rauten sind Entscheidungen, Rechtecke Schritte, Kapseln Ergebnisse. Farbe: grün Parlament, blau Krone und Regierung, orange Gerichte, rot gescheitert, hellgrün gilt. Alles ist anklickbar.</p>
+<div class="panel">
+<div class="dia"><svg id="pz" viewBox="0 0 1100 1020" role="group" aria-label="Prozessdiagramm: Weg eines Gesetzes"></svg></div>
+<div class="info" id="pzi">Klicke auf einen Schritt oder eine Entscheidung.</div>
+</div>
+<div class="fuss">Quellen: parliament.uk (Law making, Parliament Acts), supremecourt.uk, legislation.gov.uk. Grundwissen, Zahlen und Fristen werden vor der Freigabe gegen die Parlamentsseiten geprüft.</div>
+</div>
+<script>
+"use strict";
+const $=s=>document.querySelector(s);
+const NS="http://www.w3.org/2000/svg";
+function el(n,a,p){const e=document.createElementNS(NS,n);for(const k in a)e.setAttribute(k,a[k]);if(p)p.appendChild(e);return e}
+function esc(s){return String(s).replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]))}
+const GK="#6cb8f2",GW="#b48ae6",GR="#ffd166";
+const N={
+ volk:{t:"Wähler",s:"Volk, ab 18 Jahren",c:"#b48ae6",p:[640,650],was:"Alle Wahlberechtigten wählen das Unterhaus in 650 Wahlkreisen nach dem Mehrheitswahlrecht: Wer im Wahlkreis die meisten Stimmen hat, gewinnt den Sitz. Die Wahl muss spätestens fünf Jahre nach der ersten Sitzung des Parlaments stattfinden."},
+ com:{t:"Unterhaus",s:"650 gewählte Abgeordnete",c:"#4cc38a",p:[250,200],was:"House of Commons. Hier entsteht die Regierung, hier werden Gesetze und Haushalt beschlossen. Die Regierung muss das Vertrauen des Unterhauses haben. Gesetze müssen beide Häuser passieren, aber im Konfliktfall setzt sich das Unterhaus durch."},
+ lords:{t:"Oberhaus",s:"Lords, nicht gewählt",c:"#4cc38a",p:[110,430],was:"House of Lords. Prüft Gesetze, schlägt Änderungen vor und kann Gesetze nur verzögern (Parliament Acts 1911 und 1949). Bei Haushaltsgesetzen nur um einen Monat. Mitglieder sind meist auf Lebenszeit ernannt."},
+ gov:{t:"Regierung",s:"Premierminister, Kabinett",c:"#5aa9e6",p:[850,200],was:"Der Premierminister führt die Regierung und wird in der Regel der Chef der stärksten Partei im Unterhaus. Die Regierung bringt die meisten Gesetze ein, leitet die Ministerien und führt die Außenpolitik. Sie ist dem Unterhaus verantwortlich."},
+ crown:{t:"Krone",s:"König Charles III",c:"#ffd166",p:[550,70],was:"Der König ist Staatsoberhaupt. Er ernennt den Premierminister (die Person, die das Vertrauen des Unterhauses hat), eröffnet das Parlament und gibt Gesetzen die Zustimmung (Royal Assent, seit 1708 nie verweigert). Die Rolle ist überwiegend zeremoniell, die Macht liegt bei der Regierung."},
+ court:{t:"Gerichte",s:"Supreme Court, 12 Richter",c:"#f2a65a",p:[990,430],was:"Unabhängige Gerichte, an der Spitze der Supreme Court (seit 2009). Sie legen Gesetze aus und prüfen, ob die Regierung im Rahmen des Rechts handelt (Judicial Review). Ein Gesetz des Parlaments können sie nicht aufheben."},
+ land:{t:"Landesteile",s:"Schottland, Wales, Nordirland",c:"#9aa7b5",p:[250,640],was:"Schottland, Wales und Nordirland haben eigene Parlamente und Regierungen mit übertragenen Befugnissen (Devolution), etwa für Gesundheit und Bildung. Verteidigung, Außenpolitik, Geldpolitik und Einwanderung bleiben bei Westminster."},
+ verf:{t:"Ungeschriebene Verfassung",s:"Gesetze, Urteile, Konventionen",c:"#ffd166",p:[720,440],was:"Es gibt kein einzelnes Dokument. Die Regeln stecken in Gesetzen, Gerichtsurteilen und Konventionen. Das Parlament kann sie mit einfacher Mehrheit ändern. Das macht das System flexibel, aber auch weniger gegen Mehrheiten abgesichert."}
+};
+const F=[
+ ["volk","com","wählt","Alle Wahlberechtigten wählen das Unterhaus nach dem Mehrheitswahlrecht, spätestens alle fünf Jahre.","w"],
+ ["gov","com","Gesetze, Haushalt","Die Regierung bringt die meisten Gesetze und den Haushalt ein und braucht dafür die Zustimmung des Unterhauses.","k"],
+ ["com","gov","trägt und kontrolliert","Die Mehrheit im Unterhaus bildet die Regierung und kontrolliert sie: Fragestunde, Ausschüsse, Debatten und die Vertrauensfrage. Ohne Mehrheit für Haushalt und Vertrauen kann die Regierung nicht regieren. Verliert sie eine Vertrauensabstimmung, muss der Premierminister zurücktreten oder Neuwahlen ansetzen.","k"],
+ ["lords","com","prüft, verzögert","Das Oberhaus prüft und ändert Gesetze, kann sie aber nur verzögern (ein Jahr, bei Haushaltsgesetzen einen Monat). Danach kann das Unterhaus das Gesetz allein durchsetzen.","k"],
+ ["crown","gov","ernennt, Zustimmung","Der König ernennt den Premierminister und gibt Gesetzen die Zustimmung. Beides folgt festen Konventionen, die Krone entscheidet nicht frei.","r"],
+ ["court","gov","prüft Handeln","Die Gerichte prüfen im Judicial Review, ob Regierung und Behörden im Rahmen des Rechts handeln.","k"],
+ ["com","land","überträgt Befugnisse","Das Parlament hat mit den Devolutionsgesetzen Befugnisse an die Landesteile übertragen. Es kann sie rechtlich auch wieder ändern.","r"],
+ ["land","com","entsenden Abgeordnete","Auch Schottland, Wales und Nordirland wählen Abgeordnete ins Unterhaus in Westminster.","w"],
+ ["verf","court","Rahmen","Die Gerichte legen Gesetze und Konventionen aus. Sie haben keine Verfassungsurkunde als Maßstab.","r"]
+];
+function farbe(a){return a==="w"?GW:a==="r"?GR:GK}
+(function(){
+ const svg=$("#kr"),info=$("#kri"),W=170,H=56;
+ const defs=el("defs",{},svg);
+ [["k",GK],["w",GW],["r",GR]].forEach(k=>{const m=el("marker",{id:"km"+k[0],viewBox:"0 0 10 10",refX:9,refY:5,markerWidth:6,markerHeight:6,orient:"auto"},defs);el("path",{d:"M0 0L10 5L0 10z",fill:k[1]},m)});
+ const liste=id=>"<br>Gibt ab: "+(F.filter(f=>f[0]===id).map(f=>esc(f[2])).join(", ")||"nichts")+".<br>Bekommt: "+(F.filter(f=>f[1]===id).map(f=>esc(f[2])).join(", ")||"nichts")+".";
+ F.forEach(f=>{const a=N[f[0]].p,b=N[f[1]].p,dx=b[0]-a[0],dy=b[1]-a[1],L=Math.hypot(dx,dy),ux=dx/L,uy=dy/L;
+  const paar=F.some(q=>q[0]===f[1]&&q[1]===f[0]),off=paar?20:0,px=-uy*off,py=ux*off;
+  const t=Math.min(Math.abs(ux)<1e-6?1e9:(W/2+5)/Math.abs(ux),Math.abs(uy)<1e-6?1e9:(H/2+5)/Math.abs(uy));
+  const x1=a[0]+px+ux*t,y1=a[1]+py+uy*t,x2=b[0]+px-ux*t,y2=b[1]+py-uy*t;
+  const g=el("g",{class:"fl",tabindex:0,role:"button","aria-label":f[2]},svg);
+  el("line",{x1:x1,y1:y1,x2:x2,y2:y2,stroke:"transparent","stroke-width":16},g);
+  el("line",{class:"l",x1:x1,y1:y1,x2:x2,y2:y2,stroke:farbe(f[4]),"stroke-width":3.2,"marker-end":"url(#km"+f[4]+")"},g);
+  let ang=Math.atan2(y2-y1,x2-x1)*180/Math.PI;if(ang>90)ang-=180;if(ang<-90)ang+=180;
+  const tx=el("text",{class:"lab",x:0,y:-6,"text-anchor":"middle",transform:"translate("+((x1+x2)/2)+","+((y1+y2)/2)+") rotate("+ang+")"},g);tx.textContent=f[2];
+  const sel=()=>{svg.querySelectorAll(".on").forEach(x=>x.classList.remove("on"));g.classList.add("on");info.innerHTML="<b>"+esc(f[2])+"</b> ("+esc(N[f[0]].t)+" → "+esc(N[f[1]].t)+"): "+esc(f[3])};
+  g.addEventListener("click",sel);g.addEventListener("keydown",e=>{if(e.key==="Enter"||e.key===" "){e.preventDefault();sel()}})});
+ Object.keys(N).forEach(k=>{const n=N[k],g=el("g",{class:"nd",tabindex:0,role:"button","aria-label":n.t},svg);
+  el("rect",{x:n.p[0]-W/2,y:n.p[1]-H/2,width:W,height:H,rx:H/2,fill:n.c,stroke:"#0c1220","stroke-width":2},g);
+  const a=el("text",{class:"nt",x:n.p[0],y:n.p[1]-3,"text-anchor":"middle"},g);a.textContent=n.t;
+  const b=el("text",{class:"ns",x:n.p[0],y:n.p[1]+14,"text-anchor":"middle"},g);b.textContent=n.s;
+  const sel=()=>{svg.querySelectorAll(".on").forEach(x=>x.classList.remove("on"));g.classList.add("on");info.innerHTML="<b>"+esc(n.t)+":</b> "+esc(n.was)+liste(k)};
+  g.addEventListener("click",sel);g.addEventListener("keydown",e=>{if(e.key==="Enter"||e.key===" "){e.preventDefault();sel()}})})
+})();
+(function(){
+ const svg=$("#pz"),info=$("#pzi");
+ const defs=el("defs",{},svg);
+ [["a","#9fb0c8"],["j","#4cc38a"],["n","#ef6f6f"]].forEach(k=>{const m=el("marker",{id:"pm"+k[0],viewBox:"0 0 10 10",refX:9,refY:5,markerWidth:6,markerHeight:6,orient:"auto"},defs);el("path",{d:"M0 0L10 5L0 10z",fill:k[1]},m)});
+ const COL={k:"#4cc38a",p:"#5aa9e6",g:"#f2a65a",ok:"#8be0a8",no:"#ef6f6f"};
+ const K=[
+ {id:"a1",a:"t",x:330,y:50,c:"k",l:["Gesetzentwurf (Bill)"],e:"Ein Entwurf wird im Unterhaus oder im Oberhaus eingebracht. Die meisten Entwürfe stammen von der Regierung (Government Bills). Einzelne Abgeordnete können Private Members' Bills einbringen. Haushalts- und Steuergesetze beginnen im Unterhaus."},
+ {id:"a2",a:"s",x:330,y:150,c:"k",l:["1. und 2. Lesung im Unterhaus","(Debatte über die Grundzüge)"],e:"Die erste Lesung ist formal. In der zweiten Lesung debattiert das Unterhaus über die Grundzüge des Gesetzes."},
+ {id:"a3",a:"d",x:330,y:260,c:"k",l:["Unterhaus:","Mehrheit?"],e:"Das Unterhaus stimmt mit einfacher Mehrheit ab. Hat die Regierung eine Mehrheit, ist sie in der Regel sicher, kann aber an Abweichlern in der eigenen Partei scheitern."},
+ {id:"a4",a:"s",x:330,y:380,c:"k",l:["Ausschussphase, Bericht,","3. Lesung (Änderungen)"],e:"Ein Ausschuss prüft den Entwurf im Einzelnen und ändert ihn. Danach folgen die Berichtsphase und die dritte Lesung."},
+ {id:"a5",a:"d",x:330,y:500,c:"k",l:["Oberhaus stimmt","Text zu?"],e:"Das Oberhaus berät den Entwurf in ähnlichen Schritten. Es kann Änderungen verlangen. Nach der Konvention (Salisbury) blockiert das Oberhaus keine Vorhaben, die im Wahlprogramm der Regierungspartei standen."},
+ {id:"a6",a:"s",x:760,y:500,c:"k",l:["Hin und Her zwischen den Häusern","(„Ping-Pong“)"],e:"Das Oberhaus schickt Änderungen zurück, das Unterhaus stimmt zu oder lehnt ab. Das wiederholt sich, bis beide Häuser denselben Text beschließen."},
+ {id:"a7",a:"d",x:760,y:620,c:"k",l:["Einigung?"],e:"Einigen sich die Häuser nicht, greifen nach einem Jahr die Parliament Acts 1911 und 1949: Das Unterhaus kann das Gesetz dann ohne Zustimmung des Oberhauses durchsetzen. Bei Haushaltsgesetzen genügt eine Verzögerung von einem Monat."},
+ {id:"a8",a:"t",x:330,y:640,c:"p",l:["Royal Assent:","Zustimmung des Königs"],e:"Der König gibt dem Gesetz die Zustimmung. Das ist eine Formalität, seit 1708 wurde sie nie verweigert. Danach ist das Gesetz ein Act of Parliament."},
+ {id:"g1",a:"t",x:330,y:760,c:"ok",l:["Gesetz tritt in Kraft"],e:"Das Gesetz gilt im vorgesehenen Gebiet (ganzes Königreich oder nur ein Landesteil). Behörden und Ministerien führen es aus."},
+ {id:"c1",a:"d",x:330,y:870,c:"g",l:["Klage vor","Gericht?"],e:"Wer betroffen ist, kann klagen. Die Gerichte legen das Gesetz aus oder prüfen, ob das Handeln der Regierung auf Grundlage des Gesetzes rechtmäßig ist."},
+ {id:"c2",a:"s",x:330,y:975,c:"g",l:["Gericht: Auslegung","oder Unvereinbarkeit"],e:"Die Gerichte können ein Gesetz nicht aufheben. Sie können aber feststellen, dass es mit den Menschenrechten (Human Rights Act 1998) unvereinbar ist (Declaration of Incompatibility). Das Gesetz bleibt gültig, das Parlament entscheidet über Änderung."},
+ {id:"n1",a:"t",x:760,y:260,c:"no",l:["Entwurf gescheitert"],e:"Ohne Mehrheit im Unterhaus ist der Entwurf gescheitert."},
+ {id:"o1",a:"t",x:760,y:870,c:"ok",l:["Gesetz gilt weiter"],e:"Ohne Klage gilt das Gesetz weiter."}
+ ];
+ const P=[
+ ["a1","a2","",[[330,76],[330,122]]],["a2","a3","",[[330,176],[330,214]]],["a3","a4","Ja",[[330,306],[330,352]]],["a3","n1","Nein",[[420,260],[648,260]]],
+ ["a4","a5","",[[330,408],[330,454]]],["a5","a8","Ja",[[330,546],[330,616]]],["a5","a6","Nein",[[420,500],[648,500]]],["a6","a7","",[[760,526],[760,574]]],
+ ["a7","a8","Ja",[[670,620],[560,620],[560,640],[442,640]]],["a7","a8","Nein: Parliament Acts",[[760,666],[760,700],[600,700],[600,660],[442,650]]],
+ ["a8","g1","",[[330,664],[330,734]]],["g1","c1","",[[330,786],[330,824]]],["c1","c2","Ja",[[330,916],[330,949]]],["c1","o1","Nein",[[420,870],[648,870]]]
+ ];
+ P.forEach(p=>{const pts=p[3],d="M"+pts.map(q=>q.join(",")).join(" L");
+  el("path",{d:d,fill:"none",stroke:p[2]==="Ja"?"#4cc38a":p[2].indexOf("Nein")===0?"#ef6f6f":"#9fb0c8","stroke-width":2.6,"marker-end":"url(#pm"+(p[2]==="Ja"?"j":p[2].indexOf("Nein")===0?"n":"a")+")"},svg);
+  if(p[2]){const q=pts[0],hz=pts[0][1]===pts[1][1];const t=el("text",{class:"lab",x:hz?(q[0]+pts[1][0])/2:q[0]+10,y:hz?q[1]-8:(q[1]+pts[1][1])/2,"text-anchor":hz?"middle":"start"},svg);t.textContent=p[2]}});
+ K.forEach(k=>{const g=el("g",{class:"nd",tabindex:0,role:"button","aria-label":k.l.join(" ")},svg),c=COL[k.c];
+  if(k.a==="d"){const w=110,h=46;el("polygon",{points:[[k.x,k.y-h],[k.x+w/2+30,k.y],[k.x,k.y+h],[k.x-w/2-30,k.y]].map(q=>q.join(",")).join(" "),fill:"#18233a",stroke:c,"stroke-width":2.6},g)}
+  else if(k.a==="s")el("rect",{x:k.x-150,y:k.y-26,width:300,height:52,rx:8,fill:"#18233a",stroke:c,"stroke-width":2.6},g);
+  else el("rect",{x:k.x-130,y:k.y-24,width:260,height:48,rx:24,fill:c,stroke:"#0c1220","stroke-width":2},g);
+  const dunkel=k.a==="t";k.l.forEach((s,i)=>{const t=el("text",{x:k.x,y:k.y+4+(i-(k.l.length-1)/2)*16,"text-anchor":"middle","font-weight":700},g);t.textContent=s;t.style.fill=dunkel?"#0b1620":"#eaf0fb";t.style.fontSize="12.5px"});
+  const sel=()=>{svg.querySelectorAll(".on").forEach(x=>x.classList.remove("on"));g.classList.add("on");info.innerHTML="<b>"+esc(k.l.join(" "))+":</b> "+esc(k.e)};
+  g.addEventListener("click",sel);g.addEventListener("keydown",e=>{if(e.key==="Enter"||e.key===" "){e.preventDefault();sel()}})});
+})();
+$("#theme")&&$("#theme").addEventListener("click",()=>{});
+try{const t=localStorage.getItem("dashboard-thema");if(t)document.documentElement.dataset.theme=t}catch(e){}
+</script>
+<script src="seitenhintergrund.js?v=20261023"></script>
+</body>
+</html>
