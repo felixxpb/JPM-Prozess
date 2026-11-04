@@ -5,7 +5,8 @@
 # Was der Workflow tut:
 #   1. Holt den aktuellen Stand des Repositories
 #   2. Fuehrt skripte/Laender_Abrufen_USA.py aus (FRED, Wikipedia, Fed, EIA)
-#   3. Schreibt laender/daten/usa.js zurueck ins Repository
+#      und skripte/Laender_Abrufen_UK.py (Bank of England, ONS, Parlament)
+#   3. Schreibt laender/daten/usa.js und uk.js zurueck ins Repository
 #   4. GitHub Pages veroeffentlicht die neue Version automatisch
 #
 # Voraussetzung: Secret FRED_API_KEY im Repository (Settings > Secrets and variables > Actions)
@@ -41,6 +42,10 @@ jobs:
       - name: Laenderanalyse USA
         continue-on-error: true
         run: python3 -X utf8 skripte/Laender_Abrufen_USA.py
+
+      - name: Laenderanalyse Vereinigtes Koenigreich
+        continue-on-error: true
+        run: python3 -X utf8 skripte/Laender_Abrufen_UK.py
 
       - name: Aktualisierte Daten zurueckschreiben
         run: |
