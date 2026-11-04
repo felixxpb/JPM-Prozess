@@ -128,6 +128,48 @@ def termine():
             res[jahr].append("%04d-%02d-%02d" % (jahr, MONEN[m.group(2)], int(m.group(1))))
     return {str(k): v for k, v in res.items() if v}
 
+
+# ---------------- BoE: Abstimmung im MPC (Protokoll) ----------------
+ZAHL = {"One":1,"Two":2,"Three":3,"Four":4,"Five":5,"Six":6,"Seven":7,"Eight":8,"Nine":9}
+MONNAME = ["january","february","march","april","may","june","july","august","september","october","november","december"]
+
+def mpc_protokoll(heute):
+    """Holt das neueste Protokoll 'Monetary Policy Summary and Minutes' und liest Beschluss und Stimmen aus."""
+    d = datetime.date.fromisoformat(heute)
+    jahr, mon = d.year, d.month
+    seite = None
+    for _ in range(14):
+        url = "https://www.bankofengland.co.uk/monetary-policy-summary-and-minutes/%d/%s-%d" % (jahr, MONNAME[mon - 1], jahr)
+        try:
+            t = get(url, 1)
+            if "voted" in t and "Bank Rate" in t: seite = (url, t); break
+        except Exception:
+            pass
+        mon -= 1
+        if mon == 0: mon, jahr = 12, jahr - 1
+    if not seite: raise ValueError("kein MPC-Protokoll gefunden")
+    url, t = seite
+    t = re.sub(r"<script.*?</script>|<style.*?</style>", "", t, flags=re.S)
+    z = [html.unescape(l.strip()).replace("\xa0", " ").replace("–", "-") for l in re.sub(r"<[^>]+>", "\n", t).splitlines() if l.strip()]
+    satz = next((l for l in z if re.search(r"the Monetary Policy Committee \(MPC\) voted", l)), None)
+    if not satz: raise ValueError("Beschlusssatz nicht gefunden")
+    m = re.search(r"meeting ending on (\d{1,2}) ([A-Z][a-z]+) (20\d\d)", satz)
+    sitzung = "%s-%02d-%02d" % (m.group(3), MONEN[m.group(2)], int(m.group(1))) if m and m.group(2) in MONEN else None
+    gruppen = []
+    for l in z:
+        if re.match(r"\d+: ", l) and re.search(r"voted (in favour|against)", l):
+            for g in re.finditer(r"(One|Two|Three|Four|Five|Six|Seven|Eight|Nine) members? \(([^)]+)\) voted (in favour|against)([^.]*)\.", l):
+                namen = [re.sub(r"\s+", " ", x.strip()) for x in re.split(r",| and ", g.group(2)) if x.strip()]
+                gruppen.append({"n": ZAHL[g.group(1)], "namen": namen, "art": g.group(3)})
+            if gruppen: break
+    if not gruppen:   # Fallback: 'preferred'-Absaetze der Begruendung
+        for l in z:
+            g = re.match(r"\d+: (One|Two|Three|Four|Five|Six|Seven|Eight|Nine) members? \(([^)]+)\) preferred([^.]*)\.", l)
+            if g:
+                gruppen.append({"n": ZAHL[g.group(1)], "namen": [x.strip() for x in re.split(r",| and ", g.group(2)) if x.strip()], "art": "preferred"})
+    zus = next((l for l in z if re.search(r"MPC also voted", l)), "")
+    return {"sitzung": sitzung, "satz": satz, "gruppen": gruppen, "zusatz": zus, "url": url}
+
 # ---------------- Neue Fakten erkennen ----------------
 def neue_ereignisse(alt, sitze, posten, berichte, heute):
     ev = []
@@ -182,10 +224,12 @@ def holen(alt=None):
         daten["_berichte"] = boe_berichte()
     def i():
         daten["_termine"] = termine()
-    for n, fn in [("bankrate", a), ("sonia", b), ("gilts", c), ("pfund", d_), ("cpi", e), ("alq", f), ("parlament", g), ("boe_berichte", h), ("boe_termine", i)]: teil(n, fn)
+    def j():
+        daten["mpc"] = mpc_protokoll(heute)
+    for n, fn in [("mpc", j), ("bankrate", a), ("sonia", b), ("gilts", c), ("pfund", d_), ("cpi", e), ("alq", f), ("parlament", g), ("boe_berichte", h), ("boe_termine", i)]: teil(n, fn)
     # letzten guten Stand uebernehmen, wenn ein Teil ausgefallen ist
     if alt:
-        for k in ("bankrate", "_letzteTageBank", "sonia", "gilt5", "gilt10", "gilt20", "gbpusd", "gbpeur", "cpi", "alq", "sitze", "posten", "_berichte", "_termine"):
+        for k in ("bankrate", "_letzteTageBank", "sonia", "gilt5", "gilt10", "gilt20", "gbpusd", "gbpeur", "cpi", "alq", "sitze", "posten", "_berichte", "_termine", "mpc"):
             if k not in daten and k in alt: daten[k] = alt[k]
     ev_alt = list((alt or {}).get("ereignisse", []))
     ev_neu = neue_ereignisse(alt, daten.get("sitze", []), daten.get("posten", []), daten.get("_berichte", []), heute) if daten.get("sitze") else []
@@ -193,7 +237,7 @@ def holen(alt=None):
     for e in ev_neu:
         if (e["d"], e["t"]) not in schon: ev_alt.append(e)
     daten["ereignisse"] = sorted(ev_alt, key=lambda e: e["d"])
-    daten["_zustand"] = {"posten": {n: h for n, h in daten.get("posten", [])}, "sitze": {n: t for n, t, _ in daten.get("sitze", [])}, "berichte": daten.get("_berichte", [])}
+    daten["_zustand"] = {"posten": {n: h for n, h in daten.get("posten", [])}, "sitze": {n: t for n, t, _ in daten.get("sitze", [])}, "berichte": daten.get("_berichte", []), "mpc": (daten.get("mpc") or {}).get("sitzung")}
     daten["_abruf"] = heute
     daten["_stand"] = datetime.datetime.now(datetime.timezone.utc).strftime("%Y-%m-%d %H:%M UTC")
     daten["_fehler"] = fehler
