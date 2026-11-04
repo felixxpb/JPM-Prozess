@@ -13,6 +13,7 @@ und erkennt NEUE FAKTEN automatisch (Vergleich mit dem Stand des letzten Abrufs)
 Schreibt laender/daten/uk.js (window.UK_DATEN = {...}).
 Jeder Teil ist einzeln abgesichert: faellt eine Quelle aus, bleibt der letzte gute Stand stehen.
 
+Stand der Beschreibung: 2026-11-04.
 Aufruf: python -X utf8 Laender_Abrufen_UK.py
 Umgebungsvariable LAENDER_DATEN setzt den Zielordner (wie bei Laender_Abrufen_USA.py).
 """
