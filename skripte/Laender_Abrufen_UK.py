@@ -161,6 +161,8 @@ def mpc_protokoll(heute):
             for g in re.finditer(r"(One|Two|Three|Four|Five|Six|Seven|Eight|Nine) members? \(([^)]+)\) voted (in favour|against)([^.]*)\.", l):
                 namen = [re.sub(r"\s+", " ", x.strip()) for x in re.split(r",| and ", g.group(2)) if x.strip()]
                 gruppen.append({"n": ZAHL[g.group(1)], "namen": namen, "art": g.group(3)})
+            for g in re.finditer(r"(?:^\d+: |\. )([A-Z][\w.]*(?: [A-Z][\w.]*)+) voted against", l):
+                gruppen.append({"n": 1, "namen": [re.sub(r"\s+", " ", g.group(1).strip())], "art": "against"})
             if gruppen: break
     if not gruppen:   # Fallback: 'preferred'-Absaetze der Begruendung
         for l in z:
@@ -323,6 +325,8 @@ def holen(alt=None):
         daten["_termine"] = termine()
     def j():
         daten["mpc"] = mpc_protokoll(heute)
+    def k_():
+        daten["inflation"] = inflation()
     for n, fn in [("mpc", j), ("inflation", k_), ("bankrate", a), ("sonia", b), ("gilts", c), ("pfund", d_), ("cpi", e), ("alq", f), ("parlament", g), ("boe_berichte", h), ("boe_termine", i)]: teil(n, fn)
     # letzten guten Stand uebernehmen, wenn ein Teil ausgefallen ist
     if alt:
