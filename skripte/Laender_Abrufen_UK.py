@@ -269,6 +269,68 @@ def inflation():
     if not reihen.get("cpi") or not gruppen: raise ValueError("ONS-Warenkorb leer")
     return {"gewichtsjahr": int(jahr), "gruppen": gruppen, "rest": rest, "reihen": reihen, "stand": monate[-1][1], "quelle": MM23}
 
+
+# ---------------- Finanzsystem und Kredit (Bank of England, BIS) ----------------
+FINANZ_BOE = [
+ ["haush12", "Kredit an Haushalte (Wachstum zum Vorjahr)", "LPMBZ2K", 1, 1],
+ ["hyp12", "Hypothekenbestand (Wachstum zum Vorjahr)", "LPMVTYI", 1, 1],
+ ["konsum12", "Verbraucherkredit (Wachstum zum Vorjahr)", "LPMB4TC", 1, 1],
+ ["unt12", "Kredit an Unternehmen (Wachstum zum Vorjahr)", "LPMVWNU", 1, 1],
+ ["zins2", "Hypothekenzins, 2 Jahre fest, 75 % Beleihung", "IUMBV34", 1, 2],
+ ["zins5", "Hypothekenzins, 5 Jahre fest, 75 % Beleihung", "IUMBV42", 1, 2],
+ ["zins2_90", "Hypothekenzins, 2 Jahre fest, 90 % Beleihung", "IUMB482", 1, 2],
+ ["privat", "Zins Privatkredit (5.000 £)", "IUMBX67", 1, 2],
+ ["appr", "Genehmigungen für Hauskauf (Anzahl pro Monat)", "LPMVTVX", 1, 0],
+ ["brutto", "Neue Hypothekenkredite brutto (Mrd. £ pro Monat)", "LPMVTVC", 0.001, 2],
+ ["rueck", "Tilgungen von Hypothekenkrediten (Mrd. £ pro Monat)", "LPMB86L", 0.001, 2],
+]
+FINANZ_BESTAND = [["haush", "LPMBZ2A"], ["hyp", "LPMVTXK"], ["konsum", "LPMBI2O"]]
+BIS_URL = "https://stats.bis.org/api/v2/data/dataflow/BIS/WS_TC/2.0/Q.GB.%s.A.%s.770.A?format=csv&startPeriod=2000-Q1"
+
+def bis_reihe(sektor, bew):
+    import csv, io
+    r = list(csv.DictReader(io.StringIO(get(BIS_URL % (sektor, bew)))))
+    out = []
+    for x in r:
+        m = re.fullmatch(r"(\d{4})-Q([1-4])", x.get("TIME_PERIOD", ""))
+        if m and x.get("OBS_VALUE"):
+            out.append(["%s-%02d-01" % (m.group(1), (int(m.group(2)) - 1) * 3 + 1), round(float(x["OBS_VALUE"]), 1)])
+    if not out: raise ValueError("BIS leer")
+    return out
+
+def finanz():
+    reihen, fehler = {}, []
+    for key, name, code, faktor, nd in FINANZ_BOE:
+        try:
+            r = [[d, round(v * faktor, nd)] for d, v in boe([code])[0] if d >= "2000-01-01"]
+            if not r: raise ValueError("leer")
+            reihen[key] = {"n": name, "code": code, "r": r}
+        except Exception as e:
+            fehler.append(key + ": " + str(e)[:60])
+    try:
+        bank = {d[:7]: v for d, v in monatsende(boe(["IUDBEDR"])[0])}
+        z = reihen["zins2"]["r"]
+        reihen["spread"] = {"n": "Aufschlag 2-Jahres-Hypothek auf die Bank Rate (Prozentpunkte)", "code": "IUMBV34 minus IUDBEDR",
+                            "r": [[d, round(v - bank[d[:7]], 2)] for d, v in z if d[:7] in bank]}
+    except Exception as e:
+        fehler.append("spread: " + str(e)[:60])
+    bestand = {}
+    for key, code in FINANZ_BESTAND:
+        try:
+            r = boe([code])[0]; bestand[key] = [r[-1][0], round(r[-1][1] / 1000, 1)]
+        except Exception as e:
+            fehler.append(key + ": " + str(e)[:60])
+    bis = {}
+    for sek in ("H", "N", "G"):
+        bis[sek] = {}
+        for bew in ("M", "N"):
+            try:
+                bis[sek][bew] = bis_reihe(sek, bew)
+            except Exception as e:
+                if not (bew == "N" and sek != "G"): fehler.append("bis " + sek + bew + ": " + str(e)[:60])
+    if not reihen.get("haush12") or not bis: raise ValueError("Finanzdaten unvollstaendig: " + "; ".join(fehler))
+    return {"reihen": reihen, "bestand": bestand, "bis": bis, "fehler": fehler}
+
 # ---------------- Neue Fakten erkennen ----------------
 def neue_ereignisse(alt, sitze, posten, berichte, heute):
     ev = []
@@ -327,10 +389,12 @@ def holen(alt=None):
         daten["mpc"] = mpc_protokoll(heute)
     def k_():
         daten["inflation"] = inflation()
-    for n, fn in [("mpc", j), ("inflation", k_), ("bankrate", a), ("sonia", b), ("gilts", c), ("pfund", d_), ("cpi", e), ("alq", f), ("parlament", g), ("boe_berichte", h), ("boe_termine", i)]: teil(n, fn)
+    def f_():
+        daten["finanz"] = finanz()
+    for n, fn in [("mpc", j), ("inflation", k_), ("finanz", f_), ("bankrate", a), ("sonia", b), ("gilts", c), ("pfund", d_), ("cpi", e), ("alq", f), ("parlament", g), ("boe_berichte", h), ("boe_termine", i)]: teil(n, fn)
     # letzten guten Stand uebernehmen, wenn ein Teil ausgefallen ist
     if alt:
-        for k in ("bankrate", "_letzteTageBank", "sonia", "gilt5", "gilt10", "gilt20", "gbpusd", "gbpeur", "cpi", "alq", "sitze", "posten", "_berichte", "_termine", "mpc", "inflation"):
+        for k in ("bankrate", "_letzteTageBank", "sonia", "gilt5", "gilt10", "gilt20", "gbpusd", "gbpeur", "cpi", "alq", "sitze", "posten", "_berichte", "_termine", "mpc", "inflation", "finanz"):
             if k not in daten and k in alt: daten[k] = alt[k]
     ev_alt = list((alt or {}).get("ereignisse", []))
     ev_neu = neue_ereignisse(alt, daten.get("sitze", []), daten.get("posten", []), daten.get("_berichte", []), heute) if daten.get("sitze") else []
