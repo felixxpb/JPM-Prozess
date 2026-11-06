@@ -266,6 +266,18 @@ def inflation():
         if j is not None: reihen[k] = {"n": n, "code": cd[j], "r": reihe(j, 2000)}
     try: reihen.update(ppi_reihen())
     except Exception as e: print("FEHLER PPI", e)
+    try:
+        tag = boe(["IUDSIZC", "IUDMIZC"])
+        for k, n, code, daten in [("erw5", "Marktimplizite Inflation, 5 Jahre (Gilts, RPI-basiert)", "IUDSIZC", tag[0]), ("erw10", "Marktimplizite Inflation, 10 Jahre (Gilts, RPI-basiert)", "IUDMIZC", tag[1])]:
+            mm = {}
+            for d, v in daten:
+                if d >= "2000-01-01": mm[d[:7] + "-01"] = round(v, 2)
+            if not mm: raise ValueError("leer " + code)
+            reihen[k] = {"n": n, "code": code, "r": [[a, b] for a, b in sorted(mm.items())], "qname": "Bank of England, Yield curves (Implied inflation spot curve, " + code + "), letzter Tageswert je Monat", "qurl": "https://www.bankofengland.co.uk/statistics/yield-curves", "qlabel": "Bank of England, Yield curves"}
+    except Exception as e: print("FEHLER Erwartungen", e)
+    for k, n, code in [("lohn", "Löhne gesamt (regelmäßiges Entgelt, 3-Monats-Durchschnitt)", "KAI9"), ("lohnpriv", "Löhne Privatwirtschaft (regelmäßiges Entgelt, 3-Monats-Durchschnitt)", "KAJ4")]:
+        try: reihen[k] = {"n": n, "code": code, "qname": "ONS, Average weekly earnings (Reihe " + code + ", Datensatz LMS)", "qurl": "https://www.ons.gov.uk/employmentandlabourmarket/peopleinwork/earningsandworkinghours/timeseries/%s/lms" % code.lower(), "qlabel": "ONS, Zeitreihe " + code, "r": [x for x in ons("/employmentandlabourmarket/peopleinwork/earningsandworkinghours/timeseries/%s/lms" % code.lower()) if x[0] >= "2001-01-01"]}
+        except Exception as e: print("FEHLER Lohn", code, e)
     if not reihen.get("cpi") or not gruppen: raise ValueError("ONS-Warenkorb leer")
     return {"gewichtsjahr": int(jahr), "gruppen": gruppen, "rest": rest, "reihen": reihen, "stand": monate[-1][1], "quelle": MM23}
 
