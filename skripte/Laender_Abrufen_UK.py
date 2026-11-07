@@ -279,7 +279,12 @@ def inflation():
         try: reihen[k] = {"n": n, "code": code, "qname": "ONS, Average weekly earnings (Reihe " + code + ", Datensatz LMS)", "qurl": "https://www.ons.gov.uk/employmentandlabourmarket/peopleinwork/earningsandworkinghours/timeseries/%s/lms" % code.lower(), "qlabel": "ONS, Zeitreihe " + code, "r": [x for x in ons("/employmentandlabourmarket/peopleinwork/earningsandworkinghours/timeseries/%s/lms" % code.lower()) if x[0] >= "2001-01-01"]}
         except Exception as e: print("FEHLER Lohn", code, e)
     if not reihen.get("cpi") or not gruppen: raise ValueError("ONS-Warenkorb leer")
-    return {"gewichtsjahr": int(jahr), "gruppen": gruppen, "rest": rest, "reihen": reihen, "stand": monate[-1][1], "quelle": MM23}
+    agg = {}
+    for key, pre in [("waren", "CPI WEIGHTS: Goods"), ("dienste", "CPI WEIGHTS: Services")]:
+        j = next((j for j, x in enumerate(ti) if x.startswith(pre)), None)
+        if j is not None and jahre[jahr][j].strip(): agg[key] = round(float(jahre[jahr][j]) / 10, 2)
+    if len(agg) < 2: agg = None
+    return {"gewichtsjahr": int(jahr), "agg": agg, "gruppen": gruppen, "rest": rest, "reihen": reihen, "stand": monate[-1][1], "quelle": MM23}
 
 
 # ---------------- Finanzsystem und Kredit (Bank of England, BIS) ----------------
