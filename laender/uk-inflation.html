@@ -136,8 +136,15 @@ svg.chart{width:100%;height:auto;display:block;touch-action:none}
 .pieb{display:grid;grid-template-columns:minmax(260px,420px) 1fr;gap:18px;align-items:center}
 @media(max-width:820px){.pieb{grid-template-columns:1fr}}
 .pie path{cursor:pointer;stroke:var(--flaeche);stroke-width:2;transition:opacity .15s}.pie path:hover{opacity:.8}
-.pie text{pointer-events:none}
-.pie path{stroke-width:1.2}
+
+.pie{width:100%;max-width:1100px;height:auto;display:block;margin:0 auto}
+.pie path{cursor:pointer;stroke:var(--flaeche);stroke-width:1.5;transition:opacity .15s}
+.pie path:hover,.pie path:focus{opacity:.75;outline:none}
+.pie text{font-size:16px;fill:var(--text);cursor:pointer;pointer-events:auto}
+.pie text:hover{text-decoration:underline}
+.pie .pz{font-weight:700;font-variant-numeric:tabular-nums}
+.pie .fl{stroke:var(--achse,var(--text2));stroke-width:1;fill:none}
+@media (max-width:760px){.pie .lbl{display:none}.pie{max-width:360px}}
 .bandkopf{font-size:12px;font-weight:700;color:var(--text2);text-transform:uppercase;letter-spacing:.05em;margin:14px 2px 6px}
 .balken2{display:flex;height:40px;border-radius:9px;overflow:hidden;margin-top:6px;border:1px solid var(--rand)}
 .balken2 button{all:unset;cursor:pointer;display:flex;align-items:center;justify-content:center;text-align:center;font-size:12px;font-weight:700;color:#fff;overflow:hidden;white-space:nowrap;padding:0 4px;box-sizing:border-box}
@@ -220,7 +227,7 @@ svg.chart{width:100%;height:auto;display:block;touch-action:none}
 <h2 style="font-size:15px;margin:18px 0 6px">Der Warenkorb: CPI mit seinen Bestandteilen</h2>
 <div class="struktur">
   <div class="kuchenkopf"><h3>CPI-Warenkorb, Gewichte <span id="gj2"></span></h3><span>Gewicht = Anteil an den Ausgaben der Haushalte in %</span></div>
-  <div class="pieb"><svg class="pie" id="pie" viewBox="-108 -108 216 216" role="img" aria-label="Kuchendiagramm der Warenkorb-Gruppen"></svg><div id="bal" role="group" aria-label="Warenkorb-Gruppen"></div></div>
+  <svg class="pie" id="pie" viewBox="-110 0 1320 620" role="img" aria-label="Kuchendiagramm der Warenkorb-Gruppen mit Gewichten"></svg>
   <div id="agg-wd"><div class="bandkopf">Zusammengefasst: Waren und Dienstleistungen</div><div class="balken2" id="bal-wd" role="group" aria-label="Waren und Dienstleistungen"></div></div>
   <div class="bandkopf">Zusammengefasst: Hauptkategorien</div>
   <div class="balken2" id="bal-hk" role="group" aria-label="Energie, Nahrung, Alkohol und Tabak, Kern"></div>
@@ -338,14 +345,25 @@ function oeffneReihe(id){const k=byId[id],s=k.s,l=letzte(s.r);
 /* ---------- Warenkorb ---------- */
 function gruppenSortiert(){return INF.gruppen.slice().sort((a,b)=>b.w-a.w)}
 function pieBauen(){
- const svg=$("#pie");svg.innerHTML="";const G=gruppenSortiert();let a0=-Math.PI/2;const R=105;
- G.forEach(g=>{const a1=a0+g.w/100*2*Math.PI,gr=a1-a0>Math.PI?1:0;
-  const p=[[Math.cos(a0)*R,Math.sin(a0)*R],[Math.cos(a1)*R,Math.sin(a1)*R]];
-  const pa=el("path",{d:"M0,0 L"+p[0]+" A"+R+","+R+" 0 "+gr+" 1 "+p[1]+" Z",fill:g.f,tabindex:0,role:"button","aria-label":g.n+" "+pf(g.w,1)+" Prozent"},svg);
-  pa.addEventListener("click",()=>oeffneGruppe(g.k));pa.addEventListener("keydown",e=>{if(e.key==="Enter"||e.key===" ")oeffneGruppe(g.k)});
-  const t=el("title",{},pa);t.textContent=g.n+": "+pf(g.w,1)+" %";
-  const am=(a0+a1)/2,rm=R*(g.w>=6?0.7:0.82),tx=el("text",{x:Math.cos(am)*rm,y:Math.sin(am)*rm+3,"text-anchor":"middle","font-size":g.w>=8?10:(g.w>=6?8.5:7),"font-weight":700,fill:"#fff"},svg);tx.textContent=pf(g.w,1)+" %";
-  a0=a1});
+ const svg=$("#pie"),G=gruppenSortiert().map(g=>({id:g.k,n:g.n,w:g.w,c:g.f})),sum=G.reduce((a,x)=>a+x.w,0);
+ let w0=-Math.PI/2;const R=225,cx=550,cy=310,H=620;let pfade="";const lab={r:[],l:[]};
+ G.forEach(x=>{const dw=x.w/sum*2*Math.PI,w1=w0+dw,wm=(w0+w1)/2;const p=(wk,rr)=>[cx+rr*Math.cos(wk),cy+rr*Math.sin(wk)];const [x0,y0]=p(w0,R),[x1,y1]=p(w1,R);
+  pfade+='<path d="M'+cx+','+cy+' L'+x0.toFixed(2)+','+y0.toFixed(2)+' A'+R+','+R+' 0 '+(dw>Math.PI?1:0)+' 1 '+x1.toFixed(2)+','+y1.toFixed(2)+' Z" fill="'+x.c+'" tabindex="0" role="button" data-id="'+x.id+'" aria-label="'+esc(x.n)+' '+pf(x.w,1)+' Prozent"><title>'+esc(x.n)+': '+pf(x.w,1)+' %</title></path>';
+  const rechts=Math.cos(wm)>=0;lab[rechts?"r":"l"].push({x:x,a0:p(wm,R),a1:p(wm,R+20),y:p(wm,R+20)[1]});
+  w0=w1});
+ const GAP=19;let linien="",texte="";
+ ["r","l"].forEach(seite=>{const arr=lab[seite].sort((m,n)=>m.y-n.y);
+  for(let i=1;i<arr.length;i++)if(arr[i].y<arr[i-1].y+GAP)arr[i].y=arr[i-1].y+GAP;
+  const ueber=arr.length?arr[arr.length-1].y-(H-12):0;if(ueber>0)arr.forEach(o=>o.y-=ueber);
+  for(let i=1;i<arr.length;i++)if(arr[i].y<arr[i-1].y+GAP)arr[i-1].y=arr[i].y-GAP;
+  const lx=seite==="r"?cx+R+54:cx-R-54;
+  arr.forEach(o=>{const x=o.x,ex=seite==="r"?lx-8:lx+8;
+   linien+='<polyline class="fl" points="'+o.a0[0].toFixed(1)+','+o.a0[1].toFixed(1)+' '+o.a1[0].toFixed(1)+','+o.a1[1].toFixed(1)+' '+ex+','+o.y.toFixed(1)+' '+lx+','+o.y.toFixed(1)+'"/><circle cx="'+o.a0[0].toFixed(1)+'" cy="'+o.a0[1].toFixed(1)+'" r="2" fill="var(--text)"/>';
+   const nm=esc(x.n),pz=pf(x.w,x.w<10?2:1)+" %";
+   texte+=seite==="r"?'<text class="lbl" data-id="'+x.id+'" x="'+(lx+6)+'" y="'+(o.y+4.5).toFixed(1)+'"><tspan class="pz">'+pz+'</tspan><tspan dx="8">'+nm+'</tspan></text>'
+    :'<text class="lbl" data-id="'+x.id+'" x="'+(lx-6)+'" y="'+(o.y+4.5).toFixed(1)+'" text-anchor="end"><tspan>'+nm+'</tspan><tspan dx="8" class="pz">'+pz+'</tspan></text>'})});
+ svg.innerHTML='<g class="lbl">'+linien+'</g>'+pfade+texte;
+ svg.querySelectorAll("path,text[data-id]").forEach(e=>{const f=()=>oeffneGruppe(e.dataset.id);e.addEventListener("click",f);if(e.tagName==="path")e.addEventListener("keydown",ev=>{if(ev.key==="Enter"||ev.key===" "){ev.preventDefault();f()}})});
 }
 function aggBalken(id,teile,klick){const sum=teile.reduce((a,x)=>a+x.w,0);const B=$("#"+id);B.innerHTML="";
  teile.forEach(x=>{const b=document.createElement("button");b.type="button";b.style.width=(x.w/sum*100).toFixed(3)+"%";b.style.background=x.c;b.title=x.n+" "+pf(x.w,1)+" %";
@@ -361,12 +379,6 @@ function aggBauen(){
  const hk=[{k:"e",n:"Energie",w:en,c:"hsl(0,62%,48%)"},{k:"n",n:"Nahrung, Alkohol, Tabak",w:na,c:"hsl(95,48%,34%)"},{k:"k",n:"Kern (alles andere)",w:kern,c:"hsl(210,55%,42%)"}];
  const tx2={e:"Strom, Gas, flüssige und feste Brennstoffe sowie Kraftstoffe. Das ist die Energie, die die Kerninflation weglässt.",n:"Nahrungsmittel, alkoholfreie und alkoholische Getränke und Tabak. Auch diese Posten schwanken stark und fehlen in der Kerninflation.",k:"Alle übrigen Posten (Wohnen ohne Energie, Verkehr ohne Kraftstoffe, Gaststätten, Freizeit, Gesundheit, Bekleidung, Haushalt, Wasser und mehr). Dieser Teil bildet die Kerninflation.",q:"ONS, Consumer Price Inflation time series (MM23), Summe der Positionsgewichte; Abgrenzung wie in der Kerninflation (CPI ohne Energie, Nahrung, Alkohol und Tabak)."};
  aggBalken("bal-hk",hk,x=>zeig("CPI, zusammengefasst",x,tx2));
-}
-function balkenBauen(){
- const host=$("#bal");host.innerHTML="";const G=gruppenSortiert(),mx=G[0].w;
- G.forEach(g=>{const b=document.createElement("button");b.className="brow";b.type="button";
-  b.innerHTML='<span class="bn">'+esc(g.n)+'</span><span class="bs"><i style="width:'+(g.w/mx*100)+'%;background:'+g.f+'"></i></span><span class="bw">'+pf(g.w,1)+' %</span>';
-  b.onclick=()=>oeffneGruppe(g.k);host.appendChild(b)});
 }
 function beitraege(){
  const host=$("#beit");host.innerHTML="";let sum=0;
@@ -456,7 +468,7 @@ if(INF){
  const lr=t=>t&&letzte(t.r)?pf(letzte(t.r)[1],1)+" %":"–";
  $("#wichtigtext").innerHTML="Energie und Wasser machen zusammen "+pf(en.w,1)+" % des Warenkorbs aus (Strom "+pf(st.w,1)+" %, Gas "+pf(ga.w,1)+" %, Kraftstoffe "+pf(kr.w,1)+" %). Die Jahresraten betragen aktuell bei Strom "+lr(st)+", Gas "+lr(ga)+" und Kraftstoffen "+lr(kr)+". Mieten haben ein Gewicht von "+pf(mi.w,1)+" % und steigen um "+lr(mi)+". Gaststätten und Unterkunft haben ein Gewicht von "+pf(G("gast").w,1)+" %.";
  $("#unter").innerHTML+=" · Stand der Daten: "+mon(letzte(INF.reihen.cpi.r)[0])+(DATA._abruf?", Datenabruf "+dts(DATA._abruf):", eingebetteter Stand");
- kacheln();pieBauen();aggBauen();balkenBauen();beitraege();kreislauf();
+ kacheln();pieBauen();aggBauen();beitraege();kreislauf();
 }else{
  document.body.insertAdjacentHTML("afterbegin","<p style='padding:20px'>Keine Daten eingebettet. Bitte UK_Inflation_Bauen.py ausführen.</p>");
 }
