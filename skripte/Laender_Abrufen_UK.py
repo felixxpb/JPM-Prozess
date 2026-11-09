@@ -287,6 +287,105 @@ def inflation():
     return {"gewichtsjahr": int(jahr), "agg": agg, "gruppen": gruppen, "rest": rest, "reihen": reihen, "stand": monate[-1][1], "quelle": MM23}
 
 
+
+# ---------------- Arbeitsmarkt (ONS LMS, Nomis Census 2021, Produktivitaet) ----------------
+LMS_URL = "https://www.ons.gov.uk/file?uri=/employmentandlabourmarket/peopleinwork/employmentandemployeetypes/datasets/labourmarketstatistics/current/lms.csv"
+LMS_LINK = "https://www.ons.gov.uk/employmentandlabourmarket/peopleinwork/employmentandemployeetypes/datasets/labourmarketstatistics"
+def datum_q(lbl):
+    m = re.fullmatch(r"(\d{4}) ([A-Z]{3})", lbl)
+    if m and m.group(2) in MON: return "%s-%02d-01" % (m.group(1), MON[m.group(2)])
+    m = re.fullmatch(r"(\d{4}) Q([1-4])", lbl)
+    if m: return "%s-%02d-01" % (m.group(1), int(m.group(2)) * 3)
+    return None
+AM_KPI = [
+ ["emp", "Beschäftigungsquote (16 bis 64)", "LF24", "%", "besch"],
+ ["alq", "Arbeitslosenquote (ab 16)", "MGSX", "%", "arbeitslos"],
+ ["jugend", "Arbeitslosenquote 16 bis 24", "MGWY", "%", "arbeitslos"],
+ ["entl", "Entlassungsrate (je 1.000 Beschäftigte)", "BEIR", "‰", "arbeitslos"],
+ ["besch", "Beschäftigte (Tsd., ab 16)", "MGRZ", "Tsd.", "besch"],
+ ["jobs", "Workforce Jobs (Tsd. Stellen)", "DYDC", "Tsd.", "besch"],
+ ["stellen", "Offene Stellen (Tsd.)", "AP2Y", "Tsd.", "nachfrage"],
+ ["jestelle", "Arbeitslose je offene Stelle", "JPC5", "", "nachfrage"],
+ ["inakt", "Inaktivitätsquote (16 bis 64)", "LF2S", "%", "angebot"],
+ ["krank", "Inaktiv wegen Langzeiterkrankung (Tsd., 16 bis 64)", "LF69", "Tsd.", "angebot"],
+ ["lohn", "Löhne gesamt (regelmäßiges Entgelt, 3-Monats-Durchschnitt zum Vorjahr)", "KAI9", "%", "lohn"],
+ ["lohnpriv", "Löhne Privatwirtschaft (3-Monats-Durchschnitt zum Vorjahr)", "KAJ4", "%", "lohn"],
+ ["lohnoeff", "Löhne öffentlicher Sektor (3-Monats-Durchschnitt zum Vorjahr)", "KAJ7", "%", "lohn"],
+ ["reallohn", "Reallöhne gesamt (3-Monats-Durchschnitt zum Vorjahr)", "A2FA", "%", "lohn"],
+]
+AM_BRANCHEN = [
+ ["A", "Land- und Forstwirtschaft, Fischerei", "JWR5", "w"], ["B", "Bergbau", "JWR6", "w"], ["C", "Verarbeitendes Gewerbe", "JWR7", "w"],
+ ["D", "Energieversorgung", "JWR8", "w"], ["E", "Wasser, Abwasser, Abfall", "JWR9", "w"], ["F", "Baugewerbe", "JWS2", "w"],
+ ["G", "Handel und Kfz-Reparatur", "JWS3", "d"], ["H", "Verkehr und Lagerei", "JWS4", "d"], ["I", "Gastgewerbe", "JWS5", "d"],
+ ["J", "Information und Kommunikation", "JWS6", "d"], ["K", "Finanz- und Versicherungsdienste", "JWS7", "d"], ["L", "Immobilien", "JWS8", "d"],
+ ["M", "Freiberufliche, wissenschaftliche und technische Dienste", "JWS9", "d"], ["N", "Verwaltungs- und Unterstützungsdienste", "JWT2", "d"],
+ ["O", "Öffentliche Verwaltung und Verteidigung", "JWT3", "o"], ["P", "Bildung", "JWT4", "o"], ["Q", "Gesundheits- und Sozialwesen", "JWT5", "o"],
+ ["R", "Kunst, Unterhaltung, Erholung", "JWT6", "d"], ["S", "Sonstige Dienstleistungen", "JWT7", "d"], ["T", "Private Haushalte als Arbeitgeber", "KW78", "d"],
+]
+CENSUS_IND = {"1": "Land, Energie, Wasser (A, B, D, E)", "2": "Verarbeitendes Gewerbe (C)", "3": "Baugewerbe (F)", "4": "Handel und Gastgewerbe (G, I)",
+              "5": "Verkehr und Kommunikation (H, J)", "6": "Finanzen, Immobilien, Unternehmensdienste (K bis N)", "7": "Verwaltung, Bildung, Gesundheit (O, P, Q)", "8": "Sonstige Dienste (R bis U)"}
+NOMIS = "https://www.nomisweb.co.uk/api/v01/dataset/%s.data.csv?geography=2092957703&measures=20100&select=%s"
+
+def lms_gesamt():
+    import csv, io
+    t = urllib.request.urlopen(urllib.request.Request(LMS_URL, headers=UA), timeout=300).read().decode("utf-8-sig", "replace")
+    return list(csv.reader(io.StringIO(t)))
+
+def nomis_csv(ds, sel):
+    import csv, io
+    return list(csv.DictReader(io.StringIO(get(NOMIS % (ds, sel)))))
+
+def census():
+    a = nomis_csv("NM_2162_1", "c2021_ind_9,c2021_ind_9_name,c2021_age_7,obs_value")
+    b = nomis_csv("NM_2165_1", "c2021_ind_9,c2021_ind_9_name,c_sex,obs_value")
+    alt, sex = {}, {}
+    for r in a: alt.setdefault(r["C2021_IND_9"], {})[r["C2021_AGE_7"]] = int(float(r["OBS_VALUE"]))
+    for r in b: sex.setdefault(r["C2021_IND_9"], {})[r["C_SEX"]] = int(float(r["OBS_VALUE"]))
+    def zeile(k, n):
+        x = alt[k]; sx = sex[k]
+        return {"k": k, "n": n, "t": x["0"], "alter": [x[str(i)] for i in (2, 3, 4, 5, 6)], "m": sx["2"], "f": sx["1"]}  # Census 2021 bei Nomis: C_SEX 1 = Frauen, 2 = Maenner
+    gesamt = zeile("0", "Alle Branchen")
+    zeilen = [zeile(k, n) for k, n in CENSUS_IND.items()]
+    if gesamt["t"] < 1e6 or len(zeilen) != 8: raise ValueError("Census unvollstaendig")
+    return {"alter": ["16 bis 24", "25 bis 34", "35 bis 49", "50 bis 64", "65 und älter"], "gesamt": gesamt, "branchen": zeilen,
+            "quelle": "ONS Census 2021 (England und Wales), Nomis-Tabellen RM062 (Branche nach Alter) und RM065 (Branche nach Geschlecht)",
+            "link": "https://www.nomisweb.co.uk/census/2021"}
+
+def arbeitsmarkt():
+    r = lms_gesamt()
+    cd = r[1]; idx = {c: j for j, c in enumerate(cd)}
+    zeilen = [(datum_q(row[0]), row) for row in r[7:] if datum_q(row[0])]
+    def reihe(code, ab="2000-01-01"):
+        j = idx[code]; out = []
+        for d, row in zeilen:
+            if d < ab or j >= len(row) or row[j].strip() in ("", "-"): continue
+            try: out.append([d, float(row[j])])
+            except ValueError: pass
+        if not out: raise ValueError("leer " + code)
+        return out
+    reihen = {}
+    for k, n, code, einh, grp in AM_KPI:
+        try: reihen[k] = {"n": n, "code": code, "u": einh, "g": grp, "r": reihe(code)}
+        except Exception as e: print("FEHLER Arbeitsmarkt", code, e)
+    branchen = []
+    for k, n, code, grp in AM_BRANCHEN:
+        branchen.append({"k": k, "n": n, "code": code, "g": grp, "r": reihe(code, "2005-01-01")})
+    produktiv = None
+    try:
+        txt = get("https://www.ons.gov.uk/generator?format=csv&uri=/employmentandlabourmarket/peopleinwork/labourproductivity/timeseries/lzvb/prdy")
+        pts = []
+        for m in re.finditer(r'^"(\d{4}) Q([1-4])","([-\d.]+)"', txt, re.M): pts.append(["%s-%02d-01" % (m.group(1), int(m.group(2)) * 3), float(m.group(3))])
+        yoy = []
+        for i in range(4, len(pts)): yoy.append([pts[i][0], round((pts[i][1] / pts[i - 4][1] - 1) * 100, 1)])
+        if pts: produktiv = {"index": pts, "yoy": yoy, "code": "LZVB", "n": "Produktivität: Output je Arbeitsstunde (Index 2023 = 100)"}
+    except Exception as e: print("FEHLER Produktivitaet", e)
+    census_d = None
+    try: census_d = census()
+    except Exception as e: print("FEHLER Census", e)
+    if len(reihen) < 10 or not branchen: raise ValueError("Arbeitsmarkt unvollstaendig")
+    return {"reihen": reihen, "branchen": branchen, "produktiv": produktiv, "census": census_d, "quelle": LMS_LINK,
+            "stand": max(x["r"][-1][0] for x in reihen.values())}
+
 # ---------------- Finanzsystem und Kredit (Bank of England, BIS) ----------------
 FINANZ_BOE = [
  ["haush12", "Kredit an Haushalte (Wachstum zum Vorjahr)", "LPMBZ2K", 1, 1],
@@ -408,10 +507,12 @@ def holen(alt=None):
         daten["inflation"] = inflation()
     def f_():
         daten["finanz"] = finanz()
-    for n, fn in [("mpc", j), ("inflation", k_), ("finanz", f_), ("bankrate", a), ("sonia", b), ("gilts", c), ("pfund", d_), ("cpi", e), ("alq", f), ("parlament", g), ("boe_berichte", h), ("boe_termine", i)]: teil(n, fn)
+    def am_():
+        daten["arbeitsmarkt"] = arbeitsmarkt()
+    for n, fn in [("mpc", j), ("inflation", k_), ("finanz", f_), ("arbeitsmarkt", am_), ("bankrate", a), ("sonia", b), ("gilts", c), ("pfund", d_), ("cpi", e), ("alq", f), ("parlament", g), ("boe_berichte", h), ("boe_termine", i)]: teil(n, fn)
     # letzten guten Stand uebernehmen, wenn ein Teil ausgefallen ist
     if alt:
-        for k in ("bankrate", "_letzteTageBank", "sonia", "gilt5", "gilt10", "gilt20", "gbpusd", "gbpeur", "cpi", "alq", "sitze", "posten", "_berichte", "_termine", "mpc", "inflation", "finanz"):
+        for k in ("bankrate", "_letzteTageBank", "sonia", "gilt5", "gilt10", "gilt20", "gbpusd", "gbpeur", "cpi", "alq", "sitze", "posten", "_berichte", "_termine", "mpc", "inflation", "finanz", "arbeitsmarkt"):
             if k not in daten and k in alt: daten[k] = alt[k]
     ev_alt = list((alt or {}).get("ereignisse", []))
     ev_neu = neue_ereignisse(alt, daten.get("sitze", []), daten.get("posten", []), daten.get("_berichte", []), heute) if daten.get("sitze") else []
