@@ -1,0 +1,286 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>JPM Prozess - Laenderanalyse Vereinigtes Koenigreich - Wirtschaft und Infrastruktur</title>
+<style>
+:root{
+  --flaeche:#fcfcfb; --ebene:#f9f9f7; --text:#0b0b0b; --text2:#52514e; --stumm:#898781;
+  --raster:#e1e0d9; --achse:#c3c2b7; --rand:rgba(11,11,11,.10);
+  --c1:#2f6f9f; --c2:#6b4f8a; --c3:#3d7a56; --c4:#8a5a2b; --cb:#52514e;
+  --h1:#e6f0f7; --h2:#eee9f4; --h3:#e5f2ea; --h4:#f4ebe1; --hb:#efeee9;
+  --gut:#006300; --warn:#b97a00; --schatten:0 1px 2px rgba(11,11,11,.04),0 4px 16px rgba(11,11,11,.06);
+  color-scheme:light;
+}
+:root[data-theme="dark"]{
+  --flaeche:#1a1a19; --ebene:#0d0d0d; --text:#fff; --text2:#c3c2b7; --stumm:#898781;
+  --raster:#2c2c2a; --achse:#383835; --rand:rgba(255,255,255,.12);
+  --c1:#5fa0d3; --c2:#ab8fd0; --c3:#56b27d; --c4:#d39a5a; --cb:#c3c2b7;
+  --h1:#16222c; --h2:#221b2c; --h3:#16261d; --h4:#2a2016; --hb:#232321;
+  --gut:#0ca30c; --warn:#fab219; --schatten:none; color-scheme:dark;
+}
+*{box-sizing:border-box}
+body{margin:0;padding:0 20px 56px;background:var(--ebene);color:var(--text);font-family:system-ui,-apple-system,"Segoe UI",sans-serif;font-size:15px;line-height:1.5}
+.wrap{max-width:1280px;margin:0 auto}
+header{padding:20px 0 6px;display:flex;gap:16px;justify-content:space-between;align-items:flex-start;flex-wrap:wrap}
+h1{margin:0;font-size:21px;font-weight:650}
+.unter{color:var(--text2);font-size:13px}
+.entwurf{display:inline-block;margin-left:8px;padding:1px 8px;border-radius:99px;border:1px solid var(--warn);color:var(--warn);font-size:12px;font-weight:600;vertical-align:middle}
+.tool{font:inherit;font-size:13px;background:var(--flaeche);color:var(--text);border:1px solid var(--rand);border-radius:8px;padding:6px 12px;cursor:pointer}
+.legende{display:flex;gap:16px;flex-wrap:wrap;font-size:12px;color:var(--text2);margin:6px 0 12px}
+.pkt{width:8px;height:8px;border-radius:50%;display:inline-block;margin-right:5px}.pkt.auto{background:var(--gut)}.pkt.man{background:var(--stumm)}
+/* Kachel */
+.k{all:unset;box-sizing:border-box;display:block;width:100%;cursor:pointer;background:var(--flaeche);border:1px solid var(--rand);border-radius:9px;padding:9px 11px 8px;box-shadow:var(--schatten);transition:transform .15s,border-color .15s}
+.k:hover{transform:translateY(-1px);border-color:var(--c)}.k:focus-visible{outline:2px solid var(--c);outline-offset:2px}
+.k.aktiv{border-color:var(--c);box-shadow:0 0 0 2px var(--c)}
+.kt{display:flex;justify-content:space-between;align-items:baseline;gap:6px}
+.kn{font-size:12.5px;color:var(--text2);font-weight:600}
+.kd{font-size:11px;color:var(--stumm);white-space:nowrap}
+.kw{font-size:23px;font-weight:700;line-height:1.15;font-variant-numeric:tabular-nums;margin-top:1px}
+.ks{font-size:11.8px;color:var(--text2);display:flex;justify-content:space-between;gap:6px;align-items:center;margin-top:1px}
+.dl{white-space:nowrap}
+.spark{display:block;width:100%;height:30px;margin-top:3px}
+.c1{--c:var(--c1)}.c2{--c:var(--c2)}.c3{--c:var(--c3)}.c4{--c:var(--c4)}.cb{--c:var(--cb)}
+/* Layout */
+.band{background:var(--hb);border:1px solid var(--rand);border-radius:12px;padding:8px 10px 10px;margin-bottom:14px}
+.bandkopf{font-size:12px;font-weight:700;color:var(--text2);text-transform:uppercase;letter-spacing:.05em;margin:2px 2px 6px}
+.bandinhalt{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}
+.raster{display:grid;grid-template-columns:1fr 54px 1fr 54px 1fr 54px 1fr;align-items:stretch}
+.sp{padding:8px;border-radius:12px;display:flex;flex-direction:column;gap:9px}
+.sp.s1{background:var(--h1)}.sp.s2{background:var(--h2)}.sp.s3{background:var(--h3)}.sp.s4{background:var(--h4)}
+.spkopf{color:#fff;font-weight:700;text-align:center;padding:9px 6px;border-radius:9px;font-size:13px;background:var(--c)}
+.pill{all:unset;cursor:pointer;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;font-size:10.5px;text-align:center;color:var(--text2);padding:4px 2px}
+.pill .pf{font-size:20px;color:var(--text);line-height:1}.pill:hover,.pill.aktiv{color:var(--text)}.pill:focus-visible{outline:2px solid var(--text);border-radius:6px}
+.termine{margin-top:16px;background:var(--flaeche);border:1px solid var(--rand);border-radius:10px;padding:10px 14px;box-shadow:var(--schatten)}
+.termine h2{margin:0 0 4px;font-size:13px;color:var(--text2);text-transform:uppercase;letter-spacing:.05em}
+.termin{display:flex;gap:10px;align-items:baseline;padding:5px 0;border-top:1px solid var(--raster);font-size:13px}
+.termin:first-of-type{border-top:0}.termin .d{width:96px;font-weight:600}.termin .t{flex:1}.termin .r{color:var(--text2);white-space:nowrap}.termin.n .r{color:var(--warn);font-weight:700}
+.fuss{margin-top:6px;font-size:11.5px;color:var(--stumm)}
+/* Drawer */
+#schatten{position:fixed;inset:0;background:rgba(0,0,0,.28);opacity:0;pointer-events:none;transition:opacity .2s;z-index:20}
+#schatten.offen{opacity:1;pointer-events:auto}
+#drawer{position:fixed;top:0;right:0;height:100%;width:min(560px,100%);background:var(--flaeche);border-left:1px solid var(--rand);box-shadow:-8px 0 30px rgba(0,0,0,.18);transform:translateX(100%);transition:transform .22s ease;z-index:21;overflow-y:auto;padding:0}
+#drawer.offen{transform:none}
+.dk{position:sticky;top:0;background:var(--flaeche);border-bottom:1px solid var(--rand);border-top:4px solid var(--c);padding:14px 18px 10px;display:flex;justify-content:space-between;gap:10px;align-items:flex-start;z-index:2}
+.dk h2{margin:0;font-size:18px}.dk .gr{font-size:12px;color:var(--c);text-transform:uppercase;letter-spacing:.05em;font-weight:700}
+.zu{all:unset;cursor:pointer;font-size:22px;line-height:1;padding:2px 8px;border-radius:6px;color:var(--text2)}.zu:hover{background:var(--raster)}.zu:focus-visible{outline:2px solid var(--text)}
+.db{padding:14px 18px 40px}
+.gross{font-size:34px;font-weight:700;font-variant-numeric:tabular-nums;line-height:1.1}
+.gsub{font-size:13px;color:var(--text2);margin-bottom:8px}
+.btns{display:flex;gap:6px;margin:6px 0 4px}
+.btn{font:inherit;font-size:12px;background:var(--ebene);color:var(--text);border:1px solid var(--rand);border-radius:7px;padding:3px 10px;cursor:pointer}
+.btn[aria-pressed="true"]{background:var(--text);color:var(--flaeche);border-color:var(--text)}
+svg.chart{width:100%;height:auto;display:block;touch-action:none}
+.tip{font-size:12.5px;color:var(--text2);min-height:18px;margin-bottom:4px;font-variant-numeric:tabular-nums}
+.db h3{font-size:12px;text-transform:uppercase;letter-spacing:.05em;color:var(--text2);margin:18px 0 4px}
+.db p{margin:0 0 8px;font-size:14px}
+.db table{width:100%;border-collapse:collapse;font-size:13px}
+.db th{font-weight:600;text-align:left;color:var(--text2);font-size:11.5px;border-bottom:1px solid var(--rand);padding:3px 8px 3px 0}
+.db td{padding:5px 8px 5px 0;border-bottom:1px solid var(--raster);vertical-align:top}
+.db .hin{background:var(--ebene);border-left:3px solid var(--warn);border-radius:4px;padding:6px 10px;font-size:13px;color:var(--text2)}
+.db ul{margin:4px 0 0;padding-left:18px;font-size:13.5px}
+.db a{color:inherit}
+@media (max-width:980px){
+  .raster{grid-template-columns:1fr}.pill{display:none}.sp{margin-bottom:12px}.bandinhalt{grid-template-columns:1fr}
+}
+@media (prefers-reduced-motion:reduce){#drawer,#schatten,.k{transition:none}}
+/* Verständnis-Block */
+.versteh{background:var(--flaeche);border:1px solid var(--rand);border-radius:12px;padding:6px 18px 14px;box-shadow:var(--schatten);margin-bottom:14px}
+.versteh>h2{margin:12px 0 2px;font-size:17px}
+.versteh .lead{margin:0 0 8px;color:var(--text2);font-size:13.5px}
+.versteh details{border-top:1px solid var(--raster);padding:6px 0}
+.versteh details:first-of-type{border-top:0}
+.versteh summary{cursor:pointer;font-weight:650;font-size:14.5px;padding:4px 0;list-style:none}
+.versteh summary::-webkit-details-marker{display:none}
+.versteh summary:before{content:"▸";display:inline-block;width:18px;color:var(--text2);transition:transform .15s}
+.versteh details[open]>summary:before{transform:rotate(90deg)}
+.versteh summary:focus-visible{outline:2px solid var(--text);outline-offset:2px;border-radius:4px}
+.versteh .inh{padding:2px 0 6px 18px;font-size:14px}
+.versteh ol.kern{margin:4px 0 4px;padding-left:20px}.versteh ol.kern li{margin:3px 0}
+.fluss{display:grid;grid-template-columns:1fr 78px 1fr 78px 1fr;grid-template-rows:auto 56px auto 56px auto;align-items:center;gap:0;margin:8px 0 4px}
+.nk{all:unset;box-sizing:border-box;display:block;width:100%;cursor:pointer;background:var(--ebene);border:1px solid var(--rand);border-top:3px solid var(--c);border-radius:9px;padding:8px 10px;text-align:center;transition:transform .15s,border-color .15s}
+.nk:hover{transform:translateY(-1px);border-color:var(--c)}.nk:focus-visible{outline:2px solid var(--c);outline-offset:2px}
+.nk b{display:block;font-size:13.5px}.nk span{display:block;font-size:11.5px;color:var(--text2);margin-top:1px}
+.pf2{font-size:11px;color:var(--text2);text-align:center;line-height:1.25;padding:0 3px}
+.pf2 i{display:block;font-style:normal;font-size:18px;color:var(--text);line-height:1}
+.nk.n1{--c:var(--c1)}.nk.n2{--c:var(--c3)}.nk.n3{--c:var(--c4)}.nk.n4{--c:var(--c2)}.nk.n5{--c:var(--c2)}.nk.n6{--c:var(--c1)}.nk.n7{--c:var(--cb)}
+.bed{display:grid;grid-template-columns:repeat(2,1fr);gap:10px;margin-top:4px}
+.bed div{background:var(--ebene);border:1px solid var(--rand);border-radius:9px;padding:8px 11px;font-size:13.5px}
+.bed b{display:block;font-size:13px;margin-bottom:2px}
+.chip{display:inline-block;font-size:11.5px;border:1px solid var(--rand);border-radius:99px;padding:0 9px;margin:2px 3px 0 0;background:var(--ebene);cursor:pointer;color:var(--text)}
+.chip:hover{border-color:var(--text)}
+@media (max-width:980px){.fluss{grid-template-columns:1fr;grid-template-rows:none;gap:8px}.pf2{display:none}.bed{grid-template-columns:1fr}}
+
+.struktur{background:var(--flaeche);border:1px solid var(--rand);border-radius:12px;padding:10px 14px 14px;box-shadow:var(--schatten);margin-bottom:14px}
+.skraster{display:grid;grid-template-columns:minmax(240px,320px) 1fr;gap:18px;align-items:center}
+#kuchen{width:100%;max-width:1000px;height:auto;display:block;margin:0 auto}
+.kmitte{margin:4px 0 0}
+.leg{display:none}
+#kuchen text{font-size:14px;fill:var(--text);cursor:pointer}
+#kuchen text b,#kuchen .pz{font-weight:700;font-variant-numeric:tabular-nums}
+#kuchen text:hover{text-decoration:underline}
+#kuchen .fl{stroke:var(--achse);stroke-width:1;fill:none}
+#kuchen .gk2{font-size:12px;fill:var(--text2);cursor:default;text-transform:uppercase;letter-spacing:.05em;font-weight:700}
+#kuchen path{cursor:pointer;stroke:var(--flaeche);stroke-width:1.5;transition:opacity .15s}
+#kuchen path:hover,#kuchen path:focus{opacity:.8;outline:none}
+.leg{display:none;grid-template-columns:repeat(2,1fr);gap:3px 14px}
+.leg button{all:unset;cursor:pointer;display:flex;align-items:center;gap:8px;font-size:13px;padding:3px 6px;border-radius:6px}
+.leg button:hover,.leg button:focus-visible{background:var(--ebene);outline:none}
+.leg i{width:11px;height:11px;border-radius:3px;flex:none}
+.leg b{margin-left:auto;font-variant-numeric:tabular-nums}
+.leg .gk{grid-column:1/-1;font-size:11.5px;font-weight:700;text-transform:uppercase;letter-spacing:.05em;color:var(--text2);margin-top:6px}
+.balken{display:flex;height:44px;border-radius:9px;overflow:hidden;margin-top:6px;border:1px solid var(--rand)}
+.balken button{all:unset;cursor:pointer;display:flex;align-items:center;justify-content:center;text-align:center;font-size:13px;font-weight:700;color:#fff;overflow:hidden;white-space:nowrap}
+.balken button:hover,.balken button:focus-visible{filter:brightness(1.12);outline:none}
+.bhin{font-size:11.5px;color:var(--stumm);margin-top:6px}
+.bandinhalt{grid-template-columns:repeat(4,1fr)!important}
+@media (max-width:980px){.bandinhalt{grid-template-columns:1fr!important}}
+@media (max-width:760px){#kuchen .lbl{display:none}#kuchen{max-width:360px}.leg{display:grid;grid-template-columns:1fr;margin-top:8px}}
+
+.fl2k{background:#0c1220;border:1px solid #26334b;border-radius:14px;padding:8px;margin:8px 0 4px}
+.fl2k svg{width:100%;height:auto;display:block}
+.fl2-leg{font-size:12.5px;color:#9fb0c8;margin:2px 6px 4px}
+.fl2k text{font-family:inherit}.fl2k .ebt{font-size:12px;fill:#9fb0c8;letter-spacing:.08em;text-transform:uppercase}
+.fl2k .nd-t{font-size:13px;font-weight:700;fill:#0b1620}.fl2k .nd-s{font-size:11px;fill:#16303f}
+.fl2k .fl-t{font-size:14px;font-weight:600;fill:#eaf0fb;paint-order:stroke;stroke:#0c1220;stroke-width:7px;stroke-linejoin:round}
+.fl2k .std-knopf{float:right;margin:2px 4px 6px 10px;background:#18233a;color:#cfe0f5;border:1px solid #3a4d70;border-radius:999px;padding:5px 13px;font:600 12.5px system-ui;cursor:pointer}.fl2k .std-knopf:hover{border-color:#fff;color:#fff}
+.fl2k .flz,.fl2k .ndz{cursor:pointer;outline:none}.fl2k .flz:hover .fl-l,.fl2k .flz:focus-visible .fl-l{stroke-width:6}.fl2k .ndz:hover rect,.fl2k .ndz:focus-visible rect{stroke:#fff;stroke-width:3.5}
+.fl2k .kl-liste{display:none}
+@media (max-width:760px){.fl2k .kl-liste{display:flex;flex-wrap:wrap;gap:6px;margin-top:8px}}
+.kreislauf svg{width:100%;height:auto;display:block}
+.kreislauf .nd{cursor:pointer}
+.kreislauf .nd rect{fill:var(--ebene);stroke:var(--c);stroke-width:2;transition:fill .15s}
+.kreislauf .nd:hover rect,.kreislauf .nd:focus rect{fill:var(--flaeche)}
+.kreislauf .nd:focus{outline:none}.kreislauf .nd:focus rect{stroke-width:3.5}
+.kreislauf .nd text{pointer-events:none}
+.kreislauf .nt{font-size:15px;font-weight:700;fill:var(--text)}
+.kreislauf .ns{font-size:11.5px;fill:var(--text2)}
+.kreislauf .mk rect{fill:var(--h2);stroke-dasharray:none}
+.kreislauf .fr{stroke:var(--c1);stroke-width:2.4;fill:none}
+.kreislauf .fg{stroke:var(--c4);stroke-width:2.2;fill:none;stroke-dasharray:6 4}
+.kreislauf .fz{stroke:var(--text2);stroke-width:1.8;fill:none}
+.kreislauf .fl2{font-size:11.5px;fill:var(--text2)}
+.kreislauf .mitte{font-size:13px;font-weight:700;fill:var(--text2);text-anchor:middle}
+.kreislauf .mitte2{font-size:11.5px;fill:var(--stumm);text-anchor:middle}
+.kl-liste{display:none}
+@media (max-width:760px){.kreislauf .nd text.ns,.kreislauf .fl2{display:none}.kl-liste{display:flex;flex-wrap:wrap;gap:6px;margin-top:8px}}
+</style>
+<style>.zurueck-knopf{display:inline-flex;align-items:center;gap:8px;font-size:14.5px;font-weight:600;color:var(--text);text-decoration:none;background:var(--flaeche);border:1.5px solid var(--achse);border-radius:12px;padding:8px 16px;margin-bottom:10px;box-shadow:var(--schatten)}.zurueck-knopf:hover,.zurueck-knopf:focus-visible{border-color:var(--text2);outline:none}</style>
+</head>
+<body data-flagge="../bilder/flaggen/uk.jpg">
+<div class="wrap">
+<header>
+  <div>
+    <a href="uk.html" class="zurueck-knopf">← Vereinigtes Königreich, alle Oberthemen</a>
+    <h1>Vereinigtes Königreich – Wirtschaft und Infrastruktur</h1>
+    <div class="unter">Länderanalyse, Oberthema 4 · Daten und Fakten, keine Bewertung · <b>Entwurf: bisher nur der Kreislauf, die Kennzahlen folgen</b></div>
+  </div>
+  <button class="tool" id="theme" type="button">Dunkel / Hell</button>
+</header>
+<section class="versteh" aria-labelledby="vt">
+  <h2 id="vt">Zuerst verstehen: Wie die britische Wirtschaft aufgebaut ist</h2>
+  <p class="lead">Der Schwerpunkt liegt auf der Struktur: Die Dienstleistungswirtschaft steht im Zentrum, darum hängen Arbeitsmarkt, Industrie, Energie, Staat, Finanzsystem, Bank of England und Ausland. Bausteine und Pfeile sind anklickbar. Zahlen in den Erklärungen sind Größenordnungen und werden noch mit ONS, OBR und Bank of England geprüft.</p>
+  <details open>
+    <summary>Der Kreislauf (Bausteine und Pfeile anklicken)</summary>
+    <div class="inh">
+      <div class="fl2k" id="fluss"></div>
+      <p style="font-size:12.5px;color:var(--text2);margin:6px 0 0">Lesart: Haushalte und Dienstleister tauschen Konsum gegen Dienstleistungen, der Arbeitsmarkt verbindet beide Seiten mit Löhnen. Außen hängen Energie, Industrie, Staat, Finanzsystem, Bank of England und Ausland an. Blau und durchgezogen sind reale Ströme, gold und gestrichelt ist Geld.</p>
+    </div>
+  </details>
+</section>
+</div>
+<div id="schatten"></div>
+<aside id="drawer" role="dialog" aria-modal="true" aria-labelledby="dt" tabindex="-1"></aside>
+<script>
+try{const g=localStorage.getItem("dashboard-thema");document.documentElement.dataset.theme=g||"dark"}catch(e){document.documentElement.dataset.theme="dark"}
+const $=s=>document.querySelector(s);
+const esc=s=>String(s).replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+const GELD="#ffd166",REAL="#6cb8f2";
+const D={"G": {"haushalte": "#f2a65a", "arbeit": "#e8c25a", "dienst": "#5aa9e6", "industrie": "#7aa0d8", "staat": "#b48ae6", "city": "#4cc38a", "boe": "#2fa37a", "immo": "#e58a7a", "ausland": "#ef7fb0", "energie": "#4fd1c5"}, "N": {"haushalte": {"t": "Haushalte", "s": "Konsum ca. 60 % des BIP", "was": "Haushalte arbeiten, konsumieren, zahlen Steuern, Miete und Hypothekenzinsen. Der Konsum macht grob 60 % des BIP aus. Rund zwei Drittel wohnen im Eigentum."}, "arbeit": {"t": "Arbeitsmarkt", "s": "Beschäftigte, Zuwanderung", "was": "Hier treffen Arbeitsangebot und Nachfrage zusammen. Besonderheiten: schwache Produktivität, viele Langzeitkranke außerhalb des Arbeitsmarkts, Zuwanderung als Quelle zusätzlicher Arbeitskräfte. Details: Oberthema 7."}, "dienst": {"t": "Dienstleister", "s": "ca. 80 % der Wertschöpfung", "was": "Handel, Unternehmensdienste, Gesundheit, Bildung, Finanz und Information. Die britische Wirtschaft ist eine Dienstleistungsökonomie: grob 80 % der Wertschöpfung."}, "industrie": {"t": "Industrie & Bau", "s": "ca. 10 % Industrie", "was": "Verarbeitendes Gewerbe, Energieversorgung und Bau. Die Industrie trägt grob 10 % der Wertschöpfung. Das Vereinigte Königreich hat ein Warenhandelsdefizit."}, "staat": {"t": "Staat", "s": "Steuern, NHS, Gilts", "was": "Der Staat (HM Treasury) erhebt Steuern, zahlt Sozialleistungen und finanziert öffentliche Dienste wie NHS und Bildung. Die Schulden liegen grob bei 95 bis 100 % des BIP, die Zinskosten sind hoch. Fiskalregeln und Prognosen: OBR."}, "city": {"t": "City of London", "s": "Banken, Märkte, Pfund", "was": "Größter Devisenhandelsplatz der Welt, dazu Anleihe-, Derivate- und Versicherungsmarkt (Lloyd's). Der Finanzsektor sammelt Ersparnisse, vergibt Kredite (u. a. Hypotheken) und kauft Gilts."}, "boe": {"t": "Bank of England", "s": "Bank Rate, MPC", "was": "Seit 1997 operativ unabhängig, Ziel 2 % Inflation. Das MPC (9 Mitglieder) setzt die Bank Rate. Über Banken und Hypotheken wirkt sie schnell auf die Haushalte, weil viele Hypotheken nur 2 bis 5 Jahre Festzins haben."}, "immo": {"t": "Immobilien", "s": "Eigenheim, Hypothek", "was": "Wohnungsmarkt mit hohem Eigentumsanteil und kurzen Festzinsfristen. Zinsänderungen erreichen die Haushalte dadurch rascher als in Ländern mit 30-jährigen Festzinsen. Details: Oberthema 11."}, "ausland": {"t": "Ausland", "s": "EU, USA, Kapital", "was": "Seit dem Brexit gilt das Handels- und Kooperationsabkommen (TCA). Die EU ist grob die Hälfte des Handels, die USA größter Einzelpartner. Das Leistungsbilanzdefizit wird durch Kapitalzuflüsse finanziert: Das Vertrauen in Pfund und Gilts ist wichtig."}, "energie": {"t": "Energie", "s": "Gas setzt den Strompreis", "was": "Der Gaspreis bestimmt in der Regel den Strompreis. Ofgem begrenzt Haushaltspreise per Preisdeckel. Energie ist Kostenfaktor für alle Branchen und für die Inflation. Details: Oberthema 6 und 9."}}, "F": [["haushalte", "arbeit", "Arbeitskraft", "Haushalte bieten ihre Arbeit an."], ["arbeit", "dienst", "Beschäftigte", "Arbeitskräfte für die Dienstleister, dem mit Abstand größten Arbeitgeber."], ["arbeit", "industrie", "Beschäftigte", "Arbeitskräfte für Industrie und Bau."], ["dienst", "arbeit", "Löhne", "Löhne der Dienstleister. Lohnwachstum ist für das MPC ein Beobachtungspunkt.", 1], ["industrie", "arbeit", "Löhne", "Löhne in Industrie und Bau.", 1], ["arbeit", "haushalte", "Lohneinkommen", "Das Einkommen der Haushalte aus Arbeit.", 1], ["dienst", "haushalte", "Dienstleistungen", "Haushalte beziehen vor allem Dienstleistungen."], ["haushalte", "dienst", "Konsum", "Konsumausgaben werden zum Umsatz der Dienstleister.", 1], ["industrie", "dienst", "Vorleistungen", "Industrie und Bau liefern Vorleistungen und Anlagen."], ["energie", "industrie", "Strom, Gas", "Energie ist Vorleistung und Kostenfaktor."], ["energie", "haushalte", "Heizen, Strom", "Haushalte beziehen Energie zum Preisdeckel von Ofgem; die Energierechnung schlägt direkt auf die Inflation durch."], ["haushalte", "staat", "Steuern", "Einkommensteuer, Sozialbeiträge, Mehrwertsteuer.", 1], ["staat", "haushalte", "Sozialleistungen, NHS", "Renten, Sozialleistungen; NHS und Bildung als öffentliche Dienste."], ["haushalte", "immo", "Miete, Hypothekenzins", "Wohnkosten der Haushalte.", 1], ["city", "immo", "Hypotheken", "Banken und Bausparkassen finanzieren den Wohnungsmarkt.", 1], ["boe", "city", "Bank Rate", "Die Bank Rate steuert Zinsen im ganzen Finanzsystem.", 1], ["city", "staat", "Gilt-Käufe", "Investoren kaufen britische Staatsanleihen und finanzieren so den Staat.", 1], ["staat", "city", "Zinsen auf Gilts", "Der Staat zahlt Zinsen auf die Schulden, die Zinskosten sind hoch.", 1], ["ausland", "city", "Kapitalzuflüsse", "Das Leistungsbilanzdefizit wird durch Kapitalzuflüsse finanziert.", 1], ["dienst", "ausland", "Dienstleistungsexporte", "Finanz-, Beratungs- und Unternehmensdienste sind große Exporte (Dienstleistungsüberschuss)."], ["ausland", "industrie", "Warenimporte", "Das Vereinigte Königreich importiert mehr Waren, als es exportiert."], ["ausland", "arbeit", "Zuwanderung", "Zuwanderung erhöht das Arbeitsangebot."]]};
+const LP={"Zuwanderung":.22};
+const STD={
+G:{haushalte:"#f2a65a",unternehmen:"#5aa9e6",gueter:"#9aa7b5",faktor:"#9aa7b5",staat:"#b48ae6",finanz:"#4cc38a",ausland:"#ef7fb0"},
+N:{haushalte:{t:"Haushalte",s:"Konsum, Arbeit, Sparen",was:"Bieten Arbeit, Kapital und Boden an, erhalten Einkommen, konsumieren, zahlen Steuern und sparen."},
+ unternehmen:{t:"Unternehmen",s:"Produktion, Investition",was:"Erzeugen Güter und Dienstleistungen und setzen dafür Arbeit, Kapital und Boden ein."},
+ gueter:{t:"Gütermarkt",s:"Angebot trifft Nachfrage",was:"Hier treffen Angebot der Unternehmen und Nachfrage der Haushalte, des Staates und des Auslands aufeinander."},
+ faktor:{t:"Faktormärkte",s:"Arbeit, Kapital, Boden",was:"Hier werden Produktionsfaktoren gegen Löhne, Zinsen, Gewinne und Pachten getauscht."},
+ staat:{t:"Staat",s:"Steuern, Ausgaben",was:"Erhebt Steuern, zahlt Transfers und fragt Güter nach."},
+ finanz:{t:"Finanzsektor",s:"Sparen wird Kredit",was:"Sammelt Ersparnisse und leitet sie als Kredit und Beteiligung weiter."},
+ ausland:{t:"Ausland",s:"Exporte, Importe",was:"Handel mit Gütern und grenzüberschreitende Kapitalströme."}},
+F:[["unternehmen","gueter","Güter, Dienste","Unternehmen bieten ihre Produktion an."],["gueter","haushalte","Güter, Dienste","Haushalte erhalten die Güter."],
+["haushalte","gueter","Konsumausgaben","Haushalte bezahlen ihre Käufe.",1],["gueter","unternehmen","Umsatz","Das Geld wird zum Umsatz der Unternehmen.",1],
+["haushalte","faktor","Arbeit, Kapital","Haushalte bieten Produktionsfaktoren an."],["faktor","unternehmen","Arbeit, Kapital","Unternehmen setzen sie in der Produktion ein."],
+["unternehmen","faktor","Löhne, Zinsen, Gewinne","Bezahlung der Faktoren.",1],["faktor","haushalte","Einkommen","Einkommen der Haushalte.",1],
+["haushalte","staat","Steuern","Abgaben der Haushalte.",1],["staat","haushalte","Transfers","Sozialleistungen und mehr.",1],
+["haushalte","finanz","Ersparnisse","Was nicht ausgegeben wird, wird angelegt.",1],["finanz","unternehmen","Kredit, Kapital","Aus Sparen wird Kredit für Investitionen.",1],
+["unternehmen","ausland","Exporte","Güter für das Ausland."],["ausland","unternehmen","Importe","Güter aus dem Ausland."]]};
+const FARBE=Object.assign({},STD.G,D.G);
+const SUB={};Object.keys(STD.N).forEach(k=>SUB[k]=STD.N[k].s);Object.keys(D.N).forEach(k=>SUB[k]=D.N[k].s);
+const POS={"dienst": [550, 345], "energie": [150, 70], "arbeit": [330, 160], "industrie": [880, 130], "haushalte": [100, 345], "ausland": [1010, 345], "staat": [130, 590], "immo": [340, 700], "city": [650, 700], "boe": [930, 600]};
+const POSSTD={gueter:[430,95],faktor:[430,455],haushalte:[130,275],unternehmen:[730,275],staat:[430,275],finanz:[130,455],ausland:[730,455]};
+const FL=D.F;
+const NK=[];
+Object.keys(STD.N).forEach(k=>NK.push({id:k,t:STD.N[k].t,s:STD.N[k].s,was:STD.N[k].was,zus:""}));
+Object.keys(D.N).forEach(k=>{const n={id:k,t:D.N[k].t,s:D.N[k].s,was:D.N[k].was,zus:""};const i=NK.findIndex(x=>x.id===k);if(i>=0)NK[i]=n;else NK.push(n)});
+function svgEl(n,a,p){const e=document.createElementNS("http://www.w3.org/2000/svg",n);for(const k in a)e.setAttribute(k,a[k]);if(p)p.appendChild(e);return e}
+function netzBauen(box,pos,F,vb,pre,ring,titel){
+  const W=150,H=54;const labs=[];
+  const svg=svgEl("svg",{viewBox:vb,role:"group","aria-label":titel});
+  box.appendChild(svg);
+  const defs=svgEl("defs",{},svg);
+  [["geld",GELD],["real",REAL]].forEach(k=>{const m=svgEl("marker",{id:pre+k[0],viewBox:"0 0 10 10",refX:9,refY:5,markerWidth:6,markerHeight:6,orient:"auto"},defs);svgEl("path",{d:"M0 0L10 5L0 10z",fill:k[1]},m)});
+  if(ring){svgEl("ellipse",{cx:550,cy:345,rx:330,ry:215,fill:"rgba(90,169,230,.05)",stroke:"#2b3b58","stroke-dasharray":"7 6"},svg);
+   const mt=svgEl("text",{class:"ebt",x:550,y:420,"text-anchor":"middle"},svg);mt.textContent=ring}
+  F.forEach(f=>{const a=pos[f[0]],b=pos[f[1]];if(!a||!b)return;
+    const dx=b[0]-a[0],dy=b[1]-a[1],L=Math.hypot(dx,dy),ux=dx/L,uy=dy/L;
+    const hasRev=F.some(q=>q[0]===f[1]&&q[1]===f[0]);const o=hasRev?17:0,px=-uy*o,py=ux*o;
+    const t=Math.min(Math.abs(ux)<1e-6?1e9:(W/2+5)/Math.abs(ux),Math.abs(uy)<1e-6?1e9:(H/2+5)/Math.abs(uy));
+    const x1=a[0]+px+ux*t,y1=a[1]+py+uy*t,x2=b[0]+px-ux*t,y2=b[1]+py-uy*t;
+    const g=svgEl("g",{class:"flz",tabindex:0,role:"button","aria-label":f[2]},svg);
+    svgEl("line",{x1:x1,y1:y1,x2:x2,y2:y2,stroke:"transparent","stroke-width":16},g);
+    const ln={class:"fl-l",x1:x1,y1:y1,x2:x2,y2:y2,stroke:f[4]?GELD:REAL,"stroke-width":3.2,opacity:.95,"marker-end":"url(#"+pre+(f[4]?"geld":"real")+")"};if(f[4])ln["stroke-dasharray"]="8 5";svgEl("line",ln,g);
+    let ang=Math.atan2(y2-y1,x2-x1)*180/Math.PI,flip=false;if(ang>90){ang-=180;flip=true}if(ang<-90){ang+=180;flip=true}
+    const fr=(pre==="pf-"&&LP[f[2]])||.5;const ty=hasRev?(flip?-6:15):15;
+    const tx=svgEl("text",{class:"fl-t",x:0,y:ty,"text-anchor":"middle",transform:"translate("+(x1+(x2-x1)*fr)+","+(y1+(y2-y1)*fr)+") rotate("+ang+")"},g);tx.textContent=f[2];labs.push(tx);
+    const op=()=>geldfluss(f);g.addEventListener("click",op);g.addEventListener("keydown",e=>{if(e.key==="Enter"||e.key===" "){e.preventDefault();op()}})});
+  Object.keys(pos).forEach(id=>{const n=NK.find(x=>x.id===id);if(!n)return;const p=pos[id],g=svgEl("g",{class:"ndz",tabindex:0,role:"button","aria-label":n.t},svg);
+    svgEl("rect",{x:p[0]-W/2,y:p[1]-H/2,width:W,height:H,rx:H/2,fill:FARBE[id],stroke:"#0c1220","stroke-width":2},g);
+    const a=svgEl("text",{class:"nd-t",x:p[0],y:p[1]-3,"text-anchor":"middle"},g);a.textContent=n.t;
+    const b=svgEl("text",{class:"nd-s",x:p[0],y:p[1]+14,"text-anchor":"middle"},g);b.textContent=SUB[id]||n.s;
+    const op=()=>knoten(id);g.addEventListener("click",op);g.addEventListener("keydown",e=>{if(e.key==="Enter"||e.key===" "){e.preventDefault();op()}})});
+  const top=svgEl("g",{style:"pointer-events:none"},svg);labs.forEach(x=>top.appendChild(x));
+  return svg}
+
+function flussBauen(){
+  const box=document.getElementById("fluss");if(!box)return;
+  const leg=document.createElement("p");leg.className="fl2-leg";leg.innerHTML='Durchgezogen, <b style="color:'+REAL+'">blau: reale Ströme</b> (Güter, Arbeit, Kapital) · gestrichelt, <b style="color:'+GELD+'">gold: Geld</b>. Oben rechts öffnet der Knopf den Standard-Wirtschaftskreislauf.';
+  const bt=document.createElement("button");bt.type="button";bt.className="std-knopf";bt.textContent="Standard-Kreislauf ▸";
+  const hauptBox=document.createElement("div"),stdBox=document.createElement("div");stdBox.style.display="none";
+  box.appendChild(bt);box.appendChild(hauptBox);box.appendChild(stdBox);hauptBox.appendChild(leg);
+  netzBauen(hauptBox,POS,FL,"0 0 1100 760","pf-","Dienstleistungswirtschaft im Zentrum","Wirtschaftskreislauf des Vereinigten Königreichs");
+  const sl=document.createElement("p");sl.className="fl2-leg";sl.textContent="Das allgemeine Lehrbuch-Modell, auf dem der UK-Kreislauf aufbaut. Pfeile und Bausteine anklicken.";stdBox.appendChild(sl);
+  netzBauen(stdBox,POSSTD,STD.F,"0 0 860 560","ps-","","Standard-Wirtschaftskreislauf");
+  bt.addEventListener("click",()=>{const an=stdBox.style.display==="none";stdBox.style.display=an?"":"none";hauptBox.style.display=an?"none":"";bt.textContent=an?"◂ zurück zum UK-Kreislauf":"Standard-Kreislauf ▸"});
+  const li=document.createElement("div");li.className="kl-liste";li.innerHTML=NK.map(n=>'<button type="button" class="chip" data-id="'+n.id+'">'+esc(n.t)+'</button>').join("");
+  li.querySelectorAll("button").forEach(b=>b.addEventListener("click",()=>knoten(b.dataset.id)));box.appendChild(li);
+}
+
+const dr=$("#drawer"),sh=$("#schatten");
+function offen(farbe,kopf,titel,inh){dr.style.setProperty("--c",farbe);
+  dr.innerHTML='<div class="dk"><div><div class="gr">'+esc(kopf)+'</div><h2 id="dt">'+esc(titel)+'</h2></div><button class="zu" type="button" aria-label="Schließen">×</button></div><div class="db">'+inh+'</div>';
+  dr.classList.add("offen");sh.classList.add("offen");dr.querySelector(".zu").addEventListener("click",schliessen);dr.focus()}
+function geldfluss(f){const von=NK.find(x=>x.id===f[0]),nach=NK.find(x=>x.id===f[1]);
+  offen(f[4]?GELD:REAL,f[4]?"Geldstrom":"Realer Strom",f[2],'<h3>Von wem zu wem?</h3><p>'+esc(von.t)+' → '+esc(nach.t)+'</p><h3>Was passiert?</h3><p>'+esc(f[3])+'</p><h3>Beteiligte Bausteine</h3><p><button class="chip" type="button" data-k="'+von.id+'">'+esc(von.t)+'</button><button class="chip" type="button" data-k="'+nach.id+'">'+esc(nach.t)+'</button></p>');
+  dr.querySelectorAll(".chip").forEach(c=>c.addEventListener("click",()=>knoten(c.dataset.k)))}
+function knoten(id){const n=NK.find(x=>x.id===id);
+  const aus=FL.filter(f=>f[0]===id).map(f=>f[2]),ein=FL.filter(f=>f[1]===id).map(f=>f[2]);
+  offen(FARBE[id],"Baustein des Systems",n.t,'<h3>Was ist das?</h3><p>'+esc(n.was)+'</p><h3>Wie hängt es zusammen?</h3><p>Gibt ab: '+esc(aus.join(", ")||"nichts")+'.<br>Bekommt: '+esc(ein.join(", ")||"nichts")+'.</p><h3>Wo sieht man es in den Daten?</h3><p>Kennzahlen folgen. Verwandte Oberthemen: 2 (Finanzsystem), 3 (Bank of England), 6 (Inflation), 7 (Arbeitsmarkt).</p>')}
+function schliessen(){dr.classList.remove("offen");sh.classList.remove("offen")}
+sh.addEventListener("click",schliessen);addEventListener("keydown",e=>{if(e.key==="Escape"&&dr.classList.contains("offen"))schliessen()});
+$("#theme").addEventListener("click",()=>{const r=document.documentElement;r.dataset.theme=r.dataset.theme==="dark"?"light":"dark";try{localStorage.setItem("dashboard-thema",r.dataset.theme)}catch(e){}});
+flussBauen();
+</script>
+<script src="seitenhintergrund.js?v=20261023"></script>
+</body>
+</html>

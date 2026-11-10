@@ -143,7 +143,8 @@ svg.chart{width:100%;height:auto;display:block;touch-action:none}
 .fl2-leg{font-size:12.5px;color:#9fb0c8;margin:2px 6px 4px}
 .fl2k text{font-family:inherit}.fl2k .ebt{font-size:12px;fill:#9fb0c8;letter-spacing:.08em;text-transform:uppercase}
 .fl2k .nd-t{font-size:13px;font-weight:700;fill:#0b1620}.fl2k .nd-s{font-size:11px;fill:#16303f}
-.fl2k .fl-t{font-size:11.5px;fill:#eaf0fb;paint-order:stroke;stroke:#0c1220;stroke-width:5px;stroke-linejoin:round}
+.fl2k .fl-t{font-size:14px;font-weight:600;fill:#eaf0fb;paint-order:stroke;stroke:#0c1220;stroke-width:7px;stroke-linejoin:round}
+.fl2k .std-knopf{float:right;margin:2px 4px 6px 10px;background:#18233a;color:#cfe0f5;border:1px solid #3a4d70;border-radius:999px;padding:5px 13px;font:600 12.5px system-ui;cursor:pointer}.fl2k .std-knopf:hover{border-color:#fff;color:#fff}
 .fl2k .flz,.fl2k .ndz{cursor:pointer;outline:none}.fl2k .flz:hover .fl-l,.fl2k .flz:focus-visible .fl-l{stroke-width:6}.fl2k .ndz:hover rect,.fl2k .ndz:focus-visible rect{stroke:#fff;stroke-width:3.5}
 .fl2k .kl-liste{display:none}
 @media (max-width:760px){.fl2k .kl-liste{display:flex;flex-wrap:wrap;gap:6px;margin-top:8px}}
@@ -203,7 +204,7 @@ svg.chart{width:100%;height:auto;display:block;touch-action:none}
     <summary>Der Kreislauf (Bausteine und Pfeile anklicken)</summary>
     <div class="inh">
       <div class="fl2k" id="fluss"></div>
-      <p style="font-size:12.5px;color:var(--text2);margin:6px 0 0">Lesart: Im Kern tauschen Haushalte und Unternehmen über zwei Märkte (Gütermarkt, Faktormärkte). Blau und durchgezogen laufen die realen Ströme (Güter, Arbeit, Kapital), gold und gestrichelt das Geld in Gegenrichtung. Außen hängen Staat, Energie, Ausland und die Kette Sparen, Kredit, Investitionen an, mit der Rückkopplung "Technik, Anlagen" zu den Unternehmen. Bausteine und Pfeile sind anklickbar.</p>
+      <p style="font-size:12.5px;color:var(--text2);margin:6px 0 0">Lesart: Unternehmen und Technik stehen im Zentrum. Haushalte liefern Arbeit über den Arbeitsmarkt und konsumieren, Investitionen (Technik, KI, Rechenzentren) erhöhen Kapazität und brauchen Kredit und Strom. Außen hängen Bund, Bundesstaaten, Finanzsystem, Federal Reserve, Immobilien, Energie und Ausland an. Blau und durchgezogen laufen die realen Ströme, gold und gestrichelt das Geld. Der Knopf oben rechts zeigt den allgemeinen Standard-Wirtschaftskreislauf. Bausteine und Pfeile sind anklickbar.</p>
     </div>
   </details>
 
@@ -440,6 +441,11 @@ function zeichne(k,tage){const all=DATA[k.s];let p=all;if(tage){const lim=new Da
   svg.onpointermove=mv;svg.onpointerdown=mv;svg.onpointerleave=()=>{$("#cv").setAttribute("opacity",0);$("#cd").setAttribute("opacity",0)}}
 /* ================== VERSTÄNDNIS-KREISLAUF ================== */
 const NK=[
+ {id:"arbeit",n:"n7",t:"Arbeitsmarkt",s:"Beschäftigte, Löhne",was:"Hier treffen Arbeitsangebot und -nachfrage zusammen. Dienstleister stellen den größten Teil der Beschäftigten. Details: Oberthema 7.",zus:"Löhne sind Einkommen der Haushalte und Kosten der Unternehmen.",daten:[],keine:"Keine eigene Kachel in diesem Oberthema. Arbeitsmarkt: Oberthema 7."},
+ {id:"bund",n:"n4",t:"Bund",s:"Steuern, Defizit, Schulden",was:"Die Bundesregierung erhebt Steuern, zahlt Sozialleistungen (Social Security, Medicare) und finanziert sich über Treasuries. Das Defizit ist hoch, die Zinskosten steigen.",zus:"Haushalt und Schulden: Oberthemen 1 und 2.",daten:["b_VAPGDPG"]},
+ {id:"laender",n:"n4",t:"Bundesstaaten",s:"Straßen, Netze, Schulen",was:"Bundesstaaten und Kommunen betreiben den größten Teil der Infrastruktur (Straßen, Wasser, Schulen). Der Bund unterstützt über Zuweisungen.",zus:"Die Bundesmittel für Verkehr laufen über befristete Gesetze.",daten:["bpub","bhwy","iija"]},
+ {id:"fed",n:"n3",t:"Federal Reserve",s:"Leitzins, Liquidität",was:"Die Fed steuert mit dem Leitzins das Zinsniveau und die Liquidität im Finanzsystem. Details: Oberthema 3.",zus:"",daten:[],keine:"Keine eigene Kachel in diesem Oberthema. Die Fed steht in Oberthema 3."},
+ {id:"immo",n:"n11",t:"Immobilien",s:"30-jährige Festzins-Hypothek",was:"Der US-Hypothekenmarkt ist von Festzinsen mit bis zu 30 Jahren Laufzeit geprägt. Zinsänderungen wirken verzögert und über Neukäufe. Details: Oberthema 11.",zus:"",daten:[],keine:"Keine eigene Kachel in diesem Oberthema. Immobilien: Oberthema 11."},
  {id:"haushalte",n:"n6",t:"Haushalte",s:"Beschäftigung, Einkommen, Konsum",
   was:"Haushalte bieten ihre Arbeitskraft an, erhalten Löhne und Kapitalerträge und geben das Einkommen für Güter und Dienstleistungen aus oder sparen es. Der Arbeitsmarkt wird in Oberthema 7 behandelt.",
   zus:"Der private Konsum ist mit rund zwei Dritteln des BIP der größte Block der Nachfrage. Ersparnisse fließen über den Finanzsektor an Unternehmen, Steuern an den Staat.",
@@ -477,61 +483,72 @@ const NK=[
   zus:"Handelspartner und Zölle sind Thema von Oberthema 5, die Kapitalseite von Oberthema 2.",
   daten:["lb","hb","enetto"]}
 ];
-const SUB={haushalte:"Konsum, Arbeit, Sparen",unternehmen:"Produktion, Investition",staat:"Steuern, Ausgaben, Netze",finanz:"Sparen, Kredit"};
 const GELD="#ffd166",REAL="#6cb8f2";
-const FARBE={haushalte:"#f2a65a",unternehmen:"#5aa9e6",gueter:"#9aa7b5",faktor:"#9aa7b5",staat:"#b48ae6",finanz:"#4cc38a",invest:"#7fd6a8",ausland:"#ef7fb0",energie:"#4fd1c5"};
-const POS={staat:[550,45],gueter:[550,185],faktor:[550,470],haushalte:[150,325],unternehmen:[950,325],energie:[985,120],finanz:[300,675],invest:[770,675],ausland:[1000,540]};
-/* [von, nach, Beschriftung, Erklaerung, Geld?] */
-const FL=[
-["unternehmen","gueter","Güter, Dienstleistungen","Unternehmen bieten ihre Produktion am Gütermarkt an."],
-["gueter","haushalte","Güter, Dienstleistungen","Haushalte erhalten die Güter und Dienstleistungen."],
-["haushalte","gueter","Konsumausgaben","Haushalte bezahlen ihre Käufe. Der Konsum ist rund zwei Drittel des BIP.",1],
-["gueter","unternehmen","Umsatz","Das Geld der Käufe wird zum Umsatz der Unternehmen.",1],
-["haushalte","faktor","Arbeit, Kapital, Boden","Haushalte bieten ihre Produktionsfaktoren an."],
-["faktor","unternehmen","Arbeit, Kapital, Boden","Unternehmen setzen die Faktoren in der Produktion ein."],
-["unternehmen","faktor","Löhne, Zinsen, Gewinne","Unternehmen bezahlen für die Faktoren.",1],
-["faktor","haushalte","Löhne, Zinsen, Gewinne","Das Einkommen der Haushalte.",1],
-["haushalte","staat","Steuern","Einkommensteuern und andere Abgaben.",1],
-["staat","haushalte","Transfers","Der Staat zahlt Renten, Sozialleistungen und mehr.",1],
-["unternehmen","staat","Steuern","Steuern auf Gewinne und Umsätze.",1],
-["staat","unternehmen","Aufträge, Infrastruktur","Der Staat fragt Güter nach und stellt Infrastruktur bereit, die Kosten senkt."],
-["haushalte","finanz","Ersparnisse","Was Haushalte nicht ausgeben, wird beim Finanzsektor angelegt.",1],
-["finanz","invest","Kredit","Aus Sparen wird Kredit und Beteiligung für Investitionen.",1],
-["invest","unternehmen","Technik, Anlagen","Investitionen erhöhen Kapazität und Produktivität. Das ist ein großer Teil des aktuellen Wachstums."],
-["energie","unternehmen","Strom, Öl, Gas","Energie ist Vorleistung und Kostenfaktor für alle Branchen."],
-["unternehmen","ausland","Exporte","Exporte (Energie, Dienstleistungen, Agrargüter) gleichen einen Teil des Imports aus."],
-["ausland","unternehmen","Importe","Importe halten Konsum und Technik-Investitionen am Laufen."],
-["ausland","finanz","Kapitalzuflüsse","Das Defizit im Außenhandel wird durch Kapitalzuflüsse finanziert (Oberthema 2).",1]
-];
+const D={"G": {"haushalte": "#f2a65a", "arbeit": "#e8c25a", "unternehmen": "#5aa9e6", "invest": "#7fd6a8", "bund": "#b48ae6", "laender": "#c9a8ee", "fed": "#2fa37a", "finanz": "#4cc38a", "immo": "#e58a7a", "ausland": "#ef7fb0", "energie": "#4fd1c5"}, "N": {"haushalte": {"t": "Haushalte", "s": "Konsum ca. zwei Drittel", "was": "Haushalte arbeiten, konsumieren, zahlen Steuern und Hypothekenzinsen. Der private Konsum ist grob zwei Drittel des BIP und der wichtigste Wachstumsmotor."}, "arbeit": {"t": "Arbeitsmarkt", "s": "Beschäftigte, Löhne", "was": "Hier treffen Arbeitsangebot und -nachfrage zusammen. Dienstleister stellen den größten Teil der Beschäftigten. Details: Oberthema 7."}, "unternehmen": {"t": "Unternehmen", "s": "Dienste, Tech, Industrie", "was": "Private Dienstleister machen knapp drei Viertel der Wertschöpfung aus, die Industrie etwa ein Zehntel. Große Technologiekonzerne treiben Gewinne und Börsenwert."}, "invest": {"t": "Investitionen", "s": "Technik, KI, Rechenzentren", "was": "Ausgaben für Maschinen, Software, Fabriken und zuletzt besonders Rechenzentren. Sie erhöhen Kapazität und Produktivität und tragen einen großen Teil des aktuellen Wachstums."}, "bund": {"t": "Bund", "s": "Steuern, Defizit, Schulden", "was": "Die Bundesregierung erhebt Steuern, zahlt Sozialleistungen (Social Security, Medicare) und finanziert sich über Treasuries. Das Defizit ist hoch, die Zinskosten steigen."}, "laender": {"t": "Bundesstaaten", "s": "Straßen, Netze, Schulen", "was": "Bundesstaaten und Kommunen betreiben den größten Teil der Infrastruktur (Straßen, Wasser, Schulen). Der Bund unterstützt über Zuweisungen."}, "fed": {"t": "Federal Reserve", "s": "Leitzins, Liquidität", "was": "Die Fed steuert mit dem Leitzins das Zinsniveau und die Liquidität im Finanzsystem. Details: Oberthema 3."}, "finanz": {"t": "Finanzsystem", "s": "Banken, Anleihe-, Aktienmarkt", "was": "Tiefste Kapitalmärkte der Welt. Banken, Anleihe- und Aktienmärkte leiten Ersparnisse an Unternehmen, Staat und Haushalte. Der Dollar ist Weltreservewährung. Details: Oberthema 2."}, "immo": {"t": "Immobilien", "s": "30-jährige Festzins-Hypothek", "was": "Der US-Hypothekenmarkt ist von Festzinsen mit bis zu 30 Jahren Laufzeit geprägt. Zinsänderungen wirken verzögert und über Neukäufe. Details: Oberthema 11."}, "ausland": {"t": "Ausland", "s": "Handel, Dollar, Kapital", "was": "Die USA importieren mehr Waren, als sie exportieren. Die Lücke finanziert der Rest der Welt über Kapitalzuflüsse in Dollar-Anlagen, vor allem Treasuries."}, "energie": {"t": "Energie", "s": "Öl, Gas, LNG, Strom", "was": "Die USA sind einer der größten Öl- und Gasproduzenten und exportieren Erdgas als LNG. Der Strombedarf wächst, besonders durch Rechenzentren."}}, "F": [["haushalte", "arbeit", "Arbeitskraft", "Haushalte bieten ihre Arbeit an."], ["arbeit", "unternehmen", "Beschäftigte", "Arbeitskräfte für die Unternehmen."], ["unternehmen", "arbeit", "Löhne", "Lohnzahlungen der Unternehmen.", 1], ["arbeit", "haushalte", "Lohneinkommen", "Einkommen der Haushalte aus Arbeit.", 1], ["unternehmen", "haushalte", "Güter, Dienstleistungen", "Haushalte erhalten Waren und vor allem Dienstleistungen."], ["haushalte", "unternehmen", "Konsum", "Konsumausgaben, rund zwei Drittel des BIP.", 1], ["finanz", "invest", "Kredit, Kapital", "Aus Ersparnissen und Marktfinanzierung werden Investitionen.", 1], ["invest", "unternehmen", "Anlagen, KI-Technik", "Investitionen erhöhen Kapazität und Produktivität."], ["invest", "energie", "Strombedarf", "Rechenzentren erhöhen die Stromnachfrage."], ["energie", "unternehmen", "Strom, Öl, Gas", "Energie ist Vorleistung und Kostenfaktor."], ["haushalte", "bund", "Steuern", "Einkommensteuer, Sozialbeiträge.", 1], ["bund", "haushalte", "Sozialleistungen", "Social Security, Medicare und andere Transfers.", 1], ["bund", "laender", "Zuweisungen", "Der Bund unterstützt Verkehr und Infrastruktur der Bundesstaaten.", 1], ["laender", "unternehmen", "Infrastruktur", "Straßen, Netze und Schulen senken die Kosten der Unternehmen."], ["finanz", "bund", "Kauf von Treasuries", "Investoren finanzieren den Bund über Staatsanleihen.", 1], ["bund", "finanz", "Schuldzinsen", "Der Bund zahlt Zinsen; die Zinskosten steigen.", 1], ["fed", "finanz", "Leitzins, Liquidität", "Die Fed steuert das Zinsniveau und die Liquidität.", 1], ["finanz", "immo", "Hypotheken", "Banken und Verbriefungsmärkte finanzieren den Wohnungsmarkt.", 1], ["haushalte", "immo", "Wohnkosten", "Wohnkosten der Haushalte.", 1], ["unternehmen", "ausland", "Exporte", "Energie, Dienstleistungen, Agrargüter, Technik."], ["ausland", "unternehmen", "Importe", "Konsum- und Technikgüter, Vorleistungen."], ["energie", "ausland", "LNG, Öl", "Energie ist ein wachsender Exportposten."], ["ausland", "finanz", "Kapitalzuflüsse", "Das Defizit im Außenhandel wird durch Kapitalzuflüsse finanziert.", 1]]};
+const LP={"Zuweisungen":.3,"Wohnkosten":.4,"Schuldzinsen":.45,"Kauf von Treasuries":.4};
+const STD={
+G:{haushalte:"#f2a65a",unternehmen:"#5aa9e6",gueter:"#9aa7b5",faktor:"#9aa7b5",staat:"#b48ae6",finanz:"#4cc38a",ausland:"#ef7fb0"},
+N:{haushalte:{t:"Haushalte",s:"Konsum, Arbeit, Sparen",was:"Bieten Arbeit, Kapital und Boden an, erhalten Einkommen, konsumieren, zahlen Steuern und sparen."},
+ unternehmen:{t:"Unternehmen",s:"Produktion, Investition",was:"Erzeugen Güter und Dienstleistungen und setzen dafür Arbeit, Kapital und Boden ein."},
+ gueter:{t:"Gütermarkt",s:"Angebot trifft Nachfrage",was:"Hier treffen Angebot der Unternehmen und Nachfrage der Haushalte, des Staates und des Auslands aufeinander."},
+ faktor:{t:"Faktormärkte",s:"Arbeit, Kapital, Boden",was:"Hier werden Produktionsfaktoren gegen Löhne, Zinsen, Gewinne und Pachten getauscht."},
+ staat:{t:"Staat",s:"Steuern, Ausgaben",was:"Erhebt Steuern, zahlt Transfers und fragt Güter nach."},
+ finanz:{t:"Finanzsektor",s:"Sparen wird Kredit",was:"Sammelt Ersparnisse und leitet sie als Kredit und Beteiligung weiter."},
+ ausland:{t:"Ausland",s:"Exporte, Importe",was:"Handel mit Gütern und grenzüberschreitende Kapitalströme."}},
+F:[["unternehmen","gueter","Güter, Dienste","Unternehmen bieten ihre Produktion an."],["gueter","haushalte","Güter, Dienste","Haushalte erhalten die Güter."],
+["haushalte","gueter","Konsumausgaben","Haushalte bezahlen ihre Käufe.",1],["gueter","unternehmen","Umsatz","Das Geld wird zum Umsatz der Unternehmen.",1],
+["haushalte","faktor","Arbeit, Kapital","Haushalte bieten Produktionsfaktoren an."],["faktor","unternehmen","Arbeit, Kapital","Unternehmen setzen sie in der Produktion ein."],
+["unternehmen","faktor","Löhne, Zinsen, Gewinne","Bezahlung der Faktoren.",1],["faktor","haushalte","Einkommen","Einkommen der Haushalte.",1],
+["haushalte","staat","Steuern","Abgaben der Haushalte.",1],["staat","haushalte","Transfers","Sozialleistungen und mehr.",1],
+["haushalte","finanz","Ersparnisse","Was nicht ausgegeben wird, wird angelegt.",1],["finanz","unternehmen","Kredit, Kapital","Aus Sparen wird Kredit für Investitionen.",1],
+["unternehmen","ausland","Exporte","Güter für das Ausland."],["ausland","unternehmen","Importe","Güter aus dem Ausland."]]};
+const FARBE=Object.assign({},STD.G,D.G);
+const SUB={};Object.keys(STD.N).forEach(k=>SUB[k]=STD.N[k].s);Object.keys(D.N).forEach(k=>SUB[k]=D.N[k].s);
+const POS={"unternehmen": [550, 345], "energie": [550, 58], "arbeit": [250, 150], "invest": [880, 150], "haushalte": [100, 345], "ausland": [1010, 345], "bund": [110, 600], "immo": [340, 700], "finanz": [650, 700], "fed": [930, 600], "laender": [340, 500]};
+const POSSTD={gueter:[430,95],faktor:[430,455],haushalte:[130,275],unternehmen:[730,275],staat:[430,275],finanz:[130,455],ausland:[730,455]};
+const FL=D.F;
 function svgEl(n,a,p){const e=document.createElementNS("http://www.w3.org/2000/svg",n);for(const k in a)e.setAttribute(k,a[k]);if(p)p.appendChild(e);return e}
-function flussBauen(){
-  const box=document.getElementById("fluss");if(!box)return;const W=150,H=54;
-  const svg=svgEl("svg",{viewBox:"0 0 1100 740",role:"group","aria-label":"Wirtschaftskreislauf der USA"});
-  const leg=document.createElement("p");leg.className="fl2-leg";leg.innerHTML='Durchgezogen, <b style="color:'+REAL+'">blau: reale Ströme</b> (Güter, Arbeit, Kapital) · gestrichelt, <b style="color:'+GELD+'">gold: Geld</b>';
-  box.appendChild(leg);box.appendChild(svg);
+function netzBauen(box,pos,F,vb,pre,ring,titel){
+  const W=150,H=54;const labs=[];
+  const svg=svgEl("svg",{viewBox:vb,role:"group","aria-label":titel});
+  box.appendChild(svg);
   const defs=svgEl("defs",{},svg);
-  [["geld",GELD],["real",REAL]].forEach(k=>{const m=svgEl("marker",{id:"pf-"+k[0],viewBox:"0 0 10 10",refX:9,refY:5,markerWidth:6,markerHeight:6,orient:"auto"},defs);svgEl("path",{d:"M0 0L10 5L0 10z",fill:k[1]},m)});
-  svgEl("ellipse",{cx:550,cy:322,rx:500,ry:195,fill:"rgba(90,169,230,.05)",stroke:"#2b3b58","stroke-dasharray":"7 6"},svg);
-  const mt=svgEl("text",{class:"ebt",x:550,y:335,"text-anchor":"middle"},svg);mt.textContent="Wirtschaftskreislauf";
-  FL.forEach((f,idx)=>{const a=POS[f[0]],b=POS[f[1]];
-    const dx=b[0]-a[0],dy=b[1]-a[1],L=Math.hypot(dx,dy),ux=dx/L,uy=dy/L,px=-uy*20,py=ux*20;
+  [["geld",GELD],["real",REAL]].forEach(k=>{const m=svgEl("marker",{id:pre+k[0],viewBox:"0 0 10 10",refX:9,refY:5,markerWidth:6,markerHeight:6,orient:"auto"},defs);svgEl("path",{d:"M0 0L10 5L0 10z",fill:k[1]},m)});
+  if(ring){svgEl("ellipse",{cx:550,cy:345,rx:330,ry:215,fill:"rgba(90,169,230,.05)",stroke:"#2b3b58","stroke-dasharray":"7 6"},svg);
+   const mt=svgEl("text",{class:"ebt",x:550,y:420,"text-anchor":"middle"},svg);mt.textContent=ring}
+  F.forEach(f=>{const a=pos[f[0]],b=pos[f[1]];if(!a||!b)return;
+    const dx=b[0]-a[0],dy=b[1]-a[1],L=Math.hypot(dx,dy),ux=dx/L,uy=dy/L;
+    const hasRev=F.some(q=>q[0]===f[1]&&q[1]===f[0]);const o=hasRev?17:0,px=-uy*o,py=ux*o;
     const t=Math.min(Math.abs(ux)<1e-6?1e9:(W/2+5)/Math.abs(ux),Math.abs(uy)<1e-6?1e9:(H/2+5)/Math.abs(uy));
     const x1=a[0]+px+ux*t,y1=a[1]+py+uy*t,x2=b[0]+px-ux*t,y2=b[1]+py-uy*t;
     const g=svgEl("g",{class:"flz",tabindex:0,role:"button","aria-label":f[2]},svg);
     svgEl("line",{x1:x1,y1:y1,x2:x2,y2:y2,stroke:"transparent","stroke-width":16},g);
-    const ln={class:"fl-l",x1:x1,y1:y1,x2:x2,y2:y2,stroke:f[4]?GELD:REAL,"stroke-width":3.4,opacity:.95,"marker-end":"url(#pf-"+(f[4]?"geld":"real")+")"};if(f[4])ln["stroke-dasharray"]="8 5";svgEl("line",ln,g);
-    let ang=Math.atan2(y2-y1,x2-x1)*180/Math.PI;if(ang>90)ang-=180;if(ang<-90)ang+=180;
-    const tx=svgEl("text",{class:"fl-t",x:0,y:15,"text-anchor":"middle",transform:"translate("+((x1+x2)/2)+","+((y1+y2)/2)+") rotate("+ang+")"},g);tx.textContent=f[2];
-    const op=()=>geldfluss(idx);g.addEventListener("click",op);g.addEventListener("keydown",e=>{if(e.key==="Enter"||e.key===" "){e.preventDefault();op()}})});
-  NK.forEach(n=>{const p=POS[n.id],g=svgEl("g",{class:"ndz",tabindex:0,role:"button","aria-label":n.t},svg);
-    svgEl("rect",{x:p[0]-W/2,y:p[1]-H/2,width:W,height:H,rx:H/2,fill:FARBE[n.id],stroke:"#0c1220","stroke-width":2},g);
+    const ln={class:"fl-l",x1:x1,y1:y1,x2:x2,y2:y2,stroke:f[4]?GELD:REAL,"stroke-width":3.2,opacity:.95,"marker-end":"url(#"+pre+(f[4]?"geld":"real")+")"};if(f[4])ln["stroke-dasharray"]="8 5";svgEl("line",ln,g);
+    let ang=Math.atan2(y2-y1,x2-x1)*180/Math.PI,flip=false;if(ang>90){ang-=180;flip=true}if(ang<-90){ang+=180;flip=true}
+    const fr=(pre==="pf-"&&LP[f[2]])||.5;const ty=hasRev?(flip?-6:15):15;
+    const tx=svgEl("text",{class:"fl-t",x:0,y:ty,"text-anchor":"middle",transform:"translate("+(x1+(x2-x1)*fr)+","+(y1+(y2-y1)*fr)+") rotate("+ang+")"},g);tx.textContent=f[2];labs.push(tx);
+    const op=()=>geldfluss(f);g.addEventListener("click",op);g.addEventListener("keydown",e=>{if(e.key==="Enter"||e.key===" "){e.preventDefault();op()}})});
+  Object.keys(pos).forEach(id=>{const n=NK.find(x=>x.id===id);if(!n)return;const p=pos[id],g=svgEl("g",{class:"ndz",tabindex:0,role:"button","aria-label":n.t},svg);
+    svgEl("rect",{x:p[0]-W/2,y:p[1]-H/2,width:W,height:H,rx:H/2,fill:FARBE[id],stroke:"#0c1220","stroke-width":2},g);
     const a=svgEl("text",{class:"nd-t",x:p[0],y:p[1]-3,"text-anchor":"middle"},g);a.textContent=n.t;
-    const b=svgEl("text",{class:"nd-s",x:p[0],y:p[1]+14,"text-anchor":"middle"},g);b.textContent=SUB[n.id]||n.s;
-    const op=()=>knoten(n.id);g.addEventListener("click",op);g.addEventListener("keydown",e=>{if(e.key==="Enter"||e.key===" "){e.preventDefault();op()}})});
+    const b=svgEl("text",{class:"nd-s",x:p[0],y:p[1]+14,"text-anchor":"middle"},g);b.textContent=SUB[id]||n.s;
+    const op=()=>knoten(id);g.addEventListener("click",op);g.addEventListener("keydown",e=>{if(e.key==="Enter"||e.key===" "){e.preventDefault();op()}})});
+  const top=svgEl("g",{style:"pointer-events:none"},svg);labs.forEach(x=>top.appendChild(x));
+  return svg}
+function flussBauen(){
+  const box=document.getElementById("fluss");if(!box)return;
+  const leg=document.createElement("p");leg.className="fl2-leg";leg.innerHTML='Durchgezogen, <b style="color:'+REAL+'">blau: reale Ströme</b> (Güter, Arbeit, Kapital) · gestrichelt, <b style="color:'+GELD+'">gold: Geld</b>. Oben rechts öffnet der Knopf den Standard-Wirtschaftskreislauf.';
+  const bt=document.createElement("button");bt.type="button";bt.className="std-knopf";bt.textContent="Standard-Kreislauf ▸";
+  const hauptBox=document.createElement("div"),stdBox=document.createElement("div");stdBox.style.display="none";
+  box.appendChild(bt);box.appendChild(hauptBox);box.appendChild(stdBox);hauptBox.appendChild(leg);
+  netzBauen(hauptBox,POS,FL,"0 0 1100 760","pf-","Unternehmen und Technik im Zentrum","Wirtschaftskreislauf der USA");
+  const sl=document.createElement("p");sl.className="fl2-leg";sl.textContent="Das allgemeine Lehrbuch-Modell, auf dem der USA-Kreislauf aufbaut. Pfeile und Bausteine anklicken.";stdBox.appendChild(sl);
+  netzBauen(stdBox,POSSTD,STD.F,"0 0 860 560","ps-","","Standard-Wirtschaftskreislauf");
+  bt.addEventListener("click",()=>{const an=stdBox.style.display==="none";stdBox.style.display=an?"":"none";hauptBox.style.display=an?"none":"";bt.textContent=an?"◂ zurück zum USA-Kreislauf":"Standard-Kreislauf ▸"});
   const li=document.createElement("div");li.className="kl-liste";li.innerHTML=NK.map(n=>'<button type="button" class="chip" data-id="'+n.id+'">'+esc(n.t)+'</button>').join("");
   li.querySelectorAll("button").forEach(b=>b.addEventListener("click",()=>knoten(b.dataset.id)));box.appendChild(li);
 }
-function geldfluss(i){const f=FL[i];const von=NK.find(x=>x.id===f[0]),nach=NK.find(x=>x.id===f[1]);aktiv=null;letzterFokus=document.activeElement;
+function geldfluss(f){const von=NK.find(x=>x.id===f[0]),nach=NK.find(x=>x.id===f[1]);aktiv=null;letzterFokus=document.activeElement;
   Object.values(tiles).forEach(t=>t.classList.remove("aktiv"));dr.style.setProperty("--c",f[4]?GELD:REAL);
   dr.innerHTML='<div class="dk"><div><div class="gr">'+(f[4]?"Geldstrom":"Realer Strom")+'</div><h2 id="dt">'+esc(f[2])+'</h2></div><button class="zu" type="button" aria-label="Schließen">×</button></div><div class="db"><h3>Von wem zu wem?</h3><p>'+esc(von.t)+' → '+esc(nach.t)+'</p><h3>Was passiert?</h3><p>'+esc(f[3])+'</p><h3>Beteiligte Bausteine</h3><p><button class="chip" type="button" data-k="'+von.id+'">'+esc(von.t)+'</button><button class="chip" type="button" data-k="'+nach.id+'">'+esc(nach.t)+'</button></p></div>';
   dr.classList.add("offen");sh.classList.add("offen");dr.querySelector(".zu").addEventListener("click",schliessen);
