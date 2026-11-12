@@ -30,13 +30,13 @@ SCHLUESSEL = [("Prime Minister", "Premierminister"), ("Chancellor of the Exchequ
               ("Secretary of State for Defence", "Verteidigungsminister"),
               ("Secretary of State for Health", "Gesundheitsminister")]
 
-def get(url, wiederholen=3):
+def get(url, wiederholen=4):
     letzte = None
     for i in range(wiederholen):
         try:
             return urllib.request.urlopen(urllib.request.Request(url, headers=UA), timeout=60).read().decode("utf-8", "replace")
         except Exception as e:
-            letzte = e; time.sleep(2 + i * 3)
+            letzte = e; time.sleep((20 + i * 20) if "429" in str(e) else (2 + i * 3))
     raise letzte
 
 # ---------------- Bank of England / ONS ----------------
@@ -447,6 +447,163 @@ def finanz():
     if not reihen.get("haush12") or not bis: raise ValueError("Finanzdaten unvollstaendig: " + "; ".join(fehler))
     return {"reihen": reihen, "bestand": bestand, "bis": bis, "fehler": fehler}
 
+
+# ---------------- Wirtschaft und Infrastruktur (ONS, DESNZ) ----------------
+ONS_BASIS = "https://www.ons.gov.uk"
+# [Schluessel, Name, Pfad (Thema/timeseries/code/datensatz), Einheit, Gruppe]
+WI_REIHEN = [
+ ["bip_q", "BIP-Wachstum zum Vorquartal", "/economy/grossdomesticproductgdp/timeseries/ihyq/qna", "%", "wachstum"],
+ ["bip_niveau", "BIP (preisbereinigt, Mio. £)", "/economy/grossdomesticproductgdp/timeseries/abmi/qna", "Mio. £", "wachstum"],
+ ["gva_monat", "BIP monatlich (Index, preisbereinigt)", "/economy/grossdomesticproductgdp/timeseries/ecy2/mgdp", "Index", "wachstum"],
+ ["dienst", "Index der Dienstleistungen", "/economy/economicoutputandproductivity/output/timeseries/s2ku/ios1", "Index", "wachstum"],
+ ["prod", "Industrieproduktion (Index)", "/economy/economicoutputandproductivity/output/timeseries/k222/diop", "Index", "wachstum"],
+ ["bizinv", "Unternehmensinvestitionen (preisbereinigt, Mio. £)", "/economy/grossdomesticproductgdp/timeseries/npel/ukea", "Mio. £", "invest"],
+ ["anlage", "Bruttoanlageinvestitionen gesamt (preisbereinigt, Mio. £)", "/economy/grossdomesticproductgdp/timeseries/npqt/qna", "Mio. £", "invest"],
+ ["psnd", "Nettoschulden des öffentlichen Sektors (% des BIP)", "/economy/governmentpublicsectorandtaxes/publicsectorfinance/timeseries/hf6x/pusf", "%", "staat"],
+ ["psnb", "Nettokreditaufnahme des öffentlichen Sektors (Mio. £ pro Monat, positiv = Defizit)", "/economy/governmentpublicsectorandtaxes/publicsectorfinance/timeseries/j5ii/pusf", "Mio. £", "staat"],
+ ["waren", "Handelsbilanz Waren (Mio. £ pro Monat)", "/economy/nationalaccounts/balanceofpayments/timeseries/boki/mret", "Mio. £", "aussen"],
+ ["dienste", "Handelsbilanz Dienstleistungen (Mio. £ pro Quartal)", "/economy/nationalaccounts/balanceofpayments/timeseries/ikbd/ukea", "Mio. £", "aussen"],
+ ["handel", "Handelsbilanz gesamt (Mio. £ pro Quartal)", "/economy/nationalaccounts/balanceofpayments/timeseries/ikbj/ukea", "Mio. £", "aussen"],
+ ["leistung", "Leistungsbilanz (Mio. £ pro Quartal)", "/economy/nationalaccounts/balanceofpayments/timeseries/hbop/ukea", "Mio. £", "aussen"],
+ ["leistung_bip", "Leistungsbilanz (% des BIP)", "/economy/nationalaccounts/balanceofpayments/timeseries/aa6h/ukea", "%", "aussen"],
+]
+LLA_JSON = ONS_BASIS + "/economy/grossdomesticproductgdp/datasets/ukgdpolowlevelaggregates/current/data"
+ET_API = "https://www.gov.uk/api/content/government/statistics/electricity-section-5-energy-trends"
+WI_BRANCHEN = [["A","Land- und Forstwirtschaft, Fischerei","d"],["B","Bergbau","g"],["C","Verarbeitendes Gewerbe","g"],["D","Energieversorgung","g"],
+ ["E","Wasser, Abwasser, Abfall","g"],["F","Baugewerbe","g"],["G","Handel und Kfz-Reparatur","d"],["H","Verkehr und Lagerei","d"],["I","Gastgewerbe","d"],
+ ["J","Information und Kommunikation","d"],["K","Finanz- und Versicherungsdienste","d"],["L","Immobilien","d"],["M","Freiberufliche, wissenschaftliche und technische Dienste","d"],
+ ["N","Verwaltungs- und Unterstützungsdienste","d"],["O","Öffentliche Verwaltung und Verteidigung","s"],["P","Bildung","s"],["Q","Gesundheits- und Sozialwesen","s"],
+ ["R","Kunst, Unterhaltung, Erholung","d"],["S","Sonstige Dienstleistungen","d"],["T","Private Haushalte als Arbeitgeber","d"]]
+
+def ons_pfad(pfad):
+    """Liest eine ONS-Zeitreihe (Monat, Quartal oder Jahr) und gibt sie nach Zeitraum geordnet zurueck."""
+    txt = get(ONS_BASIS + "/generator?format=csv&uri=" + pfad)
+    time.sleep(2)
+    out, monat = [], []
+    for m in re.finditer(r'^"([^"]+)","(-?[\d.]+)"', txt, re.M):
+        d = datum_q(m.group(1))
+        if not d or d < "1997-01-01": continue
+        out.append([d, float(m.group(2))])
+        if re.fullmatch(r"\d{4} [A-Z]{3}", m.group(1)): monat.append([d, float(m.group(2))])
+    if monat: out = monat  # Monatsreihen: Quartalszeilen derselben Datei weglassen
+    if not out: raise ValueError("ONS-Reihe leer " + pfad)
+    return sorted(out)
+
+def jahresrate(r, schritt):
+    return [[r[i][0], round((r[i][1] / r[i - schritt][1] - 1) * 100, 1)] for i in range(schritt, len(r))]
+
+
+def bytes_holen(url, versuche=5):
+    letzte = None
+    for i in range(versuche):
+        try: return urllib.request.urlopen(urllib.request.Request(url, headers=UA), timeout=180).read()
+        except Exception as e:
+            letzte = e; time.sleep((25 + i * 25) if "429" in str(e) else (3 + i * 4))
+    raise letzte
+
+def xlsx_zeilen(daten, blatt):
+    """Minimaler xlsx-Leser ohne Zusatzpaket: gibt die Zeilen eines Blatts als Listen (Text oder Zahl) zurueck."""
+    import zipfile, io
+    import xml.etree.ElementTree as ET
+    ns = {"m": "http://schemas.openxmlformats.org/spreadsheetml/2006/main", "r": "http://schemas.openxmlformats.org/officeDocument/2006/relationships"}
+    z = zipfile.ZipFile(io.BytesIO(daten))
+    ss = []
+    if "xl/sharedStrings.xml" in z.namelist():
+        for si in ET.fromstring(z.read("xl/sharedStrings.xml")).findall("m:si", ns):
+            ss.append("".join(t.text or "" for t in si.iter("{%s}t" % ns["m"])))
+    wb = ET.fromstring(z.read("xl/workbook.xml"))
+    rid = [s.get("{%s}id" % ns["r"]) for s in wb.find("m:sheets", ns) if s.get("name") == blatt][0]
+    rels = ET.fromstring(z.read("xl/_rels/workbook.xml.rels"))
+    ziel = [r.get("Target") for r in rels if r.get("Id") == rid][0]
+    pfad = ziel.lstrip("/") if ziel.startswith("/") else "xl/" + ziel
+    def spalte(ref):
+        n = 0
+        for c in re.match(r"[A-Z]+", ref).group(0): n = n * 26 + ord(c) - 64
+        return n - 1
+    rows = []
+    for row in ET.fromstring(z.read(pfad)).find("m:sheetData", ns):
+        r = {}
+        for c in row:
+            v = c.find("m:v", ns); t = c.get("t")
+            if t == "inlineStr": wert = "".join(x.text or "" for x in c.iter("{%s}t" % ns["m"]))
+            elif v is None or v.text is None: continue
+            elif t == "s": wert = ss[int(v.text)]
+            elif t in ("str", "b", "e"): wert = v.text
+            else:
+                try: wert = float(v.text)
+                except ValueError: wert = v.text
+            r[spalte(c.get("r"))] = wert
+        n = int(row.get("r")) - 1
+        while len(rows) < n: rows.append([])
+        rows.append([r.get(i) for i in range(max(r) + 1)] if r else [])
+    return rows
+
+def branchen_gewichte():
+    j = json.loads(get(LLA_JSON))
+    datei = j["downloads"][0]["file"]
+    b = bytes_holen(ONS_BASIS + "/file?uri=/economy/grossdomesticproductgdp/datasets/ukgdpolowlevelaggregates/current/" + datei)
+    rows = xlsx_zeilen(b, "4")
+    head = rows[4]; jahr = {}
+    for r in rows[6:]:
+        if isinstance(r[0], (int, float)): jahr[int(r[0])] = r
+    letzte = max(jahr)
+    w = jahr[letzte]
+    pos = {}
+    for i, h in enumerate(head):
+        m = re.match(r"^([A-T])\s*\n", str(h or ""))
+        if m and m.group(1) not in pos: pos[m.group(1)] = i
+    out = []
+    for k, n, g in WI_BRANCHEN:
+        out.append({"k": k, "n": n, "g": g, "v": round(float(w[pos[k]]) / 10, 1)})
+    summe = round(sum(x["v"] for x in out), 1)
+    if not (99 <= summe <= 101): raise ValueError("Branchengewichte Summe " + str(summe))
+    return {"r": out, "summe": summe, "datei": datei, "quelle": "ONS, UK GDP(O) low level aggregates, Blatt 4 (Gewichte der Wertschöpfung, laufende Preise)"}
+
+def strommix():
+    j = json.loads(get(ET_API))
+    url = [a["url"] for a in j["details"]["attachments"] if "ET 5.1" in a.get("title", "")][0]
+    b = bytes_holen(url)
+    rows = xlsx_zeilen(b, "Main Table")
+    start = [i for i, r in enumerate(rows) if r and r[0] and str(r[0]).startswith("Shares of electricity generated by fuel")][0]
+    kopf = rows[start + 1]
+    jahre = [(i, str(c)) for i, c in enumerate(kopf) if c and re.fullmatch(r"\d{4}", str(c))]
+    gesucht = {"Coal": "Kohle", "Oil": "Öl", "Gas": "Gas", "Nuclear": "Kernkraft", "Hydro (natural flow)": "Wasserkraft", "Total wind [note 9]": "Wind",
+               "Solar": "Solar", "Bioenergy [note 10]": "Biomasse", "Other fuels [note 10]": "Sonstige"}
+    reihen = []
+    for r in rows[start + 2:start + 18]:
+        if len(r) > 1 and r[1] in gesucht:
+            reihen.append({"n": gesucht[r[1]], "r": [[int(y), round(float(r[i]), 1)] for i, y in jahre if i < len(r) and isinstance(r[i], (int, float))]})
+    if len(reihen) < 7: raise ValueError("Strommix unvollstaendig")
+    return {"reihen": reihen, "url": url, "quelle": "DESNZ, Energy Trends Tabelle 5.1 (Anteile an der Stromerzeugung nach Brennstoff, Jahresdaten)"}
+
+def wirtschaft():
+    reihen, fehler = {}, []
+    for key, name, pfad, einh, grp in WI_REIHEN:
+        try:
+            r = ons_pfad(pfad)
+            if key == "psnb": r = [[d, -v] for d, v in r]  # ONS-Vorzeichen: Minus = Kreditaufnahme; hier positiv = Defizit
+            reihen[key] = {"n": name, "u": einh, "g": grp, "code": pfad.split("/")[-2].upper(), "qurl": ONS_BASIS + pfad, "r": [x for x in r if x[0] >= "2000-01-01"]}
+        except Exception as e:
+            fehler.append(key + ": " + str(e)[:70]); print("FEHLER Wirtschaft", key, e)
+    try:
+        n = ons_pfad("/economy/grossdomesticproductgdp/timeseries/abmi/qna")
+        reihen["bip_j"] = {"n": "BIP-Wachstum zum Vorjahr (aus dem Niveau gerechnet)", "u": "%", "g": "wachstum", "code": "ABMI, gerechnet",
+                           "qurl": ONS_BASIS + "/economy/grossdomesticproductgdp/timeseries/abmi/qna", "r": [x for x in jahresrate(n, 4) if x[0] >= "2000-01-01"]}
+        if "bizinv" in reihen:
+            b = ons_pfad("/economy/grossdomesticproductgdp/timeseries/npel/ukea")
+            reihen["bizinv_j"] = {"n": "Unternehmensinvestitionen (Wachstum zum Vorjahr, gerechnet)", "u": "%", "g": "invest", "code": "NPEL, gerechnet",
+                                  "qurl": ONS_BASIS + "/economy/grossdomesticproductgdp/timeseries/npel/ukea", "r": [x for x in jahresrate(b, 4) if x[0] >= "2000-01-01"]}
+    except Exception as e:
+        fehler.append("bip_j: " + str(e)[:70])
+    kuchen = mix = None
+    try: kuchen = branchen_gewichte()
+    except Exception as e: fehler.append("branchen: " + str(e)[:80]); print("FEHLER Branchen", e)
+    try: mix = strommix()
+    except Exception as e: fehler.append("strommix: " + str(e)[:80]); print("FEHLER Strommix", e)
+    if len(reihen) < 10 or not kuchen: raise ValueError("Wirtschaft unvollstaendig: " + "; ".join(fehler))
+    return {"reihen": reihen, "kuchen": kuchen, "strommix": mix, "fehler": fehler,
+            "stand": max(x["r"][-1][0] for x in reihen.values())}
+
 # ---------------- Neue Fakten erkennen ----------------
 def neue_ereignisse(alt, sitze, posten, berichte, heute):
     ev = []
@@ -509,10 +666,12 @@ def holen(alt=None):
         daten["finanz"] = finanz()
     def am_():
         daten["arbeitsmarkt"] = arbeitsmarkt()
-    for n, fn in [("mpc", j), ("inflation", k_), ("finanz", f_), ("arbeitsmarkt", am_), ("bankrate", a), ("sonia", b), ("gilts", c), ("pfund", d_), ("cpi", e), ("alq", f), ("parlament", g), ("boe_berichte", h), ("boe_termine", i)]: teil(n, fn)
+    def wi_():
+        daten["wirtschaft"] = wirtschaft()
+    for n, fn in [("mpc", j), ("inflation", k_), ("finanz", f_), ("arbeitsmarkt", am_), ("wirtschaft", wi_), ("bankrate", a), ("sonia", b), ("gilts", c), ("pfund", d_), ("cpi", e), ("alq", f), ("parlament", g), ("boe_berichte", h), ("boe_termine", i)]: teil(n, fn)
     # letzten guten Stand uebernehmen, wenn ein Teil ausgefallen ist
     if alt:
-        for k in ("bankrate", "_letzteTageBank", "sonia", "gilt5", "gilt10", "gilt20", "gbpusd", "gbpeur", "cpi", "alq", "sitze", "posten", "_berichte", "_termine", "mpc", "inflation", "finanz", "arbeitsmarkt"):
+        for k in ("bankrate", "_letzteTageBank", "sonia", "gilt5", "gilt10", "gilt20", "gbpusd", "gbpeur", "cpi", "alq", "sitze", "posten", "_berichte", "_termine", "mpc", "inflation", "finanz", "wirtschaft", "arbeitsmarkt"):
             if k not in daten and k in alt: daten[k] = alt[k]
     ev_alt = list((alt or {}).get("ereignisse", []))
     ev_neu = neue_ereignisse(alt, daten.get("sitze", []), daten.get("posten", []), daten.get("_berichte", []), heute) if daten.get("sitze") else []
