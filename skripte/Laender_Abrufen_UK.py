@@ -604,6 +604,208 @@ def wirtschaft():
     return {"reihen": reihen, "kuchen": kuchen, "strommix": mix, "fehler": fehler,
             "stand": max(x["r"][-1][0] for x in reihen.values())}
 
+
+# ---------------- Handel und Beziehungen (HMRC uktradeinfo, ONS) ----------------
+HMRC = "https://api.uktradeinfo.com/"
+HM_PAUSE = 4  # Sekunden zwischen Anfragen (die Schnittstelle sperrt sonst mit 403)
+HM_KEINLAND = ("Low Value Non EU", "Not Collected", "Unallocated", "Stores", "Provisions", "Miscellaneous", "Confidential", "Unknown", "EU Not Allocated", "Non EU Not Allocated")
+
+def hmrc(pfad, **q):
+    import urllib.parse
+    url = HMRC + pfad + ("?" + urllib.parse.urlencode(q) if q else "")
+    letzte = None
+    for i in range(6):
+        try:
+            time.sleep(HM_PAUSE)
+            return json.loads(urllib.request.urlopen(urllib.request.Request(url, headers=UA), timeout=180).read().decode("utf-8", "replace"))
+        except urllib.error.HTTPError as e:
+            letzte = e
+            if e.code in (403, 429): time.sleep(30 * (i + 1)); continue
+            raise
+        except Exception as e:
+            letzte = e; time.sleep(5 + i * 5)
+    raise letzte
+
+def hm_monate(ende, n):
+    """Liste der MonthIds: n Monate bis einschliesslich ende (z. B. 202609)."""
+    j, m = ende // 100, ende % 100
+    out = []
+    for _ in range(n):
+        out.append(j * 100 + m); m -= 1
+        if m == 0: j -= 1; m = 12
+    return sorted(out)
+
+def hm_gruppe(monate, flows, gruppen, extra=""):
+    """Summe des Warenwerts (GBP) je Gruppe ueber Monate und Verkehrsrichtungen."""
+    f = "MonthId ge %d and MonthId le %d and (%s)%s" % (monate[0], monate[-1], " or ".join("FlowTypeId eq %d" % x for x in flows), extra)
+    r = hmrc("OTS", **{"$apply": "filter(%s)/groupby((%s),aggregate(Value with sum as V))" % (f, gruppen), "$top": 5000})
+    return r["value"]
+
+def sdiv(sid):
+    """SITC-Abteilung (2 Stellen) aus der CommoditySitcId: 5-stellige Codes (97101 = Gold) -> 97, 2-stellige gelten selbst."""
+    if sid >= 10000: return sid // 1000
+    if 0 <= sid < 100: return sid
+    return None
+
+def sitc1(sid):
+    d = sdiv(sid)
+    return str(d // 10) if d is not None else "?"
+
+def hm_sitc():
+    out = {}
+    for x in hmrc("SITC", **{"$top": 1000})["value"]:
+        out[x["CommoditySitcId"]] = (str(x["Sitc1Code"] or "").strip(), str(x["Sitc1Desc"] or "").strip(), str(x["SitcCode"] or "").strip())
+    return out
+
+SITC1_DE = {"0": "Nahrungsmittel und lebende Tiere", "1": "Getränke und Tabak", "2": "Rohstoffe (ohne Brennstoffe)", "3": "Brennstoffe und Energie",
+            "4": "Tierische und pflanzliche Öle und Fette", "5": "Chemische Erzeugnisse (inkl. Pharma)", "6": "Bearbeitete Waren (Metalle, Textilien u. a.)",
+            "7": "Maschinen und Fahrzeuge", "8": "Verschiedene Fertigwaren", "9": "Sonstiges"}
+
+def ons_reihe_q(pfad, ab="2000-01-01"):
+    return [x for x in ons_pfad(pfad) if x[0] >= ab]
+
+HA_ONS = [
+ ["dienst_exp", "Dienstleistungsexporte (Mio. £ pro Quartal)", "/economy/nationalaccounts/balanceofpayments/timeseries/ikbb/ukea", "Mio. £"],
+ ["dienst_imp", "Dienstleistungsimporte (Mio. £ pro Quartal)", "/economy/nationalaccounts/balanceofpayments/timeseries/ikbc/ukea", "Mio. £"],
+ ["dienst_saldo", "Handelsbilanz Dienstleistungen (Mio. £ pro Quartal)", "/economy/nationalaccounts/balanceofpayments/timeseries/ikbd/ukea", "Mio. £"],
+ ["waren_saldo_q", "Handelsbilanz gesamt (Mio. £ pro Quartal)", "/economy/nationalaccounts/balanceofpayments/timeseries/ikbj/ukea", "Mio. £"],
+ ["primaer", "Primäreinkommen, Saldo (Mio. £ pro Quartal)", "/economy/nationalaccounts/balanceofpayments/timeseries/hmbp/ukea", "Mio. £"],
+ ["sekundaer", "Sekundäreinkommen, Saldo (Mio. £ pro Quartal)", "/economy/nationalaccounts/balanceofpayments/timeseries/ikbp/ukea", "Mio. £"],
+ ["leistung", "Leistungsbilanz (Mio. £ pro Quartal)", "/economy/nationalaccounts/balanceofpayments/timeseries/hbop/ukea", "Mio. £"],
+ ["finanz_netto", "Kapitalbilanz: Nettokapitalströme (Mio. £ pro Quartal)", "/economy/nationalaccounts/balanceofpayments/timeseries/hbnt/ukea", "Mio. £"],
+ ["wertpapier", "Wertpapieranlagen: Nettoströme (Mio. £ pro Quartal)", "/economy/nationalaccounts/balanceofpayments/timeseries/hhzd/ukea", "Mio. £"],
+ ["fdi_zu", "Direktinvestitionen aus dem Ausland: Beteiligungskapital (Mio. £ pro Quartal)", "/economy/nationalaccounts/balanceofpayments/timeseries/hjyr/ukea", "Mio. £"],
+]
+EU_CODES = {"AT","BE","BG","HR","CY","CZ","DK","EE","FI","FR","DE","GR","HU","IE","IT","LV","LT","LU","MT","NL","PL","PT","RO","SK","SI","ES","SE"}
+TIS_JSON = ONS_BASIS + "/businessindustryandtrade/internationaltrade/datasets/uktradeinservicesservicetypebypartnercountrynonseasonallyadjusted/current/data"
+TIS_TYPEN = {"1":"Verarbeitung für andere","2":"Wartung und Reparatur","3":"Transport","4":"Reisen","5":"Bau","6":"Versicherung und Pensionen","7":"Finanzdienstleistungen","8":"Geistiges Eigentum (Lizenzen)",
+             "9":"Telekommunikation, IT und Information","10":"Sonstige Unternehmensdienste","11":"Persönliche, Kultur und Erholung","12":"Staatliche Leistungen"}
+
+def dienste_nach_art():
+    j = json.loads(get(TIS_JSON))
+    datei = j["downloads"][0]["file"]
+    b = bytes_holen(ONS_BASIS + "/file?uri=/businessindustryandtrade/internationaltrade/datasets/uktradeinservicesservicetypebypartnercountrynonseasonallyadjusted/current/" + datei)
+    blatt = None
+    import zipfile, io
+    namen = re.findall(r'<sheet [^>]*name="([^"]+)"', zipfile.ZipFile(io.BytesIO(b)).read("xl/workbook.xml").decode())
+    jahr = [n for n in namen if re.fullmatch(r"Sheet \d+\. \d{4}", n)]
+    if not jahr: raise ValueError("Jahresblatt fehlt")
+    blatt = sorted(jahr, key=lambda n: n.split(". ")[1])[-1]
+    rows = xlsx_zeilen(b, blatt)
+    def tabelle(start_text):
+        i0 = next(i for i, r in enumerate(rows) if r and r[0] and str(r[0]).startswith(start_text))
+        kopf = rows[i0 + 1]
+        spalten = {}
+        for j2, h in enumerate(kopf):
+            m = re.match(r"^(\d+): ", str(h or ""))
+            if m: spalten[m.group(1)] = j2
+        out = []
+        for r in rows[i0 + 2:]:
+            if not r or not r[0] or str(r[0]).startswith("Table"): break
+            if len(r) < 3: continue
+            def zahl(k):
+                v = r[spalten[k]] if k in spalten and spalten[k] < len(r) else None
+                return float(v) if isinstance(v, (int, float)) else None
+            out.append({"c": str(r[0]), "n": str(r[1]), "t": zahl("0"), "a": {k: zahl(k) for k in TIS_TYPEN}})
+        return out
+    exp = tabelle("Table 2A"); imp = tabelle("Table 2B")
+    if len(exp) < 30 or len(imp) < 30: raise ValueError("Dienstleistungstabellen zu klein")
+    return {"jahr": blatt.split(". ")[1], "exp": exp, "imp": imp, "typen": TIS_TYPEN, "datei": datei,
+            "quelle": "ONS, UK trade in services: service type by partner country, non-seasonally adjusted (Jahresblatt " + blatt.split(". ")[1] + ", Mio. £)"}
+
+def handel():
+    fehler = []
+    # --- Waren: Partner, Produkte (HMRC, 12 Monate, in GBP) ---
+    ende = None
+    heute = datetime.date.today()
+    j, m = heute.year, heute.month
+    for _ in range(8):
+        mid = j * 100 + m
+        if hmrc("OTS", **{"$filter": "MonthId eq %d and FlowTypeId eq 2" % mid, "$top": 1})["value"]: ende = mid; break
+        m -= 1
+        if m == 0: j -= 1; m = 12
+    if not ende: raise ValueError("HMRC: kein Monat gefunden")
+    fenster = hm_monate(ende, 12)
+    f0 = fenster[0]
+    vor = hm_monate((f0 // 100 - 1) * 100 + 12 if f0 % 100 == 1 else f0 - 1, 12)
+    laender = {x["CountryId"]: {"c": (x["CountryCodeAlpha"] or "").strip(), "n": (x["CountryName"] or "").strip(), "eu": (x["Area1a"] or "").strip() == "European Union"} for x in hmrc("Country", **{"$top": 1000})["value"]}
+    gold_ids = [97]
+    gold_f = " and CommoditySitcId ne 97 and (CommoditySitcId lt 97000 or CommoditySitcId ge 98000)"
+    gold_nur = " and (CommoditySitcId eq 97 or (CommoditySitcId ge 97000 and CommoditySitcId lt 98000))"
+    def summe(monate, flows, gruppe="CountryId", gold=False):
+        out = {}
+        for x in hm_gruppe(monate, flows, gruppe, gold_nur if gold else gold_f): out[x[gruppe]] = x["V"]
+        return out
+    partner = {}; goldsum = {}
+    for rich, flows in (("imp", [1, 3]), ("exp", [2, 4])):
+        try:
+            jetzt, davor = summe(fenster, flows), summe(vor, flows)
+            gj, gv = summe(fenster, flows, "CountryId", True), summe(vor, flows, "CountryId", True)
+            goldsum[rich] = [round(sum(gj.values()) / 1e6), round(sum(gv.values()) / 1e6)]
+            lst = []
+            for cid, v in jetzt.items():
+                L = laender.get(cid)
+                if not L or L["n"] in HM_KEINLAND or L["n"].startswith(("Low Value", "Confidential")) or v <= 0: continue
+                lst.append({"c": L["c"], "n": L["n"], "eu": L["eu"], "v": round(v / 1e6), "vj": round(davor.get(cid, 0) / 1e6), "g": round(gj.get(cid, 0) / 1e6), "gv": round(gv.get(cid, 0) / 1e6)})
+            lst.sort(key=lambda x: -x["v"])
+            partner[rich] = lst
+        except Exception as e:
+            fehler.append("partner " + rich + ": " + str(e)[:80]); print("FEHLER Handel Partner", rich, e)
+    produkte = {}
+    for rich, flows in (("imp", [1, 3]), ("exp", [2, 4])):
+        try:
+            jetzt, davor = summe(fenster, flows, "CommoditySitcId"), summe(vor, flows, "CommoditySitcId")
+            agg, agg0 = {}, {}
+            for sid, v in jetzt.items():
+                k = sitc1(sid)
+                if k in SITC1_DE: agg[k] = agg.get(k, 0) + v
+            for sid, v in davor.items():
+                k = sitc1(sid)
+                if k in SITC1_DE: agg0[k] = agg0.get(k, 0) + v
+            produkte[rich] = [{"k": k, "n": SITC1_DE[k], "v": round(v / 1e6), "vj": round(agg0.get(k, 0) / 1e6)} for k, v in sorted(agg.items(), key=lambda kv: -kv[1])]
+        except Exception as e:
+            fehler.append("produkte " + rich + ": " + str(e)[:80]); print("FEHLER Handel Produkte", rich, e)
+    # --- Partner x Produktgruppe fuer die wichtigsten Partner (fuer die Karte) ---
+    karte = {}
+    cid_von = {(L["c"], L["n"]): cid for cid, L in laender.items()}
+    for rich, flows in (("imp", [1, 3]), ("exp", [2, 4])):
+        for p in (partner.get(rich) or [])[:14]:
+            try:
+                cid = cid_von[(p["c"], p["n"])]
+                f = "MonthId ge %d and MonthId le %d and CountryId eq %d and (%s)%s" % (fenster[0], fenster[-1], cid, " or ".join("FlowTypeId eq %d" % x for x in flows), gold_f)
+                rr = hmrc("OTS", **{"$apply": "filter(%s)/groupby((CommoditySitcId),aggregate(Value with sum as V))" % f, "$top": 5000})["value"]
+                agg = {}
+                for x in rr:
+                    k = sitc1(x["CommoditySitcId"])
+                    if k in SITC1_DE: agg[k] = agg.get(k, 0) + x["V"]
+                karte.setdefault(rich, {})[p["c"] + "|" + p["n"]] = {k: round(v / 1e6) for k, v in agg.items() if v > 0}
+            except Exception as e:
+                fehler.append("karte " + rich + " " + p["n"] + ": " + str(e)[:60])
+    # --- Monatsreihe Gesamt-Warenhandel (36 Monate) ---
+    monatlich = {}
+    try:
+        m36 = hm_monate(ende, 36)
+        for rich, flows in (("imp", [1, 3]), ("exp", [2, 4])):
+            r = hm_gruppe(m36, flows, "MonthId", gold_f)
+            monatlich[rich] = [["%04d-%02d-01" % (x["MonthId"] // 100, x["MonthId"] % 100), round(x["V"] / 1e9, 2)] for x in sorted(r, key=lambda y: y["MonthId"])]
+    except Exception as e:
+        fehler.append("monatlich: " + str(e)[:80])
+    # --- ONS: Dienstleistungen, Zahlungsbilanz ---
+    reihen = {}
+    for key, name, pfad, einh in HA_ONS:
+        try:
+            reihen[key] = {"n": name, "u": einh, "code": pfad.split("/")[-2].upper(), "qurl": ONS_BASIS + pfad, "r": ons_reihe_q(pfad)}
+        except Exception as e:
+            fehler.append(key + ": " + str(e)[:70]); print("FEHLER Handel ONS", key, e)
+    tis = None
+    try: tis = dienste_nach_art()
+    except Exception as e: fehler.append("dienste_art: " + str(e)[:80]); print("FEHLER Dienste nach Art", e)
+    if not partner.get("imp") or not partner.get("exp") or len(reihen) < 6: raise ValueError("Handel unvollstaendig: " + "; ".join(fehler))
+    return {"von": "%04d-%02d" % (fenster[0] // 100, fenster[0] % 100), "bis": "%04d-%02d" % (ende // 100, ende % 100), "partner": partner, "gold": goldsum, "produkte": produkte, "karte": karte,
+            "monatlich": monatlich, "reihen": reihen, "dienste": tis, "eu_codes": sorted(EU_CODES), "fehler": fehler,
+            "quelle": "HMRC, UK overseas trade in goods statistics (uktradeinfo, Warenwert in Pfund, 12 Monate bis " + "%04d-%02d" % (ende // 100, ende % 100) + ")",
+            "stand": "%04d-%02d-01" % (ende // 100, ende % 100)}
+
 # ---------------- Neue Fakten erkennen ----------------
 def neue_ereignisse(alt, sitze, posten, berichte, heute):
     ev = []
@@ -668,10 +870,12 @@ def holen(alt=None):
         daten["arbeitsmarkt"] = arbeitsmarkt()
     def wi_():
         daten["wirtschaft"] = wirtschaft()
-    for n, fn in [("mpc", j), ("inflation", k_), ("finanz", f_), ("arbeitsmarkt", am_), ("wirtschaft", wi_), ("bankrate", a), ("sonia", b), ("gilts", c), ("pfund", d_), ("cpi", e), ("alq", f), ("parlament", g), ("boe_berichte", h), ("boe_termine", i)]: teil(n, fn)
+    def ha_():
+        daten["handel"] = handel()
+    for n, fn in [("mpc", j), ("inflation", k_), ("finanz", f_), ("arbeitsmarkt", am_), ("wirtschaft", wi_), ("handel", ha_), ("bankrate", a), ("sonia", b), ("gilts", c), ("pfund", d_), ("cpi", e), ("alq", f), ("parlament", g), ("boe_berichte", h), ("boe_termine", i)]: teil(n, fn)
     # letzten guten Stand uebernehmen, wenn ein Teil ausgefallen ist
     if alt:
-        for k in ("bankrate", "_letzteTageBank", "sonia", "gilt5", "gilt10", "gilt20", "gbpusd", "gbpeur", "cpi", "alq", "sitze", "posten", "_berichte", "_termine", "mpc", "inflation", "finanz", "wirtschaft", "arbeitsmarkt"):
+        for k in ("bankrate", "_letzteTageBank", "sonia", "gilt5", "gilt10", "gilt20", "gbpusd", "gbpeur", "cpi", "alq", "sitze", "posten", "_berichte", "_termine", "mpc", "inflation", "finanz", "wirtschaft", "handel", "arbeitsmarkt"):
             if k not in daten and k in alt: daten[k] = alt[k]
     ev_alt = list((alt or {}).get("ereignisse", []))
     ev_neu = neue_ereignisse(alt, daten.get("sitze", []), daten.get("posten", []), daten.get("_berichte", []), heute) if daten.get("sitze") else []
