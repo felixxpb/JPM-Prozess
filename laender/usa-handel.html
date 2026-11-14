@@ -161,9 +161,9 @@ svg.chart{width:100%;height:auto;display:block;touch-action:none}
 .karte .land.pt{fill:var(--achse)}
 .karte .land.us{fill:var(--c1);opacity:.55}
 .karte .bg{fill:none;stroke-linecap:round;pointer-events:none;transition:opacity .15s,stroke-width .15s}
-.karte .bg.imp{stroke:var(--ki,var(--c2))}.karte .bg.exp{stroke:var(--ke,var(--c3))}
+.karte .bg.imp{stroke:var(--ki,#2e9e5b)}.karte .bg.exp{stroke:var(--ke,#d63b3b)}
 .karte .bg.leer{stroke-dasharray:5 4}
-.karte .hit{fill:none;stroke:transparent;stroke-width:14;cursor:pointer;pointer-events:stroke}
+.karte .hit{fill:none;stroke:transparent;stroke-width:10;cursor:pointer;pointer-events:stroke}
 .karte g.bogen:hover .bg{stroke-width:var(--bw2);opacity:1}
 .karte g.bogen{opacity:.85}
 .karte g.bogen:hover{opacity:1}
@@ -189,7 +189,7 @@ svg.chart{width:100%;height:auto;display:block;touch-action:none}
 .hafen .land.us{fill:var(--c1);opacity:.55}
 .hafen .hb{stroke:var(--flaeche);stroke-width:.25;opacity:.85;cursor:pointer}
 .hafen .hb:hover{opacity:1;stroke:var(--text)}
-.hafen .hb.imp{fill:var(--ki,var(--c2))}.hafen .hb.exp{fill:var(--ke,var(--c3))}
+.hafen .hb.imp{fill:var(--ki,#2e9e5b)}.hafen .hb.exp{fill:var(--ke,#d63b3b)}
 .hafen .hn{font-size:2.1px;fill:var(--text);paint-order:stroke;stroke:var(--flaeche);stroke-width:.5px;pointer-events:none}
 .hafen .hz{display:flex;flex-wrap:wrap;gap:6px;margin:6px 0}
 .klegende{display:flex;gap:16px;flex-wrap:wrap;font-size:12px;color:var(--text2);margin:2px 0 4px}
@@ -265,7 +265,7 @@ svg.chart{width:100%;height:auto;display:block;touch-action:none}
   <div class="bandkopf">Lieferketten-Karte: Wichtigste Handelsströme nach Produktgruppe</div>
   <div class="kmodus" id="kmodus" role="group" aria-label="Verkehrsträger"><span class="lbl">Verkehrsträger:</span></div>
   <div class="ktabs" id="ktabs" role="group" aria-label="Produktgruppe"></div>
-  <div class="klegende"><span><i style="border-color:var(--ki,var(--c2))"></i>Importe in die USA</span><span><i style="border-color:var(--ke,var(--c3))"></i>Exporte aus den USA</span><span id="kstand"></span></div>
+  <div class="klegende"><span><i style="border-color:var(--ki,#2e9e5b)"></i>Importe in die USA</span><span><i style="border-color:var(--ke,#d63b3b)"></i>Exporte aus den USA</span><span id="kstand"></span></div>
   <details class="kein" id="kein"><summary>Pfeile anpassen</summary>
    <div class="kz">
     <div class="kg" role="group" aria-label="Linienstärke"><label>Linienstärke:</label>
@@ -573,10 +573,10 @@ function bogenDaten(gid){
  return out;
 }
 /* ---- Pfeil-Einstellungen (werden im Browser gespeichert) ---- */
-const PF_STANDARD={gleich:false,breite:1.2,ci:null,ce:null};
+const PF_STANDARD={gleich:true,breite:1.8,ci:null,ce:null};
 let pf=Object.assign({},PF_STANDARD);
-try{const g=JSON.parse(localStorage.getItem("handelkarte-pfeile")||"null");if(g&&typeof g==="object")pf=Object.assign(pf,g)}catch(e){}
-function pfSpeichern(){try{localStorage.setItem("handelkarte-pfeile",JSON.stringify(pf))}catch(e){}}
+try{const g=JSON.parse(localStorage.getItem("handelkarte-pfeile2")||"null");if(g&&typeof g==="object")pf=Object.assign(pf,g)}catch(e){}
+function pfSpeichern(){try{localStorage.setItem("handelkarte-pfeile2",JSON.stringify(pf))}catch(e){}}
 function pfFarbeAnwenden(){const k=document.getElementById("karte");
  pf.ci?k.style.setProperty("--ki",pf.ci):k.style.removeProperty("--ki");
  pf.ce?k.style.setProperty("--ke",pf.ce):k.style.removeProperty("--ke")}
@@ -586,8 +586,8 @@ function pfOberflaecheSetzen(){
  document.querySelectorAll("#kein button[data-pe]").forEach(b=>b.setAttribute("aria-pressed",(b.dataset.pe==="gleich")===pf.gleich));
  document.getElementById("kreg").style.display=pf.gleich?"":"none";
  document.getElementById("kbr").value=pf.breite;document.getElementById("kbrw").textContent=nf(pf.breite,1);
- document.getElementById("kfi").value=pf.ci||hexVon(cs.getPropertyValue("--c2").trim());
- document.getElementById("kfe").value=pf.ce||hexVon(cs.getPropertyValue("--c3").trim())}
+ document.getElementById("kfi").value=pf.ci||hexVon(cs.getPropertyValue("--ki").trim()||"#2e9e5b");
+ document.getElementById("kfe").value=pf.ce||hexVon(cs.getPropertyValue("--ke").trim()||"#d63b3b")}
 function pfBedienung(){
  document.querySelectorAll("#kein button[data-pe]").forEach(b=>b.addEventListener("click",()=>{pf.gleich=b.dataset.pe==="gleich";pfSpeichern();pfOberflaecheSetzen();zeichneBogen()}));
  document.getElementById("kbr").addEventListener("input",e=>{pf.breite=+e.target.value;document.getElementById("kbrw").textContent=nf(pf.breite,1);pfSpeichern();zeichneBogen()});
@@ -607,7 +607,7 @@ function karteBauen(){
  const tabs=document.getElementById("ktabs");
  GRUPPEN.forEach(g=>{const b=document.createElement("button");b.type="button";b.className="btn";b.textContent=g.n;b.dataset.g=g.id;b.setAttribute("aria-pressed",g.id===kg);
   b.addEventListener("click",()=>{kg=g.id;[...tabs.children].forEach(c=>c.setAttribute("aria-pressed",c.dataset.g===kg));zeichneBogen()});tabs.appendChild(b)});
- let h='<defs><marker id="ai" viewBox="0 0 10 10" refX="8" refY="5" markerUnits="userSpaceOnUse" markerWidth="11" markerHeight="11" orient="auto"><path d="M0,0 L10,5 L0,10 z" fill="var(--ki,var(--c2))"/></marker><marker id="ae" viewBox="0 0 10 10" refX="8" refY="5" markerUnits="userSpaceOnUse" markerWidth="11" markerHeight="11" orient="auto"><path d="M0,0 L10,5 L0,10 z" fill="var(--ke,var(--c3))"/></marker></defs>';
+ let h='<defs><marker id="ai" viewBox="0 0 10 10" refX="8" refY="5" markerUnits="userSpaceOnUse" markerWidth="11" markerHeight="11" orient="auto"><path d="M0,0 L10,5 L0,10 z" fill="var(--ki,#2e9e5b)"/></marker><marker id="ae" viewBox="0 0 10 10" refX="8" refY="5" markerUnits="userSpaceOnUse" markerWidth="11" markerHeight="11" orient="auto"><path d="M0,0 L10,5 L0,10 z" fill="var(--ke,#d63b3b)"/></marker></defs>';
  W.laender.forEach(l=>{h+='<path class="land'+(l.id==="840"?" us":"")+'" data-id="'+l.id+'" d="'+l.d+'"><title>'+esc(ISONAME[l.id]||(l.id==="840"?"USA":l.n))+'</title></path>'});
  h+='<g id="bogen"></g><g id="pn"></g>';svg.innerHTML=h;
  pfBedienung();zeichneBogen();
@@ -665,7 +665,7 @@ function tipHtml(G,d){
  h+='<div class="h">'+esc(G.hin)+'</div><div class="h">Klick für Details</div>';return h}
 function lieferDetail(G,d){
  aktiv=null;letzterFokus=document.activeElement;const imp=d.ri==="imp";
- dr.style.setProperty("--c",imp?"var(--c2)":"var(--c3)");
+ dr.style.setProperty("--c",imp?"#2e9e5b":"#d63b3b");
  const rt=imp?d.name+" → USA (Import)":"USA → "+d.name+" (Export)";
  let h='<div class="dk"><div><div class="gr">Lieferkette · '+esc(G.n)+'</div><h2 id="dt">'+esc(rt)+'</h2></div><button class="zu" type="button" aria-label="Schließen">×</button></div><div class="db">';
  if(d.ytd!=null){h+='<div class="gross">'+mrd(d.ytd)+'</div><div class="gsub">seit Jahresbeginn'+msuf()+', Census Bureau · <i class="pkt auto"></i>automatisch</div>';

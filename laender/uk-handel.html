@@ -191,8 +191,8 @@ svg.chart{width:100%;height:auto;display:block;touch-action:none}
 .karte .land.pt{fill:var(--achse)}
 .karte .land.uk{fill:var(--c1);opacity:.7}
 .karte .bg{fill:none;stroke-linecap:round;pointer-events:none}
-.karte .bg.imp{stroke:var(--c2)}.karte .bg.exp{stroke:var(--c3)}
-.karte .hit{fill:none;stroke:transparent;stroke-width:14;cursor:pointer;pointer-events:stroke}
+.karte .bg.imp{stroke:#2e9e5b}.karte .bg.exp{stroke:#d63b3b}
+.karte .hit{fill:none;stroke:transparent;stroke-width:10;cursor:pointer;pointer-events:stroke}
 .karte g.bogen{opacity:.85}.karte g.bogen:hover{opacity:1}.karte g.bogen:hover .bg{stroke-width:var(--bw2)}
 .karte .pn{font-size:11px;fill:var(--text);paint-order:stroke;stroke:var(--flaeche);stroke-width:3px;pointer-events:none}
 .kleg{display:flex;gap:16px;flex-wrap:wrap;font-size:12.5px;color:var(--text2);margin:6px 2px}
@@ -252,7 +252,7 @@ svg.chart{width:100%;height:auto;display:block;touch-action:none}
   <div class="kuchenkopf"><h3>Warenhandel mit den wichtigsten Partnern, <span id="k-meta"></span></h3><span>Liniendicke = Warenwert (ohne Gold). Klick auf eine Linie für Details.</span></div>
   <div class="mwahl" id="ktabs" role="group" aria-label="Warengruppe"></div>
   <svg id="welt" viewBox="0 0 1000 430" role="img" aria-label="Weltkarte mit den Handelsbeziehungen des Vereinigten Königreichs"></svg>
-  <div class="kleg"><span><i style="background:var(--c2)"></i>Importe ins Vereinigte Königreich</span><span><i style="background:var(--c3)"></i>Exporte aus dem Vereinigten Königreich</span><span id="kstand"></span></div>
+  <div class="kleg"><span><i style="background:#2e9e5b"></i>Importe ins Vereinigte Königreich</span><span><i style="background:#d63b3b"></i>Exporte aus dem Vereinigten Königreich</span><span id="kstand"></span></div>
   <div class="rang2" id="rang"></div>
   <div class="bhin" id="khin"></div>
 </div>
@@ -400,7 +400,7 @@ function karteBauen(){
  const tabs=$("#ktabs");
  const gr=["alle"].concat(Object.keys(SG).filter(k=>HD.produkte.imp.some(p=>p.k===k)||HD.produkte.exp.some(p=>p.k===k)));
  gr.forEach(k=>{const b=document.createElement("button");b.type="button";b.textContent=k==="alle"?"Alle Waren":SGKURZ[k];b.dataset.k=k;b.className=k===KG?"an":"";b.onclick=()=>{KG=k;[...tabs.children].forEach(c=>c.className=c.dataset.k===KG?"an":"");karteZeichnen()};tabs.appendChild(b)});
- let h='<defs><marker id="ai" viewBox="0 0 10 10" refX="8" refY="5" markerUnits="userSpaceOnUse" markerWidth="11" markerHeight="11" orient="auto"><path d="M0,0 L10,5 L0,10 z" fill="var(--c2)"/></marker><marker id="ae" viewBox="0 0 10 10" refX="8" refY="5" markerUnits="userSpaceOnUse" markerWidth="11" markerHeight="11" orient="auto"><path d="M0,0 L10,5 L0,10 z" fill="var(--c3)"/></marker></defs>';
+ let h='<defs><marker id="ai" viewBox="0 0 10 10" refX="8" refY="5" markerUnits="userSpaceOnUse" markerWidth="11" markerHeight="11" orient="auto"><path d="M0,0 L10,5 L0,10 z" fill="#2e9e5b"/></marker><marker id="ae" viewBox="0 0 10 10" refX="8" refY="5" markerUnits="userSpaceOnUse" markerWidth="11" markerHeight="11" orient="auto"><path d="M0,0 L10,5 L0,10 z" fill="#d63b3b"/></marker></defs>';
  W.laender.forEach(l=>{h+='<path class="land'+(l.id==="826"?" uk":"")+'" data-id="'+l.id+'" d="'+l.d+'"><title>'+esc(l.id==="826"?"Vereinigtes Königreich":l.n)+'</title></path>'});
  h+='<g id="bogen"></g><g id="pn"></g>';svg.innerHTML=h;karteZeichnen();
 }
@@ -413,7 +413,7 @@ function karteZeichnen(){
   const mx=(A[0]+B[0])/2,my=(A[1]+B[1])/2,dx=B[0]-A[0],dy=B[1]-A[1],len=Math.hypot(dx,dy)||1;
   let nx=-dy/len,ny=dx/len;const bul=Math.min(len*.28,110);
   if(imp&&ny>0){nx=-nx;ny=-ny}if(!imp&&ny<0){nx=-nx;ny=-ny}
-  const cx=mx+nx*bul,cy=my+ny*bul,br=1.4+7.6*Math.sqrt(d.w/vmax);
+  const cx=mx+nx*bul,cy=my+ny*bul,br=1.8;
   const dp="M"+A[0]+","+A[1]+" Q"+cx.toFixed(1)+","+cy.toFixed(1)+" "+B[0]+","+B[1];
   s+='<g class="bogen" data-i="'+idx+'" style="--bw2:'+(br+1.8).toFixed(1)+'"><path class="bg '+d.r+'" d="'+dp+'" stroke-width="'+br.toFixed(1)+'" marker-end="url(#'+(imp?"ai":"ae")+')"/><path class="hit" d="'+dp+'"/><title>'+esc((imp?dn(d.n)+" → Vereinigtes Königreich (Import)":"Vereinigtes Königreich → "+dn(d.n)+" (Export)")+": "+mrd(d.w))+'</title></g>';
   if(!seen[d.id]){seen[d.id]=1;let lx=P[0]+5,ly=P[1]+14;while(plac.some(q=>Math.abs(q[0]-lx)<60&&Math.abs(q[1]-ly)<12))ly+=12;plac.push([lx,ly]);ns+='<text class="pn" x="'+lx+'" y="'+ly+'">'+esc(dn(d.n))+'</text>'}
@@ -433,7 +433,7 @@ function rangBauen(){
  $("#rang").innerHTML=sp("imp","Größte Lieferländer (Import)")+sp("exp","Größte Abnehmerländer (Export)")}
 function linieDetail(d){const imp=d.r==="imp",x=d.p;
  const ges=gruppenSumme(d.r),aend=x.vj?(x.v/x.vj-1)*100:null;
- zeigen(kopf("Warenhandel · "+(KG==="alle"?"alle Waren":SG[KG]),(imp?dn(d.n)+" → Vereinigtes Königreich (Import)":"Vereinigtes Königreich → "+dn(d.n)+" (Export)"),imp?"var(--c2)":"var(--c3)")+'<div class="db"><div class="gross">'+mrd(d.w)+'</div><div class="gsub">zwölf Monate bis '+mon(HD.stand)+' · <i class="pkt auto"></i>automatisch</div><table class="zt"><tr><td>Anteil an den '+RICH[d.r]+' dieser Gruppe</td><td class="z">'+pf(d.w/ges*100,1)+' %</td></tr><tr><td>Alle Waren mit diesem Land</td><td class="z">'+mrd(x.v)+'</td></tr>'+(aend!==null?'<tr><td>Veränderung zu den zwölf Monaten davor (alle Waren)</td><td class="z">'+(aend>=0?"+":"")+pf(aend,1)+' %</td></tr>':'')+'<tr><td>EU-Mitglied</td><td class="z">'+(x.eu?"ja":"nein")+'</td></tr><tr><td>Gold (nicht in den Zahlen)</td><td class="z">'+mrd(x.g||0)+'</td></tr></table><h3>Quelle</h3><p style="font-size:13px;color:var(--text2)">'+esc(QHM)+'. Zahlen in laufenden Pfund; Import nach Herkunftsland, Export nach Bestimmungsland.</p></div>')}
+ zeigen(kopf("Warenhandel · "+(KG==="alle"?"alle Waren":SG[KG]),(imp?dn(d.n)+" → Vereinigtes Königreich (Import)":"Vereinigtes Königreich → "+dn(d.n)+" (Export)"),imp?"#2e9e5b":"#d63b3b")+'<div class="db"><div class="gross">'+mrd(d.w)+'</div><div class="gsub">zwölf Monate bis '+mon(HD.stand)+' · <i class="pkt auto"></i>automatisch</div><table class="zt"><tr><td>Anteil an den '+RICH[d.r]+' dieser Gruppe</td><td class="z">'+pf(d.w/ges*100,1)+' %</td></tr><tr><td>Alle Waren mit diesem Land</td><td class="z">'+mrd(x.v)+'</td></tr>'+(aend!==null?'<tr><td>Veränderung zu den zwölf Monaten davor (alle Waren)</td><td class="z">'+(aend>=0?"+":"")+pf(aend,1)+' %</td></tr>':'')+'<tr><td>EU-Mitglied</td><td class="z">'+(x.eu?"ja":"nein")+'</td></tr><tr><td>Gold (nicht in den Zahlen)</td><td class="z">'+mrd(x.g||0)+'</td></tr></table><h3>Quelle</h3><p style="font-size:13px;color:var(--text2)">'+esc(QHM)+'. Zahlen in laufenden Pfund; Import nach Herkunftsland, Export nach Bestimmungsland.</p></div>')}
 
 /* ---------- Kuchen und Balken (wie USA) ---------- */
 function kuchen(svgId,teile,opts){
