@@ -564,7 +564,7 @@ function bogenDaten(gid){
   if(L&&vm!=="alle"&&L.laender[0].sy===undefined)L=null;
   if(L){
    const gesM=L.gesamt?(vm==="see"?L.gesamt.sy:vm==="luft"?L.gesamt.ly:L.gesamt.ytd):null,gesMo=L.gesamt?(vm==="see"?L.gesamt.sm:vm==="luft"?L.gesamt.lm:L.gesamt.mo):null;
-   const zeilen=L.laender.filter(x=>NAMEISO[x.n.toUpperCase()]&&mw(x)>0).sort((a,b)=>mw(b)-mw(a)).slice(0,8);
+   const zeilen=L.laender.filter(x=>NAMEISO[x.n.toUpperCase()]&&mw(x)>0).sort((a,b)=>mw(b)-mw(a)).filter((x,i)=>i<3||(gesM&&mw(x)>=gesM*0.02)).slice(0,8);
    zeilen.forEach((x,i)=>{const m=NAMEISO[x.n.toUpperCase()];
     out.push({ri,iso:m[0],name:m[1],ytd:mw(x),mo:mm(x),rang:i+1,anteil:gesM?mw(x)/gesM*100:null,gesamt:{ytd:gesM,mo:gesMo},
      modeAnteil:(vm!=="alle"&&x.ytd>0)?mw(x)/x.ytd*100:null})})}
@@ -678,7 +678,7 @@ function rangBauen(G){
  const spalte=(ri,titel)=>{let L=liste(G.id,ri);if(L&&vm!=="alle"&&L.laender[0].sy===undefined)L=null;
   if(!L)return '<div><table><tr><th colspan="3">'+titel+'</th></tr><tr><td colspan="3" style="color:var(--text2)">Rangliste folgt mit dem Census-Abruf.</td></tr></table></div>';
   const ges=L.gesamt?(vm==="see"?L.gesamt.sy:vm==="luft"?L.gesamt.ly:L.gesamt.ytd):0;
-  const zl=L.laender.filter(x=>mw(x)>0).sort((a,b)=>mw(b)-mw(a)).slice(0,8);
+  const zl=L.laender.filter(x=>mw(x)>0).sort((a,b)=>mw(b)-mw(a)).filter((x,i)=>i<3||(gesM&&mw(x)>=gesM*0.02)).slice(0,8);
   return '<div><table><tr><th>'+titel+'</th><th>Mrd. USD</th><th>Anteil</th></tr>'+zl.map(x=>{const m=NAMEISO[x.n.toUpperCase()];return '<tr><td>'+esc(m?m[1]:x.n)+'</td><td>'+nf(mw(x)/1000,2)+'</td><td>'+(ges?nf(mw(x)/ges*100,1)+' %':'')+'</td></tr>'}).join("")+'</table></div>'};
  const sf=vm==="alle"?"":" · "+MNAME[vm];
  el.innerHTML=spalte("imp","Größte Lieferländer (Import)"+sf)+spalte("exp","Größte Abnehmerländer (Export)"+sf)}

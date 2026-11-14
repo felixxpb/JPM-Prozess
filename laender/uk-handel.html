@@ -391,8 +391,12 @@ function karteDaten(){
  const out=[];
  ["imp","exp"].forEach(r=>{const ks=HD.karte&&HD.karte[r]||{};
   const parts=PART[r].filter(x=>ks[x.c+"|"+x.n]).slice(0,14);
+  /* Warengruppe gewählt: nur Partner mit nennenswertem Handel (mind. 2 % der Gruppe, mind. die 3 größten) */
+  const ges=KG==="alle"?0:gruppenSumme(r);let L=[];
   parts.forEach((x,i)=>{const g=ks[x.c+"|"+x.n];const w=KG==="alle"?x.v:(g[KG]||0);
-   const id=landId(x.n);if(w>0&&id)out.push({r:r,n:x.n,id:id,w:w,p:x})})});
+   const id=landId(x.n);if(w>0&&id)L.push({r:r,n:x.n,id:id,w:w,p:x})});
+  if(KG!=="alle"){L.sort((a,b)=>b.w-a.w);L=L.filter((a,i)=>i<3||a.w>=ges*0.02)}
+  out.push(...L)});
  return out}
 function karteBauen(){
  const W=window.WELT,box=$("#karte");if(!W){box.style.display="none";return}
