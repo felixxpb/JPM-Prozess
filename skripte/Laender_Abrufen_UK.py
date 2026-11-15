@@ -807,6 +807,91 @@ def handel():
             "stand": "%04d-%02d-01" % (ende // 100, ende % 100)}
 
 # ---------------- Neue Fakten erkennen ----------------
+
+# ---------------- Verbraucher (Oberthema 8): ONS Consumer Trends, VGR, Einzelhandel, OECD, BoE Inflation Attitudes Survey ----------------
+CT_URL = ONS_BASIS + "/file?uri=/economy/nationalaccounts/satelliteaccounts/datasets/consumertrends/current/ct.csv"
+CT_LINK = ONS_BASIS + "/economy/nationalaccounts/satelliteaccounts/datasets/consumertrends"
+# Schluessel -> CDID (alle "CP SA", Mio. Pfund je Quartal, ausser real = ABJR CVM SA)
+CT_CODES = {"gesamt": "ZAKV", "real": "ABJR", "lebens": "ZWUM", "alk": "ZAKX", "kleid": "ZAKZ", "wohn": "ZAVN", "einr": "ZAVV", "gesund": "ZAWB",
+            "verkehr": "ZAWL", "komm": "ZAWV", "freizeit": "ZAWZ", "bild": "ZWUS", "gastro": "ZAXT", "unterk": "ZAYD", "sonst12": "ZAYF",
+            "kraft": "CCSC", "heizoel": "LTZB", "strom": "ZWUQ", "miete": "ZAVP", "unterstellt": "CCSS", "wasser": "ZAVT", "instand": "ZAVR",
+            "fahrzeug": "TMMH", "verkdienst": "ZAWR", "av": "ZAXB", "freizdienst": "ZAXH", "freizgut": "ZAXF", "grossgut": "ZAXD",
+            "druck": "ZAXN", "arzneien": "ZAWD", "ambulant": "ZAWF", "klinik": "UTYD", "dauer": "UTIB", "halbdauer": "UTIR", "kurz": "UTIJ", "dienst": "UTIN"}
+OECD_CCI = "https://sdmx.oecd.org/public/rest/data/OECD.SDD.STES,DSD_STES@DF_CLI,4.1/GBR.M.CCICP.IX.....?startPeriod=2000-01&format=csvfile"
+IAS_URL = "https://www.bankofengland.co.uk/-/media/boe/files/inflation-attitudes-survey/long-run.xlsx"
+IAS_LINK = "https://www.bankofengland.co.uk/inflation-attitudes-survey"
+VB_ONS = [  # Schluessel, Name, Pfad, Einheit
+ ["spar", "Sparquote der Haushalte", "/economy/grossdomesticproductgdp/timeseries/nrjs/ukea", "%"],
+ ["rdi", "Reales verfuegbares Einkommen je Kopf (Pfund pro Quartal)", "/economy/grossdomesticproductgdp/timeseries/crxx/ukea", "GBP"],
+ ["bip_cp", "BIP in laufenden Preisen (Mio. Pfund pro Quartal)", "/economy/grossdomesticproductgdp/timeseries/ybha/ukea", "Mio. GBP"],
+ ["retail", "Einzelhandelsumsatz, Volumen (Index)", "/businessindustryandtrade/retailindustry/timeseries/j5ek/drsi", "Index"],
+ ["online", "Anteil des Onlinehandels am Einzelhandelsumsatz", "/businessindustryandtrade/retailindustry/timeseries/j4mc/drsi", "%"],
+]
+
+def ct_reihen():
+    import csv, io
+    r = list(csv.reader(io.StringIO(bytes_holen(CT_URL).decode("utf-8", "replace"))))
+    cd = {c.strip(): j for j, c in enumerate(r[1])}
+    out = {}
+    for k, code in CT_CODES.items():
+        j = cd.get(code)
+        if j is None: print("FEHLER Consumer Trends Code", code); continue
+        pts = []
+        for row in r[8:]:
+            d = datum_q(row[0]) if row and re.fullmatch(r"\d{4} Q[1-4]", row[0]) else None
+            if d and d >= "2000-01-01" and j < len(row) and row[j].strip() not in ("", "-"):
+                try: pts.append([d, float(row[j])])
+                except ValueError: pass
+        if pts: out[k] = pts
+    if "gesamt" not in out: raise ValueError("Consumer Trends ohne Gesamtwert")
+    return out
+
+def oecd_cci():
+    import csv, io
+    r = list(csv.DictReader(io.StringIO(get(OECD_CCI))))
+    pts = sorted([x["TIME_PERIOD"] + "-01", round(float(x["OBS_VALUE"]), 2)] for x in r if x.get("OBS_VALUE"))
+    if not pts: raise ValueError("OECD leer")
+    return [[d, v] for d, v in pts]
+
+def ias():
+    import datetime as dt
+    zeilen = xlsx_zeilen(bytes_holen(IAS_URL), "LONG-RUN")
+    kopf = zeilen[3]
+    def dat(s): return (dt.date(1899, 12, 30) + dt.timedelta(days=int(float(s)))).isoformat()
+    def median_nach(marke):
+        i = next(i for i, z in enumerate(zeilen) if z and str(z[0]).strip().replace("  ", " ").startswith(marke))
+        m = next(k for k in range(i, i + 40) if zeilen[k] and str(zeilen[k][0]).strip() == "Median")
+        pts = []
+        for j in range(1, len(kopf)):
+            if kopf[j] in (None, "None") or j >= len(zeilen[m]): continue
+            v = zeilen[m][j]
+            if isinstance(v, float): pts.append([dat(kopf[j]), round(v, 1)])
+        return pts
+    return {"vorher": median_nach("Q.1"), "j1": median_nach("Q. 2a"), "j2": median_nach("Q. 2b"), "j5": median_nach("Q. 2c")}
+
+def verbraucher():
+    fehler = []
+    d = {"ons": {}}
+    try: d["ct"] = ct_reihen()
+    except Exception as e: fehler.append("ct: " + str(e)[:80]); raise ValueError("Consumer Trends fehlt: " + str(e))
+    for k, n, pfad, einh in VB_ONS:
+        try: d["ons"][k] = {"n": n, "u": einh, "r": ons_reihe_q(pfad, "2000-01-01")}
+        except Exception as e: fehler.append(k + ": " + str(e)[:60]); print("FEHLER Verbraucher", k, e)
+    try: d["cci"] = oecd_cci()
+    except Exception as e: fehler.append("cci: " + str(e)[:60]); print("FEHLER OECD", e)
+    try: d["ias"] = ias()
+    except Exception as e: fehler.append("ias: " + str(e)[:60]); print("FEHLER IAS", e)
+    try:
+        r = boe(["LPMB4TC", "LPMBI2O"])
+        d["kredit"] = {"wachstum": [[a, b] for a, b in r[0] if a >= "2000-01-01"], "bestand": [[a, round(b / 1000, 1)] for a, b in r[1] if a >= "2000-01-01"]}
+    except Exception as e: fehler.append("kredit: " + str(e)[:60]); print("FEHLER BoE Verbraucherkredit", e)
+    try: d["bis_h"] = bis_reihe("H", "M")
+    except Exception as e: fehler.append("bis: " + str(e)[:60])
+    d["fehler"] = fehler
+    d["stand"] = d["ct"]["gesamt"][-1][0]
+    d["quellen"] = {"ct": CT_LINK, "ias": IAS_LINK}
+    return d
+
 def neue_ereignisse(alt, sitze, posten, berichte, heute):
     ev = []
     if not alt or "_zustand" not in alt:
@@ -872,10 +957,12 @@ def holen(alt=None):
         daten["wirtschaft"] = wirtschaft()
     def ha_():
         daten["handel"] = handel()
-    for n, fn in [("mpc", j), ("inflation", k_), ("finanz", f_), ("arbeitsmarkt", am_), ("wirtschaft", wi_), ("handel", ha_), ("bankrate", a), ("sonia", b), ("gilts", c), ("pfund", d_), ("cpi", e), ("alq", f), ("parlament", g), ("boe_berichte", h), ("boe_termine", i)]: teil(n, fn)
+    def vb_():
+        daten["verbraucher"] = verbraucher()
+    for n, fn in [("mpc", j), ("inflation", k_), ("finanz", f_), ("arbeitsmarkt", am_), ("wirtschaft", wi_), ("handel", ha_), ("verbraucher", vb_), ("bankrate", a), ("sonia", b), ("gilts", c), ("pfund", d_), ("cpi", e), ("alq", f), ("parlament", g), ("boe_berichte", h), ("boe_termine", i)]: teil(n, fn)
     # letzten guten Stand uebernehmen, wenn ein Teil ausgefallen ist
     if alt:
-        for k in ("bankrate", "_letzteTageBank", "sonia", "gilt5", "gilt10", "gilt20", "gbpusd", "gbpeur", "cpi", "alq", "sitze", "posten", "_berichte", "_termine", "mpc", "inflation", "finanz", "wirtschaft", "handel", "arbeitsmarkt"):
+        for k in ("bankrate", "_letzteTageBank", "sonia", "gilt5", "gilt10", "gilt20", "gbpusd", "gbpeur", "cpi", "alq", "sitze", "posten", "_berichte", "_termine", "mpc", "inflation", "finanz", "wirtschaft", "handel", "arbeitsmarkt", "verbraucher"):
             if k not in daten and k in alt: daten[k] = alt[k]
     ev_alt = list((alt or {}).get("ereignisse", []))
     ev_neu = neue_ereignisse(alt, daten.get("sitze", []), daten.get("posten", []), daten.get("_berichte", []), heute) if daten.get("sitze") else []
