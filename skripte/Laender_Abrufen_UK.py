@@ -642,9 +642,11 @@ def hm_gruppe(monate, flows, gruppen, extra=""):
     return r["value"]
 
 def sdiv(sid):
-    """SITC-Abteilung (2 Stellen) aus der CommoditySitcId: 5-stellige Codes (97101 = Gold) -> 97, 2-stellige gelten selbst."""
-    if sid >= 10000: return sid // 1000
-    if 0 <= sid < 100: return sid
+    """SITC-Abteilung (2 Stellen) aus der CommoditySitcId. Die Id ist eine Zahl: 5-stellige Codes mit fuehrender Null (Abteilung 0x,
+    z. B. 04111 Weizen) erscheinen als 4111, 111 usw. Negative Werte sind Sondercodes. Gold: 97101 -> 97."""
+    if sid < 0: return None
+    if sid < 100: return sid
+    if sid < 100000: return int(str(sid).zfill(5)[:2])
     return None
 
 def sitc1(sid):
@@ -765,22 +767,24 @@ def handel():
             produkte[rich] = [{"k": k, "n": SITC1_DE[k], "v": round(v / 1e6), "vj": round(agg0.get(k, 0) / 1e6)} for k, v in sorted(agg.items(), key=lambda kv: -kv[1])]
         except Exception as e:
             fehler.append("produkte " + rich + ": " + str(e)[:80]); print("FEHLER Handel Produkte", rich, e)
-    # --- Partner x Produktgruppe fuer die wichtigsten Partner (fuer die Karte) ---
-    karte = {}
-    cid_von = {(L["c"], L["n"]): cid for cid, L in laender.items()}
+    # --- Je Warengruppe (SITC-Abschnitt 0 bis 9) die groessten Partner (fuer Karte und Tabellen) ---
+    kat = {}
     for rich, flows in (("imp", [1, 3]), ("exp", [2, 4])):
-        for p in (partner.get(rich) or [])[:14]:
+        for k in range(10):
             try:
-                cid = cid_von[(p["c"], p["n"])]
-                f = "MonthId ge %d and MonthId le %d and CountryId eq %d and (%s)%s" % (fenster[0], fenster[-1], cid, " or ".join("FlowTypeId eq %d" % x for x in flows), gold_f)
-                rr = hmrc("OTS", **{"$apply": "filter(%s)/groupby((CommoditySitcId),aggregate(Value with sum as V))" % f, "$top": 5000})["value"]
-                agg = {}
+                if k == 0: bereich = "CommoditySitcId ge 0 and CommoditySitcId lt 10000"
+                else: bereich = "CommoditySitcId ge %d and CommoditySitcId lt %d" % (k * 10000, (k + 1) * 10000)
+                f = "MonthId ge %d and MonthId le %d and (%s) and %s%s" % (fenster[0], fenster[-1], " or ".join("FlowTypeId eq %d" % x for x in flows), bereich, gold_f)
+                rr = hmrc("OTS", **{"$apply": "filter(%s)/groupby((CountryId),aggregate(Value with sum as V))" % f, "$top": 5000})["value"]
+                lst = []
                 for x in rr:
-                    k = sitc1(x["CommoditySitcId"])
-                    if k in SITC1_DE: agg[k] = agg.get(k, 0) + x["V"]
-                karte.setdefault(rich, {})[p["c"] + "|" + p["n"]] = {k: round(v / 1e6) for k, v in agg.items() if v > 0}
+                    L = laender.get(x["CountryId"])
+                    if not L or L["n"] in HM_KEINLAND or L["n"].startswith(("Low Value", "Confidential")) or x["V"] <= 0: continue
+                    lst.append({"c": L["c"], "n": L["n"], "v": round(x["V"] / 1e6)})
+                lst.sort(key=lambda y: -y["v"])
+                kat.setdefault(rich, {})[str(k)] = lst[:20]
             except Exception as e:
-                fehler.append("karte " + rich + " " + p["n"] + ": " + str(e)[:60])
+                fehler.append("kat " + rich + " " + str(k) + ": " + str(e)[:60]); print("FEHLER Handel Warengruppe", rich, k, e)
     # --- Monatsreihe Gesamt-Warenhandel (36 Monate) ---
     monatlich = {}
     try:
@@ -801,7 +805,7 @@ def handel():
     try: tis = dienste_nach_art()
     except Exception as e: fehler.append("dienste_art: " + str(e)[:80]); print("FEHLER Dienste nach Art", e)
     if not partner.get("imp") or not partner.get("exp") or len(reihen) < 6: raise ValueError("Handel unvollstaendig: " + "; ".join(fehler))
-    return {"von": "%04d-%02d" % (fenster[0] // 100, fenster[0] % 100), "bis": "%04d-%02d" % (ende // 100, ende % 100), "partner": partner, "gold": goldsum, "produkte": produkte, "karte": karte,
+    return {"von": "%04d-%02d" % (fenster[0] // 100, fenster[0] % 100), "bis": "%04d-%02d" % (ende // 100, ende % 100), "partner": partner, "gold": goldsum, "produkte": produkte, "kat": kat,
             "monatlich": monatlich, "reihen": reihen, "dienste": tis, "eu_codes": sorted(EU_CODES), "fehler": fehler,
             "quelle": "HMRC, UK overseas trade in goods statistics (uktradeinfo, Warenwert in Pfund, 12 Monate bis " + "%04d-%02d" % (ende // 100, ende % 100) + ")",
             "stand": "%04d-%02d-01" % (ende // 100, ende % 100)}
