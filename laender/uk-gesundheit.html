@@ -1,0 +1,211 @@
+<!DOCTYPE html>
+<html lang="de"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>ENTWURF · UK Gesundheit (Layout-Vorlage)</title>
+<style>
+:root{
+  --flaeche:#fcfcfb; --ebene:#f9f9f7; --text:#0b0b0b; --text2:#52514e; --stumm:#898781;
+  --raster:#e1e0d9; --achse:#c3c2b7; --rand:rgba(11,11,11,.10);
+  --c1:#2f6f9f; --c2:#6b4f8a; --c3:#3d7a56; --c4:#8a5a2b; --cb:#52514e;
+  --h1:#e6f0f7; --hb:#efeee9;
+  --gut:#006300; --warn:#b97a00; --schatten:0 1px 2px rgba(11,11,11,.04),0 4px 16px rgba(11,11,11,.06);
+  color-scheme:light;
+}
+:root[data-theme="dark"]{
+  --flaeche:#1a1a19; --ebene:#0d0d0d; --text:#fff; --text2:#c3c2b7; --stumm:#898781;
+  --raster:#2c2c2a; --achse:#383835; --rand:rgba(255,255,255,.12);
+  --c1:#5fa0d3; --c2:#ab8fd0; --c3:#56b27d; --c4:#d39a5a; --cb:#c3c2b7;
+  --h1:#16222c; --hb:#232321;
+  --gut:#0ca30c; --warn:#fab219; --schatten:none; color-scheme:dark;
+}
+*{box-sizing:border-box}
+body{margin:0;padding:0 20px 56px;background:var(--ebene);color:var(--text);font-family:system-ui,-apple-system,"Segoe UI",sans-serif;font-size:15px;line-height:1.5}
+.wrap{max-width:1280px;margin:0 auto}
+header{padding:20px 0 6px;display:flex;gap:16px;justify-content:space-between;align-items:flex-start;flex-wrap:wrap}
+h1{margin:0;font-size:21px;font-weight:650}
+.unter{color:var(--text2);font-size:13px}
+.entwurf{display:inline-block;margin-left:8px;padding:1px 8px;border-radius:99px;border:1px solid var(--warn);color:var(--warn);font-size:12px;font-weight:600;vertical-align:middle}
+.tool{font:inherit;font-size:13px;background:var(--flaeche);color:var(--text);border:1px solid var(--rand);border-radius:8px;padding:6px 12px;cursor:pointer}
+.zurueck-knopf{display:inline-flex;align-items:center;gap:8px;font-size:14.5px;font-weight:600;color:var(--text);text-decoration:none;background:var(--flaeche);border:1.5px solid var(--achse);border-radius:12px;padding:8px 16px;margin-bottom:10px;box-shadow:var(--schatten)}
+.zurueck-knopf:hover{border-color:var(--text)}
+.legende{display:flex;gap:16px;flex-wrap:wrap;font-size:12px;color:var(--text2);margin:6px 0 12px}
+.pkt{width:8px;height:8px;border-radius:50%;display:inline-block;margin-right:5px}.pkt.auto{background:var(--gut)}.pkt.man{background:var(--stumm)}
+/* Wichtig-Kasten */
+.wichtig{display:flex;gap:12px;background:var(--flaeche);border:1px solid var(--rand);border-left:6px solid var(--warn);border-radius:10px;padding:10px 14px;margin:10px 0 14px;box-shadow:var(--schatten)}
+.wichtig .wi{flex:none;width:26px;height:26px;border-radius:50%;background:var(--warn);color:#fff;font-weight:800;display:flex;align-items:center;justify-content:center;font-size:15px;margin-top:2px}
+:root[data-theme="dark"] .wichtig .wi{color:#111}
+.wichtig b.wt{display:block;font-size:12px;text-transform:uppercase;letter-spacing:.06em;color:var(--warn);margin-bottom:2px}
+.wichtig p{margin:0;font-size:14px}
+.wichtig .qq{font-size:11.5px;color:var(--stumm);margin-top:3px}
+/* Kacheln */
+.k{all:unset;box-sizing:border-box;display:block;width:100%;cursor:pointer;background:var(--flaeche);border:1px solid var(--rand);border-radius:9px;padding:9px 11px 8px;box-shadow:var(--schatten);transition:transform .15s,border-color .15s}
+.k:hover{transform:translateY(-1px);border-color:var(--c)}.k:focus-visible{outline:2px solid var(--c);outline-offset:2px}
+.kt{display:flex;justify-content:space-between;align-items:baseline;gap:6px}
+.kn{font-size:12.5px;color:var(--text2);font-weight:600}
+.kd{font-size:11px;color:var(--stumm);white-space:nowrap}
+.kw{font-size:23px;font-weight:700;line-height:1.15;font-variant-numeric:tabular-nums;margin-top:1px}
+.ks{font-size:11.8px;color:var(--text2);margin-top:1px}
+.spark{display:block;width:100%;height:30px;margin-top:3px}
+.k.offen{opacity:.8;border-style:dashed;cursor:default}.k.offen .kw{font-size:15px;color:var(--stumm)}
+.c1{--c:var(--c1)}.c2{--c:var(--c2)}.c3{--c:var(--c3)}.c4{--c:var(--c4)}.cb{--c:var(--cb)}
+.band{background:var(--hb);border:1px solid var(--rand);border-radius:12px;padding:8px 10px 10px;margin-bottom:14px}
+.bandkopf{font-size:12px;font-weight:700;color:var(--text2);text-transform:uppercase;letter-spacing:.05em;margin:2px 2px 6px}
+.bandinhalt{display:grid;grid-template-columns:repeat(4,1fr);gap:10px}
+/* Verstaendnis */
+.versteh{background:var(--flaeche);border:1px solid var(--rand);border-radius:12px;padding:6px 18px 14px;box-shadow:var(--schatten);margin-bottom:14px}
+.versteh>h2{margin:12px 0 2px;font-size:17px}
+.versteh .lead{margin:0 0 8px;color:var(--text2);font-size:13.5px}
+.versteh details{border-top:1px solid var(--raster);padding:6px 0}
+.versteh details:first-of-type{border-top:0}
+.versteh summary{cursor:pointer;font-weight:650;font-size:14.5px;padding:4px 0;list-style:none}
+.versteh summary::-webkit-details-marker{display:none}
+.versteh summary:before{content:"▸";display:inline-block;width:18px;color:var(--text2);transition:transform .15s}
+.versteh details[open]>summary:before{transform:rotate(90deg)}
+.versteh summary:focus-visible{outline:2px solid var(--text);outline-offset:2px;border-radius:4px}
+.versteh .inh{padding:2px 0 6px 18px;font-size:14px}
+.versteh ul{margin:4px 0;padding-left:20px}.versteh li{margin:3px 0}
+.dia{background:#0c1220;border:1px solid #26334b;border-radius:14px;padding:8px;margin:8px 0 4px}
+.dia svg{width:100%;height:auto;display:block}
+.dia text{font-family:inherit}
+.dia .nt{font-size:13px;font-weight:700;fill:#0b1620}.dia .ns{font-size:11px;fill:#16303f}
+.dia .lab{font-size:11.5px;fill:#eaf0fb;paint-order:stroke;stroke:#0c1220;stroke-width:5px;stroke-linejoin:round}
+.dia .zt{font-size:12px;fill:#9fb0c8;letter-spacing:.08em;text-transform:uppercase}
+.dia .nd,.dia .fl{cursor:pointer;outline:none}
+.dia .nd:hover rect,.dia .nd:hover polygon,.dia .nd:focus-visible rect,.dia .nd.on rect,.dia .nd.on polygon{stroke:#fff;stroke-width:3.5}
+.dia .fl:hover .l,.dia .fl.on .l{stroke-width:6}
+.leg{font-size:12.5px;color:var(--text2);margin:2px 0 4px}
+.info{background:var(--ebene);border:1px solid var(--rand);border-left:4px solid var(--c1);border-radius:8px;padding:8px 12px;font-size:13.5px;min-height:44px;margin-top:6px}
+/* Unterthemen */
+.ut{display:grid;grid-template-columns:repeat(2,1fr);gap:12px;margin-bottom:14px}
+.ut section{background:var(--flaeche);border:1px solid var(--rand);border-top:4px solid var(--c);border-radius:10px;padding:10px 14px 12px;box-shadow:var(--schatten)}
+.ut h3{margin:0 0 4px;font-size:15px}.ut h3 span{color:var(--c);margin-right:6px}
+.ut p,.ut li{font-size:13.5px;margin:3px 0}.ut ul{margin:4px 0;padding-left:18px}
+.tb{width:100%;border-collapse:collapse;font-size:13px;margin-top:6px}.tb th{text-align:left;font-size:11.5px;color:var(--text2);border-bottom:1px solid var(--rand);padding:3px 6px 3px 0}.tb td{padding:4px 6px 4px 0;border-bottom:1px solid var(--raster)}.tb td.hk{font-weight:700;color:var(--warn)}
+.ut .offenhin{font-size:12.5px;color:var(--warn);border-left:3px solid var(--warn);padding:2px 8px;margin-top:6px}
+.ut .wichtig{margin:8px 0 2px;padding:7px 10px}.ut .wichtig p{font-size:13px}
+/* Gilt-Kachel */
+.gilt{all:unset;box-sizing:border-box;display:block;width:100%;cursor:pointer;background:var(--flaeche);border:1px solid var(--rand);border-left:8px solid var(--c4);border-radius:12px;padding:16px 20px;box-shadow:var(--schatten);margin-bottom:14px;transition:transform .15s,border-color .15s}
+.gilt:hover{transform:translateY(-1px);border-color:var(--c4)}.gilt:focus-visible{outline:2px solid var(--c4);outline-offset:2px}
+.gilt h2{margin:0 0 2px;font-size:19px}.gilt .gs{color:var(--text2);font-size:13.5px}
+.gilt .gz{display:flex;gap:28px;flex-wrap:wrap;margin:10px 0 6px}
+.gilt .gz div b{display:block;font-size:26px;font-variant-numeric:tabular-nums}.gilt .gz div span{font-size:12px;color:var(--text2)}
+.gilt .oeffnen{display:inline-block;background:var(--text);color:var(--flaeche);border-radius:8px;padding:5px 14px;font-size:13px;font-weight:650}
+/* Zeitstrahl */
+.panel{background:var(--flaeche);border:1px solid var(--rand);border-radius:12px;padding:10px 16px 14px;box-shadow:var(--schatten);margin-bottom:14px}
+.panel h2{margin:4px 0 2px;font-size:17px}
+.ev{display:flex;gap:10px;padding:5px 0;border-top:1px solid var(--raster);font-size:13px}
+.ev:first-of-type{border-top:0}.ev .d{width:92px;font-weight:650;flex:none}
+.termine{background:var(--flaeche);border:1px solid var(--rand);border-radius:10px;padding:10px 14px;box-shadow:var(--schatten);margin-bottom:14px}
+.termine h2{margin:0 0 4px;font-size:13px;color:var(--text2);text-transform:uppercase;letter-spacing:.05em}
+.fuss{margin-top:6px;font-size:11.5px;color:var(--stumm)}
+/* Drawer + Overlay */
+#schatten{position:fixed;inset:0;background:rgba(0,0,0,.35);opacity:0;pointer-events:none;transition:opacity .2s;z-index:20}
+#schatten.offen{opacity:1;pointer-events:auto}
+#drawer{position:fixed;top:0;right:0;height:100%;width:min(580px,100%);background:var(--flaeche);border-left:1px solid var(--rand);box-shadow:-8px 0 30px rgba(0,0,0,.18);transform:translateX(100%);transition:transform .22s ease;z-index:21;overflow-y:auto}
+#drawer.offen{transform:none}
+#gp{position:fixed;inset:3vh 3vw;background:var(--flaeche);border:1px solid var(--rand);border-radius:14px;box-shadow:0 20px 60px rgba(0,0,0,.4);z-index:22;overflow-y:auto;display:none}
+#gp.offen{display:block}
+.dk{position:sticky;top:0;background:var(--flaeche);border-bottom:1px solid var(--rand);border-top:4px solid var(--c,var(--c1));padding:14px 18px 10px;display:flex;justify-content:space-between;gap:10px;align-items:flex-start;z-index:2}
+.dk h2{margin:0;font-size:18px}.dk .gr{font-size:12px;color:var(--c,var(--c1));text-transform:uppercase;letter-spacing:.05em;font-weight:700}
+.zu{all:unset;cursor:pointer;font-size:24px;line-height:1;padding:2px 10px;border-radius:6px;color:var(--text2)}.zu:hover{background:var(--raster)}.zu:focus-visible{outline:2px solid var(--text)}
+.db{padding:14px 18px 40px}
+.gross{font-size:34px;font-weight:700;font-variant-numeric:tabular-nums;line-height:1.1}
+.gsub{font-size:13px;color:var(--text2);margin-bottom:8px}
+.btns{display:flex;gap:6px;margin:6px 0 4px;flex-wrap:wrap}
+.btn{font:inherit;font-size:12px;background:var(--ebene);color:var(--text);border:1px solid var(--rand);border-radius:7px;padding:3px 10px;cursor:pointer}
+.btn[aria-pressed="true"]{background:var(--text);color:var(--flaeche);border-color:var(--text)}
+svg.chart{width:100%;height:auto;display:block;touch-action:none}
+.tip{font-size:12.5px;color:var(--text2);min-height:18px;margin-bottom:4px;font-variant-numeric:tabular-nums}
+.db h3{font-size:12px;text-transform:uppercase;letter-spacing:.05em;color:var(--text2);margin:18px 0 4px}
+.db p{margin:0 0 8px;font-size:14px}
+.db table{width:100%;border-collapse:collapse;font-size:13px}
+.db td{padding:5px 8px 5px 0;border-bottom:1px solid var(--raster);vertical-align:top}
+.db .hin{background:var(--ebene);border-left:3px solid var(--warn);border-radius:4px;padding:6px 10px;font-size:13px;color:var(--text2)}
+.db a{color:inherit}
+.tabs{display:flex;gap:6px;margin:0 0 10px;flex-wrap:wrap}
+.tab{font:inherit;font-size:13.5px;font-weight:600;background:var(--ebene);color:var(--text);border:1px solid var(--rand);border-radius:8px;padding:6px 14px;cursor:pointer}
+.tab[aria-selected="true"]{background:var(--text);color:var(--flaeche)}
+.schritt{all:unset;box-sizing:border-box;display:block;width:100%;cursor:pointer;background:var(--ebene);border:1px solid var(--rand);border-left:5px solid var(--c4);border-radius:9px;padding:8px 12px;margin:8px 0}
+.schritt:hover,.schritt[aria-expanded="true"]{border-color:var(--c4)}
+.schritt b{display:block;font-size:14px}.schritt .sd{font-size:12px;color:var(--c4);font-weight:700}
+.schritt .st{display:none;font-size:13.5px;margin-top:4px;color:var(--text2)}.schritt[aria-expanded="true"] .st{display:block}
+@media (max-width:980px){.bandinhalt{grid-template-columns:repeat(2,1fr)}.ut{grid-template-columns:1fr}}
+@media (prefers-reduced-motion:reduce){#drawer,#schatten,.k{transition:none}}
+
+.vgl{width:100%;border-collapse:collapse;font-size:13px;margin:6px 0}.vgl th,.vgl td{border:1px solid var(--raster);padding:6px 8px;text-align:left;vertical-align:top}.vgl th{background:var(--hb);font-size:12px}
+.vgl td.o{color:var(--stumm);font-style:italic}
+.kern{margin:4px 0;padding-left:22px}.kern li{margin:4px 0}
+.struktur{background:var(--flaeche);border:1px solid var(--rand);border-radius:12px;padding:12px 14px;box-shadow:var(--schatten);margin-bottom:14px}
+.sek{font-size:15px;margin:18px 0 6px}.sek small{display:block;font-weight:400;color:var(--text2);font-size:12.5px}
+.k.offen{cursor:default}.k.offen .kw{font-size:14px;color:var(--stumm)}
+.quelle{font-size:11px;color:var(--stumm);margin-top:3px}
+.fluss text{font-family:inherit;fill:var(--text)}.fluss .b{fill:var(--flaeche);stroke:var(--achse);stroke-width:1.4}
+.fluss .t2{fill:var(--text2);font-size:11.5px}.fluss .t1{font-size:13px;font-weight:650}
+.fluss .pf{fill:none;stroke:var(--achse);stroke-width:1.8;marker-end:url(#pfeil)}
+.zl{border-left:3px solid var(--achse);margin:6px 0 4px 6px;padding-left:12px;font-size:13px}.zl div{margin:5px 0}.zl b{color:var(--text2)}
+.hinweis{background:var(--hb);border:1px dashed var(--achse);border-radius:10px;padding:8px 12px;font-size:12.5px;color:var(--text2);margin:8px 0 14px}
+.bandinhalt{grid-template-columns:repeat(4,1fr)}@media(max-width:980px){.bandinhalt{grid-template-columns:1fr 1fr}}
+
+</style></head><body><div class="wrap">
+<header><div>
+ <a href="uk.html" class="zurueck-knopf">← Vereinigtes Königreich, alle Oberthemen</a>
+ <h1>Vereinigtes Königreich – Gesundheitswesen <span class="entwurf">Layout-Vorlage, ohne Zahlen</span></h1>
+ <div class="unter">Länderanalyse, Oberthema 10 · Daten und Fakten, keine Bewertung · Zahlen kommen erst nach deiner Freigabe des Aufbaus</div>
+</div><button class="tool" id="theme" type="button">Dunkel / Hell</button></header>
+
+<div class="legende"><span><i class="pkt auto"></i>später aus Abruf (NHS England, ONS, Landesämter, OECD)</span><span><i class="pkt man"></i>später von Hand mit Quelle</span><span>Kacheln mit „Wert folgt“ sind Platzhalter, keine echten Zahlen</span></div>
+
+<div class="wichtig"><div class="wi">!</div><div><b class="wt">Wichtig: Es gibt in UK vier Gesundheitssysteme</b>
+<p>Gesundheit ist an Schottland, Wales und Nordirland übertragen. Jeder Landesteil hat eigenes Budget, eigene Wartelisten und eigene Regeln (zum Beispiel bei Rezeptgebühren). Darum werden die Landesteile auf dieser Seite einzeln gezeigt, nicht als ein UK-Wert.</p>
+<div class="qq">Aus allgemeinem Wissen geschrieben, jede Aussage wird vor Freigabe mit einer Quelle belegt.</div></div></div>
+
+<section class="versteh"><h2>Zuerst verstehen: Wie das britische Gesundheitswesen aufgebaut ist und bezahlt wird</h2>
+<p class="lead">Der NHS (National Health Service) wird überwiegend aus Steuern bezahlt und ist für Patienten meist kostenlos. Das Geld läuft vom Finanzministerium zu den Regierungen der Landesteile und von dort zu den Einrichtungen.</p>
+<details open><summary>Die Grundidee in sechs Punkten</summary><div class="inh"><ol class="kern">
+<li><b>Finanzierung:</b> überwiegend Steuern und Sozialabgaben (National Insurance), kaum Eigenbeteiligung.</li>
+<li><b>Vier Systeme:</b> NHS England, NHS Scotland, NHS Wales und Health and Social Care in Nordirland.</li>
+<li><b>Budget:</b> Das Finanzministerium legt das Gesundheitsbudget für England fest. Die anderen Landesteile erhalten Pauschalbeträge (Barnett-Formel) und entscheiden selbst, wie viel davon in die Gesundheit geht.</li>
+<li><b>Leistung:</b> Hausärzte sind der erste Anlaufpunkt, Krankenhäuser behandeln auf Überweisung (Warteliste), Notfälle über die Notaufnahme.</li>
+<li><b>Soziale Pflege</b> (Pflegeheime, Hilfe zu Hause) liegt bei den Kommunen und wird getrennt vom NHS finanziert.</li>
+<li><b>Private Ergänzung:</b> kleiner Markt für private Behandlung und Versicherung neben dem NHS.</li></ol></div></details>
+<details open><summary>Die vier Landesteile im Vergleich</summary><div class="inh"><table class="vgl">
+<tr><th></th><th>England</th><th>Schottland</th><th>Wales</th><th>Nordirland</th></tr>
+<tr><td>Träger</td><td>Gesundheitsministerium DHSC, NHS England</td><td>Scottish Government, Health Boards</td><td>Welsh Government, Health Boards</td><td>Department of Health NI, Health and Social Care Trusts</td></tr>
+<tr><td>Bevölkerung</td><td class="o">folgt (ONS)</td><td class="o">folgt</td><td class="o">folgt</td><td class="o">folgt</td></tr>
+<tr><td>Gesundheitsbudget</td><td class="o">folgt</td><td class="o">folgt</td><td class="o">folgt</td><td class="o">folgt</td></tr>
+<tr><td>Warteliste</td><td class="o">folgt</td><td class="o">folgt</td><td class="o">folgt</td><td class="o">folgt</td></tr>
+<tr><td>Rezeptgebühr</td><td class="o">folgt (gov.uk)</td><td class="o">folgt</td><td class="o">folgt</td><td class="o">folgt</td></tr>
+</table><p class="quelle">Die Zahlen werden einzeln je Landesteil mit Quelle eingetragen. Die Statistiken sind zwischen den Landesteilen nicht immer vergleichbar, das steht dann dabei.</p></div></details>
+</section>
+
+<h2 class="sek">Der Geldfluss im Überblick: vom Steuerzahler zur Behandlung<small>Schaubild als Platzhalter, die Beträge je Pfeil werden später eingetragen (Klick zeigt dann Quelle und Verlauf)</small></h2>
+<div class="struktur"><svg class="fluss" viewBox="0 0 1100 430" role="img" aria-label="Geldfluss im britischen Gesundheitswesen">
+<defs><marker id="pfeil" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M0,0L10,5L0,10z" fill="#898781"/></marker></defs>
+<rect class="b" x="10" y="170" width="170" height="80" rx="10"/><text class="t1" x="95" y="203" text-anchor="middle">Steuerzahler</text><text class="t2" x="95" y="222" text-anchor="middle">Steuern, National Insurance</text>
+<rect class="b" x="250" y="170" width="170" height="80" rx="10"/><text class="t1" x="335" y="203" text-anchor="middle">Finanzministerium</text><text class="t2" x="335" y="222" text-anchor="middle">Betrag folgt</text>
+<rect class="b" x="500" y="30" width="190" height="70" rx="10"/><text class="t1" x="595" y="62" text-anchor="middle">DHSC (England)</text><text class="t2" x="595" y="82" text-anchor="middle">Betrag folgt</text>
+<rect class="b" x="500" y="150" width="190" height="70" rx="10"/><text class="t1" x="595" y="182" text-anchor="middle">Schottland</text><text class="t2" x="595" y="202" text-anchor="middle">Pauschale, Betrag folgt</text>
+<rect class="b" x="500" y="250" width="190" height="70" rx="10"/><text class="t1" x="595" y="282" text-anchor="middle">Wales</text><text class="t2" x="595" y="302" text-anchor="middle">Pauschale, Betrag folgt</text>
+<rect class="b" x="500" y="350" width="190" height="70" rx="10"/><text class="t1" x="595" y="382" text-anchor="middle">Nordirland</text><text class="t2" x="595" y="402" text-anchor="middle">Pauschale, Betrag folgt</text>
+<rect class="b" x="790" y="30" width="190" height="70" rx="10"/><text class="t1" x="885" y="62" text-anchor="middle">NHS England, Trusts</text><text class="t2" x="885" y="82" text-anchor="middle">Krankenhäuser, Hausärzte</text>
+<rect class="b" x="790" y="150" width="190" height="270" rx="10"/><text class="t1" x="885" y="270" text-anchor="middle">Health Boards / Trusts</text><text class="t2" x="885" y="290" text-anchor="middle">der drei Landesteile</text>
+<path class="pf" d="M180 210 L248 210"/><path class="pf" d="M420 200 C460 200 460 65 498 65"/><path class="pf" d="M420 210 L498 185"/><path class="pf" d="M420 220 C460 220 460 285 498 285"/><path class="pf" d="M420 230 C450 230 450 385 498 385"/>
+<path class="pf" d="M690 65 L788 65"/><path class="pf" d="M690 185 L788 230"/><path class="pf" d="M690 285 L788 285"/><path class="pf" d="M690 385 L788 340"/>
+</svg>
+<p class="quelle">Nicht im Bild: soziale Pflege über die Kommunen, Eigenzahlungen der Patienten, private Versicherung. Sie kommen als eigene Kästen dazu, sobald die Zahlen da sind.</p></div>
+
+<h2 class="sek">Die Daten dazu<small>Alle Kacheln sind Platzhalter mit der geplanten Quelle</small></h2>
+<div class="band"><div class="bandkopf">Finanzierung</div><div class="bandinhalt"><div class="k offen" style="--c:var(--c1)"><div class="kt"><span class="kn">Gesundheitsausgaben in % vom BIP</span><span class="kd">Entwurf</span></div><div class="kw">Wert folgt</div><div class="ks">Quelle: ONS (Healthcare expenditure, UK), OECD Health Statistics</div></div><div class="k offen" style="--c:var(--c1)"><div class="kt"><span class="kn">Ausgaben je Kopf</span><span class="kd">Entwurf</span></div><div class="kw">Wert folgt</div><div class="ks">Quelle: ONS, OECD</div></div><div class="k offen" style="--c:var(--c1)"><div class="kt"><span class="kn">Anteil öffentlich / privat</span><span class="kd">Entwurf</span></div><div class="kw">Wert folgt</div><div class="ks">Quelle: ONS, OECD</div></div><div class="k offen" style="--c:var(--c1)"><div class="kt"><span class="kn">Budget Gesundheitsministerium (DHSC), England</span><span class="kd">Entwurf</span></div><div class="kw">Wert folgt</div><div class="ks">Quelle: HM Treasury (Spending Review), DHSC Annual Report</div></div><div class="k offen" style="--c:var(--c1)"><div class="kt"><span class="kn">Budget Schottland (Gesundheit)</span><span class="kd">Entwurf</span></div><div class="kw">Wert folgt</div><div class="ks">Quelle: Scottish Government Budget</div></div><div class="k offen" style="--c:var(--c1)"><div class="kt"><span class="kn">Budget Wales (Gesundheit und Soziales)</span><span class="kd">Entwurf</span></div><div class="kw">Wert folgt</div><div class="ks">Quelle: Welsh Government Budget</div></div><div class="k offen" style="--c:var(--c1)"><div class="kt"><span class="kn">Budget Nordirland (Gesundheit)</span><span class="kd">Entwurf</span></div><div class="kw">Wert folgt</div><div class="ks">Quelle: NI Executive Budget</div></div><div class="k offen" style="--c:var(--c1)"><div class="kt"><span class="kn">Defizite der Trusts / Schuldenstand NHS</span><span class="kd">Entwurf</span></div><div class="kw">Wert folgt</div><div class="ks">Quelle: NHS England Financial Reports</div></div></div></div><div class="band"><div class="bandkopf">Leistung: Wartelisten und Notaufnahme</div><div class="bandinhalt"><div class="k offen" style="--c:var(--c2)"><div class="kt"><span class="kn">Warteliste England (geplante Behandlung, RTT)</span><span class="kd">Entwurf</span></div><div class="kw">Wert folgt</div><div class="ks">Quelle: NHS England Statistics (monatlich)</div></div><div class="k offen" style="--c:var(--c2)"><div class="kt"><span class="kn">Wartende über 52 Wochen, England</span><span class="kd">Entwurf</span></div><div class="kw">Wert folgt</div><div class="ks">Quelle: NHS England Statistics</div></div><div class="k offen" style="--c:var(--c2)"><div class="kt"><span class="kn">Notaufnahme: Anteil in 4 Stunden erledigt, England</span><span class="kd">Entwurf</span></div><div class="kw">Wert folgt</div><div class="ks">Quelle: NHS England A&amp;E Statistics (monatlich)</div></div><div class="k offen" style="--c:var(--c2)"><div class="kt"><span class="kn">Krankenwagen: Reaktionszeit bei Notfällen, England</span><span class="kd">Entwurf</span></div><div class="kw">Wert folgt</div><div class="ks">Quelle: NHS England Ambulance Quality Indicators</div></div><div class="k offen" style="--c:var(--c2)"><div class="kt"><span class="kn">Warteliste Schottland</span><span class="kd">Entwurf</span></div><div class="kw">Wert folgt</div><div class="ks">Quelle: Public Health Scotland</div></div><div class="k offen" style="--c:var(--c2)"><div class="kt"><span class="kn">Warteliste Wales</span><span class="kd">Entwurf</span></div><div class="kw">Wert folgt</div><div class="ks">Quelle: StatsWales / NHS Wales Performance</div></div><div class="k offen" style="--c:var(--c2)"><div class="kt"><span class="kn">Warteliste Nordirland</span><span class="kd">Entwurf</span></div><div class="kw">Wert folgt</div><div class="ks">Quelle: Department of Health NI</div></div><div class="k offen" style="--c:var(--c2)"><div class="kt"><span class="kn">Hausarzttermine pro Monat, England</span><span class="kd">Entwurf</span></div><div class="kw">Wert folgt</div><div class="ks">Quelle: NHS England (Appointments in General Practice)</div></div></div></div><div class="band"><div class="bandkopf">Personal</div><div class="bandinhalt"><div class="k offen" style="--c:var(--c3)"><div class="kt"><span class="kn">Beschäftigte im NHS England (Vollzeitstellen)</span><span class="kd">Entwurf</span></div><div class="kw">Wert folgt</div><div class="ks">Quelle: NHS England Workforce Statistics</div></div><div class="k offen" style="--c:var(--c3)"><div class="kt"><span class="kn">Offene Stellen, England</span><span class="kd">Entwurf</span></div><div class="kw">Wert folgt</div><div class="ks">Quelle: NHS England Vacancy Statistics (vierteljährlich)</div></div><div class="k offen" style="--c:var(--c3)"><div class="kt"><span class="kn">Ärzte je 1.000 Einwohner, UK im Vergleich</span><span class="kd">Entwurf</span></div><div class="kw">Wert folgt</div><div class="ks">Quelle: OECD Health Statistics</div></div><div class="k offen" style="--c:var(--c3)"><div class="kt"><span class="kn">Pflegekräfte je 1.000 Einwohner</span><span class="kd">Entwurf</span></div><div class="kw">Wert folgt</div><div class="ks">Quelle: OECD Health Statistics</div></div><div class="k offen" style="--c:var(--c3)"><div class="kt"><span class="kn">Streiktage im Gesundheitswesen</span><span class="kd">Entwurf</span></div><div class="kw">Wert folgt</div><div class="ks">Quelle: ONS Labour Disputes</div></div><div class="k offen" style="--c:var(--c3)"><div class="kt"><span class="kn">Personal je Landesteil</span><span class="kd">Entwurf</span></div><div class="kw">Wert folgt</div><div class="ks">Quelle: Statistikämter der vier Landesteile</div></div></div></div><div class="band"><div class="bandkopf">Bevölkerungsgesundheit und Arbeitsmarkt</div><div class="bandinhalt"><div class="k offen" style="--c:var(--c4)"><div class="kt"><span class="kn">Lebenserwartung bei Geburt (Frauen / Männer)</span><span class="kd">Entwurf</span></div><div class="kw">Wert folgt</div><div class="ks">Quelle: ONS National Life Tables</div></div><div class="k offen" style="--c:var(--c4)"><div class="kt"><span class="kn">Gesunde Lebenserwartung</span><span class="kd">Entwurf</span></div><div class="kw">Wert folgt</div><div class="ks">Quelle: ONS</div></div><div class="k offen" style="--c:var(--c4)"><div class="kt"><span class="kn">Wirtschaftlich Inaktive wegen Langzeiterkrankung</span><span class="kd">Entwurf</span></div><div class="kw">Wert folgt</div><div class="ks">Quelle: ONS Labour Force Survey</div></div><div class="k offen" style="--c:var(--c4)"><div class="kt"><span class="kn">Krankheitsbedingte Fehltage</span><span class="kd">Entwurf</span></div><div class="kw">Wert folgt</div><div class="ks">Quelle: ONS</div></div><div class="k offen" style="--c:var(--c4)"><div class="kt"><span class="kn">Bevölkerung 65 plus (Anteil)</span><span class="kd">Entwurf</span></div><div class="kw">Wert folgt</div><div class="ks">Quelle: ONS Population Estimates</div></div><div class="k offen" style="--c:var(--c4)"><div class="kt"><span class="kn">Fettleibigkeit / Raucherquote</span><span class="kd">Entwurf</span></div><div class="kw">Wert folgt</div><div class="ks">Quelle: NHS Digital, ONS</div></div></div></div><div class="band"><div class="bandkopf">Kosten und Medikamente</div><div class="bandinhalt"><div class="k offen" style="--c:var(--c1)"><div class="kt"><span class="kn">Ausgaben für Medikamente (NHS England)</span><span class="kd">Entwurf</span></div><div class="kw">Wert folgt</div><div class="ks">Quelle: NHS Business Services Authority</div></div><div class="k offen" style="--c:var(--c1)"><div class="kt"><span class="kn">Rezeptgebühr England (andere Landesteile frei)</span><span class="kd">Entwurf</span></div><div class="kw">Wert folgt</div><div class="ks">Quelle: gov.uk (von Hand, Stand prüfen)</div></div><div class="k offen" style="--c:var(--c1)"><div class="kt"><span class="kn">Rückzahlungsquote Pharmaindustrie (VPAG)</span><span class="kd">Entwurf</span></div><div class="kw">Wert folgt</div><div class="ks">Quelle: DHSC / ABPI (von Hand)</div></div><div class="k offen" style="--c:var(--c1)"><div class="kt"><span class="kn">Privat bezahlte Behandlungen und Versicherung</span><span class="kd">Entwurf</span></div><div class="kw">Wert folgt</div><div class="ks">Quelle: ONS, Private Healthcare Information Network</div></div></div></div>
+
+<h2 class="sek">Reformen und Politik<small>Zeitleiste von Hand gepflegt, mit Quelle je Eintrag (hier nur das geplante Gerüst)</small></h2>
+<div class="struktur"><div class="zl">
+<div><b>Platzhalter:</b> Spending Review und Gesundheitsbudget</div>
+<div><b>Platzhalter:</b> Umbau von NHS England und Gesundheitsministerium</div>
+<div><b>Platzhalter:</b> Langfristplan für den NHS (Reformen)</div>
+<div><b>Platzhalter:</b> Tarifrunden und Streiks im Gesundheitswesen</div></div></div>
+
+<div class="hinweis"><b>Fragen an dich:</b> Passt die Reihenfolge (Verstehen, Geldfluss, Daten, Politik)? Fehlt eine Kachel, oder soll eine raus? Soll der Geldfluss zusätzlich die Verteilung nach Verwendung zeigen (Krankenhaus, Hausarzt, Medikamente, Personal) wie bei den USA?</div>
+<div class="fuss">Geplante Quellen: NHS England Statistics, ONS, Public Health Scotland, StatsWales, Department of Health NI, HM Treasury, DHSC, OECD.</div>
+</div>
+<script>
+document.getElementById("theme").onclick=function(){var r=document.documentElement;r.dataset.theme=r.dataset.theme==="dark"?"light":"dark"};
+</script></body></html>
