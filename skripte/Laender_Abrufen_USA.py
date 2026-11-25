@@ -827,12 +827,53 @@ def lade_regelungen():
     return {"liste": liste, "quelle": "https://www.federalregister.gov/", "fehler": fehler}
 
 
+
+# ---------------------------------------------------------------- Energiebilanz (Eigenproduktion, Importe, Exporte): EIA Monthly Energy Review
+MER_CSV = "https://www.eia.gov/totalenergy/data/browser/csv.php?tbl=%s"
+
+
+def mer_jahr(tabelle):
+    """Jahreswerte (Monatscode 13) einer MER-Tabelle: {MSN: {Jahr: Wert}}."""
+    import csv, io
+    req = urllib.request.Request(MER_CSV % tabelle, headers={"User-Agent": UA})
+    txt = urllib.request.urlopen(req, timeout=90).read().decode("utf-8", "replace")
+    out = {}
+    for x in csv.DictReader(io.StringIO(txt)):
+        if x["YYYYMM"].endswith("13"):
+            try: out.setdefault(x["MSN"], {})[int(x["YYYYMM"][:4])] = float(x["Value"])
+            except ValueError: pass
+    return out
+
+
+def lade_bilanz():
+    t1 = mer_jahr("T01.01")
+    jahre = sorted(set(t1["TEPRBUS"]) & set(t1["TEIMBUS"]) & set(t1["TEEXBUS"]) & set(t1["TETCBUS"]))
+    j = jahre[-1]
+    g = lambda t, m, y=j: t.get(m, {}).get(y)
+    ges = {"prod": g(t1, "TEPRBUS"), "imp": g(t1, "TEIMBUS"), "exp": g(t1, "TEEXBUS"), "netto": g(t1, "TENIBUS"), "verbrauch": g(t1, "TETCBUS")}
+    if not (80 < ges["prod"] < 130 and 10 < ges["imp"] < 40):
+        raise ValueError("MER-Werte unplausibel: %s" % ges)
+    reihe = [[y, round(t1["TENIBUS"][y] / t1["TETCBUS"][y] * 100, 1)] for y in jahre if y >= 1990 and y in t1["TENIBUS"]]
+    t3, t4, t6, t7 = (mer_jahr(x) for x in ("T03.01", "T04.01", "T06.01", "T07.01"))
+    fuels = []
+    for n, t, p, i, e, ein in (("Erdöl und Erdölprodukte", t3, "PNPRPUS", "PAIMPUS", "PAEXPUS", "Tsd. Barrel pro Tag"),
+                               ("Erdgas", t4, "NGPRPUS", "NGIMPUS", "NGEXPUS", "Mrd. Kubikfuß"),
+                               ("Kohle", t6, "CLPRPUS", "CLIMPUS", "CLEXPUS", "Tsd. Short Tons"),
+                               ("Strom (Erzeugung und Handel)", t7, "ELETPUS", "ELIMPUS", "ELEXPUS", "Mrd. kWh")):
+        try:
+            fuels.append({"n": n, "prod": round(t[p][j], 1), "imp": round(t[i][j], 1), "exp": round(t[e][j], 1), "einh": ein})
+        except KeyError:
+            pass
+    return {"jahr": j, "einheit": "Billiarden Btu", "gesamt": {k: round(v, 2) for k, v in ges.items()}, "brennstoffe": fuels, "abh_reihe": reihe,
+            "quelle": "EIA, Monthly Energy Review (Tabellen 1.1, 3.1, 4.1, 6.1, 7.1, jährlich)", "link": "https://www.eia.gov/totalenergy/data/monthly/"}
+
+
 def lade_umwelt(alt=None):
     out, fehler = {}, {}
     alt = alt or {}
     for name, fkt in (("strommix", lade_strommix), ("co2", lade_co2), ("duerre", lade_duerre), ("gistemp", lade_gistemp),
                       ("laden", lambda: lade_laden(alt.get("laden"))), ("raffinerien", lade_raffinerien),
-                      ("stuerme", lade_stuerme), ("regelungen", lade_regelungen)):
+                      ("stuerme", lade_stuerme), ("regelungen", lade_regelungen), ("bilanz", lade_bilanz)):
         try:
             out[name] = fkt()
         except Exception as e:  # noqa

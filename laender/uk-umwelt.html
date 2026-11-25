@@ -1,0 +1,628 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>JPM Prozess · Länderanalyse Vereinigtes Königreich · Umwelt und Klima</title>
+<style>
+:root{
+  --flaeche:#fcfcfb; --ebene:#f9f9f7; --text:#0b0b0b; --text2:#52514e; --stumm:#898781;
+  --raster:#e1e0d9; --achse:#c3c2b7; --rand:rgba(11,11,11,.10);
+  --c1:#2f6f9f; --c2:#6b4f8a; --c3:#3d7a56; --c4:#8a5a2b; --cb:#52514e;
+  --h1:#e6f0f7; --hb:#efeee9;
+  --gut:#006300; --warn:#b97a00; --schatten:0 1px 2px rgba(11,11,11,.04),0 4px 16px rgba(11,11,11,.06);
+  color-scheme:light;
+}
+:root[data-theme="dark"]{
+  --flaeche:#1a1a19; --ebene:#0d0d0d; --text:#fff; --text2:#c3c2b7; --stumm:#898781;
+  --raster:#2c2c2a; --achse:#383835; --rand:rgba(255,255,255,.12);
+  --c1:#5fa0d3; --c2:#ab8fd0; --c3:#56b27d; --c4:#d39a5a; --cb:#c3c2b7;
+  --h1:#16222c; --hb:#232321;
+  --gut:#0ca30c; --warn:#fab219; --schatten:none; color-scheme:dark;
+}
+*{box-sizing:border-box}
+body{margin:0;padding:0 20px 56px;background:var(--ebene);color:var(--text);font-family:system-ui,-apple-system,"Segoe UI",sans-serif;font-size:15px;line-height:1.5}
+.wrap{max-width:1280px;margin:0 auto}
+header{padding:20px 0 6px;display:flex;gap:16px;justify-content:space-between;align-items:flex-start;flex-wrap:wrap}
+h1{margin:0;font-size:21px;font-weight:650}
+.unter{color:var(--text2);font-size:13px}
+.entwurf{display:inline-block;margin-left:8px;padding:1px 8px;border-radius:99px;border:1px solid var(--warn);color:var(--warn);font-size:12px;font-weight:600;vertical-align:middle}
+.tool{font:inherit;font-size:13px;background:var(--flaeche);color:var(--text);border:1px solid var(--rand);border-radius:8px;padding:6px 12px;cursor:pointer}
+.zurueck-knopf{display:inline-flex;align-items:center;gap:8px;font-size:14.5px;font-weight:600;color:var(--text);text-decoration:none;background:var(--flaeche);border:1.5px solid var(--achse);border-radius:12px;padding:8px 16px;margin-bottom:10px;box-shadow:var(--schatten)}
+.zurueck-knopf:hover{border-color:var(--text)}
+.legende{display:flex;gap:16px;flex-wrap:wrap;font-size:12px;color:var(--text2);margin:6px 0 12px}
+.pkt{width:8px;height:8px;border-radius:50%;display:inline-block;margin-right:5px}.pkt.auto{background:var(--gut)}.pkt.man{background:var(--stumm)}
+/* Wichtig-Kasten */
+.wichtig{display:flex;gap:12px;background:var(--flaeche);border:1px solid var(--rand);border-left:6px solid var(--warn);border-radius:10px;padding:10px 14px;margin:10px 0 14px;box-shadow:var(--schatten)}
+.wichtig .wi{flex:none;width:26px;height:26px;border-radius:50%;background:var(--warn);color:#fff;font-weight:800;display:flex;align-items:center;justify-content:center;font-size:15px;margin-top:2px}
+:root[data-theme="dark"] .wichtig .wi{color:#111}
+.wichtig b.wt{display:block;font-size:12px;text-transform:uppercase;letter-spacing:.06em;color:var(--warn);margin-bottom:2px}
+.wichtig p{margin:0;font-size:14px}
+.wichtig .qq{font-size:11.5px;color:var(--stumm);margin-top:3px}
+/* Kacheln */
+.k{all:unset;box-sizing:border-box;display:block;width:100%;cursor:pointer;background:var(--flaeche);border:1px solid var(--rand);border-radius:9px;padding:9px 11px 8px;box-shadow:var(--schatten);transition:transform .15s,border-color .15s}
+.k:hover{transform:translateY(-1px);border-color:var(--c)}.k:focus-visible{outline:2px solid var(--c);outline-offset:2px}
+.kt{display:flex;justify-content:space-between;align-items:baseline;gap:6px}
+.kn{font-size:12.5px;color:var(--text2);font-weight:600}
+.kd{font-size:11px;color:var(--stumm);white-space:nowrap}
+.kw{font-size:23px;font-weight:700;line-height:1.15;font-variant-numeric:tabular-nums;margin-top:1px}
+.ks{font-size:11.8px;color:var(--text2);margin-top:1px}
+.spark{display:block;width:100%;height:30px;margin-top:3px}
+.k.offen{opacity:.8;border-style:dashed;cursor:default}.k.offen .kw{font-size:15px;color:var(--stumm)}
+.c1{--c:var(--c1)}.c2{--c:var(--c2)}.c3{--c:var(--c3)}.c4{--c:var(--c4)}.cb{--c:var(--cb)}
+.band{background:var(--hb);border:1px solid var(--rand);border-radius:12px;padding:8px 10px 10px;margin-bottom:14px}
+.bandkopf{font-size:12px;font-weight:700;color:var(--text2);text-transform:uppercase;letter-spacing:.05em;margin:2px 2px 6px}
+.bandinhalt{display:grid;grid-template-columns:repeat(4,1fr);gap:10px}
+/* Verstaendnis */
+.versteh{background:var(--flaeche);border:1px solid var(--rand);border-radius:12px;padding:6px 18px 14px;box-shadow:var(--schatten);margin-bottom:14px}
+.versteh>h2{margin:12px 0 2px;font-size:17px}
+.versteh .lead{margin:0 0 8px;color:var(--text2);font-size:13.5px}
+.versteh details{border-top:1px solid var(--raster);padding:6px 0}
+.versteh details:first-of-type{border-top:0}
+.versteh summary{cursor:pointer;font-weight:650;font-size:14.5px;padding:4px 0;list-style:none}
+.versteh summary::-webkit-details-marker{display:none}
+.versteh summary:before{content:"▸";display:inline-block;width:18px;color:var(--text2);transition:transform .15s}
+.versteh details[open]>summary:before{transform:rotate(90deg)}
+.versteh summary:focus-visible{outline:2px solid var(--text);outline-offset:2px;border-radius:4px}
+.versteh .inh{padding:2px 0 6px 18px;font-size:14px}
+.versteh ul{margin:4px 0;padding-left:20px}.versteh li{margin:3px 0}
+.dia{background:#0c1220;border:1px solid #26334b;border-radius:14px;padding:8px;margin:8px 0 4px}
+.dia svg{width:100%;height:auto;display:block}
+.dia text{font-family:inherit}
+.dia .nt{font-size:13px;font-weight:700;fill:#0b1620}.dia .ns{font-size:11px;fill:#16303f}
+.dia .lab{font-size:11.5px;fill:#eaf0fb;paint-order:stroke;stroke:#0c1220;stroke-width:5px;stroke-linejoin:round}
+.dia .zt{font-size:12px;fill:#9fb0c8;letter-spacing:.08em;text-transform:uppercase}
+.dia .nd,.dia .fl{cursor:pointer;outline:none}
+.dia .nd:hover rect,.dia .nd:hover polygon,.dia .nd:focus-visible rect,.dia .nd.on rect,.dia .nd.on polygon{stroke:#fff;stroke-width:3.5}
+.dia .fl:hover .l,.dia .fl.on .l{stroke-width:6}
+.leg{font-size:12.5px;color:var(--text2);margin:2px 0 4px}
+.info{background:var(--ebene);border:1px solid var(--rand);border-left:4px solid var(--c1);border-radius:8px;padding:8px 12px;font-size:13.5px;min-height:44px;margin-top:6px}
+/* Unterthemen */
+.ut{display:grid;grid-template-columns:repeat(2,1fr);gap:12px;margin-bottom:14px}
+.ut section{background:var(--flaeche);border:1px solid var(--rand);border-top:4px solid var(--c);border-radius:10px;padding:10px 14px 12px;box-shadow:var(--schatten)}
+.ut h3{margin:0 0 4px;font-size:15px}.ut h3 span{color:var(--c);margin-right:6px}
+.ut p,.ut li{font-size:13.5px;margin:3px 0}.ut ul{margin:4px 0;padding-left:18px}
+.tb{width:100%;border-collapse:collapse;font-size:13px;margin-top:6px}.tb th{text-align:left;font-size:11.5px;color:var(--text2);border-bottom:1px solid var(--rand);padding:3px 6px 3px 0}.tb td{padding:4px 6px 4px 0;border-bottom:1px solid var(--raster)}.tb td.hk{font-weight:700;color:var(--warn)}
+.ut .offenhin{font-size:12.5px;color:var(--warn);border-left:3px solid var(--warn);padding:2px 8px;margin-top:6px}
+.ut .wichtig{margin:8px 0 2px;padding:7px 10px}.ut .wichtig p{font-size:13px}
+/* Gilt-Kachel */
+.gilt{all:unset;box-sizing:border-box;display:block;width:100%;cursor:pointer;background:var(--flaeche);border:1px solid var(--rand);border-left:8px solid var(--c4);border-radius:12px;padding:16px 20px;box-shadow:var(--schatten);margin-bottom:14px;transition:transform .15s,border-color .15s}
+.gilt:hover{transform:translateY(-1px);border-color:var(--c4)}.gilt:focus-visible{outline:2px solid var(--c4);outline-offset:2px}
+.gilt h2{margin:0 0 2px;font-size:19px}.gilt .gs{color:var(--text2);font-size:13.5px}
+.gilt .gz{display:flex;gap:28px;flex-wrap:wrap;margin:10px 0 6px}
+.gilt .gz div b{display:block;font-size:26px;font-variant-numeric:tabular-nums}.gilt .gz div span{font-size:12px;color:var(--text2)}
+.gilt .oeffnen{display:inline-block;background:var(--text);color:var(--flaeche);border-radius:8px;padding:5px 14px;font-size:13px;font-weight:650}
+/* Zeitstrahl */
+.panel{background:var(--flaeche);border:1px solid var(--rand);border-radius:12px;padding:10px 16px 14px;box-shadow:var(--schatten);margin-bottom:14px}
+.panel h2{margin:4px 0 2px;font-size:17px}
+.ev{display:flex;gap:10px;padding:5px 0;border-top:1px solid var(--raster);font-size:13px}
+.ev:first-of-type{border-top:0}.ev .d{width:92px;font-weight:650;flex:none}
+.termine{background:var(--flaeche);border:1px solid var(--rand);border-radius:10px;padding:10px 14px;box-shadow:var(--schatten);margin-bottom:14px}
+.termine h2{margin:0 0 4px;font-size:13px;color:var(--text2);text-transform:uppercase;letter-spacing:.05em}
+.fuss{margin-top:6px;font-size:11.5px;color:var(--stumm)}
+/* Drawer + Overlay */
+#schatten{position:fixed;inset:0;background:rgba(0,0,0,.35);opacity:0;pointer-events:none;transition:opacity .2s;z-index:20}
+#schatten.offen{opacity:1;pointer-events:auto}
+#drawer{position:fixed;top:0;right:0;height:100%;width:min(580px,100%);background:var(--flaeche);border-left:1px solid var(--rand);box-shadow:-8px 0 30px rgba(0,0,0,.18);transform:translateX(100%);transition:transform .22s ease;z-index:21;overflow-y:auto}
+#drawer.offen{transform:none}
+#gp{position:fixed;inset:3vh 3vw;background:var(--flaeche);border:1px solid var(--rand);border-radius:14px;box-shadow:0 20px 60px rgba(0,0,0,.4);z-index:22;overflow-y:auto;display:none}
+#gp.offen{display:block}
+.dk{position:sticky;top:0;background:var(--flaeche);border-bottom:1px solid var(--rand);border-top:4px solid var(--c,var(--c1));padding:14px 18px 10px;display:flex;justify-content:space-between;gap:10px;align-items:flex-start;z-index:2}
+.dk h2{margin:0;font-size:18px}.dk .gr{font-size:12px;color:var(--c,var(--c1));text-transform:uppercase;letter-spacing:.05em;font-weight:700}
+.zu{all:unset;cursor:pointer;font-size:24px;line-height:1;padding:2px 10px;border-radius:6px;color:var(--text2)}.zu:hover{background:var(--raster)}.zu:focus-visible{outline:2px solid var(--text)}
+.db{padding:14px 18px 40px}
+.gross{font-size:34px;font-weight:700;font-variant-numeric:tabular-nums;line-height:1.1}
+.gsub{font-size:13px;color:var(--text2);margin-bottom:8px}
+.btns{display:flex;gap:6px;margin:6px 0 4px;flex-wrap:wrap}
+.btn{font:inherit;font-size:12px;background:var(--ebene);color:var(--text);border:1px solid var(--rand);border-radius:7px;padding:3px 10px;cursor:pointer}
+.btn[aria-pressed="true"]{background:var(--text);color:var(--flaeche);border-color:var(--text)}
+svg.chart{width:100%;height:auto;display:block;touch-action:none}
+.tip{font-size:12.5px;color:var(--text2);min-height:18px;margin-bottom:4px;font-variant-numeric:tabular-nums}
+.db h3{font-size:12px;text-transform:uppercase;letter-spacing:.05em;color:var(--text2);margin:18px 0 4px}
+.db p{margin:0 0 8px;font-size:14px}
+.db table{width:100%;border-collapse:collapse;font-size:13px}
+.db td{padding:5px 8px 5px 0;border-bottom:1px solid var(--raster);vertical-align:top}
+.db .hin{background:var(--ebene);border-left:3px solid var(--warn);border-radius:4px;padding:6px 10px;font-size:13px;color:var(--text2)}
+.db a{color:inherit}
+.tabs{display:flex;gap:6px;margin:0 0 10px;flex-wrap:wrap}
+.tab{font:inherit;font-size:13.5px;font-weight:600;background:var(--ebene);color:var(--text);border:1px solid var(--rand);border-radius:8px;padding:6px 14px;cursor:pointer}
+.tab[aria-selected="true"]{background:var(--text);color:var(--flaeche)}
+.schritt{all:unset;box-sizing:border-box;display:block;width:100%;cursor:pointer;background:var(--ebene);border:1px solid var(--rand);border-left:5px solid var(--c4);border-radius:9px;padding:8px 12px;margin:8px 0}
+.schritt:hover,.schritt[aria-expanded="true"]{border-color:var(--c4)}
+.schritt b{display:block;font-size:14px}.schritt .sd{font-size:12px;color:var(--c4);font-weight:700}
+.schritt .st{display:none;font-size:13.5px;margin-top:4px;color:var(--text2)}.schritt[aria-expanded="true"] .st{display:block}
+@media (max-width:980px){.bandinhalt{grid-template-columns:repeat(2,1fr)}.ut{grid-template-columns:1fr}}
+@media (prefers-reduced-motion:reduce){#drawer,#schatten,.k{transition:none}}
+
+.pieb{display:grid;grid-template-columns:minmax(260px,420px) 1fr;gap:18px;align-items:center}
+@media(max-width:820px){.pieb{grid-template-columns:1fr}}
+.pie path{cursor:pointer;stroke:var(--flaeche);stroke-width:2;transition:opacity .15s}.pie path:hover{opacity:.8}
+
+.pie{width:100%;max-width:1100px;height:auto;display:block;margin:0 auto}
+.pie path{cursor:pointer;stroke:var(--flaeche);stroke-width:1.5;transition:opacity .15s}
+.pie path:hover,.pie path:focus{opacity:.75;outline:none}
+.pie text{font-size:16px;fill:var(--text);cursor:pointer;pointer-events:auto}
+.pie text:hover{text-decoration:underline}
+.pie .pz{font-weight:700;font-variant-numeric:tabular-nums}
+.pie .fl{stroke:var(--achse,var(--text2));stroke-width:1;fill:none}
+@media (max-width:760px){.pie .lbl{display:none}.pie{max-width:360px}}
+.bandkopf{font-size:12px;font-weight:700;color:var(--text2);text-transform:uppercase;letter-spacing:.05em;margin:14px 2px 6px}
+.balken2{display:flex;height:40px;border-radius:9px;overflow:hidden;margin-top:6px;border:1px solid var(--rand)}
+.balken2 button{all:unset;cursor:pointer;display:flex;align-items:center;justify-content:center;text-align:center;font-size:12px;font-weight:700;color:#fff;overflow:hidden;white-space:nowrap;padding:0 4px;box-sizing:border-box}
+.balken2 button:hover,.balken2 button:focus-visible{filter:brightness(1.12);outline:none}
+.brow{all:unset;box-sizing:border-box;display:grid;grid-template-columns:minmax(150px,230px) 1fr 64px;gap:10px;align-items:center;width:100%;padding:5px 6px;border-radius:8px;cursor:pointer}
+.brow:hover{background:var(--hb)}.brow:focus-visible{outline:2px solid var(--c1)}
+.brow .bn{font-size:13.5px}.brow .bw{font-weight:650;font-size:13.5px;text-align:right}
+.brow .bs{height:16px;background:var(--hb);border-radius:4px;overflow:hidden}.brow .bs i{display:block;height:100%;border-radius:4px}
+.struktur{background:var(--flaeche);border:1px solid var(--rand);border-radius:12px;padding:12px 14px;box-shadow:var(--schatten);margin-bottom:14px}
+.kuchenkopf{display:flex;justify-content:space-between;gap:10px;flex-wrap:wrap;align-items:baseline;margin-bottom:6px}.kuchenkopf h3{margin:0;font-size:15px}.kuchenkopf span{font-size:12.5px;color:var(--text2)}
+.zt{width:100%;border-collapse:collapse;font-size:13.5px;margin:6px 0}.zt td,.zt th{padding:5px 6px;border-bottom:1px solid var(--rand);text-align:left}.zt th{font-size:11.5px;text-transform:uppercase;letter-spacing:.04em;color:var(--text2)}
+.zt td.z,.zt th.z{text-align:right;white-space:nowrap}.zt tr.klick{cursor:pointer}.zt tr.klick:hover td{background:var(--hb)}.zt tr.akt td{background:var(--h1)}
+.pos{color:var(--warn)}.neg{color:var(--c3)}
+.beit{display:grid;grid-template-columns:minmax(150px,230px) 1fr 70px;gap:8px;align-items:center;font-size:13.5px;padding:3px 6px}
+.beit .ax{position:relative;height:16px;background:var(--hb);border-radius:4px}.beit .ax i{position:absolute;top:0;height:100%;border-radius:3px}.beit .ax b{position:absolute;left:50%;top:-2px;bottom:-2px;width:1px;background:var(--achse)}
+.kdia svg{width:100%;height:auto;display:block}.kdia{--rot:#b4412f;--blau:#2f6f9f;--gruen:#3d7a56;--gold:#b97a00}
+:root[data-theme="dark"] .kdia{--rot:#e8826f;--blau:#6cb8f2;--gruen:#56b27d;--gold:#ffd166}
+.nd rect{cursor:pointer;stroke-width:1.6;fill:var(--flaeche)}.nd:hover rect{stroke-width:3}
+.nd text{pointer-events:none;font-size:13px;fill:var(--text);font-weight:600}.nd text.s{font-size:11px;font-weight:400;fill:var(--text2)}
+.kpf{fill:none;stroke-width:2;marker-end:url(#pf)}.kl{font-size:11px;fill:var(--text2);paint-order:stroke;stroke:var(--flaeche);stroke-width:4px;stroke-linejoin:round}
+.hinw{font-size:12px;color:var(--stumm);margin-top:6px}
+
+.bandkopf{font-size:12px;font-weight:700;color:var(--text2);text-transform:uppercase;letter-spacing:.05em;margin:2px 2px 6px}
+.bhin{font-size:11.5px;color:var(--stumm);margin-top:6px}
+.balken2{display:flex;height:40px;border-radius:9px;overflow:hidden;margin-top:6px;border:1px solid var(--rand)}
+.balken2 button{all:unset;cursor:pointer;display:flex;align-items:center;justify-content:center;text-align:center;font-size:12px;font-weight:700;color:#fff;overflow:hidden;white-space:nowrap;padding:0 3px}
+.balken2 button:hover,.balken2 button:focus-visible{filter:brightness(1.12);outline:none}
+.liste summary{cursor:pointer;font-size:13px;font-weight:650;padding:6px 0}
+.liste input{font:inherit;font-size:13px;padding:5px 9px;border:1px solid var(--rand);border-radius:7px;background:var(--ebene);color:var(--text);width:min(360px,100%);margin:4px 0 8px}
+.liste .tab{max-height:420px;overflow:auto;border:1px solid var(--rand);border-radius:8px}
+.liste table{width:100%;border-collapse:collapse;font-size:12.5px}
+.liste th{position:sticky;top:0;background:var(--flaeche);text-align:left;font-size:11.5px;color:var(--text2);padding:5px 8px;border-bottom:1px solid var(--rand)}
+.liste td{padding:3px 8px;border-bottom:1px solid var(--raster)}
+.liste tr[data-id]{cursor:pointer}.liste tr[data-id]:hover{background:var(--ebene)}
+.liste td.zahl,.db td.zahl{text-align:right;font-variant-numeric:tabular-nums;white-space:nowrap}
+.vgl{width:100%;border-collapse:collapse;font-size:13px;margin:4px 0}
+.vgl th{text-align:left;font-size:11.5px;color:var(--text2);border-bottom:1px solid var(--rand);padding:4px 8px 4px 0}
+.vgl td{padding:6px 8px 6px 0;border-bottom:1px solid var(--raster);vertical-align:top}
+.vgl td:first-child{font-weight:650;white-space:nowrap}
+.bandinhalt{grid-template-columns:repeat(4,1fr)!important}@media (max-width:980px){.bandinhalt{grid-template-columns:1fr!important}}
+.migk{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px}
+@media(max-width:980px){.migk{grid-template-columns:1fr}}
+.k.hand{border-style:dashed}
+.eb-kopf{display:flex;justify-content:space-between;gap:10px;flex-wrap:wrap;align-items:baseline;margin-bottom:8px}.eb-kopf h3{margin:0;font-size:16px}.eb-kopf span{font-size:12.5px;color:var(--text2)}
+.eb-kpis{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px;margin:8px 0}
+.eb-k{background:var(--flaeche);border:1px solid var(--rand);border-radius:10px;padding:10px 12px}
+.eb-g{font-size:34px;font-weight:800;line-height:1.1;font-variant-numeric:tabular-nums}
+.eb-t{font-size:13px;font-weight:700;margin-top:2px}.eb-s{font-size:12px;color:var(--text2);margin-top:2px}
+.eb-bar{display:flex;height:46px;border-radius:9px;overflow:hidden;border:1px solid var(--rand);margin:10px 0 6px}.eb-bar i{display:flex;align-items:center;justify-content:center;font-style:normal;font-weight:700;color:#fff;font-size:14px;white-space:nowrap;overflow:hidden}
+.eb-hin{font-size:12px;color:var(--text2);margin:4px 0}
+.eb-kopf2{font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:.05em;color:var(--text2);margin:14px 0 6px}
+.eb-z{display:grid;grid-template-columns:210px 1fr 150px;gap:4px 12px;align-items:center;padding:5px 0;border-bottom:1px solid var(--rand)}
+.eb-n{font-weight:600;font-size:13.5px}.eb-b{display:flex;height:22px;border-radius:5px;overflow:hidden;background:var(--raster,#333)}.eb-b i{display:flex;align-items:center;justify-content:center;font-style:normal;font-size:11px;font-weight:700;color:#fff}.eb-w{font-size:12.5px;text-align:right}.eb-d{grid-column:1/-1;font-size:11.5px;color:var(--text2)}
+.eb-ch{width:100%;max-width:760px;display:block}
+@media(max-width:980px){.eb-kpis{grid-template-columns:repeat(2,1fr)}.eb-z{grid-template-columns:1fr}.eb-w{text-align:left}}
+.karte-k{display:block;position:relative;border:1px solid var(--rand);border-radius:12px;overflow:hidden;background:#0e1420;color:#f1f5f9;text-decoration:none;box-shadow:var(--schatten)}
+.karte-k img{display:block;width:100%;height:auto;opacity:.95;transition:opacity .15s,transform .3s}
+.karte-k:hover img,.karte-k:focus-visible img{opacity:1;transform:scale(1.01)}
+.karte-k .sk-text{position:absolute;left:0;right:0;bottom:0;padding:34px 230px 14px 18px;background:linear-gradient(transparent,rgba(14,20,32,.96) 55%);display:flex;flex-direction:column;gap:2px}
+.karte-k .sk-text b{font-size:16px}.karte-k .sk-text span{font-size:13px;color:#c3cad6}
+.karte-k .sk-btn{position:absolute;right:14px;bottom:16px;z-index:2;background:#f1f5f9;color:#0e1420;border-radius:8px;padding:6px 12px;font-size:13px;font-weight:650}
+
+.zeitl{width:100%;border-collapse:collapse;font-size:13px}
+.zeitl th,.zeitl td{padding:6px 8px;border-bottom:1px solid var(--rand);text-align:left;vertical-align:top}
+.zeitl td.dt{white-space:nowrap;font-weight:700;width:110px}
+</style>
+</head>
+<body>
+<div class="wrap">
+<header>
+  <div>
+    <a href="uk.html" class="zurueck-knopf">← Vereinigtes Königreich, alle Oberthemen</a>
+    <h1>Vereinigtes Königreich – Umwelt und Klima <span class="entwurf">Entwurf, nicht freigegeben</span></h1>
+    <div class="unter" id="unter">Länderanalyse, Oberthema 9 · Daten und Fakten, keine Bewertung</div>
+  </div>
+  <button class="tool" id="theme" type="button">Dunkel / Hell</button>
+</header>
+<div class="legende">
+  <span><i class="pkt auto"></i>aus Abruf (NESO Carbon Intensity, DESNZ, Met Office), Datum in jeder Kachel</span>
+  <span><i class="pkt man"></i>von Hand eingetragen (mit Quelle, gestrichelte Kachel)</span>
+  <span>Kuchenstücke, Balken und Kacheln anklicken: Einordnung, Chart, Quelle</span>
+</div>
+
+<div class="wichtig"><div class="wi">!</div><div>
+  <b class="wt">Wichtig: Energie und Klima im Vereinigten Königreich</b>
+  <p id="wichtigtext"></p>
+  <div class="qq">Quellen: DESNZ (Energy Trends, Treibhausgas-Statistik), NESO Carbon Intensity API, Met Office; Kohleausstieg und Kohlenstoffbudget: Presse und Climate Change Committee (siehe Kacheln unten).</div>
+</div></div>
+
+<h2 style="font-size:15px;margin:18px 0 6px">Eigenproduktion und Importe: woher die Energie kommt</h2>
+<div class="struktur" id="eb-box"></div>
+
+<section class="versteh" aria-labelledby="vt">
+  <h2 id="vt">Zuerst verstehen: Wie Strom, Emissionen und Wetter zusammenhängen</h2>
+  <p class="lead">Das Vereinigte Königreich erzeugt den Strom heute vor allem mit Gas, Wind, Kernkraft und Biomasse, die Kohle ist beendet. Wie viel Gas im Strommix steht und wie der Wind weht, bestimmt die CO2-Intensität des Stroms. Die Emissionen sinken seit 1990, der Staat setzt dafür gesetzliche Kohlenstoffbudgets. Das Wetter beeinflusst Nachfrage und Windstrom.</p>
+  <details open>
+    <summary>Die Grundidee in sechs Punkten</summary>
+    <div class="inh"><ol class="kern" id="grundidee"></ol></div>
+  </details>
+  <details open>
+    <summary>Die Bausteine und wo sie auf dieser Seite stehen</summary>
+    <div class="inh">
+      <table class="vgl">
+        <tr><th>Baustein</th><th>Was er beschreibt</th><th>Wo auf dieser Seite</th></tr>
+        <tr><td>Strommix</td><td>Aus welchen Quellen der Strom kommt (Jahresanteile) und wie der Mix zuletzt aussieht.</td><td>Strommix-Kuchen, Kacheln „Strom aktuell“</td></tr>
+        <tr><td>CO2-Intensität</td><td>Gramm CO2 je Kilowattstunde Strom, hängt vom Mix ab.</td><td>Kacheln „Strom aktuell“</td></tr>
+        <tr><td>Emissionen</td><td>Treibhausgase der gesamten Wirtschaft nach Sektor, in Millionen Tonnen CO2-Äquivalent.</td><td>Emissions-Kuchen, Kacheln „Emissionen“</td></tr>
+        <tr><td>Klimapolitik</td><td>Gesetze, Ziele und Kohlenstoffbudgets.</td><td>Zeitleiste und Kacheln „Politik und Preise“</td></tr>
+        <tr><td>Wetter</td><td>Temperatur und Niederschlag, Abweichung vom langjährigen Mittel.</td><td>Kacheln „Wetter“</td></tr>
+      </table>
+      <p style="font-size:12.5px;color:var(--text2);margin:6px 0 0">Quellen: DESNZ Energy Trends Tabelle 5.1, DESNZ Provisional UK greenhouse gas emissions statistics 2025, NESO Carbon Intensity API, Met Office HadUK-Grid (UK-Flächenmittel).</p>
+    </div>
+  </details>
+  <details open>
+    <summary>Was das strukturell bedeutet</summary>
+    <div class="inh"><div class="bed" id="strukt"></div>
+    <p style="font-size:12.5px;color:var(--text2);margin:8px 0 0">Die Wirkung auf Märkte und Währungen wird hier bewusst nicht beschrieben. Sie folgt später in der Ableitung.</p></div>
+  </details>
+</section>
+
+<h2 style="font-size:15px;margin:18px 0 6px">Woher der Strom kommt: der Strommix</h2>
+<div class="struktur" id="mix-box">
+  <div class="kuchenkopf"><h3>Stromerzeugung nach Quelle, <span id="mix-meta"></span></h3><span>Anteil an der gesamten Stromerzeugung in %, Klick für Verlauf der Jahre</span></div>
+  <svg class="pie" id="mix-pie" viewBox="-110 0 1320 640" role="img" aria-label="Kuchendiagramm der Stromerzeugung nach Quelle"></svg>
+  <div class="bandkopf" style="margin-top:12px">Zusammengefasst: fossil, Kernkraft, erneuerbar</div>
+  <div class="balken2" id="mix-bal" role="group" aria-label="Fossil, Kernkraft, erneuerbar"></div>
+  <div class="bhin" id="mix-hin"></div>
+</div>
+
+<h2 style="font-size:15px;margin:18px 0 6px">Woher die Emissionen kommen: Treibhausgase nach Sektor</h2>
+<div class="struktur" id="em-box">
+  <div class="kuchenkopf"><h3>Treibhausgasemissionen nach Sektor, <span id="em-meta"></span></h3><span>Anteil an den gesamten Emissionen in %, Klick für Verlauf seit 1990</span></div>
+  <svg class="pie" id="em-pie" viewBox="-110 0 1320 560" role="img" aria-label="Kuchendiagramm der Treibhausgasemissionen nach Sektor"></svg>
+  <div class="bhin" id="em-hin"></div>
+</div>
+
+<h2 style="font-size:15px;margin:18px 0 6px">Karte: Energie</h2>
+<a class="karte-k" href="uk-umwelt-karte.html" aria-label="Energiekarte öffnen">
+  <img src="../bilder/energiekarte-uk-vorschau.png" alt="Vorschau: Karte des Vereinigten Königreichs mit Kraftwerken, Raffinerien, LNG-Terminals und Stromkabeln ins Ausland">
+  <span class="sk-btn">Karte öffnen</span>
+  <span class="sk-text"><b>Wo Energie erzeugt, angelandet und importiert wird</b><span>210 Kraftwerke ab 50 MW nach Energiequelle, Raffinerien, LNG- und Gasterminals und die Stromkabel nach Frankreich, Norwegen, Dänemark, in die Niederlande, nach Belgien und Irland.</span></span>
+</a>
+
+<h2 style="font-size:15px;margin:18px 0 6px">Klimapolitik: was wann beschlossen wurde</h2>
+<div class="struktur" id="pol-box">
+  <div class="tab" style="overflow:auto"><table class="zeitl" id="zeit"></table></div>
+  <div class="bhin" id="pol-hin"></div>
+</div>
+
+<h2 style="font-size:15px;margin:18px 0 6px">Die Daten dazu</h2>
+<div class="band"><div class="bandkopf">Strom aktuell (Monatsmittel der letzten 12 Monate, NESO)</div><div class="bandinhalt" id="b1"></div></div>
+<div class="band"><div class="bandkopf">Emissionen (Jahreswerte, Millionen Tonnen CO2-Äquivalent)</div><div class="bandinhalt" id="b2"></div></div>
+<div class="band"><div class="bandkopf">Wetter (Met Office, UK-Mittel)</div><div class="bandinhalt" id="b3"></div></div>
+<div class="band"><div class="bandkopf">Politik und Preise (von Hand eingetragen, mit Quelle)</div><div class="migk" id="b5"></div>
+  <div class="fuss" id="b5-fuss"></div></div>
+
+<div class="fuss">Quellen: NESO Carbon Intensity API (Strommix und CO2-Intensität, halbstündlich, hier Monatsmittel), DESNZ Energy Trends Tabelle 5.1 (Jahresanteile), DESNZ Provisional UK greenhouse gas emissions statistics 2025 (Tabelle 1a, territorial), Met Office HadUK-Grid (Temperatur und Niederschlag, UK-Flächenmittel). Nicht enthalten: Großhandelsgaspreis (keine freie, automatisch abrufbare Quelle gefunden), Wasser- und Extremwetterdaten, Karte der Kraftwerke.
+</div>
+<div id="schatten"></div>
+<aside id="drawer" aria-hidden="true"></aside>
+
+<script src="daten/uk.js?v=1"></script>
+<script>
+"use strict";
+const DATA=(window.UK_DATEN&&window.UK_DATEN.umwelt)?window.UK_DATEN:{umwelt:{"jetzt":{"von":"2026-11-16T13:30Z","mix":{"biomass":6.7,"coal":0,"imports":12.3,"gas":44.9,"nuclear":14.2,"other":0,"hydro":0,"solar":8.9,"wind":12.9},"ci":178,"index":"high"},"historie":[{"m":"2025-11-01","mix":{"gas":28.7,"coal":0.0,"biomass":9.0,"nuclear":11.3,"hydro":0.0,"imports":8.4,"other":0.0,"wind":40.6,"solar":2.1},"ci":126},{"m":"2025-12-01","mix":{"gas":26.3,"coal":0.0,"biomass":7.4,"nuclear":11.4,"hydro":0.0,"imports":11.8,"other":0.0,"wind":41.7,"solar":1.3},"ci":120},{"m":"2026-01-01","mix":{"gas":32.0,"coal":0.0,"biomass":7.2,"nuclear":10.7,"hydro":0.0,"imports":8.5,"other":0.0,"wind":40.2,"solar":1.3},"ci":145},{"m":"2026-02-01","mix":{"gas":30.4,"coal":0.0,"biomass":7.2,"nuclear":11.5,"hydro":0.0,"imports":9.2,"other":0.0,"wind":39.4,"solar":2.2},"ci":137},{"m":"2026-03-01","mix":{"gas":24.6,"coal":0.0,"biomass":6.8,"nuclear":12.1,"hydro":0.0,"imports":13.1,"other":0.0,"wind":37.4,"solar":6.0},"ci":117},{"m":"2026-04-01","mix":{"gas":17.7,"coal":0.0,"biomass":7.2,"nuclear":17.7,"hydro":0.6,"imports":12.5,"other":0.6,"wind":33.5,"solar":10.3},"ci":93},{"m":"2026-05-01","mix":{"gas":23.1,"coal":0.0,"biomass":7.5,"nuclear":11.4,"hydro":1.3,"imports":17.9,"other":2.3,"wind":25.1,"solar":11.5},"ci":123},{"m":"2026-06-01","mix":{"gas":26.8,"coal":0.0,"biomass":5.5,"nuclear":9.9,"hydro":1.6,"imports":14.6,"other":2.4,"wind":27.9,"solar":11.2},"ci":132},{"m":"2026-07-01","mix":{"gas":22.9,"coal":0.0,"biomass":7.0,"nuclear":11.0,"hydro":1.5,"imports":17.4,"other":2.6,"wind":23.9,"solar":13.7},"ci":121},{"m":"2026-08-01","mix":{"gas":23.6,"coal":0.0,"biomass":8.8,"nuclear":14.9,"hydro":1.3,"imports":14.4,"other":2.3,"wind":23.7,"solar":10.9},"ci":124},{"m":"2026-09-01","mix":{"gas":21.1,"coal":0.0,"biomass":8.6,"nuclear":13.1,"hydro":1.7,"imports":8.2,"other":2.2,"wind":38.1,"solar":7.0},"ci":108},{"m":"2026-10-01","mix":{"gas":22.6,"coal":0.0,"biomass":7.9,"nuclear":14.2,"hydro":2.4,"imports":9.2,"other":2.5,"wind":36.8,"solar":4.3},"ci":115},{"m":"2026-11-01","mix":{"gas":41.6,"coal":0.0,"biomass":8.7,"nuclear":14.5,"hydro":1.7,"imports":8.7,"other":2.3,"wind":20.1,"solar":2.4},"ci":187}],"strom":{"reihen":[{"n":"Kohle","r":[[2024,0.7]]},{"n":"Öl","r":[[2024,0.6]]},{"n":"Gas","r":[[2024,30.6]]},{"n":"Kernkraft","r":[[2024,14.2]]},{"n":"Wasserkraft","r":[[2024,2.0]]},{"n":"Wind","r":[[2024,29.2]]},{"n":"Solar","r":[[2024,5.2]]},{"n":"Biomasse","r":[[2024,14.0]]},{"n":"Sonstige","r":[[2024,2.2]]}],"url":"https://assets.publishing.service.gov.uk/media/6aba6dd9a9c3d267bcccefb0/ET_5.1_SEP_26.xlsx","quelle":"DESNZ, Energy Trends Tabelle 5.1 (Anteile an der Stromerzeugung nach Brennstoff, Jahresdaten)"},"ghg":{"reihen":{"Stromerzeugung":[[1990,204.0],[1991,200.6],[1992,188.5],[1993,171.0],[1994,166.7],[1995,163.6],[1996,163.2],[1997,150.7],[1998,155.6],[1999,147.6],[2000,159.0],[2001,169.9],[2002,165.5],[2003,174.5],[2004,174.1],[2005,173.4],[2006,182.3],[2007,178.0],[2008,172.9],[2009,151.2],[2010,157.4],[2011,144.7],[2012,158.7],[2013,147.7],[2014,124.5],[2015,104.3],[2016,82.3],[2017,72.2],[2018,65.9],[2019,57.9],[2020,49.5],[2021,54.8],[2022,55.4],[2023,44.9],[2024,37.7],[2025,37.4]],"Brennstoffversorgung":[[1990,77.2],[1991,78.1],[1992,79.2],[1993,78.9],[1994,71.4],[1995,74.8],[1996,74.6],[1997,72.7],[1998,71.1],[1999,65.3],[2000,63.3],[2001,62.8],[2002,63.3],[2003,59.8],[2004,58.2],[2005,57.6],[2006,52.7],[2007,51.3],[2008,49.7],[2009,48.3],[2010,48.8],[2011,46.8],[2012,43.1],[2013,41.0],[2014,39.3],[2015,39.7],[2016,38.6],[2017,38.1],[2018,37.3],[2019,37.3],[2020,33.9],[2021,31.2],[2022,31.5],[2023,30.3],[2024,28.8],[2025,27.3]],"Inlandsverkehr":[[1990,124.2],[1991,122.6],[1992,123.9],[1993,125.0],[1994,125.2],[1995,124.1],[1996,128.9],[1997,129.3],[1998,128.6],[1999,129.4],[2000,128.2],[2001,128.3],[2002,130.3],[2003,131.2],[2004,132.3],[2005,133.5],[2006,135.5],[2007,135.9],[2008,129.5],[2009,125.3],[2010,123.8],[2011,121.7],[2012,121.9],[2013,121.0],[2014,123.1],[2015,123.2],[2016,127.1],[2017,127.9],[2018,126.5],[2019,123.0],[2020,101.3],[2021,109.9],[2022,111.2],[2023,110.2],[2024,110.4],[2025,112.9]],"Gebäude und Produktverwendung":[[1990,109.5],[1991,121.3],[1992,117.7],[1993,121.7],[1994,116.6],[1995,112.3],[1996,125.8],[1997,116.7],[1998,119.1],[1999,121.0],[2000,121.1],[2001,124.6],[2002,116.7],[2003,118.5],[2004,121.3],[2005,117.5],[2006,113.1],[2007,108.4],[2008,113.3],[2009,106.9],[2010,118.2],[2011,98.0],[2012,107.5],[2013,108.9],[2014,93.7],[2015,96.1],[2016,96.0],[2017,93.5],[2018,97.6],[2019,93.7],[2020,93.3],[2021,97.9],[2022,83.3],[2023,78.6],[2024,81.8],[2025,80.4]],"Industrie":[[1990,155.7],[1991,156.7],[1992,149.7],[1993,143.4],[1994,145.4],[1995,142.7],[1996,144.2],[1997,144.0],[1998,138.8],[1999,123.2],[2000,120.5],[2001,114.3],[2002,103.6],[2003,106.2],[2004,104.8],[2005,103.7],[2006,100.9],[2007,101.4],[2008,92.8],[2009,75.1],[2010,78.0],[2011,74.3],[2012,72.5],[2013,76.7],[2014,74.6],[2015,71.3],[2016,64.6],[2017,65.0],[2018,63.4],[2019,62.0],[2020,58.5],[2021,58.2],[2022,53.8],[2023,50.2],[2024,46.5],[2025,41.1]],"Gesamt":[[1990,790.8],[1991,800.6],[1992,780.4],[1993,761.4],[1994,748.7],[1995,742.7],[1996,763.5],[1997,739.7],[1998,738.8],[1999,710.7],[2000,712.3],[2001,716.3],[2002,694.9],[2003,703.0],[2004,699.4],[2005,692.3],[2006,688.3],[2007,674.8],[2008,652.7],[2009,596.9],[2010,612.0],[2011,567.8],[2012,585.1],[2013,573.0],[2014,530.7],[2015,510.7],[2016,483.2],[2017,471.8],[2018,464.1],[2019,447.5],[2020,407.5],[2021,422.2],[2022,404.0],[2023,383.9],[2024,373.4],[2025,366.6]]},"url":"https://assets.publishing.service.gov.uk/media/69ccdb9ab50f8f8dfb8559b3/2025-provisional-greenhouse-gas-emissions-statistics-data-tables.xlsx","quelle":"DESNZ, Provisional UK greenhouse gas emissions statistics 2025 (Tabelle 1a, territorial, ohne Temperaturbereinigung)","link":"https://www.gov.uk/government/statistics/provisional-uk-greenhouse-gas-emissions-statistics-2025"},"temp":[["1990-01-01",5.5],["1990-02-01",5.9],["1990-03-01",7.2],["1990-04-01",7.0],["1990-05-01",11.2],["1990-06-01",12.4],["1990-07-01",15.2],["1990-08-01",16.1],["1990-09-01",11.7],["1990-10-01",10.5],["1990-11-01",5.8],["1990-12-01",3.7],["1991-01-01",2.5],["1991-02-01",1.3],["1991-03-01",6.6],["1991-04-01",6.9],["1991-05-01",9.9],["1991-06-01",11.0],["1991-07-01",15.9],["1991-08-01",15.6],["1991-09-01",13.1],["1991-10-01",9.0],["1991-11-01",5.7],["1991-12-01",4.2],["1992-01-01",3.4],["1992-02-01",4.8],["1992-03-01",6.1],["1992-04-01",7.4],["1992-05-01",11.9],["1992-06-01",14.3],["1992-07-01",14.7],["1992-08-01",13.8],["1992-09-01",11.9],["1992-10-01",6.7],["1992-11-01",6.1],["1992-12-01",3.1],["1993-01-01",4.7],["1993-02-01",4.6],["1993-03-01",5.6],["1993-04-01",8.2],["1993-05-01",10.0],["1993-06-01",13.3],["1993-07-01",13.7],["1993-08-01",13.1],["1993-09-01",11.2],["1993-10-01",7.3],["1993-11-01",4.1],["1993-12-01",3.9],["1994-01-01",4.0],["1994-02-01",2.4],["1994-03-01",6.0],["1994-04-01",6.9],["1994-05-01",9.3],["1994-06-01",12.8],["1994-07-01",16.0],["1994-08-01",14.3],["1994-09-01",11.5],["1994-10-01",9.0],["1994-11-01",8.8],["1994-12-01",5.3],["1995-01-01",3.5],["1995-02-01",5.0],["1995-03-01",4.2],["1995-04-01",7.6],["1995-05-01",10.2],["1995-06-01",12.9],["1995-07-01",16.6],["1995-08-01",17.3],["1995-09-01",12.4],["1995-10-01",11.6],["1995-11-01",6.9],["1995-12-01",1.6],["1996-01-01",4.0],["1996-02-01",2.0],["1996-03-01",3.7],["1996-04-01",7.5],["1996-05-01",8.0],["1996-06-01",12.9],["1996-07-01",14.7],["1996-08-01",15.1],["1996-09-01",12.6],["1996-10-01",10.4],["1996-11-01",4.7],["1996-12-01",2.5],["1997-01-01",2.1],["1997-02-01",5.3],["1997-03-01",7.1],["1997-04-01",7.9],["1997-05-01",10.2],["1997-06-01",12.6],["1997-07-01",15.3],["1997-08-01",17.1],["1997-09-01",12.7],["1997-10-01",9.2],["1997-11-01",7.7],["1997-12-01",5.1],["1998-01-01",4.3],["1998-02-01",6.8],["1998-03-01",6.7],["1998-04-01",6.6],["1998-05-01",11.5],["1998-06-01",12.7],["1998-07-01",14.1],["1998-08-01",14.5],["1998-09-01",13.4],["1998-10-01",9.1],["1998-11-01",5.3],["1998-12-01",4.9],["1999-01-01",4.5],["1999-02-01",4.2],["1999-03-01",6.2],["1999-04-01",8.3],["1999-05-01",11.5],["1999-06-01",12.4],["1999-07-01",15.9],["1999-08-01",14.8],["1999-09-01",14.2],["1999-10-01",9.8],["1999-11-01",6.8],["1999-12-01",3.6],["2000-01-01",4.3],["2000-02-01",5.1],["2000-03-01",6.5],["2000-04-01",6.7],["2000-05-01",10.8],["2000-06-01",13.2],["2000-07-01",14.1],["2000-08-01",15.2],["2000-09-01",13.5],["2000-10-01",9.3],["2000-11-01",5.8],["2000-12-01",4.6],["2001-01-01",2.5],["2001-02-01",3.4],["2001-03-01",4.0],["2001-04-01",6.6],["2001-05-01",11.3],["2001-06-01",12.6],["2001-07-01",15.2],["2001-08-01",15.2],["2001-09-01",12.2],["2001-10-01",12.2],["2001-11-01",6.8],["2001-12-01",3.1],["2002-01-01",5.0],["2002-02-01",5.5],["2002-03-01",6.4],["2002-04-01",8.2],["2002-05-01",10.7],["2002-06-01",13.1],["2002-07-01",14.4],["2002-08-01",15.6],["2002-09-01",13.1],["2002-10-01",8.7],["2002-11-01",7.5],["2002-12-01",4.7],["2003-01-01",3.7],["2003-02-01",3.4],["2003-03-01",6.7],["2003-04-01",8.8],["2003-05-01",10.7],["2003-06-01",14.5],["2003-07-01",16.2],["2003-08-01",16.5],["2003-09-01",13.1],["2003-10-01",8.1],["2003-11-01",7.3],["2003-12-01",4.2],["2004-01-01",4.4],["2004-02-01",4.3],["2004-03-01",5.7],["2004-04-01",8.5],["2004-05-01",11.0],["2004-06-01",13.9],["2004-07-01",14.4],["2004-08-01",16.1],["2004-09-01",13.4],["2004-10-01",9.3],["2004-11-01",7.0],["2004-12-01",5.0],["2005-01-01",5.3],["2005-02-01",3.7],["2005-03-01",6.4],["2005-04-01",7.9],["2005-05-01",10.0],["2005-06-01",14.1],["2005-07-01",15.3],["2005-08-01",14.8],["2005-09-01",13.8],["2005-10-01",11.6],["2005-11-01",5.6],["2005-12-01",4.1],["2006-01-01",3.8],["2006-02-01",3.4],["2006-03-01",3.9],["2006-04-01",7.4],["2006-05-01",10.7],["2006-06-01",14.5],["2006-07-01",17.8],["2006-08-01",14.9],["2006-09-01",15.2],["2006-10-01",11.6],["2006-11-01",7.2],["2006-12-01",5.5],["2007-01-01",5.9],["2007-02-01",5.1],["2007-03-01",6.3],["2007-04-01",10.2],["2007-05-01",10.6],["2007-06-01",13.7],["2007-07-01",14.2],["2007-08-01",14.3],["2007-09-01",12.6],["2007-10-01",10.2],["2007-11-01",6.8],["2007-12-01",4.4],["2008-01-01",5.3],["2008-02-01",4.9],["2008-03-01",5.1],["2008-04-01",7.0],["2008-05-01",12.1],["2008-06-01",12.9],["2008-07-01",15.3],["2008-08-01",15.1],["2008-09-01",12.5],["2008-10-01",8.7],["2008-11-01",6.1],["2008-12-01",3.1],["2009-01-01",2.8],["2009-02-01",3.7],["2009-03-01",6.1],["2009-04-01",8.9],["2009-05-01",10.8],["2009-06-01",13.7],["2009-07-01",15.1],["2009-08-01",15.3],["2009-09-01",13.2],["2009-10-01",10.4],["2009-11-01",7.3],["2009-12-01",2.1],["2010-01-01",0.9],["2010-02-01",1.8],["2010-03-01",5.1],["2010-04-01",7.9],["2010-05-01",9.7],["2010-06-01",14.1],["2010-07-01",15.6],["2010-08-01",14.2],["2010-09-01",12.8],["2010-10-01",9.4],["2010-11-01",4.3],["2010-12-01",-0.9],["2011-01-01",3.1],["2011-02-01",5.3],["2011-03-01",5.8],["2011-04-01",10.7],["2011-05-01",11.0],["2011-06-01",12.6],["2011-07-01",14.2],["2011-08-01",14.1],["2011-09-01",13.8],["2011-10-01",11.2],["2011-11-01",8.7],["2011-12-01",4.8],["2012-01-01",4.6],["2012-02-01",4.2],["2012-03-01",7.7],["2012-04-01",6.3],["2012-05-01",10.5],["2012-06-01",12.3],["2012-07-01",14.1],["2012-08-01",15.3],["2012-09-01",11.9],["2012-10-01",8.2],["2012-11-01",5.7],["2012-12-01",3.8],["2013-01-01",3.3],["2013-02-01",2.7],["2013-03-01",2.2],["2013-04-01",6.3],["2013-05-01",9.5],["2013-06-01",12.8],["2013-07-01",17.0],["2013-08-01",15.6],["2013-09-01",12.7],["2013-10-01",11.2],["2013-11-01",5.5],["2013-12-01",5.7],["2014-01-01",4.7],["2014-02-01",5.2],["2014-03-01",6.7],["2014-04-01",9.2],["2014-05-01",11.2],["2014-06-01",14.2],["2014-07-01",16.3],["2014-08-01",13.9],["2014-09-01",13.9],["2014-10-01",11.0],["2014-11-01",7.6],["2014-12-01",4.4],["2015-01-01",3.7],["2015-02-01",3.5],["2015-03-01",5.5],["2015-04-01",7.9],["2015-05-01",9.5],["2015-06-01",12.6],["2015-07-01",14.4],["2015-08-01",14.7],["2015-09-01",11.9],["2015-10-01",10.0],["2015-11-01",8.1],["2015-12-01",7.9],["2016-01-01",4.5],["2016-02-01",3.8],["2016-03-01",5.3],["2016-04-01",6.5],["2016-05-01",11.3],["2016-06-01",13.9],["2016-07-01",15.3],["2016-08-01",15.5],["2016-09-01",14.6],["2016-10-01",9.8],["2016-11-01",4.9],["2016-12-01",5.9],["2017-01-01",3.8],["2017-02-01",5.2],["2017-03-01",7.3],["2017-04-01",8.0],["2017-05-01",12.0],["2017-06-01",14.4],["2017-07-01",15.1],["2017-08-01",14.5],["2017-09-01",12.5],["2017-10-01",11.2],["2017-11-01",5.7],["2017-12-01",4.1],["2018-01-01",4.0],["2018-02-01",2.3],["2018-03-01",3.8],["2018-04-01",8.4],["2018-05-01",12.0],["2018-06-01",14.8],["2018-07-01",17.2],["2018-08-01",15.2],["2018-09-01",12.4],["2018-10-01",9.5],["2018-11-01",7.3],["2018-12-01",5.8],["2019-01-01",3.4],["2019-02-01",6.0],["2019-03-01",6.8],["2019-04-01",8.4],["2019-05-01",10.0],["2019-06-01",13.2],["2019-07-01",16.4],["2019-08-01",15.8],["2019-09-01",13.1],["2019-10-01",8.9],["2019-11-01",5.3],["2019-12-01",5.1],["2020-01-01",5.6],["2020-02-01",5.1],["2020-03-01",5.6],["2020-04-01",9.1],["2020-05-01",11.4],["2020-06-01",14.0],["2020-07-01",14.3],["2020-08-01",15.9],["2020-09-01",12.8],["2020-10-01",9.4],["2020-11-01",7.7],["2020-12-01",4.3],["2021-01-01",2.2],["2021-02-01",4.1],["2021-03-01",6.4],["2021-04-01",5.7],["2021-05-01",9.1],["2021-06-01",14.2],["2021-07-01",16.6],["2021-08-01",15.0],["2021-09-01",14.7],["2021-10-01",10.9],["2021-11-01",7.0],["2021-12-01",5.3],["2022-01-01",4.7],["2022-02-01",5.6],["2022-03-01",6.7],["2022-04-01",8.1],["2022-05-01",11.8],["2022-06-01",13.9],["2022-07-01",16.5],["2022-08-01",16.6],["2022-09-01",13.4],["2022-10-01",11.6],["2022-11-01",8.2],["2022-12-01",2.9],["2023-01-01",4.4],["2023-02-01",5.8],["2023-03-01",5.7],["2023-04-01",7.8],["2023-05-01",11.6],["2023-06-01",15.8],["2023-07-01",15.0],["2023-08-01",15.3],["2023-09-01",15.2],["2023-10-01",10.7],["2023-11-01",6.3],["2023-12-01",5.8],["2024-01-01",3.8],["2024-02-01",6.3],["2024-03-01",6.7],["2024-04-01",8.3],["2024-05-01",13.1],["2024-06-01",12.9],["2024-07-01",14.8],["2024-08-01",15.4],["2024-09-01",12.7],["2024-10-01",10.5],["2024-11-01",6.7],["2024-12-01",6.2],["2025-01-01",3.0],["2025-02-01",4.6],["2025-03-01",7.0],["2025-04-01",9.6],["2025-05-01",12.0],["2025-06-01",15.2],["2025-07-01",16.8],["2025-08-01",16.3],["2025-09-01",12.8],["2025-10-01",10.4],["2025-11-01",7.2],["2025-12-01",5.8],["2026-01-01",3.4],["2026-02-01",5.6],["2026-03-01",7.0],["2026-04-01",9.0],["2026-05-01",12.0],["2026-06-01",15.6],["2026-07-01",17.4],["2026-08-01",16.5],["2026-09-01",14.6],["2026-10-01",10.6]],"regen":[["1990-01-01",169.8],["1990-02-01",193.4],["1990-03-01",94.8],["1990-04-01",60.1],["1990-05-01",35.6],["1990-06-01",93.8],["1990-07-01",49.4],["1990-08-01",72.8],["1990-09-01",82.2],["1990-10-01",142.6],["1990-11-01",78.9],["1990-12-01",130.2],["1991-01-01",111.4],["1991-02-01",70.4],["1991-03-01",94.1],["1991-04-01",90.9],["1991-05-01",22.6],["1991-06-01",103.5],["1991-07-01",76.5],["1991-08-01",43.2],["1991-09-01",84.0],["1991-10-01",107.2],["1991-11-01",138.3],["1991-12-01",82.5],["1992-01-01",78.9],["1992-02-01",89.6],["1992-03-01",127.9],["1992-04-01",91.1],["1992-05-01",58.9],["1992-06-01",39.2],["1992-07-01",86.7],["1992-08-01",162.9],["1992-09-01",118.1],["1992-10-01",95.9],["1992-11-01",161.2],["1992-12-01",107.0],["1993-01-01",175.4],["1993-02-01",33.1],["1993-03-01",58.9],["1993-04-01",102.6],["1993-05-01",98.6],["1993-06-01",68.4],["1993-07-01",94.5],["1993-08-01",62.1],["1993-09-01",99.7],["1993-10-01",94.0],["1993-11-01",73.5],["1993-12-01",188.7],["1994-01-01",154.0],["1994-02-01",88.6],["1994-03-01",146.3],["1994-04-01",94.5],["1994-05-01",49.6],["1994-06-01",62.8],["1994-07-01",54.3],["1994-08-01",82.7],["1994-09-01",103.1],["1994-10-01",98.4],["1994-11-01",108.0],["1994-12-01",174.2],["1995-01-01",181.0],["1995-02-01",143.0],["1995-03-01",94.1],["1995-04-01",40.6],["1995-05-01",59.7],["1995-06-01",29.7],["1995-07-01",57.9],["1995-08-01",18.4],["1995-09-01",135.5],["1995-10-01",117.2],["1995-11-01",99.8],["1995-12-01",73.4],["1996-01-01",74.7],["1996-02-01",101.7],["1996-03-01",48.7],["1996-04-01",72.9],["1996-05-01",65.6],["1996-06-01",42.2],["1996-07-01",55.2],["1996-08-01",78.5],["1996-09-01",44.4],["1996-10-01",136.7],["1996-11-01",147.6],["1996-12-01",66.9],["1997-01-01",29.0],["1997-02-01",168.3],["1997-03-01",66.9],["1997-04-01",43.1],["1997-05-01",87.4],["1997-06-01",116.0],["1997-07-01",63.9],["1997-08-01",83.9],["1997-09-01",61.8],["1997-10-01",72.4],["1997-11-01",123.3],["1997-12-01",133.1],["1998-01-01",134.2],["1998-02-01",81.8],["1998-03-01",105.1],["1998-04-01",121.1],["1998-05-01",41.3],["1998-06-01",121.8],["1998-07-01",93.1],["1998-08-01",79.0],["1998-09-01",92.6],["1998-10-01",187.7],["1998-11-01",118.4],["1998-12-01",122.6],["1999-01-01",164.9],["1999-02-01",83.1],["1999-03-01",88.7],["1999-04-01",88.6],["1999-05-01",75.9],["1999-06-01",93.8],["1999-07-01",46.1],["1999-08-01",91.9],["1999-09-01",140.2],["1999-10-01",93.4],["1999-11-01",109.5],["1999-12-01",195.5],["2000-01-01",101.9],["2000-02-01",131.7],["2000-03-01",67.7],["2000-04-01",123.9],["2000-05-01",77.7],["2000-06-01",58.3],["2000-07-01",59.7],["2000-08-01",85.5],["2000-09-01",133.7],["2000-10-01",199.6],["2000-11-01",176.3],["2000-12-01",156.8],["2001-01-01",79.0],["2001-02-01",97.0],["2001-03-01",85.6],["2001-04-01",89.6],["2001-05-01",43.3],["2001-06-01",58.0],["2001-07-01",81.7],["2001-08-01",96.9],["2001-09-01",88.9],["2001-10-01",165.3],["2001-11-01",95.0],["2001-12-01",69.7],["2002-01-01",134.3],["2002-02-01",175.3],["2002-03-01",75.5],["2002-04-01",68.0],["2002-05-01",101.6],["2002-06-01",86.8],["2002-07-01",98.5],["2002-08-01",73.8],["2002-09-01",40.6],["2002-10-01",153.8],["2002-11-01",163.1],["2002-12-01",109.2],["2003-01-01",113.9],["2003-02-01",48.3],["2003-03-01",53.7],["2003-04-01",50.4],["2003-05-01",98.0],["2003-06-01",71.2],["2003-07-01",78.3],["2003-08-01",26.7],["2003-09-01",53.8],["2003-10-01",63.9],["2003-11-01",120.6],["2003-12-01",121.9],["2004-01-01",150.1],["2004-02-01",74.4],["2004-03-01",70.1],["2004-04-01",92.8],["2004-05-01",51.0],["2004-06-01",84.8],["2004-07-01",70.2],["2004-08-01",159.7],["2004-09-01",103.1],["2004-10-01",165.4],["2004-11-01",75.2],["2004-12-01",110.6],["2005-01-01",126.7],["2005-02-01",69.9],["2005-03-01",72.7],["2005-04-01",90.9],["2005-05-01",72.7],["2005-06-01",71.7],["2005-07-01",59.4],["2005-08-01",85.5],["2005-09-01",91.9],["2005-10-01",141.7],["2005-11-01",115.9],["2005-12-01",80.6],["2006-01-01",59.3],["2006-02-01",65.0],["2006-03-01",110.1],["2006-04-01",67.5],["2006-05-01",112.6],["2006-06-01",42.0],["2006-07-01",53.1],["2006-08-01",92.0],["2006-09-01",102.5],["2006-10-01",142.0],["2006-11-01",153.1],["2006-12-01",172.5],["2007-01-01",152.3],["2007-02-01",110.0],["2007-03-01",87.4],["2007-04-01",26.4],["2007-05-01",114.1],["2007-06-01",136.1],["2007-07-01",134.6],["2007-08-01",85.8],["2007-09-01",67.0],["2007-10-01",64.5],["2007-11-01",100.4],["2007-12-01",114.0],["2008-01-01",189.3],["2008-02-01",81.8],["2008-03-01",122.6],["2008-04-01",76.2],["2008-05-01",47.7],["2008-06-01",78.7],["2008-07-01",108.1],["2008-08-01",135.0],["2008-09-01",105.6],["2008-10-01",154.4],["2008-11-01",105.8],["2008-12-01",87.5],["2009-01-01",119.4],["2009-02-01",59.8],["2009-03-01",78.9],["2009-04-01",60.0],["2009-05-01",81.7],["2009-06-01",61.9],["2009-07-01",145.5],["2009-08-01",114.5],["2009-09-01",63.8],["2009-10-01",107.4],["2009-11-01",214.8],["2009-12-01",100.3],["2010-01-01",79.6],["2010-02-01",74.7],["2010-03-01",78.7],["2010-04-01",47.5],["2010-05-01",38.9],["2010-06-01",38.4],["2010-07-01",107.0],["2010-08-01",97.5],["2010-09-01",113.3],["2010-10-01",100.5],["2010-11-01",122.7],["2010-12-01",47.1],["2011-01-01",102.2],["2011-02-01",113.8],["2011-03-01",49.5],["2011-04-01",35.7],["2011-05-01",100.7],["2011-06-01",84.7],["2011-07-01",75.7],["2011-08-01",105.4],["2011-09-01",107.4],["2011-10-01",122.0],["2011-11-01",99.0],["2011-12-01",166.7],["2012-01-01",110.2],["2012-02-01",59.4],["2012-03-01",36.7],["2012-04-01",128.2],["2012-05-01",65.6],["2012-06-01",149.0],["2012-07-01",118.5],["2012-08-01",111.3],["2012-09-01",111.8],["2012-10-01",125.6],["2012-11-01",135.1],["2012-12-01",178.3],["2013-01-01",109.7],["2013-02-01",59.6],["2013-03-01",64.4],["2013-04-01",62.9],["2013-05-01",91.8],["2013-06-01",48.5],["2013-07-01",65.2],["2013-08-01",72.2],["2013-09-01",71.0],["2013-10-01",162.6],["2013-11-01",90.4],["2013-12-01",185.6],["2014-01-01",186.7],["2014-02-01",167.6],["2014-03-01",79.7],["2014-04-01",67.5],["2014-05-01",99.3],["2014-06-01",54.7],["2014-07-01",64.0],["2014-08-01",138.0],["2014-09-01",22.6],["2014-10-01",157.1],["2014-11-01",123.3],["2014-12-01",131.3],["2015-01-01",153.6],["2015-02-01",79.9],["2015-03-01",94.9],["2015-04-01",45.5],["2015-05-01",109.7],["2015-06-01",56.0],["2015-07-01",107.6],["2015-08-01",104.8],["2015-09-01",51.9],["2015-10-01",72.0],["2015-11-01",171.9],["2015-12-01",216.3],["2016-01-01",178.4],["2016-02-01",110.1],["2016-03-01",83.8],["2016-04-01",77.4],["2016-05-01",61.5],["2016-06-01",96.0],["2016-07-01",78.5],["2016-08-01",85.2],["2016-09-01",96.3],["2016-10-01",47.0],["2016-11-01",104.9],["2016-12-01",77.2],["2017-01-01",76.0],["2017-02-01",93.4],["2017-03-01",97.8],["2017-04-01",33.2],["2017-05-01",57.2],["2017-06-01",110.4],["2017-07-01",101.2],["2017-08-01",102.3],["2017-09-01",117.2],["2017-10-01",101.4],["2017-11-01",107.6],["2017-12-01",120.8],["2018-01-01",132.4],["2018-02-01",68.6],["2018-03-01",103.9],["2018-04-01",83.7],["2018-05-01",47.7],["2018-06-01",34.6],["2018-07-01",54.2],["2018-08-01",83.1],["2018-09-01",101.5],["2018-10-01",104.2],["2018-11-01",121.6],["2018-12-01",117.6],["2019-01-01",64.6],["2019-02-01",71.1],["2019-03-01",128.9],["2019-04-01",48.5],["2019-05-01",63.6],["2019-06-01",109.0],["2019-07-01",89.0],["2019-08-01",132.7],["2019-09-01",126.1],["2019-10-01",139.7],["2019-11-01",119.1],["2019-12-01",139.8],["2020-01-01",121.2],["2020-02-01",213.7],["2020-03-01",78.6],["2020-04-01",30.0],["2020-05-01",32.8],["2020-06-01",107.5],["2020-07-01",95.8],["2020-08-01",122.2],["2020-09-01",77.3],["2020-10-01",182.8],["2020-11-01",104.8],["2020-12-01",166.9],["2021-01-01",140.0],["2021-02-01",105.5],["2021-03-01",87.1],["2021-04-01",20.6],["2021-05-01",120.8],["2021-06-01",44.8],["2021-07-01",74.6],["2021-08-01",66.7],["2021-09-01",82.5],["2021-10-01",167.9],["2021-11-01",80.9],["2021-12-01",114.5],["2022-01-01",63.1],["2022-02-01",152.3],["2022-03-01",50.5],["2022-04-01",49.5],["2022-05-01",76.9],["2022-06-01",61.8],["2022-07-01",48.2],["2022-08-01",51.6],["2022-09-01",104.6],["2022-10-01",146.9],["2022-11-01",167.6],["2022-12-01",117.8],["2023-01-01",129.0],["2023-02-01",45.1],["2023-03-01",133.9],["2023-04-01",73.4],["2023-05-01",39.7],["2023-06-01",54.7],["2023-07-01",141.9],["2023-08-01",89.4],["2023-09-01",121.4],["2023-10-01",177.7],["2023-11-01",121.5],["2023-12-01",194.5],["2024-01-01",123.3],["2024-02-01",144.0],["2024-03-01",108.0],["2024-04-01",109.5],["2024-05-01",83.4],["2024-06-01",55.2],["2024-07-01",84.7],["2024-08-01",104.3],["2024-09-01",116.8],["2024-10-01",105.7],["2024-11-01",88.1],["2024-12-01",146.0],["2025-01-01",98.6],["2025-02-01",72.5],["2025-03-01",36.6],["2025-04-01",40.3],["2025-05-01",50.7],["2025-06-01",81.9],["2025-07-01",74.0],["2025-08-01",59.1],["2025-09-01",120.9],["2025-10-01",123.9],["2025-11-01",164.6],["2025-12-01",138.4],["2026-01-01",142.6],["2026-02-01",118.6],["2026-03-01",86.6],["2026-04-01",55.0],["2026-05-01",55.1],["2026-06-01",90.6],["2026-07-01",28.9],["2026-08-01",75.8],["2026-09-01",94.7],["2026-10-01",138.9]],"fehler":[],"stand":"2026-10-01","bilanz":{"jahr":2025,"einheit":"ktoe","gesamt":{"prod":94522,"imp":135849,"exp":62808,"netto":73041,"abh":43.3,"primaer":166647},"brennstoffe":[{"k":"Coal","n":"Kohle","prod":86,"imp":1112,"exp":394,"bedarf":643},{"k":"Oil","n":"Erdöl und Mineralölprodukte","prod":34149,"imp":83759,"exp":49270,"bedarf":67108},{"k":"Natural gas","n":"Erdgas","prod":28565,"imp":39870,"exp":11445,"bedarf":58053},{"k":"Bioenergy & waste","n":"Bioenergie und Abfall","prod":14229,"imp":6689,"exp":475,"bedarf":20441},{"k":"Power","n":"Strom (Primärstrom und Kabelhandel)","prod":17493,"imp":3777,"exp":1221,"bedarf":20027}],"abh_reihe":[[1998,-16.4],[1999,-20.9],[2000,-17.2],[2001,-9.6],[2002,-12.8],[2003,-6.8],[2004,4.5],[2005,13.5],[2006,21.3],[2007,20.6],[2008,26.3],[2009,27.6],[2010,29.7],[2011,37.3],[2012,44.0],[2013,48.2],[2014,47.0],[2015,38.3],[2016,36.1],[2017,36.2],[2018,36.0],[2019,34.2],[2020,28.4],[2021,38.0],[2022,36.8],[2023,40.3],[2024,43.7],[2025,43.3]],"url":"https://assets.publishing.service.gov.uk/media/6abe1eb626660e5f62a7f1d3/ET_1.3_SEP_26.xlsx","quelle":"DESNZ, Energy Trends Tabelle 1.3 (Supply and use of fuels, jährlich), Einheit: tausend Tonnen Öl-Äquivalent","link":"https://www.gov.uk/government/statistics/total-energy-section-1-energy-trends"},"kopplung":{"jahr":2025,"kabel":[{"n":"Net imports (France to UK)","netto":21936,"vor":19450,"auslastung":67},{"n":"Net imports (Ireland to Northern Ireland)","netto":-1641,"vor":-2390,"auslastung":40},{"n":"Net imports (Netherlands to UK)","netto":441,"vor":1585,"auslastung":61},{"n":"Net imports (Ireland to Wales)","netto":-4499,"vor":-2682,"auslastung":59},{"n":"Net imports (Belgium to UK)","netto":1990,"vor":4162,"auslastung":63},{"n":"Net imports (Norway to UK)","netto":8960,"vor":9621,"auslastung":81},{"n":"Net imports (Denmark to UK)","netto":2542,"vor":3662,"auslastung":57},{"n":"Net imports (to UK)","netto":29730,"vor":33408,"auslastung":null}],"url":"https://assets.publishing.service.gov.uk/media/6a6a3675bf4a7aca8f8976c3/DUKES_5.13.xlsx","quelle":"DESNZ, DUKES Tabelle 5.13 (Net imports and utilisation of interconnectors), GWh","link":"https://www.gov.uk/government/statistics/electricity-chapter-5-digest-of-united-kingdom-energy-statistics-dukes"}}};
+const $=s=>document.querySelector(s);
+const NS="http://www.w3.org/2000/svg";
+function el(n,a,p){const e=document.createElementNS(NS,n);for(const k in a)e.setAttribute(k,a[k]);if(p)p.appendChild(e);return e}
+function esc(s){return String(s).replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]))}
+const nf=(v,d)=>v.toLocaleString("de-DE",{minimumFractionDigits:d,maximumFractionDigits:d});
+const dts=iso=>{const p=iso.slice(0,10).split("-");return p[2]+"."+p[1]+"."+p[0]};
+const mon=iso=>{const M=["Jan","Feb","Mär","Apr","Mai","Jun","Jul","Aug","Sep","Okt","Nov","Dez"];return M[+iso.slice(5,7)-1]+" "+iso.slice(0,4)};
+const last=a=>a[a.length-1];
+const stufe=(a,iso)=>{let v=null;for(const p of a){if(p[0]<=iso)v=p[1];else break}return v};
+
+/* ---------- Chart ---------- */
+function chart(host,serien,opt){
+ opt=opt||{};const W=640,H=opt.h||280,L=46,R=10,T=10,B=24;
+ const svg=el("svg",{class:"chart",viewBox:"0 0 "+W+" "+H,role:"img","aria-label":opt.label||"Chart"});host.innerHTML="";host.appendChild(svg);
+ let von=opt.von?Date.parse(opt.von):Math.min(...serien.map(s=>Date.parse(s.pts[0][0])));
+ const bis=Math.max(...serien.map(s=>Date.parse(last(s.pts)[0])));
+ let vals=[];serien.forEach(s=>s.pts.forEach(p=>{if(Date.parse(p[0])>=von)vals.push(p[1])}));
+ if(!vals.length)return;
+ let mn=Math.min(...vals),mx=Math.max(...vals);if(opt.nullAn&&mn>0)mn=0;if(mn===mx){mn-=1;mx+=1}
+ const span=mx-mn,roh=span/5,pot=Math.pow(10,Math.floor(Math.log10(roh))),f=roh/pot,stp=(f<=1?1:f<=2?2:f<=5?5:10)*pot;
+ mn=Math.floor(mn/stp)*stp;mx=Math.ceil(mx/stp)*stp;
+ const X=t=>L+(t-von)/(bis-von||1)*(W-L-R),Y=v=>T+(1-(v-mn)/(mx-mn))*(H-T-B);
+ for(let v=mn;v<=mx+stp/2;v+=stp){el("line",{x1:L,x2:W-R,y1:Y(v),y2:Y(v),stroke:"var(--raster)"},svg);const t=el("text",{x:L-6,y:Y(v)+4,"text-anchor":"end","font-size":10.5,fill:"var(--stumm)"},svg);t.textContent=nf(v,stp<1?1:0)}
+ const j0=new Date(von).getUTCFullYear(),j1=new Date(bis).getUTCFullYear(),sj=Math.max(1,Math.ceil((j1-j0)/8));
+ for(let j=j0+1;j<=j1;j+=sj){const x=X(Date.UTC(j,0,1));if(x<L||x>W-R)continue;const t=el("text",{x:x,y:H-7,"text-anchor":"middle","font-size":10.5,fill:"var(--stumm)"},svg);t.textContent=j}
+ if(opt.ziel!==undefined&&opt.ziel>=mn&&opt.ziel<=mx){el("line",{x1:L,x2:W-R,y1:Y(opt.ziel),y2:Y(opt.ziel),stroke:"var(--stumm)","stroke-dasharray":"5 4"},svg);const t=el("text",{x:W-R,y:Y(opt.ziel)-4,"text-anchor":"end","font-size":10.5,fill:"var(--stumm)"},svg);t.textContent=opt.zielName||"Ziel"}
+ serien.forEach(s=>{let d="",p0=null;s.pts.forEach(p=>{const t=Date.parse(p[0]);if(t<von)return;const x=X(t),y=Y(p[1]);
+   if(d==="")d="M"+x+","+y;else if(s.step)d+=" L"+x+","+Y(p0[1])+" L"+x+","+y;else d+=" L"+x+","+y;p0=p});
+  if(d&&s.step&&p0)d+=" L"+X(bis)+","+Y(p0[1]);
+  el("path",{d:d,fill:"none",stroke:s.farbe,"stroke-width":2.2,"stroke-linejoin":"round"},svg)});
+ (opt.marken||[]).forEach(m=>{const t=Date.parse(m);if(t<von||t>bis)return;el("line",{x1:X(t),x2:X(t),y1:T,y2:H-B,stroke:"var(--warn)","stroke-dasharray":"2 3",opacity:.7},svg)});
+ const cur=el("line",{y1:T,y2:H-B,stroke:"var(--text)","stroke-width":1,opacity:0},svg);
+ const ov=el("rect",{x:L,y:T,width:W-L-R,height:H-T-B,fill:"transparent"},svg);
+ const tip=opt.tip;
+ function zeig(ev){const r=svg.getBoundingClientRect(),x=(ev.clientX-r.left)/r.width*W;let t=von+(x-L)/(W-L-R)*(bis-von);t=Math.max(von,Math.min(bis,t));
+   const iso=new Date(t).toISOString().slice(0,10);cur.setAttribute("x1",X(t));cur.setAttribute("x2",X(t));cur.setAttribute("opacity",.6);
+   if(tip)tip.textContent=dts(iso)+" · "+serien.map(s=>{const v=stufe(s.pts,iso);return s.n+": "+(v===null?"–":nf(v,s.dez===undefined?2:s.dez)+(s.einh||""))}).join(" · ")}
+ ov.addEventListener("pointermove",zeig);ov.addEventListener("pointerdown",zeig);
+ ov.addEventListener("pointerleave",()=>{cur.setAttribute("opacity",0)});
+}
+function bereich(btnHost,haupt,opts){ // opts: [[label,jahre|0]]
+ btnHost.innerHTML="";let aktiv=opts.length-1;
+ const bs=opts.map((o,i)=>{const b=document.createElement("button");b.className="btn";b.type="button";b.textContent=o[0];b.setAttribute("aria-pressed",i===aktiv);b.onclick=()=>{aktiv=i;bs.forEach((x,j)=>x.setAttribute("aria-pressed",j===i));draw()};btnHost.appendChild(b);return b});
+ function draw(){const j=opts[aktiv][1];let von=null;if(j){const e=new Date();e.setUTCFullYear(e.getUTCFullYear()-j);von=e.toISOString().slice(0,10)}haupt(von)}
+ draw();
+}
+
+const UM=DATA.umwelt;
+const pf=(v,d)=>nf(v,d===undefined?1:d);
+const letzte=a=>a&&a.length?a[a.length-1]:null;
+const byId={};
+const istQ=a=>false;
+const perL=(iso,a)=>a&&a.annual?iso.slice(0,4):mon(iso);
+const jahrIso=a=>{const r=a.map(p=>[p[0]+"-07-01",p[1]]);r.annual=true;return r};
+const HG={b1:"Strom aktuell",b2:"Emissionen",b3:"Wetter"};
+const T=[];
+function add(t){if(t.r&&t.r.length>2){byId[t.id]=t;T.push(t)}}
+function spark2(a){const n=a.slice(-48);const sv=el("svg",{class:"spark",viewBox:"0 0 100 30",preserveAspectRatio:"none"});
+ const v=n.map(p=>p[1]),mn=Math.min(...v),mx=Math.max(...v),sp=(mx-mn)||1;let d="";
+ n.forEach((p,i)=>{const x=i/(n.length-1||1)*100,y=28-(p[1]-mn)/sp*26;d+=(i?" L":"M")+x.toFixed(1)+","+y.toFixed(1)});
+ el("path",{d:d,fill:"none",stroke:"var(--c)","stroke-width":1.6,"vector-effect":"non-scaling-stroke"},sv);return sv}
+function kachelBauen(host,k){
+ const s=k.r,l=letzte(s),vor=s[s.length-2];
+ const b=document.createElement("button");b.className="k "+k.c;b.type="button";
+ const vl=s.annual?"Vorjahr ":"Vormonat ";
+ b.innerHTML='<div class="kt"><span class="kn">'+esc(k.n)+'</span><span class="kd">'+perL(l[0],s)+'</span></div><div class="kw">'+pf(l[1],k.d)+k.einh+'</div><div class="ks">'+vl+pf(vor[1],k.d)+k.einh+'</div>';
+ b.appendChild(spark2(s));b.onclick=()=>oeffneReihe(k.id);host.appendChild(b);
+}
+function kopf(gr,titel,farbe){const dr=$("#drawer");dr.style.setProperty("--c",farbe||"var(--c1)");return '<div class="dk"><div><div class="gr">'+esc(gr)+'</div><h2>'+esc(titel)+'</h2></div><button class="zu" type="button" aria-label="Schließen">×</button></div>'}
+function zeigen(h){const dr=$("#drawer");dr.innerHTML=h;dr.classList.add("offen");$("#schatten").classList.add("offen");dr.setAttribute("aria-hidden","false");dr.querySelector(".zu").onclick=schliessen;dr.querySelector(".zu").focus()}
+function schliessen(){$("#drawer").classList.remove("offen");$("#schatten").classList.remove("offen");$("#drawer").setAttribute("aria-hidden","true")}
+$("#schatten").onclick=schliessen;document.addEventListener("keydown",e=>{if(e.key==="Escape")schliessen()});
+
+
+const quelleHtml=k=>k.url?'<a href="'+k.url+'" target="_blank" rel="noopener">'+esc(k.q)+'</a>':esc(k.q);
+function oeffneReihe(id){const k=byId[id],s=k.r,l=letzte(s);
+ zeigen(kopf(HG[k.b]||k.gr||"Umwelt",k.n,"var(--"+k.c+")")+'<div class="db"><div class="gross">'+pf(l[1],k.d)+k.einh+'</div><div class="gsub">Stand '+(k.stand||mon(l[0]))+' · <i class="pkt auto"></i>automatisch</div><div class="btns" id="db-b"></div><div class="tip" id="db-t"></div><div id="db-c"></div><h3>Was ist das?</h3><p>'+esc(k.was)+'</p>'+(k.hin?'<h3>Hinweis</h3><div class="hin">'+esc(k.hin)+'</div>':'')+'<h3>Quelle</h3><p style="font-size:13px;color:var(--text2)">'+quelleHtml(k)+'</p></div>');
+ bereich($("#db-b"),von=>chart($("#db-c"),[{n:k.n,farbe:"var(--"+k.c+")",pts:s,dez:k.d,einh:k.einh}],{von:von,tip:$("#db-t"),label:k.n}),[["2 Jahre",2],["5 Jahre",5],["10 Jahre",10],["Max",0]]);
+}
+/* ---------- Kuchen mit Beschriftung links und rechts ---------- */
+function kuchen(svgId,teile,opts){
+ const svg=document.getElementById(svgId),sum=teile.reduce((a,x)=>a+x.w,0);let w0=-Math.PI/2;const R=opts.R||215,cx=550,cy=opts.cy||320,H=opts.H||640;
+ let pfade="";const lab={r:[],l:[]};
+ teile.forEach(x=>{const dw=x.w/sum*2*Math.PI,w1=w0+dw,wm=(w0+w1)/2;const p=(wk,rr)=>[cx+rr*Math.cos(wk),cy+rr*Math.sin(wk)];const [x0,y0]=p(w0,R),[x1,y1]=p(w1,R);
+  pfade+='<path d="M'+cx+','+cy+' L'+x0.toFixed(2)+','+y0.toFixed(2)+' A'+R+','+R+' 0 '+(dw>Math.PI?1:0)+' 1 '+x1.toFixed(2)+','+y1.toFixed(2)+' Z" fill="'+x.c+'" tabindex="0" role="button" data-id="'+x.id+'" aria-label="'+esc(x.n)+' '+pf(x.w,1)+' Prozent"><title>'+esc(x.n)+': '+pf(x.w,2)+' %</title></path>';
+  const rechts=Math.cos(wm)>=0;lab[rechts?"r":"l"].push({x:x,a0:p(wm,R),a1:p(wm,R+20),y:p(wm,R+20)[1]});
+  w0=w1});
+ const GAP=19;let linien="",texte="";
+ ["r","l"].forEach(seite=>{const arr=lab[seite].sort((m,n)=>m.y-n.y);
+  for(let i=1;i<arr.length;i++)if(arr[i].y<arr[i-1].y+GAP)arr[i].y=arr[i-1].y+GAP;
+  const ueber=arr.length?arr[arr.length-1].y-(H-12):0;if(ueber>0)arr.forEach(o=>o.y-=ueber);
+  for(let i=1;i<arr.length;i++)if(arr[i].y<arr[i-1].y+GAP)arr[i-1].y=arr[i].y-GAP;
+  const lx=seite==="r"?cx+R+54:cx-R-54;
+  arr.forEach(o=>{const x=o.x,ex=seite==="r"?lx-8:lx+8;
+   linien+='<polyline class="fl" points="'+o.a0[0].toFixed(1)+','+o.a0[1].toFixed(1)+' '+o.a1[0].toFixed(1)+','+o.a1[1].toFixed(1)+' '+ex+','+o.y.toFixed(1)+' '+lx+','+o.y.toFixed(1)+'"/><circle cx="'+o.a0[0].toFixed(1)+'" cy="'+o.a0[1].toFixed(1)+'" r="2" fill="var(--text)"/>';
+   const nm=esc(x.n),pz=pf(x.w,x.w<10?2:1)+" %";
+   texte+=seite==="r"?'<text class="lbl" data-id="'+x.id+'" x="'+(lx+6)+'" y="'+(o.y+4.5).toFixed(1)+'"><tspan class="pz">'+pz+'</tspan><tspan dx="8">'+nm+'</tspan></text>'
+    :'<text class="lbl" data-id="'+x.id+'" x="'+(lx-6)+'" y="'+(o.y+4.5).toFixed(1)+'" text-anchor="end"><tspan>'+nm+'</tspan><tspan dx="8" class="pz">'+pz+'</tspan></text>'})});
+ svg.innerHTML='<g class="lbl">'+linien+'</g>'+pfade+texte;
+ svg.querySelectorAll("path,text[data-id]").forEach(e=>{const f=()=>opts.klick(e.dataset.id);e.addEventListener("click",f);if(e.tagName==="path")e.addEventListener("keydown",ev=>{if(ev.key==="Enter"||ev.key===" "){ev.preventDefault();f()}})});
+}
+function balken(id,teile,klick){const sum=teile.reduce((a,x)=>a+x.w,0);const B=$("#"+id);B.innerHTML="";
+ teile.forEach(x=>{const b=document.createElement("button");b.type="button";b.style.width=(x.w/sum*100).toFixed(3)+"%";b.style.background=x.c;b.title=x.n+" "+pf(x.w,1)+" %";
+  b.textContent=((x.n.length+6)*6.1<x.w/sum*1000)?x.n+" "+pf(x.w,1)+" %":(x.w>=3?pf(x.w,1)+" %":"");b.onclick=()=>klick(x.id);B.appendChild(b)})}
+
+
+/* Baustein "Energieversorgung: Eigenproduktion und Importe" (gleich für USA und Vereinigtes Königreich).
+   Aufruf: energieBilanz(document.getElementById("eb-box"), B, {land:"das Vereinigte Königreich", nettoName:"...", hinweis:"..."})
+   B = {jahr, einheit, gesamt:{prod,imp,exp,netto,abh?}, brennstoffe:[{n,prod,imp,exp,einh?}], abh_reihe:[[jahr,%]], quelle, link} */
+function energieBilanz(box,B,opt){
+ const F=(v,d)=>new Intl.NumberFormat("de-DE",{minimumFractionDigits:d||0,maximumFractionDigits:d||0}).format(v);
+ const E=s=>String(s==null?"":s).replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+ if(!B||!B.gesamt){box.style.display="none";return}
+ const g=B.gesamt,sum=g.prod+g.imp,eigen=g.prod/sum*100,imp=g.imp/sum*100,exp=g.exp/sum*100;
+ const verbr=g.verbrauch||g.primaer||sum-g.exp,netto=g.netto!=null?g.netto:g.imp-g.exp;
+ const abh=g.abh!=null?g.abh:netto/verbr*100;
+ const C1="hsl(150,50%,36%)",C2="hsl(28,72%,46%)",C3="hsl(210,55%,45%)";
+ const KPI=(gross,titel,sub,farbe)=>'<div class="eb-k" style="border-top:4px solid '+farbe+'"><div class="eb-g">'+gross+'</div><div class="eb-t">'+titel+'</div><div class="eb-s">'+sub+'</div></div>';
+ const ZE=v=>F(v,B.einheit==="ktoe"?1:1);
+ const mt=v=>B.einheit==="ktoe"?F(v/1000,1)+" Mio. t Öl-Äquivalent":F(v,1)+" Billiarden Btu";
+ let h='<div class="eb-kopf"><h3>Woher die Energie kommt, '+B.jahr+': Eigenproduktion und Importe</h3><span>Alle Energieträger zusammen (Primärenergie), '+E(B.einheit==="ktoe"?"in Öl-Äquivalent":"in Btu")+'</span></div>';
+ h+='<div class="eb-kpis">'
+  +KPI(F(eigen,1)+" %","Aus dem eigenen Land","Eigenproduktion "+mt(g.prod),C1)
+  +KPI(F(imp,1)+" %","Aus dem Ausland","Importe "+mt(g.imp),C2)
+  +KPI(F(exp,1)+" %","Wieder ausgeführt","Exporte "+mt(g.exp)+", bezogen auf Produktion plus Importe",C3)
+  +KPI((abh>0?"":"−")+F(Math.abs(abh),1)+" %",opt.nettoName||"Netto-Importabhängigkeit",abh>0?"Netto-Importeur: Importe minus Exporte = "+mt(Math.abs(netto)):"Netto-Exporteur: Exporte übersteigen die Importe um "+mt(Math.abs(netto)),abh>0?C2:C1)
+  +'</div>';
+ h+='<div class="eb-bar" role="img" aria-label="Eigenproduktion '+F(eigen,1)+' Prozent, Importe '+F(imp,1)+' Prozent"><i style="width:'+eigen.toFixed(2)+'%;background:'+C1+'">Eigenproduktion '+F(eigen,1)+' %</i><i style="width:'+imp.toFixed(2)+'%;background:'+C2+'">Importe '+F(imp,1)+' %</i></div>';
+ h+='<div class="eb-hin">Die Balken zeigen das gesamte Angebot (Eigenproduktion plus Importe). Ein Teil davon wird wieder exportiert (dritte Kachel). Die vierte Kachel rechnet netto: Importe minus Exporte, bezogen auf den Verbrauch.</div>';
+ if(B.brennstoffe&&B.brennstoffe.length){
+  h+='<div class="eb-kopf2">Nach Energieträger: Anteil von Eigenproduktion und Importen am Angebot</div><div class="eb-liste">';
+  B.brennstoffe.forEach(x=>{const s=x.prod+x.imp;if(!s)return;const e=x.prod/s*100,i=x.imp/s*100,u=x.einh||"";
+   h+='<div class="eb-z"><div class="eb-n">'+E(x.n)+'</div><div class="eb-b" title="'+E(x.n)+': Produktion '+F(x.prod,x.prod<100?1:0)+', Importe '+F(x.imp,x.imp<100?1:0)+', Exporte '+F(x.exp,x.exp<100?1:0)+' '+E(u||"ktoe")+'"><i style="width:'+e.toFixed(2)+'%;background:'+C1+'">'+(e>=12?F(e,0)+" %":"")+'</i><i style="width:'+i.toFixed(2)+'%;background:'+C2+'">'+(i>=12?F(i,0)+" %":"")+'</i></div><div class="eb-w">Eigen '+F(e,0)+' % · Import '+F(i,0)+' %</div><div class="eb-d">Produktion '+F(x.prod,x.prod<100?1:0)+' · Importe '+F(x.imp,x.imp<100?1:0)+' · Exporte '+F(x.exp,x.exp<100?1:0)+' '+E(u||"ktoe (tausend Tonnen Öl-Äquivalent)")+'</div></div>'});
+  h+='</div>'}
+ const R=B.abh_reihe||[];
+ if(R.length>3){const W=640,H=170,L=44,Rr=10,T=10,Bt=22,xs=R.map(p=>p[0]),vs=R.map(p=>p[1]);const mn=Math.min(0,Math.floor(Math.min(...vs)/10)*10),mx=Math.ceil(Math.max(0,...vs)/10)*10||10;
+  const X=y=>L+(y-xs[0])/(xs[xs.length-1]-xs[0])*(W-L-Rr),Y=v=>T+(1-(v-mn)/(mx-mn))*(H-T-Bt);
+  let s='<svg class="eb-ch" viewBox="0 0 '+W+' '+H+'" role="img" aria-label="Netto-Importabhängigkeit im Zeitverlauf">';
+  for(let v=mn;v<=mx;v+=10){s+='<line x1="'+L+'" x2="'+(W-Rr)+'" y1="'+Y(v)+'" y2="'+Y(v)+'" stroke="var(--raster,#888)" stroke-opacity=".35"/><text x="'+(L-6)+'" y="'+(Y(v)+4)+'" text-anchor="end" font-size="10.5" fill="var(--stumm,#888)">'+v+' %</text>'}
+  [xs[0],xs[Math.floor(xs.length/2)],xs[xs.length-1]].forEach(y=>{s+='<text x="'+X(y)+'" y="'+(H-6)+'" text-anchor="middle" font-size="10.5" fill="var(--stumm,#888)">'+y+'</text>'});
+  s+='<polyline fill="none" stroke="'+C2+'" stroke-width="2.2" stroke-linejoin="round" points="'+R.map(p=>X(p[0]).toFixed(1)+","+Y(p[1]).toFixed(1)).join(" ")+'"/>';
+  const l=R[R.length-1];s+='<circle cx="'+X(l[0])+'" cy="'+Y(l[1])+'" r="3.5" fill="'+C2+'"/><text x="'+(X(l[0])-6)+'" y="'+(Y(l[1])+(l[1]<R[R.length-4][1]?18:-9))+'" text-anchor="end" font-size="11" font-weight="700" fill="var(--text,#fff)">'+F(l[1],1)+' %</text></svg>';
+  h+='<div class="eb-kopf2">Netto-Importabhängigkeit seit '+xs[0]+' (Importe minus Exporte in % des Verbrauchs, unter 0 = Netto-Exporteur)</div>'+s}
+ h+='<div class="eb-hin">'+(opt.hinweis||"")+' Quelle: <a href="'+E(B.link)+'" target="_blank" rel="noopener">'+E(B.quelle)+'</a>. Jahreswerte, werden bei jeder Aktualisierung neu gelesen.</div>';
+ box.innerHTML=h;
+}
+
+/* ---------- Kacheln ---------- */
+function kachelnDefinieren(){
+ const H=UM.historie||[],GH=UM.ghg&&UM.ghg.reihen,tem=UM.temp,reg=UM.regen;
+ const CI="https://carbonintensity.org.uk/";
+ if(H.length){
+  const ser=f=>H.map(x=>[x.m,f(x)]);
+  const ern=x=>x.mix.wind+x.mix.solar+x.mix.hydro+x.mix.biomass;
+  add({id:"ci",b:"b1",c:"c1",n:"CO2-Intensität des Stroms, Monatsmittel (g CO2 je kWh)",r:ser(x=>x.ci),einh:"",d:0,q:"NESO Carbon Intensity API, tatsächliche Intensität, Monatsmittel aus halbstündlichen Werten",url:CI,was:"Gramm CO2 je Kilowattstunde Strom im Netz von Großbritannien, Mittel über den Monat. Je mehr Gas und Importe, desto höher, je mehr Wind, Solar und Kernkraft, desto niedriger. Die Reihe umfasst die letzten zwölf Monate.",hin:"Der aktuelle Monat ist noch unvollständig. Die API deckt Großbritannien ab (England, Schottland, Wales), nicht Nordirland."});
+  add({id:"wind",b:"b1",c:"c2",n:"Windanteil an der Stromerzeugung, Monatsmittel",r:ser(x=>Math.round(x.mix.wind*10)/10),einh:" %",d:1,q:"NESO Carbon Intensity API, Erzeugungsmix, Monatsmittel",url:CI,was:"Anteil des Windstroms an der Stromerzeugung im Netz (Monatsmittel der halbstündlichen Werte).",hin:"Der Anteil schwankt stark mit dem Wetter."});
+  add({id:"gas",b:"b1",c:"c3",n:"Gasanteil an der Stromerzeugung, Monatsmittel",r:ser(x=>Math.round(x.mix.gas*10)/10),einh:" %",d:1,q:"NESO Carbon Intensity API, Erzeugungsmix, Monatsmittel",url:CI,was:"Anteil des Erdgases an der Stromerzeugung im Netz (Monatsmittel). Gas ist die größte Einzelquelle, wenn wenig Wind weht."});
+  add({id:"ern",b:"b1",c:"c4",n:"Erneuerbarer Anteil (Wind, Solar, Wasser, Biomasse), Monatsmittel",r:ser(x=>Math.round(ern(x)*10)/10),einh:" %",d:1,q:"NESO Carbon Intensity API, Erzeugungsmix, Monatsmittel",url:CI,was:"Summe der Anteile von Wind, Solar, Wasserkraft und Biomasse an der Stromerzeugung im Netz. Kernkraft und Importe sind nicht eingerechnet.",hin:"Biomasse zählt hier mit, ihre Klimawirkung ist umstritten und nicht Teil dieser Seite."});
+  add({id:"imp",b:"b1",c:"c1",n:"Importanteil (Strom aus dem Ausland), Monatsmittel",r:ser(x=>Math.round(x.mix.imports*10)/10),einh:" %",d:1,q:"NESO Carbon Intensity API, Erzeugungsmix, Monatsmittel",url:CI,was:"Anteil des über Seekabel importierten Stroms an der Versorgung im Netz (Monatsmittel)."});
+ }
+ if(GH){
+  const mk=(id,c,n,key,was)=>GH[key]&&add({id:id,b:"b2",c:c,n:n,r:jahrIso(GH[key]),einh:" Mt",d:1,stand:String(letzte(GH[key])[0])+" (vorläufig)",q:UM.ghg.quelle,url:UM.ghg.link,was:was,hin:"2025 ist vorläufig und wird mit der endgültigen Statistik überarbeitet. Territorial heißt: Emissionen auf britischem Gebiet, ohne internationalen Luft- und Seeverkehr."});
+  mk("g_ges","c1","Treibhausgasemissionen insgesamt","Gesamt","Alle Treibhausgase auf britischem Gebiet in Millionen Tonnen CO2-Äquivalent (netto, inklusive Landnutzung). Die Zahl ist der Maßstab für die gesetzlichen Kohlenstoffbudgets.");
+  mk("g_str","c2","Emissionen Stromerzeugung","Stromerzeugung","Emissionen der Stromerzeugung (ohne Temperaturbereinigung).");
+  mk("g_ver","c3","Emissionen Inlandsverkehr","Inlandsverkehr","Straße, Bahn, Inlandsflug und Schifffahrt innerhalb des Landes. Der Verkehr ist der größte Einzelsektor.");
+  mk("g_geb","c4","Emissionen Gebäude und Produktverwendung","Gebäude und Produktverwendung","Heizung und Warmwasser in Wohn-, Gewerbe- und öffentlichen Gebäuden, dazu Produktverwendung.");
+  mk("g_ind","c1","Emissionen Industrie","Industrie","Industrielle Verbrennung und Prozesse.");
+  mk("g_fuel","c2","Emissionen Brennstoffversorgung","Brennstoffversorgung","Förderung, Raffinerien und Verteilung von Öl und Gas.");
+ }
+ const mon0=s=>+s.slice(5,7);
+ const mittelVon=r=>{const m={};for(let k=1;k<=12;k++){const x=r.filter(p=>mon0(p[0])===k&&+p[0].slice(0,4)>=1991&&+p[0].slice(0,4)<=2020);m[k]=x.reduce((a,p)=>a+p[1],0)/(x.length||1)}return m};
+ const MET="https://www.metoffice.gov.uk/research/climate/maps-and-data/uk-and-regional-series";
+ if(tem){const mi=mittelVon(tem);
+  add({id:"t",b:"b3",c:"c1",n:"Temperatur, Monatsmittel (°C)",r:tem,einh:" °C",d:1,q:"Met Office, HadUK-Grid, UK-Flächenmittel der Lufttemperatur (Tmean)",url:MET,was:"Mittlere Lufttemperatur über das ganze Vereinigte Königreich, Monatsmittel, Reihe ab 1884 (hier ab 1990). Der Wert hängt von der Jahreszeit ab, die nächste Kachel zeigt die Abweichung vom Mittel."});
+  add({id:"ta",b:"b3",c:"c2",n:"Temperatur, Abweichung zum Mittel 1991–2020 (°C)",r:tem.map(p=>[p[0],Math.round((p[1]-mi[mon0(p[0])])*10)/10]),einh:" °C",d:1,q:"Met Office, HadUK-Grid (Tmean), Abweichung zum Mittel des gleichen Kalendermonats 1991 bis 2020 (eigene Berechnung)",url:MET,was:"Unterschied der Monatstemperatur zum Durchschnitt des gleichen Monats in den Jahren 1991 bis 2020. Positiv heißt wärmer als das Mittel."});
+ }
+ if(reg){const mi=mittelVon(reg);
+  add({id:"r",b:"b3",c:"c3",n:"Niederschlag, Monatssumme (mm)",r:reg,einh:" mm",d:0,q:"Met Office, HadUK-Grid, UK-Flächenmittel des Niederschlags (Rainfall)",url:MET,was:"Niederschlagssumme über das ganze Vereinigte Königreich im Monat in Millimetern (Flächenmittel)."});
+  add({id:"ra",b:"b3",c:"c4",n:"Niederschlag, in % des Mittels 1991–2020",r:reg.map(p=>[p[0],Math.round(p[1]/mi[mon0(p[0])]*100)]),einh:" %",d:0,q:"Met Office, HadUK-Grid (Rainfall), im Verhältnis zum Mittel des gleichen Kalendermonats 1991 bis 2020 (eigene Berechnung)",url:MET,was:"Niederschlag des Monats im Verhältnis zum Durchschnitt des gleichen Monats in den Jahren 1991 bis 2020. Über 100 % heißt nasser als im Mittel."});
+ }
+}
+/* ---------- Kacheln von Hand (mit Quelle) ---------- */
+const HAND=[
+ {id:"h_cb7",c:"c1",n:"Siebtes Kohlenstoffbudget (2038–2042)",wert:"535 Mt CO2e",sub:"laut Presse am 24.06.2026 vom Parlament beschlossen",datum:"Jun 2026",
+  was:"Das Klimaschutzgesetz verpflichtet die Regierung zu gesetzlichen Fünfjahresbudgets für Emissionen. Das Climate Change Committee (CCC) empfahl für 2038 bis 2042 ein Budget von 535 Millionen Tonnen CO2-Äquivalent (inklusive internationaler Luft- und Seefahrt), entsprechend einer Minderung von rund 87 % gegenüber 1990. Presseberichte melden, das Parlament habe es im Juni 2026 so beschlossen.",
+  tab:[["Budgetperiode","2038 bis 2042"],["Budget laut CCC-Empfehlung","535 Mt CO2e"],["Minderung gegenüber 1990","rund 87 %"]],
+  hin:"Abstimmungsdatum und Mehrheit stammen aus Presseberichten und sind nicht am Gesetzestext (legislation.gov.uk) geprüft. Eine Quelle nennt 532 statt 535 Mt, die übrigen und das CCC 535.",
+  q:"Climate Change Committee, The Seventh Carbon Budget; Presseberichte",url:"https://www.theccc.org.uk/publication/the-seventh-carbon-budget/"},
+ {id:"h_nz",c:"c2",n:"Netto-Null-Ziel",wert:"2050",sub:"gesetzlich im Climate Change Act (Änderung 2019)",datum:"seit 2019",
+  was:"Der Climate Change Act von 2008 setzte zuerst eine Minderung von 80 % bis 2050. 2019 wurde das Ziel auf Netto-Null Treibhausgasemissionen bis 2050 verschärft. Die Zwischenschritte sind die Kohlenstoffbudgets.",
+  tab:[["Gesetz","Climate Change Act 2008"],["Ziel","Netto-Null bis 2050 (Änderung 2019)"]],
+  hin:"Aus allgemeinem Wissen, nicht am Gesetzestext geprüft.",
+  q:"legislation.gov.uk, Climate Change Act 2008",url:"https://www.legislation.gov.uk/ukpga/2008/27/contents"},
+ {id:"h_kohle",c:"c3",n:"Ende der Kohleverstromung",wert:"30.09.2024",sub:"letztes Kohlekraftwerk (Ratcliffe-on-Soar) stillgelegt",datum:"2024",
+  was:"Am 30. September 2024 stellte das Kraftwerk Ratcliffe-on-Soar den Betrieb ein. Das Vereinigte Königreich war damit nach Presseberichten das erste G7-Land ohne Kohlestrom. Zuvor hatte das Kraftwerk Kilroot in Nordirland 2023 die Kohleverstromung beendet.",
+  tab:[["Letztes Kohlekraftwerk","Ratcliffe-on-Soar (Betreiber Uniper)"],["Datum","30.09.2024 (eine Quelle nennt 01.10.)"],["Kohleanteil am Strom","siehe Strommix oben"]],
+  hin:"Aus Presseberichten, nicht an einer Regierungsquelle geprüft.",
+  q:"Presseberichte (u. a. ITV, BusinessGreen, CBS), 30.09./01.10.2024",url:"https://www.itv.com/news/central/2024-10-01/ratcliffe-on-soar-end-of-an-era-as-uks-last-coal-fired-power-station-shuts-down"},
+ {id:"h_gas",c:"c4",n:"Energiepreisdeckel (Ofgem), typischer Haushalt",wert:"1.723 £ pro Jahr",sub:"Oktober bis Dezember 2026, +4 % zur Vorperiode",datum:"Okt–Dez 2026",
+  was:"Ofgem begrenzt Preise je Einheit Strom und Gas und die tägliche Grundgebühr für Haushalte in England, Schottland und Wales. Der Deckel wird vierteljährlich neu festgelegt. Gas ist im Strommix die größte Einzelquelle, deshalb wirkt der Gaspreis auf beide Rechnungen. Dieselbe Kachel steht in Oberthema 8.",
+  tab:[["Typischer Haushalt, Okt–Dez 2026","1.723 £"],["Vorperiode (Jul–Sep 2026)","1.663 £"],["Veränderung","+60 £ (+4 %)"]],
+  hin:"Der Deckel begrenzt Preise je Einheit, nicht die Gesamtrechnung. Ein Großhandelsgaspreis fehlt auf dieser Seite, weil ich keine freie, automatisch abrufbare Quelle gefunden habe.",
+  q:"Ofgem, Pressemitteilung „Energy price cap will rise 4% from October 2026“ (26.08.2026)",url:"https://www.ofgem.gov.uk/press-release/energy-price-cap-will-rise-4-october-2026"},
+ {id:"h_ghg",c:"c1",n:"Emissionen 2025 gegenüber 1990",wert:"−54 %",sub:"rund 367 Mt CO2e, −2 % zum Vorjahr (vorläufig)",datum:"2025",
+  was:"Nach der vorläufigen Statistik des Energieministeriums (DESNZ) vom 2. April 2026 lagen die Netto-Emissionen 2025 bei rund 367 Millionen Tonnen CO2-Äquivalent, 2 % unter 2024 und 54 % unter 1990. Der Inlandsverkehr ist mit rund 31 % der größte Sektor.",
+  tab:[["2025 (vorläufig)","rund 367 Mt CO2e"],["Veränderung zu 2024","−2 %"],["Veränderung zu 1990","−54 %"]],
+  hin:"Die Zahlen stammen aus der Veröffentlichungsmeldung; die Werte im Kuchen und in den Kacheln kommen automatisch aus derselben Statistik. Die endgültigen Zahlen erscheinen laut Presseangabe im Februar 2027.",
+  q:"DESNZ, 2025 UK greenhouse gas emissions: provisional figures, veröffentlicht am 2. April 2026",url:"https://www.gov.uk/government/statistics/provisional-uk-greenhouse-gas-emissions-statistics-2025"}
+];
+function handKacheln(){
+ const H=$("#b5");
+ HAND.forEach(h=>{const b=document.createElement("button");b.type="button";b.className="k hand "+h.c;
+  b.innerHTML='<div class="kt"><span class="kn">'+esc(h.n)+'</span><span class="kd">'+esc(h.datum)+'</span></div><div class="kw">'+esc(h.wert)+'</div><div class="ks">'+esc(h.sub)+'</div>';
+  b.onclick=()=>zeigen(kopf("Politik und Preise",h.n,"var(--"+h.c+")")+'<div class="db"><div class="gross">'+esc(h.wert)+'</div><div class="gsub">'+esc(h.sub)+' · <i class="pkt man"></i>von Hand eingetragen</div><h3>Was ist das?</h3><p>'+esc(h.was)+'</p><table class="zt">'+h.tab.map(r=>'<tr><td>'+esc(r[0])+'</td><td class="z">'+esc(r[1])+'</td></tr>').join("")+'</table><h3>Hinweis</h3><div class="hin">'+esc(h.hin)+'</div><h3>Quelle</h3><p style="font-size:13px;color:var(--text2)"><a href="'+h.url+'" target="_blank" rel="noopener">'+esc(h.q)+'</a>. Nicht automatisch aktualisiert, Prüfung nach der nächsten Veröffentlichung.</p></div>');
+  H.appendChild(b)});
+ $("#b5-fuss").textContent="Diese Kacheln sind von Hand eingetragen, tragen ein Datum und eine Quelle und aktualisieren sich nicht von selbst.";
+ const Z=[["2008","Climate Change Act: gesetzliche Kohlenstoffbudgets und Climate Change Committee (CCC) als Berater.","legislation.gov.uk","https://www.legislation.gov.uk/ukpga/2008/27/contents"],
+  ["2019","Ziel verschärft auf Netto-Null Treibhausgase bis 2050 (statt 80 % Minderung).","legislation.gov.uk","https://www.legislation.gov.uk/ukpga/2008/27/contents"],
+  ["30.09.2024","Letztes Kohlekraftwerk (Ratcliffe-on-Soar) stillgelegt.","ITV News","https://www.itv.com/news/central/2024-10-01/ratcliffe-on-soar-end-of-an-era-as-uks-last-coal-fired-power-station-shuts-down"],
+  ["02.04.2026","DESNZ veröffentlicht vorläufige Emissionen 2025: rund 367 Mt CO2e, 54 % unter 1990.","gov.uk","https://www.gov.uk/government/statistics/provisional-uk-greenhouse-gas-emissions-statistics-2025"],
+  ["24.06.2026","Siebtes Kohlenstoffbudget (2038–2042, 535 Mt CO2e) laut Presseberichten vom Parlament beschlossen.","CCC / Presse","https://www.theccc.org.uk/publication/the-seventh-carbon-budget/"],
+  ["Februar 2027","Endgültige Emissionszahlen 2025 erwartet (laut Presseangabe).","gov.uk","https://www.gov.uk/government/statistics/provisional-uk-greenhouse-gas-emissions-statistics-2025"]];
+ $("#zeit").innerHTML='<tr><th>Datum</th><th>Ereignis</th><th>Quelle</th></tr>'+Z.map(z=>'<tr><td class="dt">'+esc(z[0])+'</td><td>'+esc(z[1])+'</td><td><a href="'+z[3]+'" target="_blank" rel="noopener">'+esc(z[2])+'</a></td></tr>').join("");
+ $("#pol-hin").textContent="Von Hand gepflegt, mit Quelle. Termine aus Presseberichten sind nicht an den Originaldokumenten geprüft. Neue Beschlüsse trage ich nach.";
+}
+/* ================== STROMMIX UND EMISSIONEN ================== */
+const FARB={"Kohle":"hsl(0,0%,32%)","Öl":"hsl(20,40%,30%)","Gas":"hsl(28,72%,46%)","Kernkraft":"hsl(265,40%,50%)","Wasserkraft":"hsl(200,60%,46%)","Wind":"hsl(150,50%,36%)","Solar":"hsl(48,80%,46%)","Biomasse":"hsl(95,40%,34%)","Sonstige":"hsl(0,0%,55%)"};
+const GRP={fossil:["Kohle","Öl","Gas"],atom:["Kernkraft"],ern:["Wind","Solar","Wasserkraft","Biomasse"]};
+function detailMitChart(gr,titel,farbe,gross,gsub,reihe,einh,was,hin,q,url,extraHtml){
+ zeigen(kopf(gr,titel,farbe)+'<div class="db"><div class="gross">'+gross+'</div><div class="gsub">'+gsub+' · <i class="pkt auto"></i>automatisch</div><div class="btns" id="db-b"></div><div class="tip" id="db-t"></div><div id="db-c"></div>'+(extraHtml||"")+'<h3>Was ist das?</h3><p>'+esc(was)+'</p>'+(hin?'<h3>Hinweis</h3><div class="hin">'+esc(hin)+'</div>':'')+'<h3>Quelle</h3><p style="font-size:13px;color:var(--text2)">'+quelleHtml({q:q,url:url})+'</p></div>');
+ bereich($("#db-b"),von=>chart($("#db-c"),[{n:titel,farbe:farbe,pts:jahrIso(reihe),dez:1,einh:einh}],{von:von,tip:$("#db-t"),label:titel}),[["10 Jahre",10],["Max",0]])}
+function strommixBauen(){
+ const S=UM.strom;if(!S||!S.reihen){$("#mix-box").style.display="none";return null}
+ const jahr=Math.max(...S.reihen.map(r=>letzte(r.r)[0]));
+ const teile=S.reihen.map(r=>{const p=r.r.find(q=>q[0]===jahr);return {id:"m_"+r.n,n:r.n,c:FARB[r.n]||"hsl(0,0%,50%)",w:p?p[1]:0,reihe:r.r}}).filter(x=>x.w>0).sort((a,b)=>b.w-a.w);
+ $("#mix-meta").textContent="Jahr "+jahr;
+ const qt="DESNZ, Energy Trends Tabelle 5.1 (Anteile an der Stromerzeugung nach Brennstoff)",qu="https://www.gov.uk/government/statistics/electricity-section-5-energy-trends";
+ const klick=id=>{const x=teile.find(y=>y.id===id);if(!x)return;
+  detailMitChart("Strommix",x.n,x.c,pf(x.w,1)+" %","Anteil an der Stromerzeugung "+jahr,x.reihe,"%","Anteil von "+x.n+" an der gesamten Stromerzeugung des Vereinigten Königreichs, Jahreswerte.","Jahresdaten, vom Ministerium rückwirkend überarbeitet. Wetter und Importe verändern den Anteil von Jahr zu Jahr.",qt,qu)};
+ kuchen("mix-pie",teile,{klick:klick});
+ const sm=ns=>teile.filter(x=>ns.includes(x.n)).reduce((a,x)=>a+x.w,0);
+ const D=[{id:"g_fossil",n:"Fossil (Kohle, Öl, Gas)",w:sm(GRP.fossil),c:"hsl(28,72%,46%)",ns:GRP.fossil},{id:"g_atom",n:"Kernkraft",w:sm(GRP.atom),c:"hsl(265,40%,50%)",ns:GRP.atom},{id:"g_ern",n:"Erneuerbar (Wind, Solar, Wasser, Biomasse)",w:sm(GRP.ern),c:"hsl(150,50%,36%)",ns:GRP.ern},{id:"g_son",n:"Sonstige",w:Math.max(0,100-sm(GRP.fossil)-sm(GRP.atom)-sm(GRP.ern)),c:"hsl(0,0%,55%)",ns:[]}].filter(x=>x.w>0.05);
+ balken("mix-bal",D,id=>{const g=D.find(x=>x.id===id);
+  zeigen(kopf("Strommix zusammengefasst",g.n,g.c)+'<div class="db"><div class="gross">'+pf(g.w,1)+' %</div><div class="gsub">Anteil an der Stromerzeugung '+jahr+'</div>'+(g.ns.length?'<h3>Bestandteile</h3><table class="zt">'+teile.filter(x=>g.ns.includes(x.n)).map(x=>'<tr><td>'+esc(x.n)+'</td><td class="z"><b>'+pf(x.w,1)+' %</b></td></tr>').join("")+'</table>':'')+'<h3>Quelle</h3><p style="font-size:13px;color:var(--text2)">'+quelleHtml({q:qt,url:qu})+'</p></div>')});
+ $("#mix-hin").textContent="Quelle: DESNZ Energy Trends Tabelle 5.1, Anteile an der gesamten Stromerzeugung im Vereinigten Königreich, Jahr "+jahr+". Die Kacheln unten zeigen dagegen den Mix im Netz laut NESO (Monatsmittel), der von den Jahresanteilen abweicht. Biomasse ist unter Erneuerbar eingerechnet.";
+ return {teile:teile,D:D,jahr:jahr}
+}
+function emissionenBauen(){
+ const G=UM.ghg&&UM.ghg.reihen;if(!G||!G["Gesamt"]){$("#em-box").style.display="none";return null}
+ const jahr=letzte(G["Gesamt"])[0],get=n=>{const p=(G[n]||[]).find(q=>q[0]===jahr);return p?p[1]:0};
+ const sek=[["Stromerzeugung","hsl(28,72%,46%)"],["Brennstoffversorgung","hsl(0,55%,45%)"],["Inlandsverkehr","hsl(210,55%,40%)"],["Gebäude und Produktverwendung","hsl(150,45%,34%)"],["Industrie","hsl(265,40%,50%)"]];
+ const ges=get("Gesamt");let rest=ges;
+ const teile=sek.map(([n,c])=>{const w=get(n);rest-=w;return {id:"e_"+n,n:n,c:c,abs:w,w:w/ges*100,reihe:G[n]||[]}});
+ teile.push({id:"e_rest",n:"Landwirtschaft, Abfall, Landnutzung (Rest)",c:"hsl(0,0%,55%)",abs:rest,w:rest/ges*100,reihe:G["Gesamt"].map(p=>[p[0],Math.round((p[1]-sek.reduce((a,[n])=>{const x=(G[n]||[]).find(q=>q[0]===p[0]);return a+(x?x[1]:0)},0))*10)/10])});
+ $("#em-meta").textContent=jahr+" (vorläufig), "+pf(ges,0)+" Mt CO2e";
+ const klick=id=>{const x=teile.find(y=>y.id===id);if(!x)return;
+  detailMitChart("Emissionen",x.n,x.c,pf(x.abs,1)+" Mt",pf(x.w,1)+" % der Gesamtemissionen "+jahr+" (vorläufig)",x.reihe,"Mt","Treibhausgasemissionen des Sektors in Millionen Tonnen CO2-Äquivalent, Jahreswerte seit 1990 (territorial).",x.id==="e_rest"?"Der Rest ist Gesamt minus die fünf Sektoren; er enthält Landwirtschaft, Abfall und Landnutzung (netto, kann Senken enthalten) und ist keine eigene amtliche Zeile.":"2025 ist vorläufig.",UM.ghg.quelle,UM.ghg.link)};
+ kuchen("em-pie",teile,{klick:klick,H:560,cy:290,R:200});
+ $("#em-hin").textContent="Quelle: DESNZ, Provisional UK greenhouse gas emissions statistics 2025, Tabelle 1a (territorial, ohne Temperaturbereinigung). Netto-Emissionen inklusive Landnutzung, ohne internationalen Luft- und Seeverkehr. Das Stück Rest ist Gesamt minus die fünf Sektoren.";
+ return {teile:teile,ges:ges,jahr:jahr}
+}
+/* ---------- Texte ---------- */
+function texte(M,E){
+ const g=$("#grundidee"),s=$("#strukt");
+ const m=n=>{const x=M&&M.teile.find(y=>y.n===n);return x?pf(x.w,1)+" %":"…"};
+ const em=n=>{const x=E&&E.teile.find(y=>y.n===n);return x?pf(x.w,1)+" %":"…"};
+ const ci=byId.ci?letzte(byId.ci.r)[1]:null;
+ const G=UM.ghg&&UM.ghg.reihen&&UM.ghg.reihen["Gesamt"],g90=G&&G.find(p=>p[0]===1990),gl=G&&letzte(G);
+ const minus=g90&&gl?pf((1-gl[1]/g90[1])*100,0)+" %":"…";
+ g.innerHTML=
+  '<li><b>Gas, Wind und Kernkraft tragen den Strom.</b> Im Jahr '+(M?M.jahr:"…")+' lag Gas bei '+m("Gas")+', Wind bei '+m("Wind")+', Kernkraft bei '+m("Kernkraft")+' und Biomasse bei '+m("Biomasse")+' der Stromerzeugung. Kohle spielt mit '+m("Kohle")+' fast keine Rolle mehr.</li>'
+  +'<li><b>Der Mix ändert sich mit dem Wetter.</b> Weht viel Wind, sinken Gasanteil und CO2-Intensität. Zuletzt lag das Monatsmittel der Intensität bei '+(ci!==null?ci+" g CO2 je kWh":"…")+'.</li>'
+  +'<li><b>Emissionen sinken seit 1990.</b> Die Treibhausgase liegen '+(gl?gl[0]:"…")+' (vorläufig) um '+minus+' unter dem Wert von 1990, bei zuletzt '+(gl?pf(gl[1],0):"…")+' Mt CO2-Äquivalent.</li>'
+  +'<li><b>Verkehr und Gebäude sind die großen Posten.</b> Inlandsverkehr macht '+em("Inlandsverkehr")+' der Emissionen aus, Gebäude und Produktverwendung '+em("Gebäude und Produktverwendung")+', die Stromerzeugung nur noch '+em("Stromerzeugung")+'.</li>'
+  +'<li><b>Der Staat steuert über gesetzliche Budgets.</b> Das Klimaschutzgesetz verlangt Netto-Null bis 2050 und legt Fünfjahresbudgets fest. Das siebte Budget (2038 bis 2042) liegt bei 535 Mt CO2e (Kachel unten, laut Presse beschlossen).</li>'
+  +'<li><b>Energie wirkt auf die Haushaltsrechnung.</b> Der Gaspreis beeinflusst Strom und Gas. Ofgem legt den Deckel für Haushalte quartalsweise fest (Kachel unten, Oberthema 8).</li>';
+ s.innerHTML=
+  '<div><b>Der Strom hängt an Gas und Wind</b>Gas ist die größte Einzelquelle ('+m("Gas")+'), Wind die zweitgrößte ('+m("Wind")+'). Bei wenig Wind springt Gas ein oder der Strom kommt aus dem Ausland (Importe).</div>'
+  +'<div><b>Die Stromerzeugung ist nicht mehr der größte Emittent</b>Der Sektor liegt bei '+em("Stromerzeugung")+', Verkehr und Gebäude sind größer. Weitere Minderungen müssen daher dort entstehen.</div>'
+  +'<div><b>Klimaziele sind Gesetz</b>Die Budgets sind rechtlich bindend und werden vom Climate Change Committee überwacht.</div>'
+  +'<div><b>Wetter und Nachfrage</b>Kalte Monate erhöhen Heiz- und Strombedarf, windarme Phasen erhöhen den Gasanteil. Temperatur und Niederschlag stehen in den Wetterkacheln.</div>'
+  +'<div><b>Verbindung zu anderen Oberthemen</b>Energiepreise wirken auf die Inflation (Oberthema 6), auf die Haushaltsbudgets (Oberthema 8) und auf die Staatsfinanzen (Oberthema 1 und 2).</div>';
+ const wi=[];
+ if(M)wi.push("<b>Strom:</b> Gas "+m("Gas")+", Wind "+m("Wind")+", Kernkraft "+m("Kernkraft")+", Kohle "+m("Kohle")+" ("+M.jahr+"; DESNZ).");
+ if(gl)wi.push("<b>Emissionen:</b> "+minus+" unter dem Wert von 1990 ("+gl[0]+", vorläufig).");
+ wi.push("<b>Kohle:</b> seit 30.09.2024 keine Kohleverstromung mehr (Presse).");
+ wi.push("<b>Gesetz:</b> Netto-Null bis 2050, siebtes Kohlenstoffbudget 535 Mt CO2e für 2038–2042 (laut Presse beschlossen).");
+ wi.push("<b>Haushalte:</b> Ofgem-Preisdeckel quartalsweise, typischer Haushalt 1.723 £ pro Jahr (Okt–Dez 2026).");
+ $("#wichtigtext").innerHTML=wi.join(" · ");
+ $("#unter").textContent="Länderanalyse, Oberthema 9 · Daten und Fakten, keine Bewertung · Stand der Daten: Wetter "+mon(UM.stand)+(window.UK_DATEN&&window.UK_DATEN.umwelt?" (automatischer Abruf)":", eingebetteter Stand");
+}
+
+function energieAnzeige(){
+ const B=UM.bilanz,K=UM.kopplung;let hin="Eigenproduktion umfasst Öl und Gas aus der Nordsee, Wind, Solar, Wasser, Kernkraft und Bioenergie.";
+ if(K&&K.kabel){const t=K.kabel.find(x=>x.n==="Net imports (to UK)"),fr=K.kabel.find(x=>/France to UK/.test(x.n)),no=K.kabel.find(x=>/Norway to UK/.test(x.n));
+  if(t)hin+=" Strom: Über die Stromkabel wurden "+K.jahr+" netto "+pf(t.netto/1000,1)+" TWh nach Großbritannien eingeführt"+(fr&&no?" (Frankreich "+pf(fr.netto/1000,1)+" TWh, Norwegen "+pf(no.netto/1000,1)+" TWh)":"")+" (DESNZ, DUKES Tabelle 5.13).";
+  const im=byId.imp;if(im)hin+=" Im Netz lag der Importanteil am Strommix zuletzt bei "+pf(letzte(im.r)[1],1)+" % (Monatsmittel, NESO)."}
+ const gas=B&&B.brennstoffe.find(x=>x.k==="Natural gas");if(gas)hin+=" Beim Erdgas stammen "+pf(gas.imp/(gas.prod+gas.imp)*100,0)+" % des Angebots aus Importen, deshalb hängen britische Energiepreise auch von ausländischen Märkten ab (Oberthema 6).";
+ try{energieBilanz($("#eb-box"),B,{nettoName:"Netto-Importabhängigkeit (DESNZ)",hinweis:hin})}catch(e){console.error(e);$("#eb-box").style.display="none"}
+}
+
+/* ---------- Start ---------- */
+$("#theme").onclick=()=>{const r=document.documentElement;r.dataset.theme=r.dataset.theme==="dark"?"light":"dark";try{localStorage.setItem("dashboard-thema",r.dataset.theme)}catch(e){}};
+try{const t=localStorage.getItem("dashboard-thema");if(t)document.documentElement.dataset.theme=t}catch(e){}
+kachelnDefinieren();
+T.forEach(k=>{const h=$("#"+k.b);if(h)kachelBauen(h,k)});
+handKacheln();
+energieAnzeige();
+let M=null,E=null;try{M=strommixBauen()}catch(e){console.error(e)}try{E=emissionenBauen()}catch(e){console.error(e)}
+texte(M,E);
+
+</script>
+<script src="seitenhintergrund.js?v=20261023"></script>
+</body>
+</html>

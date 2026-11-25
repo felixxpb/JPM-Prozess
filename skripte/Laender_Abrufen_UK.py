@@ -896,6 +896,178 @@ def verbraucher():
     d["quellen"] = {"ct": CT_LINK, "ias": IAS_LINK}
     return d
 
+
+# ---------------- Umwelt und Klima (Oberthema 9): Carbon Intensity API, DESNZ, Met Office ----------------
+CI_API = "https://api.carbonintensity.org.uk"
+MET_URL = "https://www.metoffice.gov.uk/pub/data/weather/uk/climate/datasets/%s/date/UK.txt"
+GHG_API = "https://www.gov.uk/api/content/government/statistics/provisional-uk-greenhouse-gas-emissions-statistics-2025"
+CI_FUELS = ["gas", "coal", "biomass", "nuclear", "hydro", "imports", "other", "wind", "solar"]
+
+def ci_aktuell():
+    g = json.loads(get(CI_API + "/generation"))["data"]
+    i = json.loads(get(CI_API + "/intensity"))["data"][0]
+    return {"von": g["from"], "mix": {x["fuel"]: x["perc"] for x in g["generationmix"]},
+            "ci": i["intensity"].get("actual") if i["intensity"].get("actual") is not None else i["intensity"].get("forecast"), "index": i["intensity"].get("index")}
+
+def ci_historie(monate=12):
+    """Mittlerer Strommix und mittlere CO2-Intensitaet je Monat (Carbon Intensity API, 14-Tage-Abschnitte)."""
+    heute = datetime.date.today()
+    j, m = heute.year, heute.month
+    for _ in range(monate): 
+        m -= 1
+        if m == 0: j, m = j - 1, 12
+    start = datetime.date(j, m, 1)
+    ende = heute - datetime.timedelta(days=1)
+    mon = {}
+    d = start
+    while d <= ende:
+        e = min(d + datetime.timedelta(days=13), ende)
+        f, t = d.strftime("%Y-%m-%dT00:00Z"), (e + datetime.timedelta(days=1)).strftime("%Y-%m-%dT00:00Z")
+        try:
+            gen = json.loads(get("%s/generation/%s/%s" % (CI_API, f, t)))["data"]
+            for r in gen:
+                k = r["from"][:7]; a = mon.setdefault(k, {"n": 0, "s": {x: 0.0 for x in CI_FUELS}, "ci": 0.0, "cn": 0})
+                a["n"] += 1
+                for x in r["generationmix"]:
+                    if x["fuel"] in a["s"]: a["s"][x["fuel"]] += x["perc"]
+            time.sleep(0.5)
+            it = json.loads(get("%s/intensity/%s/%s" % (CI_API, f, t)))["data"]
+            for r in it:
+                v = r["intensity"].get("actual")
+                if v is None: continue
+                a = mon.setdefault(r["from"][:7], {"n": 0, "s": {x: 0.0 for x in CI_FUELS}, "ci": 0.0, "cn": 0})
+                a["ci"] += v; a["cn"] += 1
+            time.sleep(0.5)
+        except Exception as ex:
+            print("FEHLER Carbon Intensity", f, str(ex)[:60])
+        d = e + datetime.timedelta(days=1)
+    out = []
+    for k in sorted(mon):
+        a = mon[k]
+        if a["n"] < 200 or not a["cn"]: continue
+        out.append({"m": k + "-01", "mix": {x: round(v / a["n"], 1) for x, v in a["s"].items()}, "ci": round(a["ci"] / a["cn"])})
+    if not out: raise ValueError("Carbon Intensity leer")
+    return out
+
+def met_reihe(name, ab=1990):
+    """Met Office HadUK-Grid, UK-Flaechenmittel. Feste Spaltenbreite (laufendes Jahr hat leere Monate)."""
+    txt = get(MET_URL % name)
+    out = []
+    for z in txt.splitlines():
+        if len(z) > 10 and re.fullmatch(r"\d{4}", z[:4]) and int(z[:4]) >= ab:
+            for mo in range(12):
+                feld = z[4 + 7 * mo:4 + 7 * (mo + 1)].strip()
+                if not feld or feld == "---": continue
+                try: out.append(["%s-%02d-01" % (z[:4], mo + 1), float(feld)])
+                except ValueError: pass
+    if not out: raise ValueError("Met Office leer " + name)
+    return out
+
+def ghg_reihen():
+    j = json.loads(get(GHG_API))
+    url = [a["url"] for a in j["details"]["attachments"] if "data tables" in a.get("title", "").lower()][0]
+    rows = xlsx_zeilen(bytes_holen(url), "1a_GHG")
+    kopf = rows[5]
+    spalten = [(i, str(c).split(" ")[0]) for i, c in enumerate(kopf) if i > 0 and c]
+    gesucht = {"Electricity supply": "Stromerzeugung", "Fuel supply": "Brennstoffversorgung", "Domestic transport": "Inlandsverkehr",
+               "Buildings and product uses": "Gebäude und Produktverwendung", "Industry": "Industrie", "Total greenhouse gas emissions": "Gesamt"}
+    out = {}
+    for r in rows[7:20]:
+        if r and r[0] and str(r[0]).strip() in gesucht:
+            pts = []
+            for i, y in spalten:
+                if i < len(r) and r[i] is not None:
+                    try: pts.append([int(y), round(float(r[i]), 1)])
+                    except (ValueError, TypeError): pass
+            out[gesucht[str(r[0]).strip()]] = pts
+    if "Gesamt" not in out: raise ValueError("Emissionen: Gesamtzeile fehlt")
+    return {"reihen": out, "url": url, "quelle": "DESNZ, Provisional UK greenhouse gas emissions statistics 2025 (Tabelle 1a, territorial, ohne Temperaturbereinigung)",
+            "link": "https://www.gov.uk/government/statistics/provisional-uk-greenhouse-gas-emissions-statistics-2025"}
+
+
+ET_TOTAL_API = "https://www.gov.uk/api/content/government/statistics/total-energy-section-1-energy-trends"
+DUKES_EL_API = "https://www.gov.uk/api/content/government/statistics/electricity-chapter-5-digest-of-united-kingdom-energy-statistics-dukes"
+BILANZ_DE = {"Coal": "Kohle", "Manufactured fuels": "Hergestellte Brennstoffe", "Primary oil": "Rohöl", "Petroleum products": "Mineralölprodukte",
+             "Natural gas": "Erdgas", "Bioenergy & waste": "Bioenergie und Abfall", "Primary electricity": "Primärstrom (Wind, Solar, Wasser, Kernkraft)",
+             "Electricity": "Strom (Handel über Kabel)", "Heat sold": "Wärme", "Total": "Gesamt"}
+
+def zahl(v):
+    try: return float(v)
+    except (TypeError, ValueError): return None
+
+def energiebilanz():
+    """Eigenproduktion, Importe, Exporte und Importabhaengigkeit (DESNZ Energy Trends Tabelle 1.3, Einheit: tausend Tonnen Oel-Aequivalent)."""
+    j = json.loads(get(ET_TOTAL_API))
+    url = [a["url"] for a in j["details"]["attachments"] if "ET 1.3" in a.get("title", "")][0]
+    b = bytes_holen(url)
+    r = xlsx_zeilen(b, "Annual dependency & low carbon")
+    kopf = r[4]; zeilen = [x for x in r[5:] if x and zahl(x[0]) is not None]
+    def sp(name):
+        return next(i for i, h in enumerate(kopf) if str(h).startswith(name))
+    iA, iI, iE, iN, iP = sp("Import dependency"), sp("Imports"), sp("Exports"), sp("Net imports"), sp("Primary supply")
+    abh = [[int(zahl(x[0])), round(zahl(x[iA]) * 100, 1)] for x in zeilen if zahl(x[iA]) is not None]
+    z = zeilen[-1]
+    t = xlsx_zeilen(b, "Table 1.3b annual by fuel")
+    jahr_kopf = {i: zahl(c) for i, c in enumerate(t[3]) if zahl(c)}
+    start = max(jahr_kopf, key=lambda i: jahr_kopf[i]); jahr = int(jahr_kopf[start])
+    namen = [str(c).strip().split(" [")[0] for c in t[4][start:start + 10]]
+    zeil = {str(x[0]).strip().split(" [")[0]: x for x in t[5:31] if x}
+    brenn = []
+    for i, n in enumerate(namen):
+        g = lambda key: zahl(zeil[key][start + i]) or 0.0
+        brenn.append({"k": n, "n": BILANZ_DE.get(n, n), "prod": round(g("Indigenous production")), "imp": round(g("Imports")), "exp": round(-g("Exports")), "bedarf": round(g("Primary demand"))})
+    ges = next(x for x in brenn if x["k"] == "Total")
+    brenn = [x for x in brenn if x["k"] not in ("Total", "Heat sold", "Manufactured fuels") and (x["prod"] or x["imp"] or x["exp"])]
+    def verschmelzen(keys, name, neu_k):
+        te = [x for x in brenn if x["k"] in keys]
+        if len(te) != len(keys): return
+        m = {"k": neu_k, "n": name, "prod": sum(x["prod"] for x in te), "imp": sum(x["imp"] for x in te), "exp": sum(x["exp"] for x in te), "bedarf": sum(x["bedarf"] for x in te)}
+        i = brenn.index(te[0]); brenn[:] = [x for x in brenn if x["k"] not in keys]; brenn.insert(i, m)
+    verschmelzen(("Primary oil", "Petroleum products"), "Erdöl und Mineralölprodukte", "Oil")
+    verschmelzen(("Primary electricity", "Electricity"), "Strom (Primärstrom und Kabelhandel)", "Power")
+    return {"jahr": jahr, "einheit": "ktoe", "gesamt": {"prod": ges["prod"], "imp": ges["imp"], "exp": ges["exp"], "netto": round(zahl(z[iN])), "abh": round(zahl(z[iA]) * 100, 1), "primaer": round(zahl(z[iP]))},
+            "brennstoffe": brenn, "abh_reihe": abh, "url": url,
+            "quelle": "DESNZ, Energy Trends Tabelle 1.3 (Supply and use of fuels, jährlich), Einheit: tausend Tonnen Öl-Äquivalent",
+            "link": "https://www.gov.uk/government/statistics/total-energy-section-1-energy-trends"}
+
+def kopplung():
+    """Netto-Stromimporte je Stromkabel-Land und Auslastung (DESNZ DUKES Tabelle 5.13, GWh)."""
+    j = json.loads(get(DUKES_EL_API))
+    url = [a["url"] for a in j["details"]["attachments"] if "5.13" in a.get("title", "")][0]
+    r = xlsx_zeilen(bytes_holen(url), "5.13")
+    kopf = r[5]; zeilen = [x for x in r[6:] if x and zahl(x[0]) is not None]
+    z = zeilen[-1]; vor = zeilen[-2] if len(zeilen) > 1 else None
+    out = []
+    for i, h in enumerate(kopf):
+        h = str(h)
+        if h.startswith("Net imports") and i < len(z) and zahl(z[i]) is not None:
+            m = re.search(r"\(([^)]*?) to ([^)]*?)\)", h)
+            ausl = (m.group(1) if m and m.group(2) in ("UK", "the UK") else (m.group(2) if m else h))
+            auslastung = zahl(z[i + 1]) if i + 1 < len(z) else None
+            out.append({"n": h, "netto": round(zahl(z[i])), "vor": round(zahl(vor[i])) if vor and zahl(vor[i]) is not None else None, "auslastung": round(auslastung * 100) if auslastung is not None and auslastung <= 1.5 else None})
+    if not out: raise ValueError("Stromkabel ohne Daten")
+    return {"jahr": int(zahl(z[0])), "kabel": out, "url": url, "quelle": "DESNZ, DUKES Tabelle 5.13 (Net imports and utilisation of interconnectors), GWh",
+            "link": "https://www.gov.uk/government/statistics/electricity-chapter-5-digest-of-united-kingdom-energy-statistics-dukes"}
+
+def umwelt():
+    fehler = []
+    d = {}
+    def teil(k, f):
+        try: d[k] = f()
+        except Exception as e: fehler.append(k + ": " + str(e)[:70]); print("FEHLER Umwelt", k, e)
+    teil("jetzt", ci_aktuell)
+    teil("historie", ci_historie)
+    teil("strom", strommix)
+    teil("ghg", ghg_reihen)
+    teil("bilanz", energiebilanz)
+    teil("kopplung", kopplung)
+    teil("temp", lambda: met_reihe("Tmean"))
+    teil("regen", lambda: met_reihe("Rainfall"))
+    if not d.get("ghg") or not d.get("strom") or len(fehler) > 3: raise ValueError("Umwelt unvollstaendig: " + "; ".join(fehler))
+    d["fehler"] = fehler
+    d["stand"] = (d.get("temp") or d.get("regen") or [["", 0]])[-1][0]
+    return d
+
 def neue_ereignisse(alt, sitze, posten, berichte, heute):
     ev = []
     if not alt or "_zustand" not in alt:
@@ -963,10 +1135,12 @@ def holen(alt=None):
         daten["handel"] = handel()
     def vb_():
         daten["verbraucher"] = verbraucher()
-    for n, fn in [("mpc", j), ("inflation", k_), ("finanz", f_), ("arbeitsmarkt", am_), ("wirtschaft", wi_), ("handel", ha_), ("verbraucher", vb_), ("bankrate", a), ("sonia", b), ("gilts", c), ("pfund", d_), ("cpi", e), ("alq", f), ("parlament", g), ("boe_berichte", h), ("boe_termine", i)]: teil(n, fn)
+    def um_():
+        daten["umwelt"] = umwelt()
+    for n, fn in [("mpc", j), ("inflation", k_), ("finanz", f_), ("arbeitsmarkt", am_), ("wirtschaft", wi_), ("handel", ha_), ("verbraucher", vb_), ("umwelt", um_), ("bankrate", a), ("sonia", b), ("gilts", c), ("pfund", d_), ("cpi", e), ("alq", f), ("parlament", g), ("boe_berichte", h), ("boe_termine", i)]: teil(n, fn)
     # letzten guten Stand uebernehmen, wenn ein Teil ausgefallen ist
     if alt:
-        for k in ("bankrate", "_letzteTageBank", "sonia", "gilt5", "gilt10", "gilt20", "gbpusd", "gbpeur", "cpi", "alq", "sitze", "posten", "_berichte", "_termine", "mpc", "inflation", "finanz", "wirtschaft", "handel", "arbeitsmarkt", "verbraucher"):
+        for k in ("bankrate", "_letzteTageBank", "sonia", "gilt5", "gilt10", "gilt20", "gbpusd", "gbpeur", "cpi", "alq", "sitze", "posten", "_berichte", "_termine", "mpc", "inflation", "finanz", "wirtschaft", "handel", "arbeitsmarkt", "verbraucher", "umwelt"):
             if k not in daten and k in alt: daten[k] = alt[k]
     ev_alt = list((alt or {}).get("ereignisse", []))
     ev_neu = neue_ereignisse(alt, daten.get("sitze", []), daten.get("posten", []), daten.get("_berichte", []), heute) if daten.get("sitze") else []
