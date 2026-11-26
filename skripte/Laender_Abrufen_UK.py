@@ -1068,6 +1068,118 @@ def umwelt():
     d["stand"] = (d.get("temp") or d.get("regen") or [["", 0]])[-1][0]
     return d
 
+# ---------------- Immobilien (Oberthema 11) ----------------
+IM_REGIONEN = [("K02000001", "United Kingdom", "Vereinigtes Königreich"), ("E92000001", "England", "England"), ("S92000003", "Scotland", "Schottland"),
+               ("W92000004", "Wales", "Wales"), ("N92000002", "Northern Ireland", "Nordirland"), ("E12000001", "North East", "Nordosten"),
+               ("E12000002", "North West", "Nordwesten"), ("E12000003", "Yorkshire and The Humber", "Yorkshire und Humber"), ("E12000004", "East Midlands", "East Midlands"),
+               ("E12000005", "West Midlands", "West Midlands"), ("E12000006", "East of England", "Osten Englands"), ("E12000007", "London", "London"),
+               ("E12000008", "South East", "Südosten"), ("E12000009", "South West", "Südwesten")]
+ONS_DATEN_SEITE = "https://www.ons.gov.uk/economy/inflationandpriceindices/datasets/priceindexofprivaterentsukmonthlypricestatistics"
+
+def _num(x):
+    try: return round(float(x), 2)
+    except (TypeError, ValueError): return None
+
+def im_hpi():
+    """HM Land Registry UK HPI (Gesamtdatei): Preise, Veraenderung, Verkaeufe, Kaeufergruppen nach Land und Region."""
+    import csv, io
+    heute = datetime.date.today()
+    txt = None
+    for k in range(0, 6):
+        m = heute.month - k; j = heute.year
+        while m < 1: m += 12; j -= 1
+        url = "https://publicdata.landregistry.gov.uk/market-trend-data/house-price-index-data/UK-HPI-full-file-%04d-%02d.csv" % (j, m)
+        try:
+            txt = bytes_holen(url, 2).decode("utf-8", "replace"); datei = url; break
+        except Exception:
+            continue
+    if txt is None: raise ValueError("HPI-Gesamtdatei nicht gefunden")
+    namen = {n: (code, de) for code, n, de in IM_REGIONEN}
+    out = {}
+    for z in csv.DictReader(io.StringIO(txt)):
+        n = z["RegionName"]
+        if n not in namen: continue
+        d = datetime.datetime.strptime(z["Date"], "%d/%m/%Y").strftime("%Y-%m-%d")
+        if d < "2005-01-01": continue
+        o = out.setdefault(n, {"code": namen[n][0], "n": namen[n][1], "preis": [], "j": [], "vol": [], "typ": {}, "kaeufer": {}})
+        for key, feld in (("preis", "AveragePrice"), ("j", "12m%Change"), ("vol", "SalesVolume")):
+            v = _num(z.get(feld))
+            if v is not None and (key == "preis" or d >= "2015-01-01"): o[key].append([d, v])
+        if d < "2015-01-01" or o["code"] not in ("K02000001", "E92000001", "S92000003", "W92000004", "N92000002", "E12000007"): continue
+        for k2, feld in (("detached", "DetachedPrice"), ("semi", "SemiDetachedPrice"), ("terraced", "TerracedPrice"), ("flat", "FlatPrice")):
+            v = _num(z.get(feld))
+            if v is not None: o["typ"].setdefault(k2, []).append([d, v])
+        for k2, feld in (("erstkaeufer", "FTBPrice"), ("bestand", "FOOPrice"), ("bar", "CashPrice"), ("hypothek", "MortgagePrice"), ("neubau", "NewPrice"), ("altbau", "OldPrice")):
+            v = _num(z.get(feld))
+            if v is not None: o["kaeufer"].setdefault(k2, []).append([d, v])
+    if len(out) < 10: raise ValueError("HPI: zu wenige Regionen")
+    return {"datei": datei, "regionen": [out[n] for _, n, _ in IM_REGIONEN if n in out]}
+
+def im_mieten():
+    """ONS Price Index of Private Rents (neueste Datei von der Datensatzseite)."""
+    seite = get(ONS_DATEN_SEITE)
+    links = re.findall(r'href="(/file\?uri=[^"]*/(\d{1,2})([a-z]+)(\d{4})/[^"]*\.xlsx)"', seite)
+    MM = {"january": 1, "february": 2, "march": 3, "april": 4, "may": 5, "june": 6, "july": 7, "august": 8, "september": 9, "october": 10, "november": 11, "december": 12}
+    kand = []
+    for l, t, mo, j in links:
+        if mo in MM: kand.append(((int(j), MM[mo], int(t)), l))
+    if not kand: raise ValueError("Mieten-Datei nicht gefunden")
+    kand.sort(); datei = "https://www.ons.gov.uk" + kand[-1][1].replace("&amp;", "&")
+    rows = xlsx_zeilen(bytes_holen(datei, 3), "Table 1")
+    codes = {c: (n, de) for c, n, de in IM_REGIONEN}
+    out = {}
+    for r in rows[3:]:
+        if len(r) < 8 or r[1] not in codes: continue
+        try: d = (datetime.date(1899, 12, 30) + datetime.timedelta(days=int(r[0]))).strftime("%Y-%m-01")
+        except Exception: continue
+        o = out.setdefault(r[1], {"code": r[1], "n": codes[r[1]][0], "preis": [], "j": [], "index": [], "zimmer": {}})
+        v = _num(r[7]); i = _num(r[4]); a = _num(r[6])
+        if v is not None: o["preis"].append([d, v])
+        if a is not None: o["j"].append([d, a])
+        if o["code"] == "K02000001":
+            for nm, ix in (("1", 11), ("2", 15), ("3", 19), ("4+", 23)):
+                w = _num(r[ix]) if len(r) > ix else None
+                if w is not None: o["zimmer"].setdefault(nm, []).append([d, w])
+    if len(out) < 10: raise ValueError("Mieten: zu wenige Regionen")
+    return {"datei": datei, "regionen": [out[c] for c, _, _ in IM_REGIONEN if c in out]}
+
+def im_bezahlbar():
+    """ONS: Verhaeltnis Hauspreis zu Einkommen (Median und unteres Quartil), England und Wales, Regionen, jaehrlich."""
+    d = bytes_holen("https://www.ons.gov.uk/file?uri=/peoplepopulationandcommunity/housing/datasets/ratioofhousepricetoworkplacebasedearningslowerquartileandmedian/current/aff1ratioofhousepricetoworkplacebasedearnings.xlsx", 3)
+    out = {}
+    for blatt, key in (("1c", "median"), ("2c", "quartil")):
+        rows = xlsx_zeilen(d, blatt)
+        kopf = next(r for r in rows if r and r[0] == "Code")
+        jahre = [(i, k) for i, k in enumerate(kopf) if isinstance(k, str) and re.fullmatch(r"\d{4}", k)]
+        for r in rows:
+            if not r or not isinstance(r[0], str) or not re.fullmatch(r"[KEWSN]\d{8}", r[0]): continue
+            e = out.setdefault(r[0], {"code": r[0], "n": r[1], "median": [], "quartil": []})
+            for i, jj in jahre:
+                v = _num(r[i]) if i < len(r) else None
+                if v is not None: e[key].append([jj + "-01-01", v])
+    if len(out) < 8: raise ValueError("Bezahlbarkeit: zu wenige Zeilen")
+    return {"regionen": list(out.values())}
+
+def immobilien():
+    fehler, d = {}, {}
+    def t(name, f):
+        try: d[name] = f()
+        except Exception as e: fehler[name] = str(e)[:120]; print("FEHLER immobilien", name, e)
+    def zins():
+        c = [("fix2_75", "IUMBV34"), ("fix3_75", "IUMBV37"), ("fix5_75", "IUMBV42"), ("fix10_75", "IUMBV45"), ("fix2_60", "IUMZICQ"), ("fix2_90", "IUMB482")]
+        r = boe([x[1] for x in c])
+        o = {k: monatsende(r[i]) for i, (k, _) in enumerate(c)}
+        if not o["fix2_75"] or not o["fix5_75"]: raise ValueError("Hypothekenzinsen leer")
+        return o
+    def kredit():
+        r = boe(["LPMVTVX", "LPMB4B3"])
+        if not r[0]: raise ValueError("Genehmigungen leer")
+        return {"kauf": monatsende(r[0]), "refin": monatsende(r[1])}
+    t("zins", zins); t("kredit", kredit); t("hpi", im_hpi); t("miete", im_mieten); t("bezahl", im_bezahlbar)
+    d["fehler"] = fehler
+    d["stand"] = datetime.date.today().isoformat()
+    return d
+
 def neue_ereignisse(alt, sitze, posten, berichte, heute):
     ev = []
     if not alt or "_zustand" not in alt:
@@ -1137,10 +1249,12 @@ def holen(alt=None):
         daten["verbraucher"] = verbraucher()
     def um_():
         daten["umwelt"] = umwelt()
-    for n, fn in [("mpc", j), ("inflation", k_), ("finanz", f_), ("arbeitsmarkt", am_), ("wirtschaft", wi_), ("handel", ha_), ("verbraucher", vb_), ("umwelt", um_), ("bankrate", a), ("sonia", b), ("gilts", c), ("pfund", d_), ("cpi", e), ("alq", f), ("parlament", g), ("boe_berichte", h), ("boe_termine", i)]: teil(n, fn)
+    def im_():
+        daten["immobilien"] = immobilien()
+    for n, fn in [("mpc", j), ("inflation", k_), ("finanz", f_), ("arbeitsmarkt", am_), ("wirtschaft", wi_), ("handel", ha_), ("verbraucher", vb_), ("umwelt", um_), ("immobilien", im_), ("bankrate", a), ("sonia", b), ("gilts", c), ("pfund", d_), ("cpi", e), ("alq", f), ("parlament", g), ("boe_berichte", h), ("boe_termine", i)]: teil(n, fn)
     # letzten guten Stand uebernehmen, wenn ein Teil ausgefallen ist
     if alt:
-        for k in ("bankrate", "_letzteTageBank", "sonia", "gilt5", "gilt10", "gilt20", "gbpusd", "gbpeur", "cpi", "alq", "sitze", "posten", "_berichte", "_termine", "mpc", "inflation", "finanz", "wirtschaft", "handel", "arbeitsmarkt", "verbraucher", "umwelt"):
+        for k in ("bankrate", "_letzteTageBank", "sonia", "gilt5", "gilt10", "gilt20", "gbpusd", "gbpeur", "cpi", "alq", "sitze", "posten", "_berichte", "_termine", "mpc", "inflation", "finanz", "wirtschaft", "handel", "arbeitsmarkt", "verbraucher", "umwelt", "immobilien"):
             if k not in daten and k in alt: daten[k] = alt[k]
     ev_alt = list((alt or {}).get("ereignisse", []))
     ev_neu = neue_ereignisse(alt, daten.get("sitze", []), daten.get("posten", []), daten.get("_berichte", []), heute) if daten.get("sitze") else []
