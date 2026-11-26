@@ -1,0 +1,235 @@
+<!DOCTYPE html>
+<html lang="de"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>ENTWURF · UK Immobilien (Layout-Vorlage)</title>
+<style>
+:root{
+  --flaeche:#fcfcfb; --ebene:#f9f9f7; --text:#0b0b0b; --text2:#52514e; --stumm:#898781;
+  --raster:#e1e0d9; --achse:#c3c2b7; --rand:rgba(11,11,11,.10);
+  --c1:#2f6f9f; --c2:#6b4f8a; --c3:#3d7a56; --c4:#8a5a2b; --cb:#52514e;
+  --h1:#e6f0f7; --hb:#efeee9;
+  --gut:#006300; --warn:#b97a00; --schatten:0 1px 2px rgba(11,11,11,.04),0 4px 16px rgba(11,11,11,.06);
+  color-scheme:light;
+}
+:root[data-theme="dark"]{
+  --flaeche:#1a1a19; --ebene:#0d0d0d; --text:#fff; --text2:#c3c2b7; --stumm:#898781;
+  --raster:#2c2c2a; --achse:#383835; --rand:rgba(255,255,255,.12);
+  --c1:#5fa0d3; --c2:#ab8fd0; --c3:#56b27d; --c4:#d39a5a; --cb:#c3c2b7;
+  --h1:#16222c; --hb:#232321;
+  --gut:#0ca30c; --warn:#fab219; --schatten:none; color-scheme:dark;
+}
+*{box-sizing:border-box}
+body{margin:0;padding:0 20px 56px;background:var(--ebene);color:var(--text);font-family:system-ui,-apple-system,"Segoe UI",sans-serif;font-size:15px;line-height:1.5}
+.wrap{max-width:1280px;margin:0 auto}
+header{padding:20px 0 6px;display:flex;gap:16px;justify-content:space-between;align-items:flex-start;flex-wrap:wrap}
+h1{margin:0;font-size:21px;font-weight:650}
+.unter{color:var(--text2);font-size:13px}
+.entwurf{display:inline-block;margin-left:8px;padding:1px 8px;border-radius:99px;border:1px solid var(--warn);color:var(--warn);font-size:12px;font-weight:600;vertical-align:middle}
+.tool{font:inherit;font-size:13px;background:var(--flaeche);color:var(--text);border:1px solid var(--rand);border-radius:8px;padding:6px 12px;cursor:pointer}
+.zurueck-knopf{display:inline-flex;align-items:center;gap:8px;font-size:14.5px;font-weight:600;color:var(--text);text-decoration:none;background:var(--flaeche);border:1.5px solid var(--achse);border-radius:12px;padding:8px 16px;margin-bottom:10px;box-shadow:var(--schatten)}
+.zurueck-knopf:hover{border-color:var(--text)}
+.legende{display:flex;gap:16px;flex-wrap:wrap;font-size:12px;color:var(--text2);margin:6px 0 12px}
+.pkt{width:8px;height:8px;border-radius:50%;display:inline-block;margin-right:5px}.pkt.auto{background:var(--gut)}.pkt.man{background:var(--stumm)}
+/* Wichtig-Kasten */
+.wichtig{display:flex;gap:12px;background:var(--flaeche);border:1px solid var(--rand);border-left:6px solid var(--warn);border-radius:10px;padding:10px 14px;margin:10px 0 14px;box-shadow:var(--schatten)}
+.wichtig .wi{flex:none;width:26px;height:26px;border-radius:50%;background:var(--warn);color:#fff;font-weight:800;display:flex;align-items:center;justify-content:center;font-size:15px;margin-top:2px}
+:root[data-theme="dark"] .wichtig .wi{color:#111}
+.wichtig b.wt{display:block;font-size:12px;text-transform:uppercase;letter-spacing:.06em;color:var(--warn);margin-bottom:2px}
+.wichtig p{margin:0;font-size:14px}
+.wichtig .qq{font-size:11.5px;color:var(--stumm);margin-top:3px}
+/* Kacheln */
+.k{all:unset;box-sizing:border-box;display:block;width:100%;cursor:pointer;background:var(--flaeche);border:1px solid var(--rand);border-radius:9px;padding:9px 11px 8px;box-shadow:var(--schatten);transition:transform .15s,border-color .15s}
+.k:hover{transform:translateY(-1px);border-color:var(--c)}.k:focus-visible{outline:2px solid var(--c);outline-offset:2px}
+.kt{display:flex;justify-content:space-between;align-items:baseline;gap:6px}
+.kn{font-size:12.5px;color:var(--text2);font-weight:600}
+.kd{font-size:11px;color:var(--stumm);white-space:nowrap}
+.kw{font-size:23px;font-weight:700;line-height:1.15;font-variant-numeric:tabular-nums;margin-top:1px}
+.ks{font-size:11.8px;color:var(--text2);margin-top:1px}
+.spark{display:block;width:100%;height:30px;margin-top:3px}
+.k.offen{opacity:.8;border-style:dashed;cursor:default}.k.offen .kw{font-size:15px;color:var(--stumm)}
+.c1{--c:var(--c1)}.c2{--c:var(--c2)}.c3{--c:var(--c3)}.c4{--c:var(--c4)}.cb{--c:var(--cb)}
+.band{background:var(--hb);border:1px solid var(--rand);border-radius:12px;padding:8px 10px 10px;margin-bottom:14px}
+.bandkopf{font-size:12px;font-weight:700;color:var(--text2);text-transform:uppercase;letter-spacing:.05em;margin:2px 2px 6px}
+.bandinhalt{display:grid;grid-template-columns:repeat(4,1fr);gap:10px}
+/* Verstaendnis */
+.versteh{background:var(--flaeche);border:1px solid var(--rand);border-radius:12px;padding:6px 18px 14px;box-shadow:var(--schatten);margin-bottom:14px}
+.versteh>h2{margin:12px 0 2px;font-size:17px}
+.versteh .lead{margin:0 0 8px;color:var(--text2);font-size:13.5px}
+.versteh details{border-top:1px solid var(--raster);padding:6px 0}
+.versteh details:first-of-type{border-top:0}
+.versteh summary{cursor:pointer;font-weight:650;font-size:14.5px;padding:4px 0;list-style:none}
+.versteh summary::-webkit-details-marker{display:none}
+.versteh summary:before{content:"▸";display:inline-block;width:18px;color:var(--text2);transition:transform .15s}
+.versteh details[open]>summary:before{transform:rotate(90deg)}
+.versteh summary:focus-visible{outline:2px solid var(--text);outline-offset:2px;border-radius:4px}
+.versteh .inh{padding:2px 0 6px 18px;font-size:14px}
+.versteh ul{margin:4px 0;padding-left:20px}.versteh li{margin:3px 0}
+.dia{background:#0c1220;border:1px solid #26334b;border-radius:14px;padding:8px;margin:8px 0 4px}
+.dia svg{width:100%;height:auto;display:block}
+.dia text{font-family:inherit}
+.dia .nt{font-size:13px;font-weight:700;fill:#0b1620}.dia .ns{font-size:11px;fill:#16303f}
+.dia .lab{font-size:11.5px;fill:#eaf0fb;paint-order:stroke;stroke:#0c1220;stroke-width:5px;stroke-linejoin:round}
+.dia .zt{font-size:12px;fill:#9fb0c8;letter-spacing:.08em;text-transform:uppercase}
+.dia .nd,.dia .fl{cursor:pointer;outline:none}
+.dia .nd:hover rect,.dia .nd:hover polygon,.dia .nd:focus-visible rect,.dia .nd.on rect,.dia .nd.on polygon{stroke:#fff;stroke-width:3.5}
+.dia .fl:hover .l,.dia .fl.on .l{stroke-width:6}
+.leg{font-size:12.5px;color:var(--text2);margin:2px 0 4px}
+.info{background:var(--ebene);border:1px solid var(--rand);border-left:4px solid var(--c1);border-radius:8px;padding:8px 12px;font-size:13.5px;min-height:44px;margin-top:6px}
+/* Unterthemen */
+.ut{display:grid;grid-template-columns:repeat(2,1fr);gap:12px;margin-bottom:14px}
+.ut section{background:var(--flaeche);border:1px solid var(--rand);border-top:4px solid var(--c);border-radius:10px;padding:10px 14px 12px;box-shadow:var(--schatten)}
+.ut h3{margin:0 0 4px;font-size:15px}.ut h3 span{color:var(--c);margin-right:6px}
+.ut p,.ut li{font-size:13.5px;margin:3px 0}.ut ul{margin:4px 0;padding-left:18px}
+.tb{width:100%;border-collapse:collapse;font-size:13px;margin-top:6px}.tb th{text-align:left;font-size:11.5px;color:var(--text2);border-bottom:1px solid var(--rand);padding:3px 6px 3px 0}.tb td{padding:4px 6px 4px 0;border-bottom:1px solid var(--raster)}.tb td.hk{font-weight:700;color:var(--warn)}
+.ut .offenhin{font-size:12.5px;color:var(--warn);border-left:3px solid var(--warn);padding:2px 8px;margin-top:6px}
+.ut .wichtig{margin:8px 0 2px;padding:7px 10px}.ut .wichtig p{font-size:13px}
+/* Gilt-Kachel */
+.gilt{all:unset;box-sizing:border-box;display:block;width:100%;cursor:pointer;background:var(--flaeche);border:1px solid var(--rand);border-left:8px solid var(--c4);border-radius:12px;padding:16px 20px;box-shadow:var(--schatten);margin-bottom:14px;transition:transform .15s,border-color .15s}
+.gilt:hover{transform:translateY(-1px);border-color:var(--c4)}.gilt:focus-visible{outline:2px solid var(--c4);outline-offset:2px}
+.gilt h2{margin:0 0 2px;font-size:19px}.gilt .gs{color:var(--text2);font-size:13.5px}
+.gilt .gz{display:flex;gap:28px;flex-wrap:wrap;margin:10px 0 6px}
+.gilt .gz div b{display:block;font-size:26px;font-variant-numeric:tabular-nums}.gilt .gz div span{font-size:12px;color:var(--text2)}
+.gilt .oeffnen{display:inline-block;background:var(--text);color:var(--flaeche);border-radius:8px;padding:5px 14px;font-size:13px;font-weight:650}
+/* Zeitstrahl */
+.panel{background:var(--flaeche);border:1px solid var(--rand);border-radius:12px;padding:10px 16px 14px;box-shadow:var(--schatten);margin-bottom:14px}
+.panel h2{margin:4px 0 2px;font-size:17px}
+.ev{display:flex;gap:10px;padding:5px 0;border-top:1px solid var(--raster);font-size:13px}
+.ev:first-of-type{border-top:0}.ev .d{width:92px;font-weight:650;flex:none}
+.termine{background:var(--flaeche);border:1px solid var(--rand);border-radius:10px;padding:10px 14px;box-shadow:var(--schatten);margin-bottom:14px}
+.termine h2{margin:0 0 4px;font-size:13px;color:var(--text2);text-transform:uppercase;letter-spacing:.05em}
+.fuss{margin-top:6px;font-size:11.5px;color:var(--stumm)}
+/* Drawer + Overlay */
+#schatten{position:fixed;inset:0;background:rgba(0,0,0,.35);opacity:0;pointer-events:none;transition:opacity .2s;z-index:20}
+#schatten.offen{opacity:1;pointer-events:auto}
+#drawer{position:fixed;top:0;right:0;height:100%;width:min(580px,100%);background:var(--flaeche);border-left:1px solid var(--rand);box-shadow:-8px 0 30px rgba(0,0,0,.18);transform:translateX(100%);transition:transform .22s ease;z-index:21;overflow-y:auto}
+#drawer.offen{transform:none}
+#gp{position:fixed;inset:3vh 3vw;background:var(--flaeche);border:1px solid var(--rand);border-radius:14px;box-shadow:0 20px 60px rgba(0,0,0,.4);z-index:22;overflow-y:auto;display:none}
+#gp.offen{display:block}
+.dk{position:sticky;top:0;background:var(--flaeche);border-bottom:1px solid var(--rand);border-top:4px solid var(--c,var(--c1));padding:14px 18px 10px;display:flex;justify-content:space-between;gap:10px;align-items:flex-start;z-index:2}
+.dk h2{margin:0;font-size:18px}.dk .gr{font-size:12px;color:var(--c,var(--c1));text-transform:uppercase;letter-spacing:.05em;font-weight:700}
+.zu{all:unset;cursor:pointer;font-size:24px;line-height:1;padding:2px 10px;border-radius:6px;color:var(--text2)}.zu:hover{background:var(--raster)}.zu:focus-visible{outline:2px solid var(--text)}
+.db{padding:14px 18px 40px}
+.gross{font-size:34px;font-weight:700;font-variant-numeric:tabular-nums;line-height:1.1}
+.gsub{font-size:13px;color:var(--text2);margin-bottom:8px}
+.btns{display:flex;gap:6px;margin:6px 0 4px;flex-wrap:wrap}
+.btn{font:inherit;font-size:12px;background:var(--ebene);color:var(--text);border:1px solid var(--rand);border-radius:7px;padding:3px 10px;cursor:pointer}
+.btn[aria-pressed="true"]{background:var(--text);color:var(--flaeche);border-color:var(--text)}
+svg.chart{width:100%;height:auto;display:block;touch-action:none}
+.tip{font-size:12.5px;color:var(--text2);min-height:18px;margin-bottom:4px;font-variant-numeric:tabular-nums}
+.db h3{font-size:12px;text-transform:uppercase;letter-spacing:.05em;color:var(--text2);margin:18px 0 4px}
+.db p{margin:0 0 8px;font-size:14px}
+.db table{width:100%;border-collapse:collapse;font-size:13px}
+.db td{padding:5px 8px 5px 0;border-bottom:1px solid var(--raster);vertical-align:top}
+.db .hin{background:var(--ebene);border-left:3px solid var(--warn);border-radius:4px;padding:6px 10px;font-size:13px;color:var(--text2)}
+.db a{color:inherit}
+.tabs{display:flex;gap:6px;margin:0 0 10px;flex-wrap:wrap}
+.tab{font:inherit;font-size:13.5px;font-weight:600;background:var(--ebene);color:var(--text);border:1px solid var(--rand);border-radius:8px;padding:6px 14px;cursor:pointer}
+.tab[aria-selected="true"]{background:var(--text);color:var(--flaeche)}
+.schritt{all:unset;box-sizing:border-box;display:block;width:100%;cursor:pointer;background:var(--ebene);border:1px solid var(--rand);border-left:5px solid var(--c4);border-radius:9px;padding:8px 12px;margin:8px 0}
+.schritt:hover,.schritt[aria-expanded="true"]{border-color:var(--c4)}
+.schritt b{display:block;font-size:14px}.schritt .sd{font-size:12px;color:var(--c4);font-weight:700}
+.schritt .st{display:none;font-size:13.5px;margin-top:4px;color:var(--text2)}.schritt[aria-expanded="true"] .st{display:block}
+@media (max-width:980px){.bandinhalt{grid-template-columns:repeat(2,1fr)}.ut{grid-template-columns:1fr}}
+@media (prefers-reduced-motion:reduce){#drawer,#schatten,.k{transition:none}}
+
+.vgl{width:100%;border-collapse:collapse;font-size:13px;margin:6px 0}.vgl th,.vgl td{border:1px solid var(--raster);padding:6px 8px;text-align:left;vertical-align:top}.vgl th{background:var(--hb);font-size:12px}
+.vgl td.o{color:var(--stumm);font-style:italic}
+.kern{margin:4px 0;padding-left:22px}.kern li{margin:4px 0}
+.struktur{background:var(--flaeche);border:1px solid var(--rand);border-radius:12px;padding:12px 14px;box-shadow:var(--schatten);margin-bottom:14px}
+.sek{font-size:15px;margin:18px 0 6px}.sek small{display:block;font-weight:400;color:var(--text2);font-size:12.5px}
+.k.offen{cursor:default}.k.offen .kw{font-size:14px;color:var(--stumm)}
+.quelle{font-size:11px;color:var(--stumm);margin-top:3px}
+.fluss text{font-family:inherit;fill:var(--text)}.fluss .b{fill:var(--flaeche);stroke:var(--achse);stroke-width:1.4}
+.fluss .t2{fill:var(--text2);font-size:11.5px}.fluss .t1{font-size:13px;font-weight:650}
+.fluss .pf{fill:none;stroke:var(--achse);stroke-width:1.8;marker-end:url(#pfeil)}
+.fluss .rot{stroke:var(--warn)}
+.zl{border-left:3px solid var(--achse);margin:6px 0 4px 6px;padding-left:12px;font-size:13px}.zl div{margin:5px 0}.zl b{color:var(--text2)}
+.hinweis{background:var(--hb);border:1px dashed var(--achse);border-radius:10px;padding:8px 12px;font-size:12.5px;color:var(--text2);margin:8px 0 14px}
+.kartenplatz{height:170px;border:1.5px dashed var(--achse);border-radius:10px;display:flex;align-items:center;justify-content:center;color:var(--stumm);font-size:13px;text-align:center;padding:10px}
+.bandinhalt{grid-template-columns:repeat(4,1fr)}@media(max-width:980px){.bandinhalt{grid-template-columns:1fr 1fr}}
+
+</style></head><body><div class="wrap">
+<header><div>
+ <a href="uk.html" class="zurueck-knopf">← Vereinigtes Königreich, alle Oberthemen</a>
+ <h1>Vereinigtes Königreich – Immobilien und Wohnen <span class="entwurf">Layout-Vorlage, ohne Zahlen</span></h1>
+ <div class="unter">Länderanalyse, Oberthema 11 · Daten und Fakten, keine Bewertung · Zahlen kommen erst nach deiner Freigabe des Aufbaus · Schwerpunkt Wohnen</div>
+</div><button class="tool" id="theme" type="button">Dunkel / Hell</button></header>
+
+<div class="legende"><span><i class="pkt auto"></i>später aus Abruf (ONS, Bank of England, HMRC, Landesämter)</span><span><i class="pkt man"></i>später von Hand mit Quelle</span><span>Kacheln mit „Wert folgt“ sind Platzhalter, keine echten Zahlen</span></div>
+
+<div class="wichtig"><div class="wi">!</div><div><b class="wt">Wichtig: Kurze Festzinsen machen den Immobilienmarkt zinsempfindlich</b>
+<p>Britische Hypotheken haben meist nur 2 bis 5 Jahre Festzins. Danach gilt ein neuer Zins. Steigt oder sinkt der Leitzins, kommt das deshalb schnell bei den Haushalten an. Bei Steuern und Mietrecht sind Schottland, Wales und Nordirland eigene Wege gegangen, deshalb werden sie dort einzeln gezeigt.</p>
+<div class="qq">Aus allgemeinem Wissen geschrieben, jede Aussage wird vor Freigabe mit einer Quelle belegt.</div></div></div>
+
+<section class="versteh"><h2>Zuerst verstehen: Wie Wohnen in UK finanziert wird</h2>
+<p class="lead">Die meisten Haushalte kaufen mit einer Hypothek. Banken und Bausparkassen verleihen das Geld, Vermittler bringen beide zusammen, Vermieter und Sozialwohnungsträger stellen Mietwohnungen, der Staat setzt Steuern und Regeln.</p>
+<details open><summary>Die Grundidee in sieben Punkten</summary><div class="inh"><ol class="kern">
+<li><b>Eigentum:</b> Etwa zwei Drittel der Haushalte wohnen im Eigentum (Zahl wird belegt).</li>
+<li><b>Hypothek:</b> Meist 2 oder 5 Jahre fest, danach neuer Zins (Anschlussfinanzierung). Der Zins richtet sich nach dem Leitzins der Bank of England und den Marktzinsen.</li>
+<li><b>Kreditgeber:</b> Große Banken und Bausparkassen (Building Societies), Vermittler (Broker) sind zwischengeschaltet.</li>
+<li><b>Mietmarkt:</b> Privatvermieter, dazu Sozialwohnungen von Kommunen und Housing Associations.</li>
+<li><b>Angebot:</b> Neubau hängt von Planungsrecht, Baufirmen und Kosten ab.</li>
+<li><b>Steuern beim Kauf:</b> Stamp Duty (England, Nordirland), LBTT (Schottland), LTT (Wales).</li>
+<li><b>Regionen:</b> Große Preisunterschiede zwischen London und Südosten und dem Rest des Landes.</li></ol></div></details>
+<details open><summary>Die Landesteile im Vergleich</summary><div class="inh"><table class="vgl">
+<tr><th></th><th>England</th><th>Schottland</th><th>Wales</th><th>Nordirland</th></tr>
+<tr><td>Kaufsteuer</td><td>Stamp Duty Land Tax</td><td>LBTT</td><td>LTT</td><td>Stamp Duty Land Tax</td></tr>
+<tr><td>Stufen und Freibeträge</td><td class="o">folgt (gov.uk)</td><td class="o">folgt</td><td class="o">folgt</td><td class="o">folgt</td></tr>
+<tr><td>Mietrecht</td><td class="o">folgt</td><td class="o">folgt</td><td class="o">folgt</td><td class="o">folgt</td></tr>
+<tr><td>Durchschnittlicher Hauspreis</td><td class="o">folgt (ONS)</td><td class="o">folgt</td><td class="o">folgt</td><td class="o">folgt</td></tr>
+<tr><td>Durchschnittsmiete</td><td class="o">folgt</td><td class="o">folgt</td><td class="o">folgt</td><td class="o">folgt</td></tr>
+</table><p class="quelle">Die Zahlen werden je Landesteil mit Quelle eingetragen, Unterschiede in der Messung stehen dabei.</p></div></details>
+</section>
+
+<h2 class="sek">Der Kreislauf der Wohnungsfinanzierung<small>Das System mit allen Akteuren, ohne aktuelle Zahlen (später klickbar mit Erklärung und Quelle)</small></h2>
+<div class="struktur"><svg class="fluss" viewBox="0 0 1100 400" role="img" aria-label="Kreislauf der Wohnungsfinanzierung in UK">
+<defs><marker id="pfeil" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M0,0L10,5L0,10z" fill="#898781"/></marker></defs>
+<rect class="b" x="10" y="150" width="170" height="80" rx="10"/><text class="t1" x="95" y="183" text-anchor="middle">Bank of England</text><text class="t2" x="95" y="202" text-anchor="middle">Leitzins</text>
+<rect class="b" x="260" y="150" width="190" height="80" rx="10"/><text class="t1" x="355" y="183" text-anchor="middle">Banken, Bausparkassen</text><text class="t2" x="355" y="202" text-anchor="middle">Hypothekenzinsen</text>
+<rect class="b" x="260" y="290" width="190" height="80" rx="10"/><text class="t1" x="355" y="323" text-anchor="middle">Vermittler (Broker)</text><text class="t2" x="355" y="342" text-anchor="middle">Beratung, Produkte</text>
+<rect class="b" x="540" y="150" width="190" height="80" rx="10"/><text class="t1" x="635" y="183" text-anchor="middle">Käufer (Haushalte)</text><text class="t2" x="635" y="202" text-anchor="middle">Eigentum, Erstkäufer</text>
+<rect class="b" x="540" y="20" width="190" height="80" rx="10"/><text class="t1" x="635" y="53" text-anchor="middle">Staat</text><text class="t2" x="635" y="72" text-anchor="middle">Steuern, Regeln, Förderung</text>
+<rect class="b" x="540" y="290" width="190" height="80" rx="10"/><text class="t1" x="635" y="323" text-anchor="middle">Bauwirtschaft</text><text class="t2" x="635" y="342" text-anchor="middle">Neubau, Planung</text>
+<rect class="b" x="820" y="150" width="190" height="80" rx="10"/><text class="t1" x="915" y="183" text-anchor="middle">Mietmarkt</text><text class="t2" x="915" y="202" text-anchor="middle">Private, Sozialwohnungen</text>
+<path class="pf" d="M180 190 L258 190"/><path class="pf" d="M355 290 L355 232"/><path class="pf" d="M450 190 L538 190"/><path class="pf" d="M635 100 L635 148"/><path class="pf" d="M635 290 L635 232"/><path class="pf" d="M730 190 L818 190"/>
+</svg>
+<p class="quelle">Die Pfeile und Kästen werden mit dir noch festgelegt. Nicht im Bild: Gewerbeimmobilien (bewusst ausgelassen, Schwerpunkt Wohnen).</p></div>
+
+<h2 class="sek">Der Hypothekenkanal: wie der Leitzins bei den Haushalten ankommt<small>Eigenes Schaubild (aus der Festlegung bei der Bank of England: Hypothekenkanal tief), Anteile und Zahlen folgen</small></h2>
+<div class="struktur"><svg class="fluss" viewBox="0 0 1100 220" role="img" aria-label="Hypothekenkanal">
+<rect class="b" x="10" y="70" width="190" height="80" rx="10"/><text class="t1" x="105" y="103" text-anchor="middle">Leitzins</text><text class="t2" x="105" y="122" text-anchor="middle">Bank Rate, Beschluss</text>
+<rect class="b" x="260" y="70" width="190" height="80" rx="10"/><text class="t1" x="355" y="103" text-anchor="middle">Marktzinsen</text><text class="t2" x="355" y="122" text-anchor="middle">Swap-Sätze, Staatsanleihen</text>
+<rect class="b" x="510" y="70" width="190" height="80" rx="10"/><text class="t1" x="605" y="103" text-anchor="middle">Neue Hypothekenzinsen</text><text class="t2" x="605" y="122" text-anchor="middle">2 und 5 Jahre fest</text>
+<rect class="b" x="760" y="10" width="190" height="80" rx="10"/><text class="t1" x="855" y="43" text-anchor="middle">Neue Käufer</text><text class="t2" x="855" y="62" text-anchor="middle">Anteil folgt</text>
+<rect class="b" x="760" y="130" width="190" height="80" rx="10"/><text class="t1" x="855" y="163" text-anchor="middle">Auslaufende Festzinsen</text><text class="t2" x="855" y="182" text-anchor="middle">Anteil folgt</text>
+<path class="pf" d="M200 110 L258 110"/><path class="pf" d="M450 110 L508 110"/><path class="pf" d="M700 100 L758 60"/><path class="pf" d="M700 120 L758 160"/>
+</svg>
+<p class="quelle">Das Schaubild zeigt nur den Weg. Die Verteilung der Hypotheken nach Festzins-Laufzeit und der Anteil, der pro Jahr ausläuft, kommen aus Bank of England und UK Finance.</p></div>
+
+<h2 class="sek">Regionen: Hauspreise auf der Landkarte<small>Platzhalter für die Landkarte (aus der Festlegung: Karte bei Wirtschaft und Immobilien)</small></h2>
+<div class="struktur"><div class="kartenplatz">Landkarte der Regionen (England-Regionen, Schottland, Wales, Nordirland) mit Hauspreis, Veränderung und Miete je Region, Klick zeigt Verlauf</div></div>
+
+<h2 class="sek">Die Lage in Kennzahlen<small>Alle Kacheln sind Platzhalter mit der geplanten Quelle</small></h2>
+<div class="band"><div class="bandkopf">Zinsen und Finanzierung</div><div class="bandinhalt"><div class="k offen" style="--c:var(--c1)"><div class="kt"><span class="kn">Hypothekenzins 2 Jahre fest</span><span class="kd">Entwurf</span></div><div class="kw">Wert folgt</div><div class="ks">Quelle: Bank of England (Effective Interest Rates)</div></div><div class="k offen" style="--c:var(--c1)"><div class="kt"><span class="kn">Hypothekenzins 5 Jahre fest</span><span class="kd">Entwurf</span></div><div class="kw">Wert folgt</div><div class="ks">Quelle: Bank of England (Effective Interest Rates)</div></div><div class="k offen" style="--c:var(--c1)"><div class="kt"><span class="kn">Festzins-Hypotheken, die in 12 Monaten auslaufen</span><span class="kd">Entwurf</span></div><div class="kw">Wert folgt</div><div class="ks">Quelle: UK Finance, Bank of England (Financial Stability Report)</div></div><div class="k offen" style="--c:var(--c1)"><div class="kt"><span class="kn">Neue Hypotheken: Genehmigungen (Anzahl)</span><span class="kd">Entwurf</span></div><div class="kw">Wert folgt</div><div class="ks">Quelle: Bank of England (Money and Credit)</div></div><div class="k offen" style="--c:var(--c1)"><div class="kt"><span class="kn">Neue Hypotheken: Volumen</span><span class="kd">Entwurf</span></div><div class="kw">Wert folgt</div><div class="ks">Quelle: UK Finance, Bank of England</div></div><div class="k offen" style="--c:var(--c1)"><div class="kt"><span class="kn">Hypothekenbestand der Haushalte</span><span class="kd">Entwurf</span></div><div class="kw">Wert folgt</div><div class="ks">Quelle: Bank of England</div></div><div class="k offen" style="--c:var(--c1)"><div class="kt"><span class="kn">Zahlungsrückstände bei Hypotheken</span><span class="kd">Entwurf</span></div><div class="kw">Wert folgt</div><div class="ks">Quelle: UK Finance, FCA</div></div><div class="k offen" style="--c:var(--c1)"><div class="kt"><span class="kn">Zwangsräumungen / Rückgabe von Immobilien</span><span class="kd">Entwurf</span></div><div class="kw">Wert folgt</div><div class="ks">Quelle: UK Finance, Ministry of Justice</div></div></div></div><div class="band"><div class="bandkopf">Preise</div><div class="bandinhalt"><div class="k offen" style="--c:var(--c2)"><div class="kt"><span class="kn">Hauspreisindex UK (Veränderung zum Vorjahr)</span><span class="kd">Entwurf</span></div><div class="kw">Wert folgt</div><div class="ks">Quelle: ONS (UK House Price Index), HM Land Registry</div></div><div class="k offen" style="--c:var(--c2)"><div class="kt"><span class="kn">Durchschnittlicher Hauspreis je Landesteil</span><span class="kd">Entwurf</span></div><div class="kw">Wert folgt</div><div class="ks">Quelle: ONS, Registers of Scotland, Land Registry</div></div><div class="k offen" style="--c:var(--c2)"><div class="kt"><span class="kn">Verhältnis Hauspreis zu Einkommen</span><span class="kd">Entwurf</span></div><div class="kw">Wert folgt</div><div class="ks">Quelle: ONS (Housing affordability)</div></div><div class="k offen" style="--c:var(--c2)"><div class="kt"><span class="kn">Preise London und Südosten</span><span class="kd">Entwurf</span></div><div class="kw">Wert folgt</div><div class="ks">Quelle: ONS</div></div><div class="k offen" style="--c:var(--c2)"><div class="kt"><span class="kn">Preise Norden, Midlands, Wales, Schottland, Nordirland</span><span class="kd">Entwurf</span></div><div class="kw">Wert folgt</div><div class="ks">Quelle: ONS</div></div><div class="k offen" style="--c:var(--c2)"><div class="kt"><span class="kn">Preisindex von Banken (Nationwide, Halifax)</span><span class="kd">Entwurf</span></div><div class="kw">Wert folgt</div><div class="ks">Quelle: Nationwide, Halifax (von Hand, mit Datum)</div></div></div></div><div class="band"><div class="bandkopf">Angebot und Bau</div><div class="bandinhalt"><div class="k offen" style="--c:var(--c3)"><div class="kt"><span class="kn">Baubeginne Wohnungen</span><span class="kd">Entwurf</span></div><div class="kw">Wert folgt</div><div class="ks">Quelle: MHCLG (Housing supply, England), Landesämter</div></div><div class="k offen" style="--c:var(--c3)"><div class="kt"><span class="kn">Fertigstellungen Wohnungen</span><span class="kd">Entwurf</span></div><div class="kw">Wert folgt</div><div class="ks">Quelle: MHCLG, Landesämter</div></div><div class="k offen" style="--c:var(--c3)"><div class="kt"><span class="kn">Baugenehmigungen</span><span class="kd">Entwurf</span></div><div class="kw">Wert folgt</div><div class="ks">Quelle: MHCLG, Landesämter</div></div><div class="k offen" style="--c:var(--c3)"><div class="kt"><span class="kn">Bauproduktion (Wohnungsbau)</span><span class="kd">Entwurf</span></div><div class="kw">Wert folgt</div><div class="ks">Quelle: ONS (Output in the construction industry)</div></div><div class="k offen" style="--c:var(--c3)"><div class="kt"><span class="kn">Neu gebaute Sozialwohnungen</span><span class="kd">Entwurf</span></div><div class="kw">Wert folgt</div><div class="ks">Quelle: MHCLG</div></div><div class="k offen" style="--c:var(--c3)"><div class="kt"><span class="kn">Zielvorgabe der Regierung (Neubauten)</span><span class="kd">Entwurf</span></div><div class="kw">Wert folgt</div><div class="ks">Quelle: gov.uk (von Hand, Stand prüfen)</div></div></div></div><div class="band"><div class="bandkopf">Nachfrage und Umsatz</div><div class="bandinhalt"><div class="k offen" style="--c:var(--c4)"><div class="kt"><span class="kn">Verkäufe (Transaktionen) pro Monat</span><span class="kd">Entwurf</span></div><div class="kw">Wert folgt</div><div class="ks">Quelle: HMRC Property Transactions</div></div><div class="k offen" style="--c:var(--c4)"><div class="kt"><span class="kn">Erstkäufer (Anteil und Anzahl)</span><span class="kd">Entwurf</span></div><div class="kw">Wert folgt</div><div class="ks">Quelle: UK Finance</div></div><div class="k offen" style="--c:var(--c4)"><div class="kt"><span class="kn">Kaufinteresse / Angebotspreise</span><span class="kd">Entwurf</span></div><div class="kw">Wert folgt</div><div class="ks">Quelle: Rightmove (von Hand, mit Datum, falls frei)</div></div><div class="k offen" style="--c:var(--c4)"><div class="kt"><span class="kn">Anteil Barkäufer</span><span class="kd">Entwurf</span></div><div class="kw">Wert folgt</div><div class="ks">Quelle: ONS, UK Finance</div></div></div></div><div class="band"><div class="bandkopf">Mieten und Wohnkosten</div><div class="bandinhalt"><div class="k offen" style="--c:var(--c1)"><div class="kt"><span class="kn">Privatmieten (Veränderung zum Vorjahr)</span><span class="kd">Entwurf</span></div><div class="kw">Wert folgt</div><div class="ks">Quelle: ONS (Price Index of Private Rents)</div></div><div class="k offen" style="--c:var(--c1)"><div class="kt"><span class="kn">Durchschnittsmiete je Landesteil</span><span class="kd">Entwurf</span></div><div class="kw">Wert folgt</div><div class="ks">Quelle: ONS</div></div><div class="k offen" style="--c:var(--c1)"><div class="kt"><span class="kn">Mietanteil am Einkommen</span><span class="kd">Entwurf</span></div><div class="kw">Wert folgt</div><div class="ks">Quelle: ONS, English Housing Survey</div></div><div class="k offen" style="--c:var(--c1)"><div class="kt"><span class="kn">Haushalte nach Wohnform (Eigentum, Miete, Sozialwohnung)</span><span class="kd">Entwurf</span></div><div class="kw">Wert folgt</div><div class="ks">Quelle: English Housing Survey, Landesämter</div></div><div class="k offen" style="--c:var(--c1)"><div class="kt"><span class="kn">Wohnungslosigkeit</span><span class="kd">Entwurf</span></div><div class="kw">Wert folgt</div><div class="ks">Quelle: MHCLG, Landesämter</div></div><div class="k offen" style="--c:var(--c1)"><div class="kt"><span class="kn">Wohngeld / Housing Benefit</span><span class="kd">Entwurf</span></div><div class="kw">Wert folgt</div><div class="ks">Quelle: DWP</div></div></div></div><div class="band"><div class="bandkopf">Steuern und Politik in Kürze</div><div class="bandinhalt"><div class="k offen" style="--c:var(--c2)"><div class="kt"><span class="kn">Stamp Duty England und Nordirland (Stufen)</span><span class="kd">Entwurf</span></div><div class="kw">Wert folgt</div><div class="ks">Quelle: gov.uk (von Hand, Stand prüfen)</div></div><div class="k offen" style="--c:var(--c2)"><div class="kt"><span class="kn">LBTT Schottland (Stufen)</span><span class="kd">Entwurf</span></div><div class="kw">Wert folgt</div><div class="ks">Quelle: Revenue Scotland (von Hand)</div></div><div class="k offen" style="--c:var(--c2)"><div class="kt"><span class="kn">LTT Wales (Stufen)</span><span class="kd">Entwurf</span></div><div class="kw">Wert folgt</div><div class="ks">Quelle: Welsh Revenue Authority (von Hand)</div></div><div class="k offen" style="--c:var(--c2)"><div class="kt"><span class="kn">Mietrechtsreform</span><span class="kd">Entwurf</span></div><div class="kw">Wert folgt</div><div class="ks">Quelle: gov.uk (von Hand)</div></div></div></div>
+
+<h2 class="sek">Politik und Regulierung<small>Zeitleiste von Hand gepflegt, mit Quelle je Eintrag (hier nur das geplante Gerüst)</small></h2>
+<div class="struktur"><div class="zl">
+<div><b>Platzhalter:</b> Änderungen bei Stamp Duty und den Steuern in Schottland und Wales</div>
+<div><b>Platzhalter:</b> Mietrechtsreform und Rechte der Mieter</div>
+<div><b>Platzhalter:</b> Förderprogramme und Zielvorgaben für den Neubau</div>
+<div><b>Platzhalter:</b> Planungsrecht und Bauvorschriften</div></div></div>
+
+<h2 class="sek">Die größten Unternehmen nach Sparte<small>Umsatz und Ergebnis des letzten Geschäftsjahres aus den Geschäftsberichten (später)</small></h2>
+<div class="struktur"><table class="vgl">
+<tr><th>Sparte</th><th>Beispiele</th></tr>
+<tr><td>Wohnungsbau</td><td class="o">folgt (Namen, Umsatz, Ergebnis)</td></tr>
+<tr><td>Banken und Bausparkassen mit Hypothekengeschäft</td><td class="o">folgt</td></tr>
+<tr><td>Makler und Immobilienportale</td><td class="o">folgt</td></tr>
+<tr><td>Wohnungsvermieter, Housing Associations</td><td class="o">folgt</td></tr>
+</table></div>
+
+<div class="hinweis"><b>Fragen an dich:</b> Passt die Reihenfolge (Verstehen, Kreislauf, Hypothekenkanal, Karte, Kennzahlen, Politik, Unternehmen)? Fehlt eine Kachel oder soll eine raus? Fehlt im Kreislauf ein Akteur (zum Beispiel Versicherer, Anleger/Investoren, Gemeinden)? Ist die Unternehmens-Tabelle gewünscht (wie bei den USA)?</div>
+<div class="fuss">Geplante Quellen: ONS, HM Land Registry, Bank of England, UK Finance, HMRC, MHCLG, Registers of Scotland, Revenue Scotland, Welsh Revenue Authority, DWP.</div>
+</div>
+<script>
+document.getElementById("theme").onclick=function(){var r=document.documentElement;r.dataset.theme=r.dataset.theme==="dark"?"light":"dark"};
+</script></body></html>
