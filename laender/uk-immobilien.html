@@ -30,10 +30,10 @@ h1{margin:0;font-size:21px;font-weight:650}
 .legende{display:flex;gap:16px;flex-wrap:wrap;font-size:12px;color:var(--text2);margin:6px 0 12px}
 .pkt{width:8px;height:8px;border-radius:50%;display:inline-block;margin-right:5px}.pkt.auto{background:var(--gut)}.pkt.man{background:var(--stumm)}
 /* Wichtig-Kasten */
-.wichtig{display:flex;gap:12px;background:var(--flaeche);border:1px solid var(--rand);border-left:6px solid var(--warn);border-radius:10px;padding:10px 14px;margin:10px 0 14px;box-shadow:var(--schatten)}
-.wichtig .wi{flex:none;width:26px;height:26px;border-radius:50%;background:var(--warn);color:#fff;font-weight:800;display:flex;align-items:center;justify-content:center;font-size:15px;margin-top:2px}
+.wichtig{display:flex;gap:12px;background:var(--flaeche);border:1px solid var(--rand);border-left:6px solid var(--info-farbe,var(--warn));background-image:linear-gradient(var(--info-bg,transparent),var(--info-bg,transparent));border-radius:10px;padding:10px 14px;margin:10px 0 14px;box-shadow:var(--schatten)}
+.wichtig .wi{flex:none;width:26px;height:26px;border-radius:50%;background:var(--info-farbe,var(--warn));color:#fff;font-weight:800;display:flex;align-items:center;justify-content:center;font-size:15px;margin-top:2px}
 :root[data-theme="dark"] .wichtig .wi{color:#111}
-.wichtig b.wt{display:block;font-size:12px;text-transform:uppercase;letter-spacing:.06em;color:var(--warn);margin-bottom:2px}
+.wichtig b.wt{display:block;font-size:12px;text-transform:uppercase;letter-spacing:.06em;color:var(--info-farbe,var(--warn));margin-bottom:2px}
 .wichtig p{margin:0;font-size:14px}
 .wichtig .qq{font-size:11.5px;color:var(--stumm);margin-top:3px}
 /* Kacheln */
@@ -159,7 +159,8 @@ svg.chart{width:100%;height:auto;display:block;touch-action:none}
 .rg tr.klick{cursor:pointer}.rg tr.klick:hover td{background:var(--hb)}
 .fluss .t2{font-size:11.5px}
 .zt td{padding:4px 8px 4px 0}
-</style></head><body><div class="wrap">
+</style><script src="infokasten.js?v=1"></script>
+</head><body><div class="wrap">
 <header><div>
  <a href="uk.html" class="zurueck-knopf">← Vereinigtes Königreich, alle Oberthemen</a>
  <h1>Vereinigtes Königreich – Immobilien und Wohnen</h1>
@@ -168,9 +169,7 @@ svg.chart{width:100%;height:auto;display:block;touch-action:none}
 
 <div class="legende"><span><i class="pkt auto"></i>aus Abruf (Bank of England, Land Registry, ONS), Datum in jeder Kachel</span><span><i class="pkt man"></i>von Hand eingetragen (mit Quelle)</span><span>Kacheln anklicken: Verlauf, Einordnung, Quelle · gestrichelt: noch ohne Abruf</span></div>
 
-<div class="wichtig"><div class="wi">!</div><div><b class="wt">Wichtig: Kurze Festzinsen machen den Immobilienmarkt zinsempfindlich</b>
-<p>Britische Hypotheken haben meist nur 2 bis 5 Jahre Festzins. Danach gilt ein neuer Zins. Steigt oder sinkt der Leitzins, kommt das deshalb schnell bei den Haushalten an. Bei Steuern und Mietrecht sind Schottland, Wales und Nordirland eigene Wege gegangen, deshalb werden sie dort einzeln gezeigt.</p>
-<div class="qq">Aus allgemeinem Wissen geschrieben, jede Aussage wird vor Freigabe mit einer Quelle belegt.</div></div></div>
+<div id="ik1"></div><script>infokasten("#ik1",{"titel": "Kurze Festzinsen machen den Immobilienmarkt zinsempfindlich", "satz": "Britische Hypotheken laufen meist nur 2 bis 5 Jahre fest, deshalb kommen Zinsänderungen schnell bei den Haushalten an.", "kacheln": [["2 bis 5 Jahre", "übliche Zinsbindung britischer Hypotheken, danach gilt ein neuer Zins"], ["3 Landesteile", "Schottland, Wales und Nordirland gehen bei Steuern und Mietrecht eigene Wege und werden hier einzeln gezeigt"]], "quelle": "Aus allgemeinem Wissen geschrieben, jede Aussage wird vor Freigabe mit einer Quelle belegt."});</script>
 
 <section class="versteh"><h2>Zuerst verstehen: Wie Wohnen in UK finanziert wird</h2>
 <p class="lead">Die meisten Haushalte kaufen mit einer Hypothek. Banken und Bausparkassen verleihen das Geld, Vermittler bringen beide zusammen, Vermieter und Sozialwohnungsträger stellen Mietwohnungen, der Staat setzt Steuern und Regeln.</p>

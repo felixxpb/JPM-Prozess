@@ -33,10 +33,10 @@ h1{margin:0;font-size:21px;font-weight:650}
 .legende{display:flex;gap:16px;flex-wrap:wrap;font-size:12px;color:var(--text2);margin:6px 0 12px}
 .pkt{width:8px;height:8px;border-radius:50%;display:inline-block;margin-right:5px}.pkt.auto{background:var(--gut)}.pkt.man{background:var(--stumm)}
 /* Wichtig-Kasten */
-.wichtig{display:flex;gap:12px;background:var(--flaeche);border:1px solid var(--rand);border-left:6px solid var(--warn);border-radius:10px;padding:10px 14px;margin:10px 0 14px;box-shadow:var(--schatten)}
-.wichtig .wi{flex:none;width:26px;height:26px;border-radius:50%;background:var(--warn);color:#fff;font-weight:800;display:flex;align-items:center;justify-content:center;font-size:15px;margin-top:2px}
+.wichtig{display:flex;gap:12px;background:var(--flaeche);border:1px solid var(--rand);border-left:6px solid var(--info-farbe,var(--warn));background-image:linear-gradient(var(--info-bg,transparent),var(--info-bg,transparent));border-radius:10px;padding:10px 14px;margin:10px 0 14px;box-shadow:var(--schatten)}
+.wichtig .wi{flex:none;width:26px;height:26px;border-radius:50%;background:var(--info-farbe,var(--warn));color:#fff;font-weight:800;display:flex;align-items:center;justify-content:center;font-size:15px;margin-top:2px}
 :root[data-theme="dark"] .wichtig .wi{color:#111}
-.wichtig b.wt{display:block;font-size:12px;text-transform:uppercase;letter-spacing:.06em;color:var(--warn);margin-bottom:2px}
+.wichtig b.wt{display:block;font-size:12px;text-transform:uppercase;letter-spacing:.06em;color:var(--info-farbe,var(--warn));margin-bottom:2px}
 .wichtig p{margin:0;font-size:14px}
 .wichtig .qq{font-size:11.5px;color:var(--stumm);margin-top:3px}
 /* Kacheln */
@@ -212,6 +212,7 @@ svg.chart{width:100%;height:auto;display:block;touch-action:none}
 .zeitl th,.zeitl td{padding:6px 8px;border-bottom:1px solid var(--rand);text-align:left;vertical-align:top}
 .zeitl td.dt{white-space:nowrap;font-weight:700;width:110px}
 </style>
+<script src="infokasten.js?v=1"></script>
 </head>
 <body>
 <div class="wrap">
@@ -229,11 +230,7 @@ svg.chart{width:100%;height:auto;display:block;touch-action:none}
   <span>Kuchenstücke, Balken und Kacheln anklicken: Einordnung, Chart, Quelle</span>
 </div>
 
-<div class="wichtig"><div class="wi">!</div><div>
-  <b class="wt">Wichtig: Energie und Klima im Vereinigten Königreich</b>
-  <p id="wichtigtext"></p>
-  <div class="qq">Quellen: DESNZ (Energy Trends, Treibhausgas-Statistik), NESO Carbon Intensity API, Met Office; Kohleausstieg und Kohlenstoffbudget: Presse und Climate Change Committee (siehe Kacheln unten).</div>
-</div></div>
+<div id="ik1"></div>
 
 <h2 style="font-size:15px;margin:18px 0 6px">Eigenproduktion und Importe: woher die Energie kommt</h2>
 <div class="struktur" id="eb-box"></div>
@@ -599,7 +596,14 @@ function texte(M,E){
  wi.push("<b>Kohle:</b> seit 30.09.2024 keine Kohleverstromung mehr (Presse).");
  wi.push("<b>Gesetz:</b> Netto-Null bis 2050, siebtes Kohlenstoffbudget 535 Mt CO2e für 2038–2042 (laut Presse beschlossen).");
  wi.push("<b>Haushalte:</b> Ofgem-Preisdeckel quartalsweise, typischer Haushalt 1.723 £ pro Jahr (Okt–Dez 2026).");
- $("#wichtigtext").innerHTML=wi.join(" · ");
+ infokasten("#ik1",{titel:"Energie und Klima im Vereinigten Königreich",
+ satz:"Der Strom kommt vor allem aus Gas und Wind, die Emissionen sinken seit 1990, und der Staat steuert über gesetzliche Budgets.",
+ kacheln:[].concat(
+  M?[[m("Gas")+" / "+m("Wind"),"Anteil Gas / Wind an der Stromerzeugung ("+M.jahr+", DESNZ); Kernkraft "+m("Kernkraft")+", Kohle "+m("Kohle")]]:[],
+  gl?[[minus,"unter dem Treibhausgas-Wert von 1990 ("+gl[0]+", vorläufig)"]]:[],
+  [["535 Mt CO2e","siebtes Kohlenstoffbudget für 2038–2042, Netto-Null bis 2050 (laut Presse beschlossen)"],
+   ["1.723 £","Ofgem-Preisdeckel pro Jahr für den typischen Haushalt (Okt–Dez 2026), quartalsweise festgelegt"]]),
+ quelle:"Kohle: seit 30.09.2024 keine Kohleverstromung mehr (Presse). "+"Quellen: DESNZ (Energy Trends, Treibhausgas-Statistik), NESO Carbon Intensity API, Met Office; Kohleausstieg und Kohlenstoffbudget: Presse und Climate Change Committee (siehe Kacheln unten)."});
  $("#unter").textContent="Länderanalyse, Oberthema 9 · Daten und Fakten, keine Bewertung · Stand der Daten: Wetter "+mon(UM.stand)+(window.UK_DATEN&&window.UK_DATEN.umwelt?" (automatischer Abruf)":", eingebetteter Stand");
 }
 

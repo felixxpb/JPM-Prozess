@@ -33,10 +33,10 @@ h1{margin:0;font-size:21px;font-weight:650}
 .legende{display:flex;gap:16px;flex-wrap:wrap;font-size:12px;color:var(--text2);margin:6px 0 12px}
 .pkt{width:8px;height:8px;border-radius:50%;display:inline-block;margin-right:5px}.pkt.auto{background:var(--gut)}.pkt.man{background:var(--stumm)}
 /* Wichtig-Kasten */
-.wichtig{display:flex;gap:12px;background:var(--flaeche);border:1px solid var(--rand);border-left:6px solid var(--warn);border-radius:10px;padding:10px 14px;margin:10px 0 14px;box-shadow:var(--schatten)}
-.wichtig .wi{flex:none;width:26px;height:26px;border-radius:50%;background:var(--warn);color:#fff;font-weight:800;display:flex;align-items:center;justify-content:center;font-size:15px;margin-top:2px}
+.wichtig{display:flex;gap:12px;background:var(--flaeche);border:1px solid var(--rand);border-left:6px solid var(--info-farbe,var(--warn));background-image:linear-gradient(var(--info-bg,transparent),var(--info-bg,transparent));border-radius:10px;padding:10px 14px;margin:10px 0 14px;box-shadow:var(--schatten)}
+.wichtig .wi{flex:none;width:26px;height:26px;border-radius:50%;background:var(--info-farbe,var(--warn));color:#fff;font-weight:800;display:flex;align-items:center;justify-content:center;font-size:15px;margin-top:2px}
 :root[data-theme="dark"] .wichtig .wi{color:#111}
-.wichtig b.wt{display:block;font-size:12px;text-transform:uppercase;letter-spacing:.06em;color:var(--warn);margin-bottom:2px}
+.wichtig b.wt{display:block;font-size:12px;text-transform:uppercase;letter-spacing:.06em;color:var(--info-farbe,var(--warn));margin-bottom:2px}
 .wichtig p{margin:0;font-size:14px}
 .wichtig .qq{font-size:11.5px;color:var(--stumm);margin-top:3px}
 /* Kacheln */
@@ -209,6 +209,7 @@ svg.chart{width:100%;height:auto;display:block;touch-action:none}
 .gk button{all:unset;cursor:pointer;box-sizing:border-box;border:1px solid var(--rand);border-radius:10px;padding:10px 12px;background:var(--flaeche)}.gk button:hover,.gk button:focus-visible{border-color:var(--text)}
 .gk b{display:block;font-size:13.5px}.gk span{font-size:12.5px;color:var(--text2)}.gk .lk{color:var(--warn,#b45309);font-weight:600}
 </style>
+<script src="infokasten.js?v=1"></script>
 </head>
 <body data-flagge="../bilder/flaggen/uk.jpg">
 <div class="wrap">
@@ -226,11 +227,7 @@ svg.chart{width:100%;height:auto;display:block;touch-action:none}
   <span>Linien, Kuchenstücke, Balken und Kacheln anklicken: Einordnung, Chart, Quelle</span>
 </div>
 
-<div class="wichtig"><div class="wi">!</div><div>
-  <b class="wt">Wichtig: Charakter des britischen Handels</b>
-  <p id="wichtigtext"></p>
-  <div class="qq">Quellen: HMRC (uktradeinfo), ONS (Zahlungsbilanz, Handel mit Dienstleistungen).</div>
-</div></div>
+<div id="ik1"></div>
 
 <section class="versteh" aria-labelledby="vt">
   <h2 id="vt">Zuerst verstehen: Wie der britische Handel gemessen wird</h2>
@@ -589,7 +586,13 @@ function texte(){
  const R=HD.reihen,L=k=>letzte(R[k].r);
  const ei=SUM("imp"),ex=SUM("exp"),euI=PART.imp.filter(x=>x.eu).reduce((a,x)=>a+x.v,0),euE=PART.exp.filter(x=>x.eu).reduce((a,x)=>a+x.v,0);
  const topE=PART.exp[0],topI=PART.imp[0];
- $("#wichtigtext").innerHTML="<b>Warenhandel mit Defizit:</b> In den zwölf Monaten bis "+mon(HD.stand)+" standen Warenimporten von "+mrd(ei)+" Exporte von "+mrd(ex)+" gegenüber (ohne Gold), ein Defizit von "+mrd(ei-ex)+". · <b>Dienstleistungen mit Überschuss:</b> "+pf(L("dienst_saldo")[1]/1000,1)+" Mrd. £ im Quartal ("+perL(L("dienst_saldo")[0],R.dienst_saldo.r)+"). · <b>EU wichtigster Handelsraum:</b> "+pf(euE/ex*100,1)+" % der Warenexporte gehen in die EU, "+pf(euI/ei*100,1)+" % der Warenimporte kommen von dort. · <b>Größte Einzelpartner:</b> bei den Exporten "+dn(topE.n)+" ("+pf(topE.v/ex*100,1)+" %), bei den Importen "+dn(topI.n)+" ("+pf(topI.v/ei*100,1)+" %). · <b>Gold verzerrt die Zahlen:</b> nicht monetäres Gold ("+mrd((HD.gold&&HD.gold.imp||[0])[0])+" Importe, "+mrd((HD.gold&&HD.gold.exp||[0])[0])+" Exporte) ist herausgerechnet, sonst würden die Schweiz und andere Goldpartner das Bild bestimmen. · Das Leistungsbilanzdefizit lag zuletzt bei "+pf(-L("leistung")[1]/1000,1)+" Mrd. £ im Quartal.";
+ infokasten("#ik1",{titel:"Charakter des britischen Handels",
+ satz:"Das Vereinigte Königreich hat ein Defizit im Warenhandel und einen Überschuss bei Dienstleistungen, die EU ist der wichtigste Handelsraum.",
+ kacheln:[[mrd(ei-ex),"Defizit im Warenhandel in den zwölf Monaten bis "+mon(HD.stand)+" (Importe "+mrd(ei)+", Exporte "+mrd(ex)+", ohne Gold)"],
+ [pf(L("dienst_saldo")[1]/1000,1)+" Mrd. £","Überschuss im Dienstleistungshandel im Quartal ("+perL(L("dienst_saldo")[0],R.dienst_saldo.r)+")"],
+ [pf(euE/ex*100,1)+" %","der Warenexporte gehen in die EU, "+pf(euI/ei*100,1)+" % der Warenimporte kommen von dort"],
+ [dn(topE.n)+" "+pf(topE.v/ex*100,1)+" %","größter Einzelpartner bei den Exporten; bei den Importen "+dn(topI.n)+" ("+pf(topI.v/ei*100,1)+" %)"]],
+ quelle:"Nicht monetäres Gold ("+mrd((HD.gold&&HD.gold.imp||[0])[0])+" Importe, "+mrd((HD.gold&&HD.gold.exp||[0])[0])+" Exporte) ist herausgerechnet, sonst würden die Schweiz und andere Goldpartner das Bild bestimmen. Leistungsbilanzdefizit zuletzt "+pf(-L("leistung")[1]/1000,1)+" Mrd. £ im Quartal. "+"Quellen: HMRC (uktradeinfo), ONS (Zahlungsbilanz, Handel mit Dienstleistungen)."});
  $("#unter").textContent="Länderanalyse, Oberthema 5 · Daten und Fakten, keine Bewertung · Stand der Daten: Waren "+mon(HD.stand)+(DATA.handel===HD&&window.UK_DATEN&&window.UK_DATEN.handel?" (automatischer Abruf)":", eingebetteter Stand");
 }
 

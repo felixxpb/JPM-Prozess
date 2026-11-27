@@ -33,10 +33,10 @@ h1{margin:0;font-size:21px;font-weight:650}
 .legende{display:flex;gap:16px;flex-wrap:wrap;font-size:12px;color:var(--text2);margin:6px 0 12px}
 .pkt{width:8px;height:8px;border-radius:50%;display:inline-block;margin-right:5px}.pkt.auto{background:var(--gut)}.pkt.man{background:var(--stumm)}
 /* Wichtig-Kasten */
-.wichtig{display:flex;gap:12px;background:var(--flaeche);border:1px solid var(--rand);border-left:6px solid var(--warn);border-radius:10px;padding:10px 14px;margin:10px 0 14px;box-shadow:var(--schatten)}
-.wichtig .wi{flex:none;width:26px;height:26px;border-radius:50%;background:var(--warn);color:#fff;font-weight:800;display:flex;align-items:center;justify-content:center;font-size:15px;margin-top:2px}
+.wichtig{display:flex;gap:12px;background:var(--flaeche);border:1px solid var(--rand);border-left:6px solid var(--info-farbe,var(--warn));background-image:linear-gradient(var(--info-bg,transparent),var(--info-bg,transparent));border-radius:10px;padding:10px 14px;margin:10px 0 14px;box-shadow:var(--schatten)}
+.wichtig .wi{flex:none;width:26px;height:26px;border-radius:50%;background:var(--info-farbe,var(--warn));color:#fff;font-weight:800;display:flex;align-items:center;justify-content:center;font-size:15px;margin-top:2px}
 :root[data-theme="dark"] .wichtig .wi{color:#111}
-.wichtig b.wt{display:block;font-size:12px;text-transform:uppercase;letter-spacing:.06em;color:var(--warn);margin-bottom:2px}
+.wichtig b.wt{display:block;font-size:12px;text-transform:uppercase;letter-spacing:.06em;color:var(--info-farbe,var(--warn));margin-bottom:2px}
 .wichtig p{margin:0;font-size:14px}
 .wichtig .qq{font-size:11.5px;color:var(--stumm);margin-top:3px}
 /* Kacheln */
@@ -190,6 +190,7 @@ svg.chart{width:100%;height:auto;display:block;touch-action:none}
 @media(max-width:980px){.migk{grid-template-columns:1fr}}
 .k.hand{border-style:dashed}
 </style>
+<script src="infokasten.js?v=1"></script>
 </head>
 <body>
 <div class="wrap">
@@ -207,11 +208,7 @@ svg.chart{width:100%;height:auto;display:block;touch-action:none}
   <span>Kuchenstücke, Balken und Kacheln anklicken: Einordnung, Chart, Quelle</span>
 </div>
 
-<div class="wichtig"><div class="wi">!</div><div>
-  <b class="wt">Wichtig: Charakter des britischen Verbrauchers</b>
-  <p id="wichtigtext"></p>
-  <div class="qq">Quellen: ONS (Consumer Trends, Quarterly National Accounts, Retail Sales), Ofgem, Bank of England; Wohneigentum England: Regierungsstatistik (English Housing Survey).</div>
-</div></div>
+<div id="ik1"></div>
 
 <section class="versteh" aria-labelledby="vt">
   <h2 id="vt">Zuerst verstehen: Wie britische Haushalte Einkommen, Stimmung, Konsum und Schulden verbinden</h2>
@@ -514,7 +511,13 @@ function texte(B){
   +'<div><b>Zinsen und Energiepreise kommen direkt an</b>Hypotheken laufen meist 2 oder 5 Jahre fest, danach gilt der aktuelle Zins. Strom und Gas sind per Ofgem-Deckel vierteljährlich festgelegt. Beides steht in den Kacheln „Britische Besonderheiten“.</div>'
   +'<div><b>Verbindung zu anderen Oberthemen</b>Inflationserwartungen stehen auch in Oberthema 6 (Inflation), das Einkommen hängt am Arbeitsmarkt (Oberthema 7), die Zinsen auf Kredite an der Bank of England (Oberthema 3) und am Finanzsystem (Oberthema 2).</div>';
  const qq=B&&B.T.find(y=>y.id==="gesund");
- $("#wichtigtext").innerHTML="<b>Konsum:</b> Die Konsumausgaben entsprechen "+(quote?quote+" %":"…")+" des BIP. · <b>Wohnen:</b> "+sh("wohn")+" der Ausgaben, rund "+un+" davon unterstellte Mieten der Eigentümer; Wohneigentum liegt in England bei rund 65 %. · <b>Zinsen:</b> Hypotheken laufen meist 2 oder 5 Jahre fest, deshalb wirken Zinsänderungen verzögert, aber direkt (siehe Kachel unten). · <b>Energie:</b> Ofgem setzt den Preisdeckel für Strom und Gas vierteljährlich fest (typischer Haushalt 1.723 £ pro Jahr, Okt–Dez 2026). · <b>Gesundheit:</b> nur "+sh("gesund")+" der Ausgaben, weil der staatliche NHS im Staatskonsum steht. · <b>Onlinehandel:</b> "+(onl?onl+" %":"…")+" des Einzelhandelsumsatzes.";
+ infokasten("#ik1",{titel:"Charakter des britischen Verbrauchers",
+ satz:"Der Konsum ist der größte Teil der Wirtschaft, Wohnkosten und kurze Zinsbindungen prägen die Haushaltsbudgets.",
+ kacheln:[[(quote?quote+" %":"…"),"Konsumausgaben in % des BIP"],
+ [sh("wohn"),"der Ausgaben gehen aufs Wohnen, rund "+un+" davon unterstellte Mieten der Eigentümer; Wohneigentum in England rund 65 %"],
+ ["1.723 £","Ofgem-Preisdeckel pro Jahr für den typischen Haushalt (Okt–Dez 2026), vierteljährlich festgelegt"],
+ [(onl?onl+" %":"…"),"Anteil des Onlinehandels am Einzelhandelsumsatz"]],
+ quelle:"Hypotheken laufen meist 2 oder 5 Jahre fest, deshalb wirken Zinsänderungen verzögert, aber direkt. Gesundheit macht nur "+sh("gesund")+" der Ausgaben aus, weil der staatliche NHS im Staatskonsum steht. "+"Quellen: ONS (Consumer Trends, Quarterly National Accounts, Retail Sales), Ofgem, Bank of England; Wohneigentum England: Regierungsstatistik (English Housing Survey)."});
  $("#unter").textContent="Länderanalyse, Oberthema 8 · Daten und Fakten, keine Bewertung · Stand der Daten: "+perL(VB.stand,CT.gesamt)+(window.UK_DATEN&&window.UK_DATEN.verbraucher?" (automatischer Abruf)":", eingebetteter Stand");
 }
 

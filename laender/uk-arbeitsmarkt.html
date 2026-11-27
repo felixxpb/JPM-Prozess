@@ -33,10 +33,10 @@ h1{margin:0;font-size:21px;font-weight:650}
 .legende{display:flex;gap:16px;flex-wrap:wrap;font-size:12px;color:var(--text2);margin:6px 0 12px}
 .pkt{width:8px;height:8px;border-radius:50%;display:inline-block;margin-right:5px}.pkt.auto{background:var(--gut)}.pkt.man{background:var(--stumm)}
 /* Wichtig-Kasten */
-.wichtig{display:flex;gap:12px;background:var(--flaeche);border:1px solid var(--rand);border-left:6px solid var(--warn);border-radius:10px;padding:10px 14px;margin:10px 0 14px;box-shadow:var(--schatten)}
-.wichtig .wi{flex:none;width:26px;height:26px;border-radius:50%;background:var(--warn);color:#fff;font-weight:800;display:flex;align-items:center;justify-content:center;font-size:15px;margin-top:2px}
+.wichtig{display:flex;gap:12px;background:var(--flaeche);border:1px solid var(--rand);border-left:6px solid var(--info-farbe,var(--warn));background-image:linear-gradient(var(--info-bg,transparent),var(--info-bg,transparent));border-radius:10px;padding:10px 14px;margin:10px 0 14px;box-shadow:var(--schatten)}
+.wichtig .wi{flex:none;width:26px;height:26px;border-radius:50%;background:var(--info-farbe,var(--warn));color:#fff;font-weight:800;display:flex;align-items:center;justify-content:center;font-size:15px;margin-top:2px}
 :root[data-theme="dark"] .wichtig .wi{color:#111}
-.wichtig b.wt{display:block;font-size:12px;text-transform:uppercase;letter-spacing:.06em;color:var(--warn);margin-bottom:2px}
+.wichtig b.wt{display:block;font-size:12px;text-transform:uppercase;letter-spacing:.06em;color:var(--info-farbe,var(--warn));margin-bottom:2px}
 .wichtig p{margin:0;font-size:14px}
 .wichtig .qq{font-size:11.5px;color:var(--stumm);margin-top:3px}
 /* Kacheln */
@@ -214,6 +214,7 @@ svg.chart{width:100%;height:auto;display:block;touch-action:none}
 .nbar{display:flex;height:26px;border-radius:7px;overflow:hidden;margin:6px 0;border:1px solid var(--rand)}
 .nbar i{display:flex;align-items:center;justify-content:center;font-style:normal;font-size:11.5px;font-weight:700;color:#fff;white-space:nowrap}
 </style>
+<script src="infokasten.js?v=1"></script>
 </head>
 <body>
 <div class="wrap">
@@ -231,11 +232,7 @@ svg.chart{width:100%;height:auto;display:block;touch-action:none}
   <span>Kuchenstücke, Balken und Kacheln anklicken: Einordnung, Chart, Quelle</span>
 </div>
 
-<div class="wichtig"><div class="wi">!</div><div>
-  <b class="wt">Wichtig: Charakter des britischen Arbeitsmarkts</b>
-  <p id="wichtigtext"></p>
-  <div class="qq">Quellen: ONS (Labour Market Statistics LMS, Productivity PRDY), ONS Migration Statistics (Jahr bis Dezember 2025, vorläufig).</div>
-</div></div>
+<div id="ik1"></div>
 
 <section class="versteh" aria-labelledby="vt">
   <h2 id="vt">Zuerst verstehen: Wie der britische Arbeitsmarkt gemessen wird und wo die Beschäftigung entsteht</h2>
@@ -515,7 +512,12 @@ function demBauen(){
 function texte(){
  const R=AM.reihen,P=AM.produktiv,m=MIG,L=k=>letzte(R[k].r);
  const prod=P?pf(letzte(P.yoy)[1],1)+" % zum Vorjahr ("+perL(letzte(P.yoy)[0],P.yoy)+")":"…";
- $("#wichtigtext").innerHTML="<b>Schwache Produktivität:</b> Der Output je Arbeitsstunde wuchs zuletzt um "+prod+". · <b>Viele Nichterwerbstätige:</b> Die Inaktivitätsquote der 16- bis 64-Jährigen liegt bei "+pf(L("inakt")[1],1)+" %; rund "+nf(L("krank")[1]/1000,1)+" Mio. Menschen im Erwerbsalter arbeiten wegen Langzeiterkrankung nicht (Stand "+mon(L("inakt")[0])+"). · <b>Zuwanderung im Umbruch:</b> Die Nettozuwanderung lag im Jahr bis Dezember 2025 bei "+nf(m.netto*1000,0)+" (Jahr zuvor "+nf(m.nettoVor*1000,0)+"), nach einem Höchststand der Zuwanderung im März 2023. · Die Beschäftigungsquote beträgt "+pf(L("emp")[1],1)+" %, die Arbeitslosenquote "+pf(L("alq")[1],1)+" %.";
+ infokasten("#ik1",{titel:"Charakter des britischen Arbeitsmarkts",
+ satz:"Die Produktivität wächst schwach (Output je Arbeitsstunde zuletzt "+prod+"), viele Menschen im Erwerbsalter arbeiten nicht, und die Zuwanderung hat sich verändert. Beschäftigungsquote "+pf(L("emp")[1],1)+" %, Arbeitslosenquote "+pf(L("alq")[1],1)+" %.",
+ kacheln:[[pf(L("inakt")[1],1)+" %","Inaktivitätsquote der 16- bis 64-Jährigen (Stand "+mon(L("inakt")[0])+")"],
+ [nf(L("krank")[1]/1000,1)+" Mio.","Menschen im Erwerbsalter arbeiten wegen Langzeiterkrankung nicht"],
+ [nf(m.netto*1000,0),"Nettozuwanderung im Jahr bis Dezember 2025 (Jahr zuvor "+nf(m.nettoVor*1000,0)+"), nach dem Höchststand im März 2023"]],
+ quelle:"Quellen: ONS (Labour Market Statistics LMS, Productivity PRDY), ONS Migration Statistics (Jahr bis Dezember 2025, vorläufig)."});
  $("#unter").textContent="Länderanalyse, Oberthema 7 · Daten und Fakten, keine Bewertung · Stand der Daten: "+mon(AM.stand)+(DATA.arbeitsmarkt===AM&&window.UK_DATEN&&window.UK_DATEN.arbeitsmarkt?" (automatischer Abruf)":", eingebetteter Stand");
 }
 

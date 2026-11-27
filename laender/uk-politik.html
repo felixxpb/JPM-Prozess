@@ -33,10 +33,10 @@ h1{margin:0;font-size:21px;font-weight:650}
 .legende{display:flex;gap:16px;flex-wrap:wrap;font-size:12px;color:var(--text2);margin:6px 0 12px}
 .pkt{width:8px;height:8px;border-radius:50%;display:inline-block;margin-right:5px}.pkt.auto{background:var(--gut)}.pkt.man{background:var(--stumm)}
 /* Wichtig-Kasten */
-.wichtig{display:flex;gap:12px;background:var(--flaeche);border:1px solid var(--rand);border-left:6px solid var(--warn);border-radius:10px;padding:10px 14px;margin:10px 0 14px;box-shadow:var(--schatten)}
-.wichtig .wi{flex:none;width:26px;height:26px;border-radius:50%;background:var(--warn);color:#fff;font-weight:800;display:flex;align-items:center;justify-content:center;font-size:15px;margin-top:2px}
+.wichtig{display:flex;gap:12px;background:var(--flaeche);border:1px solid var(--rand);border-left:6px solid var(--info-farbe,var(--warn));background-image:linear-gradient(var(--info-bg,transparent),var(--info-bg,transparent));border-radius:10px;padding:10px 14px;margin:10px 0 14px;box-shadow:var(--schatten)}
+.wichtig .wi{flex:none;width:26px;height:26px;border-radius:50%;background:var(--info-farbe,var(--warn));color:#fff;font-weight:800;display:flex;align-items:center;justify-content:center;font-size:15px;margin-top:2px}
 :root[data-theme="dark"] .wichtig .wi{color:#111}
-.wichtig b.wt{display:block;font-size:12px;text-transform:uppercase;letter-spacing:.06em;color:var(--warn);margin-bottom:2px}
+.wichtig b.wt{display:block;font-size:12px;text-transform:uppercase;letter-spacing:.06em;color:var(--info-farbe,var(--warn));margin-bottom:2px}
 .wichtig p{margin:0;font-size:14px}
 .wichtig .qq{font-size:11.5px;color:var(--stumm);margin-top:3px}
 /* Kacheln */
@@ -178,6 +178,7 @@ table.lg td.z{text-align:right;font-variant-numeric:tabular-nums;font-weight:700
 @media(max-width:760px){.tl:before{left:14px}.tle,.tle.r{width:100%;left:0;padding:0 0 14px 40px}.tle:after,.tle.r:after{left:7px;right:auto}.tly{text-align:left;padding-left:2px}}
 @media(max-width:980px){.sitz,.lt{grid-template-columns:1fr}.bandinhalt{grid-template-columns:1fr}}
 </style>
+<script src="infokasten.js?v=1"></script>
 </head>
 <body data-flagge="../bilder/flaggen/uk.jpg">
 <div class="wrap">
@@ -195,11 +196,7 @@ table.lg td.z{text-align:right;font-variant-numeric:tabular-nums;font-weight:700
   <span>Kacheln, Parteien und Landesteile anklicken: Erklärung und Quelle</span>
 </div>
 
-<div class="wichtig"><div class="wi">!</div><div>
-  <b class="wt">Wichtig: Charakter des Vereinigten Königreichs</b>
-  <p>Keine geschriebene Verfassung, Parlamentssouveränität: Das Parlament kann jedes Gesetz beschließen, und kein Gericht kann ein Gesetz des Parlaments aufheben. Die Regierung entsteht aus der Mehrheit im Unterhaus, Regierung und Parlament sind eng verzahnt. Das unterscheidet sich stark von den USA mit ihrer strikten Gewaltenteilung.</p>
-  <div class="qq">Quellen: parliament.uk. Das Schaubild unten erklärt den Aufbau.</div>
-</div></div>
+<div id="ik1"></div><script>infokasten("#ik1",{"titel": "Charakter des Vereinigten Königreichs", "satz": "Keine geschriebene Verfassung: Das Parlament ist souverän, und Regierung und Parlament sind eng verzahnt.", "kacheln": [["Keine", "geschriebene Verfassung: Sie besteht aus Gesetzen, Gerichtsentscheidungen und Konventionen"], ["Parlament", "kann jedes Gesetz beschließen, kein Gericht kann es aufheben (Parlamentssouveränität)"], ["Verzahnt", "Die Regierung entsteht aus der Mehrheit im Unterhaus, anders als bei den USA mit strikter Gewaltenteilung"]], "quelle": "Quellen: parliament.uk. Das Schaubild unten erklärt den Aufbau."});</script>
 
 <a class="gilt" href="uk-politik-schaubild.html" style="display:block;text-decoration:none;color:inherit;border-left-color:var(--c1)">
   <h2>Westminster verständlich: Gewalten, Kreislauf und Weg eines Gesetzes</h2>
@@ -222,11 +219,7 @@ table.lg td.z{text-align:right;font-variant-numeric:tabular-nums;font-weight:700
 
 <div class="lt" id="lt"></div>
 
-<div class="wichtig"><div class="wi">!</div><div>
-  <b class="wt">Wichtig: Haushalt und Fiskalregeln</b>
-  <p>Das Office for Budget Responsibility (OBR) prüft den Haushalt unabhängig. Die Fiskalregeln des Schatzkanzlers setzen Grenzen: Die laufenden Ausgaben müssen bis 2029/30 durch Steuern gedeckt sein, und die Schulden sollen im Verhältnis zur Wirtschaft sinken. Beim ersten Haushalt von John Healey am 28.10.2026 blieben diese Regeln bestehen. Der Spielraum gegenüber den Regeln lag laut Presseberichten bei rund 15 Mrd. Pfund. Einordnung und Anleihemarkt: Oberthema 2 (Finanzsystem) und Zentralbank (Oberthema 3).</p>
-  <div class="qq">Quellen: Presseberichte (portfolio-adviser.com, IFS), Ankündigung des OBR. Die Zahlen werden vor der Freigabe gegen die OBR-Veröffentlichung geprüft.</div>
-</div></div>
+<div id="ik2"></div><script>infokasten("#ik2",{"titel": "Haushalt und Fiskalregeln", "satz": "Das Office for Budget Responsibility (OBR) prüft den Haushalt unabhängig, die Fiskalregeln des Schatzkanzlers setzen die Grenzen.", "kacheln": [["bis 2029/30", "müssen die laufenden Ausgaben durch Steuern gedeckt sein, und die Schulden sollen im Verhältnis zur Wirtschaft sinken"], ["ca. 15 Mrd. £", "Spielraum gegenüber den Regeln (laut Presseberichten)"], ["28.10.2026", "erster Haushalt von John Healey, die Regeln blieben bestehen"]], "quelle": "Quellen: Presseberichte (portfolio-adviser.com, IFS), Ankündigung des OBR. Die Zahlen werden vor der Freigabe gegen die OBR-Veröffentlichung geprüft. Einordnung und Anleihemarkt: Oberthema 2 (Finanzsystem) und 3 (Zentralbank)."});</script>
 
 <div class="panel"><h2>Zeitstrahl</h2>
   <p class="leg">Die wichtigsten Ereignisse in zeitlicher Reihenfolge, das Neueste oben. Ereignis anklicken für Details. <b style="color:#5aa9e6">Blau</b>: Politik · <b style="color:#e0a800">Gold</b>: Bank of England · <span class="tlauto">automatisch erkannt</span> = neuer Fakt aus dem Datenabruf, ohne dass jemand ihn einträgt.</p>

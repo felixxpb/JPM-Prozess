@@ -33,10 +33,10 @@ h1{margin:0;font-size:21px;font-weight:650}
 .legende{display:flex;gap:16px;flex-wrap:wrap;font-size:12px;color:var(--text2);margin:6px 0 12px}
 .pkt{width:8px;height:8px;border-radius:50%;display:inline-block;margin-right:5px}.pkt.auto{background:var(--gut)}.pkt.man{background:var(--stumm)}
 /* Wichtig-Kasten */
-.wichtig{display:flex;gap:12px;background:var(--flaeche);border:1px solid var(--rand);border-left:6px solid var(--warn);border-radius:10px;padding:10px 14px;margin:10px 0 14px;box-shadow:var(--schatten)}
-.wichtig .wi{flex:none;width:26px;height:26px;border-radius:50%;background:var(--warn);color:#fff;font-weight:800;display:flex;align-items:center;justify-content:center;font-size:15px;margin-top:2px}
+.wichtig{display:flex;gap:12px;background:var(--flaeche);border:1px solid var(--rand);border-left:6px solid var(--info-farbe,var(--warn));background-image:linear-gradient(var(--info-bg,transparent),var(--info-bg,transparent));border-radius:10px;padding:10px 14px;margin:10px 0 14px;box-shadow:var(--schatten)}
+.wichtig .wi{flex:none;width:26px;height:26px;border-radius:50%;background:var(--info-farbe,var(--warn));color:#fff;font-weight:800;display:flex;align-items:center;justify-content:center;font-size:15px;margin-top:2px}
 :root[data-theme="dark"] .wichtig .wi{color:#111}
-.wichtig b.wt{display:block;font-size:12px;text-transform:uppercase;letter-spacing:.06em;color:var(--warn);margin-bottom:2px}
+.wichtig b.wt{display:block;font-size:12px;text-transform:uppercase;letter-spacing:.06em;color:var(--info-farbe,var(--warn));margin-bottom:2px}
 .wichtig p{margin:0;font-size:14px}
 .wichtig .qq{font-size:11.5px;color:var(--stumm);margin-top:3px}
 /* Kacheln */
@@ -165,6 +165,7 @@ svg.chart{width:100%;height:auto;display:block;touch-action:none}
 .kd2 .ar{fill:none;stroke:#9fb0c8;stroke-width:2;marker-end:url(#m2)}.kd2 .lb{font-size:11px;fill:#cdd8ea;paint-order:stroke;stroke:#0e1626;stroke-width:4px}
 .sb .brow{grid-template-columns:minmax(150px,230px) 1fr 76px}
 </style>
+<script src="infokasten.js?v=1"></script>
 </head>
 <body>
 <div class="wrap">
@@ -182,11 +183,7 @@ svg.chart{width:100%;height:auto;display:block;touch-action:none}
   <span>Kacheln, Balken und Bausteine anklicken: Erklärung, Chart mit Historie, Quelle</span>
 </div>
 
-<div class="wichtig"><div class="wi">!</div><div>
-  <b class="wt">Wichtig: London als Finanzplatz, Haushaltsschulden und kurze Zinsbindung</b>
-  <p id="wichtigtext"></p>
-  <div class="qq">Quellen: Bank of England (Zinsen, Kredit), BIS Triennial Survey 2025 (Devisenhandel, 38 %), Bank of England Staff Working Paper 1,158 (November 2025, Laufzeiten der Festzinshypotheken).</div>
-</div></div>
+<div id="ik1"></div>
 
 <section class="versteh" aria-labelledby="vt">
   <h2 id="vt">Zuerst verstehen: Wer Kredit vergibt, wer ihn beaufsichtigt und wie Geld kreist</h2>
@@ -403,7 +400,13 @@ $("#theme").addEventListener("click",()=>{const r=document.documentElement;r.dat
 try{const t=localStorage.getItem("dashboard-thema");if(t)document.documentElement.dataset.theme=t}catch(e){}
 if(F){
  const z2=letzte(F.reihen.zins2.r),z5=letzte(F.reihen.zins5.r),sp=F.reihen.spread?letzte(F.reihen.spread.r):null;
- $("#wichtigtext").innerHTML="London ist der größte Devisenhandelsplatz der Welt (rund 38 % des weltweiten Umsatzes). Die Haushalte sind mit "+pf(F.bis.H.M[F.bis.H.M.length-1][1],1)+" % des BIP verschuldet, vor allem über Hypotheken (Bestand "+pf(F.bestand.hyp[1],0)+" Mrd. £). Mehr als 90 % der neuen Hypotheken haben seit 2013 einen Festzins, und 2- und 5-Jahres-Festzinsen machen zusammen 87 % der Festzinsverträge aus. Neue Festzinshypotheken kosten aktuell "+pf(z2[1],2)+" % (2 Jahre) und "+pf(z5[1],2)+" % (5 Jahre)"+(sp?", das sind "+pf(sp[1],2)+" Prozentpunkte über der Bank Rate (2 Jahre)":"")+" (Stand "+mon(z2[0])+").";
+ infokasten("#ik1",{titel:"London als Finanzplatz, Haushaltsschulden und kurze Zinsbindung",
+ satz:"London ist der größte Devisenhandelsplatz der Welt, die Haushalte sind hoch verschuldet, und Hypotheken laufen meist kurz fest.",
+ kacheln:[["38 %","des weltweiten Devisenumsatzes entfallen auf London (BIS 2025)"],
+ [pf(F.bis.H.M[F.bis.H.M.length-1][1],1)+" %","Haushaltsverschuldung in % des BIP, vor allem über Hypotheken (Bestand "+pf(F.bestand.hyp[1],0)+" Mrd. £)"],
+ ["87 %","der Festzinsverträge sind 2- oder 5-Jahres-Festzinsen; über 90 % der neuen Hypotheken haben seit 2013 einen Festzins"],
+ [pf(z2[1],2)+" %","neue 2-Jahres-Festzinshypothek"+(sp?", "+pf(sp[1],2)+" Prozentpunkte über der Bank Rate":"")+" (5 Jahre: "+pf(z5[1],2)+" %, Stand "+mon(z2[0])+")"]],
+ quelle:"Quellen: Bank of England (Zinsen, Kredit), BIS Triennial Survey 2025 (Devisenhandel, 38 %), Bank of England Staff Working Paper 1,158 (November 2025, Laufzeiten der Festzinshypotheken)."});
  $("#unter").innerHTML+=" · Stand der Daten: "+mon(z2[0])+(DATA._abruf?", Datenabruf "+dts(DATA._abruf):", eingebetteter Stand");
  kacheln();schuldBauen();kreislauf();
 }else{

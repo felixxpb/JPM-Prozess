@@ -33,10 +33,10 @@ h1{margin:0;font-size:21px;font-weight:650}
 .legende{display:flex;gap:16px;flex-wrap:wrap;font-size:12px;color:var(--text2);margin:6px 0 12px}
 .pkt{width:8px;height:8px;border-radius:50%;display:inline-block;margin-right:5px}.pkt.auto{background:var(--gut)}.pkt.man{background:var(--stumm)}
 /* Wichtig-Kasten */
-.wichtig{display:flex;gap:12px;background:var(--flaeche);border:1px solid var(--rand);border-left:6px solid var(--warn);border-radius:10px;padding:10px 14px;margin:10px 0 14px;box-shadow:var(--schatten)}
-.wichtig .wi{flex:none;width:26px;height:26px;border-radius:50%;background:var(--warn);color:#fff;font-weight:800;display:flex;align-items:center;justify-content:center;font-size:15px;margin-top:2px}
+.wichtig{display:flex;gap:12px;background:var(--flaeche);border:1px solid var(--rand);border-left:6px solid var(--info-farbe,var(--warn));background-image:linear-gradient(var(--info-bg,transparent),var(--info-bg,transparent));border-radius:10px;padding:10px 14px;margin:10px 0 14px;box-shadow:var(--schatten)}
+.wichtig .wi{flex:none;width:26px;height:26px;border-radius:50%;background:var(--info-farbe,var(--warn));color:#fff;font-weight:800;display:flex;align-items:center;justify-content:center;font-size:15px;margin-top:2px}
 :root[data-theme="dark"] .wichtig .wi{color:#111}
-.wichtig b.wt{display:block;font-size:12px;text-transform:uppercase;letter-spacing:.06em;color:var(--warn);margin-bottom:2px}
+.wichtig b.wt{display:block;font-size:12px;text-transform:uppercase;letter-spacing:.06em;color:var(--info-farbe,var(--warn));margin-bottom:2px}
 .wichtig p{margin:0;font-size:14px}
 .wichtig .qq{font-size:11.5px;color:var(--stumm);margin-top:3px}
 /* Kacheln */
@@ -203,6 +203,7 @@ svg.chart{width:100%;height:auto;display:block;touch-action:none}
 .sp td{padding:3px 4px;border-bottom:1px solid var(--raster)}.sp td.o{color:var(--stumm);font-style:italic}
 .sp .hin{font-size:11.5px;color:var(--text2);margin-top:5px}
 </style>
+<script src="infokasten.js?v=1"></script>
 </head>
 <body data-flagge="../bilder/flaggen/uk.jpg">
 <div class="wrap">
@@ -220,11 +221,7 @@ svg.chart{width:100%;height:auto;display:block;touch-action:none}
   <span>Bausteine, Pfeile, Kuchenstücke und Kacheln anklicken: Erklärung, Chart, Quelle</span>
 </div>
 
-<div class="wichtig"><div class="wi">!</div><div>
-  <b class="wt">Wichtig: Charakter der britischen Wirtschaft</b>
-  <p id="wichtigtext"></p>
-  <div class="qq">Quellen: ONS (BIP, Wertschöpfungsgewichte, Zahlungsbilanz, Staatsfinanzen), DESNZ (Energy Trends).</div>
-</div></div>
+<div id="ik1"></div>
 
 <section class="versteh" aria-labelledby="vt">
   <h2 id="vt">Zuerst verstehen: Wie die britische Wirtschaft aufgebaut ist</h2>
@@ -536,7 +533,13 @@ const WISO={dienst:"Kuchen und Balken (Dienstleistungen) sowie der Index der Die
 function texte(){
  const R=WI.reihen,L=k=>letzte(R[k].r);
  const dienst=BR.filter(x=>x.g!=="w").reduce((a,x)=>a+x.w,0),gut=BR.filter(x=>x.g==="w").reduce((a,x)=>a+x.w,0);
- $("#wichtigtext").innerHTML="<b>Dienstleistungsökonomie:</b> Auf Dienstleistungen (Abschnitte G bis T) entfallen "+pf(dienst,1)+" % der Wertschöpfung, auf Güterproduktion und Bau "+pf(gut,1)+" %. · <b>Leistungsbilanzdefizit:</b> "+pf(L("leistung_bip")[1],1)+" % des BIP ("+perL(L("leistung_bip")[0],R.leistung_bip.r)+"); die Dienstleistungen weisen einen Überschuss von "+pf(L("dienste")[1]/1000,1)+" Mrd. £ pro Quartal aus, die Waren ein Defizit von "+pf(-L("waren")[1]/1000,1)+" Mrd. £ pro Monat. · <b>Hohe Staatsschulden:</b> Die Nettoschulden des öffentlichen Sektors liegen bei "+pf(L("psnd")[1],1)+" % des BIP ("+mon(L("psnd")[0])+"). · Das BIP wuchs zuletzt um "+pf(L("bip_q")[1],1)+" % zum Vorquartal und "+pf(L("bip_j")[1],1)+" % zum Vorjahr ("+perL(L("bip_q")[0],R.bip_q.r)+").";
+ infokasten("#ik1",{titel:"Charakter der britischen Wirtschaft",
+ satz:"Das Vereinigte Königreich ist eine Dienstleistungsökonomie mit Leistungsbilanzdefizit und hohen Staatsschulden.",
+ kacheln:[[pf(dienst,1)+" %","der Wertschöpfung entfallen auf Dienstleistungen (Abschnitte G bis T), auf Güterproduktion und Bau "+pf(gut,1)+" %"],
+ [pf(L("leistung_bip")[1],1)+" %","Leistungsbilanzdefizit in % des BIP ("+perL(L("leistung_bip")[0],R.leistung_bip.r)+")"],
+ [pf(L("psnd")[1],1)+" %","Nettoschulden des öffentlichen Sektors in % des BIP ("+mon(L("psnd")[0])+")"],
+ [pf(L("bip_q")[1],1)+" %","BIP-Wachstum zum Vorquartal, "+pf(L("bip_j")[1],1)+" % zum Vorjahr ("+perL(L("bip_q")[0],R.bip_q.r)+")"]],
+ quelle:"Dienstleistungen weisen einen Überschuss von "+pf(L("dienste")[1]/1000,1)+" Mrd. £ pro Quartal aus, Waren ein Defizit von "+pf(-L("waren")[1]/1000,1)+" Mrd. £ pro Monat. "+"Quellen: ONS (BIP, Wertschöpfungsgewichte, Zahlungsbilanz, Staatsfinanzen), DESNZ (Energy Trends)."});
  $("#unter").textContent="Länderanalyse, Oberthema 4 · Daten und Fakten, keine Bewertung · Stand der Daten: "+mon(WI.stand)+(DATA.wirtschaft===WI&&window.UK_DATEN&&window.UK_DATEN.wirtschaft?" (automatischer Abruf)":", eingebetteter Stand");
 }
 

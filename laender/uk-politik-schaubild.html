@@ -33,10 +33,10 @@ h1{margin:0;font-size:21px;font-weight:650}
 .legende{display:flex;gap:16px;flex-wrap:wrap;font-size:12px;color:var(--text2);margin:6px 0 12px}
 .pkt{width:8px;height:8px;border-radius:50%;display:inline-block;margin-right:5px}.pkt.auto{background:var(--gut)}.pkt.man{background:var(--stumm)}
 /* Wichtig-Kasten */
-.wichtig{display:flex;gap:12px;background:var(--flaeche);border:1px solid var(--rand);border-left:6px solid var(--warn);border-radius:10px;padding:10px 14px;margin:10px 0 14px;box-shadow:var(--schatten)}
-.wichtig .wi{flex:none;width:26px;height:26px;border-radius:50%;background:var(--warn);color:#fff;font-weight:800;display:flex;align-items:center;justify-content:center;font-size:15px;margin-top:2px}
+.wichtig{display:flex;gap:12px;background:var(--flaeche);border:1px solid var(--rand);border-left:6px solid var(--info-farbe,var(--warn));background-image:linear-gradient(var(--info-bg,transparent),var(--info-bg,transparent));border-radius:10px;padding:10px 14px;margin:10px 0 14px;box-shadow:var(--schatten)}
+.wichtig .wi{flex:none;width:26px;height:26px;border-radius:50%;background:var(--info-farbe,var(--warn));color:#fff;font-weight:800;display:flex;align-items:center;justify-content:center;font-size:15px;margin-top:2px}
 :root[data-theme="dark"] .wichtig .wi{color:#111}
-.wichtig b.wt{display:block;font-size:12px;text-transform:uppercase;letter-spacing:.06em;color:var(--warn);margin-bottom:2px}
+.wichtig b.wt{display:block;font-size:12px;text-transform:uppercase;letter-spacing:.06em;color:var(--info-farbe,var(--warn));margin-bottom:2px}
 .wichtig p{margin:0;font-size:14px}
 .wichtig .qq{font-size:11.5px;color:var(--stumm);margin-top:3px}
 /* Kacheln */
@@ -147,6 +147,7 @@ svg.chart{width:100%;height:auto;display:block;touch-action:none}
 .was{color:var(--text2);font-size:13.5px;margin:0 0 6px}
 @media(max-width:900px){.saeulen{grid-template-columns:1fr}.art{grid-template-columns:repeat(2,1fr)}}
 </style>
+<script src="infokasten.js?v=1"></script>
 </head>
 <body data-flagge="../bilder/flaggen/uk.jpg">
 <div class="wrap">
@@ -154,8 +155,7 @@ svg.chart{width:100%;height:auto;display:block;touch-action:none}
 <h1>Vereinigtes Königreich – Politik: Westminster verständlich</h1>
 <div class="unter">Länderanalyse, Oberthema 1 · Wie die Macht im Westminster-System verteilt ist: Fundament, die drei Gewalten, der Kreislauf und der Weg eines Gesetzes · Alles anklickbar, wo Pfeile und Bausteine stehen · Grundwissen, vor Freigabe gegen Parlamentsquellen zu prüfen · Daten und Fakten, keine Bewertung</div>
 
-<div class="wichtig"><div class="wi">!</div><div><b class="wt">Wichtig: Charakter des Vereinigten Königreichs</b>
-<p>Keine geschriebene Verfassung, Parlamentssouveränität: Das Parlament kann jedes Gesetz beschließen, und kein Gericht kann ein Gesetz des Parlaments aufheben. Die Regierung entsteht aus der Mehrheit im Unterhaus. Regierung und Parlament sind deshalb eng verzahnt, anders als bei den USA mit ihrer strikten Gewaltenteilung.</p></div></div>
+<div id="ik1"></div><script>infokasten("#ik1",{"titel": "Charakter des Vereinigten Königreichs", "satz": "Keine geschriebene Verfassung: Das Parlament ist souverän, und Regierung und Parlament sind eng verzahnt.", "kacheln": [["Keine", "geschriebene Verfassung: Sie besteht aus Gesetzen, Gerichtsentscheidungen und Konventionen"], ["Parlament", "kann jedes Gesetz beschließen, kein Gericht kann es aufheben (Parlamentssouveränität)"], ["Verzahnt", "Die Regierung entsteht aus der Mehrheit im Unterhaus, anders als bei den USA mit strikter Gewaltenteilung"]]});</script>
 
 <h2 class="h2">1 · Das Fundament: Was die „Verfassung“ ist</h2>
 <div class="panel"><h3 style="margin:0 0 4px">Die ungeschriebene Verfassung</h3>

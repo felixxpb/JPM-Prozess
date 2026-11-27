@@ -33,10 +33,10 @@ h1{margin:0;font-size:21px;font-weight:650}
 .legende{display:flex;gap:16px;flex-wrap:wrap;font-size:12px;color:var(--text2);margin:6px 0 12px}
 .pkt{width:8px;height:8px;border-radius:50%;display:inline-block;margin-right:5px}.pkt.auto{background:var(--gut)}.pkt.man{background:var(--stumm)}
 /* Wichtig-Kasten */
-.wichtig{display:flex;gap:12px;background:var(--flaeche);border:1px solid var(--rand);border-left:6px solid var(--warn);border-radius:10px;padding:10px 14px;margin:10px 0 14px;box-shadow:var(--schatten)}
-.wichtig .wi{flex:none;width:26px;height:26px;border-radius:50%;background:var(--warn);color:#fff;font-weight:800;display:flex;align-items:center;justify-content:center;font-size:15px;margin-top:2px}
+.wichtig{display:flex;gap:12px;background:var(--flaeche);border:1px solid var(--rand);border-left:6px solid var(--info-farbe,var(--warn));background-image:linear-gradient(var(--info-bg,transparent),var(--info-bg,transparent));border-radius:10px;padding:10px 14px;margin:10px 0 14px;box-shadow:var(--schatten)}
+.wichtig .wi{flex:none;width:26px;height:26px;border-radius:50%;background:var(--info-farbe,var(--warn));color:#fff;font-weight:800;display:flex;align-items:center;justify-content:center;font-size:15px;margin-top:2px}
 :root[data-theme="dark"] .wichtig .wi{color:#111}
-.wichtig b.wt{display:block;font-size:12px;text-transform:uppercase;letter-spacing:.06em;color:var(--warn);margin-bottom:2px}
+.wichtig b.wt{display:block;font-size:12px;text-transform:uppercase;letter-spacing:.06em;color:var(--info-farbe,var(--warn));margin-bottom:2px}
 .wichtig p{margin:0;font-size:14px}
 .wichtig .qq{font-size:11.5px;color:var(--stumm);margin-top:3px}
 /* Kacheln */
@@ -167,6 +167,7 @@ svg.chart{width:100%;height:auto;display:block;touch-action:none}
 .kpf{fill:none;stroke-width:2;marker-end:url(#pf)}.kl{font-size:11px;fill:var(--text2);paint-order:stroke;stroke:var(--flaeche);stroke-width:4px;stroke-linejoin:round}
 .hinw{font-size:12px;color:var(--stumm);margin-top:6px}
 </style>
+<script src="infokasten.js?v=1"></script>
 </head>
 <body>
 <div class="wrap">
@@ -184,11 +185,7 @@ svg.chart{width:100%;height:auto;display:block;touch-action:none}
   <span>Kuchen, Balken und Kacheln anklicken: Bestandteile, Chart mit Historie, Quelle</span>
 </div>
 
-<div class="wichtig"><div class="wi">!</div><div>
-  <b class="wt">Wichtig: Gewichte und Preise von Energie, Wohnen und Gaststätten</b>
-  <p id="wichtigtext"></p>
-  <div class="qq">Quellen: ONS (CPI-Gewichte und Jahresraten, Datensatz MM23). Hintergrund zur Preisbildung bei Strom und Gas: Ofgem (Wholesale energy costs and your bills; Energy price cap explained).</div>
-</div></div>
+<div id="ik1"></div>
 
 <section class="versteh" aria-labelledby="vt">
   <h2 id="vt">Zuerst verstehen: Was die Inflationszahlen messen und woraus der Warenkorb besteht</h2>
@@ -466,7 +463,12 @@ if(INF){
  $("#gj").textContent=INF.gewichtsjahr;$("#gj2").textContent=INF.gewichtsjahr;
  const G=k=>INF.gruppen.find(x=>x.k===k),en=G("energie"),kr=en.teile.find(t=>t.c==="07.2.2"),st=en.teile.find(t=>t.c==="04.5.1"),ga=en.teile.find(t=>t.c==="04.5.2"),mi=G("wohnen").teile.find(t=>t.c==="04.1");
  const lr=t=>t&&letzte(t.r)?pf(letzte(t.r)[1],1)+" %":"–";
- $("#wichtigtext").innerHTML="Energie und Wasser machen zusammen "+pf(en.w,1)+" % des Warenkorbs aus (Strom "+pf(st.w,1)+" %, Gas "+pf(ga.w,1)+" %, Kraftstoffe "+pf(kr.w,1)+" %). Die Jahresraten betragen aktuell bei Strom "+lr(st)+", Gas "+lr(ga)+" und Kraftstoffen "+lr(kr)+". Mieten haben ein Gewicht von "+pf(mi.w,1)+" % und steigen um "+lr(mi)+". Gaststätten und Unterkunft haben ein Gewicht von "+pf(G("gast").w,1)+" %.";
+ infokasten("#ik1",{titel:"Gewichte und Preise von Energie, Wohnen und Gaststätten",
+ satz:"Energie, Wohnen und Gaststätten prägen Gewicht und Preisentwicklung im britischen Warenkorb.",
+ kacheln:[[pf(en.w,1)+" %","Anteil von Energie und Wasser am Warenkorb (Strom "+pf(st.w,1)+" %, Gas "+pf(ga.w,1)+" %, Kraftstoffe "+pf(kr.w,1)+" %)"],
+ [lr(st)+" / "+lr(ga)+" / "+lr(kr),"aktuelle Jahresrate bei Strom / Gas / Kraftstoffen"],
+ [pf(mi.w,1)+" %","Gewicht der Mieten (Jahresrate "+lr(mi)+"); Gaststätten und Unterkunft haben "+pf(G("gast").w,1)+" %"]],
+ quelle:"Quellen: ONS (CPI-Gewichte und Jahresraten, Datensatz MM23). Hintergrund zur Preisbildung bei Strom und Gas: Ofgem (Wholesale energy costs and your bills; Energy price cap explained)."});
  $("#unter").innerHTML+=" · Stand der Daten: "+mon(letzte(INF.reihen.cpi.r)[0])+(DATA._abruf?", Datenabruf "+dts(DATA._abruf):", eingebetteter Stand");
  kacheln();pieBauen();aggBauen();beitraege();kreislauf();
 }else{

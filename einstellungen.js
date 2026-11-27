@@ -220,6 +220,17 @@
       root.removeProperty("--text-stumm");
     }
 
+    /* Infokasten-Farbe ("Wichtig: Charakter ..."), je Farbmodus getrennt gemerkt.
+       Die Laenderseiten lesen --info-farbe und --info-bg (Rueckfall: --warn). */
+    var ic = z.farben["info-" + th];
+    if (ic) {
+      root.setProperty("--info-farbe", ic);
+      root.setProperty("--info-bg", hexRgba(ic, 0.12));
+    } else {
+      root.removeProperty("--info-farbe");
+      root.removeProperty("--info-bg");
+    }
+
     document.dispatchEvent(new CustomEvent("hintergrund-geaendert", {
       detail: { an: z.an, vorlage: z.aktiv, werte: kopie(w), flagge: flaggeAktiv ? flagge : null, fotoAus: !!flagge && L.seite === "aus" }
     }));
@@ -518,9 +529,15 @@
       { text: "Mittel", wert: "mittel" },
       { text: "Groß", wert: "gross" }
     ], function (v) { return L.kachelH === v; }, function (v) { L.kachelH = v; landSichern(); }));
+    b.appendChild(el("div", "ein-untertitel", "Infokästen „Wichtig“"));
+    b.appendChild(el("p", "ein-hinweis",
+      "Farbe aller Infokästen auf den Länderseiten, getrennt für Hell und Dunkel (gilt für den gerade " +
+      "gewählten Modus). Wirkt sofort auf allen Seiten und wird pro Gerät gespeichert."));
+    b.appendChild(baueFarbregler("einFarbeInfo", "Farbe der Infokästen",
+      function () { return "info-" + themaJetzt(); }, "--warn"));
     var zr = el("button", "ein-zuruecksetzen", "Länder-Einstellungen zurücksetzen");
     zr.type = "button";
-    zr.addEventListener("click", function () { land = kopie(LAND_STANDARD); landSichern(); zeichneEinstellungenNeu(); });
+    zr.addEventListener("click", function () { land = kopie(LAND_STANDARD); delete laden().farben["info-light"]; delete laden().farben["info-dark"]; sichern(); landSichern(); zeichneEinstellungenNeu(); });
     b.appendChild(zr);
     return b;
   }
