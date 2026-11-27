@@ -47,6 +47,10 @@ jobs:
         continue-on-error: true
         run: python3 -X utf8 skripte/Laender_Abrufen_UK.py
 
+      - name: Laenderanalyse Australien
+        continue-on-error: true
+        run: python3 -X utf8 skripte/Laender_Abrufen_AUS.py
+
       - name: Aktualisierte Daten zurueckschreiben
         run: |
           git config user.name "github-actions[bot]"
