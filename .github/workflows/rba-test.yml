@@ -5,17 +5,54 @@ jobs:
   test:
     runs-on: ubuntu-latest
     steps:
-      - name: RBA-Seiten abrufen
+      - name: RBA-Rohdaten holen
         run: |
-          for u in \
-            "https://www.rba.gov.au/statistics/tables/csv/f1.1-data.csv" \
-            "https://www.rba.gov.au/statistics/tables/csv/a1-data.csv" \
-            "https://www.rba.gov.au/statistics/cash-rate/" \
-            "https://www.rba.gov.au/schedules-events/calendar.html" \
-            "https://www.rba.gov.au/monetary-policy/rba-board-minutes/" \
-            "https://www.rba.gov.au/publications/smp/" \
-            "https://www.rba.gov.au/rss/rss-cb-bulletin.xml" ; do
-            code=$(curl -s -m 40 -A "Mozilla/5.0" -o out.txt -w "%{http_code} %{size_download}" -L "$u")
-            echo "$code  $u"
-            head -c 150 out.txt | tr '\n' ' '; echo
-          done
+          B=https://www.rba.gov.au
+          g(){ curl -s -m 60 -A "Mozilla/5.0" -L -o "$1" "$2"; }
+          g f11.csv $B/statistics/tables/csv/f1.1-data.csv
+          g a1.csv $B/statistics/tables/csv/a1-data.csv
+          g cash.html $B/statistics/cash-rate/
+          g cal.html $B/schedules-events/calendar.html
+          g min.html $B/monetary-policy/rba-board-minutes/
+          g smp.html $B/publications/smp/
+          g rss.xml $B/rss/rss-cb-bulletin.xml
+          g a2.csv $B/statistics/tables/csv/a2-data.csv
+          g d1.csv $B/statistics/tables/csv/d1-data.csv
+          g f1.csv $B/statistics/tables/csv/f1-data.csv
+          g f5.csv $B/statistics/tables/csv/f5-data.csv
+          g g1.csv $B/statistics/tables/csv/g1-data.csv
+          g h3.csv $B/statistics/tables/csv/h3-data.csv
+          g d2.csv $B/statistics/tables/csv/d2-data.csv
+          g f11.csv2 $B/statistics/tables/csv/f11.1-data.csv
+          g sched.html $B/monetary-policy/meetings-calendar.html
+          g sched2.html $B/schedules-events/board-meeting-calendar.html
+          g sched3.html $B/monetary-policy/about/
+          g stat.html $B/statistics/tables/
+          python3 - <<'PY'
+          import re,html,os
+          def txt(f):
+              s=open(f,encoding="utf-8",errors="replace").read()
+              s=re.sub(r"(?s)<(script|style).*?</\1>","",s)
+              return s
+          def csvshow(f,n=14):
+              if not os.path.exists(f): print("fehlt",f); return
+              L=open(f,encoding="utf-8",errors="replace").read().splitlines()
+              print("=====",f,len(L),"Zeilen")
+              for l in L[:n]: print(l[:230])
+              print("   ...")
+              for l in L[-4:]: print(l[:230])
+          for f in ("f11.csv","a1.csv","a2.csv","d1.csv","f1.csv","f5.csv","g1.csv","h3.csv","d2.csv"):
+              csvshow(f)
+          for f in ("cal.html","sched.html","sched2.html","sched3.html","stat.html"):
+              if os.path.exists(f):
+                  s=txt(f); print("=====",f,len(s)); print(s[:700].replace("\n"," "))
+          s=txt("cash.html"); print("===== cash.html")
+          t=re.sub(r"<[^>]+>"," ",s); t=html.unescape(re.sub(r"\s+"," ",t))
+          i=t.find("Date"); print(t[:1800]); print("---- Tabelle ab 'Date':",t[i:i+1500])
+          print("===== Links in cash.html:",set(re.findall(r'href="([^"]*(?:csv|xls|pdf)[^"]*)"',s)))
+          s=txt("min.html"); print("===== min.html")
+          print(re.findall(r'href="([^"]*(?:minutes|board)[^"]*)"',s)[:15])
+          t=html.unescape(re.sub(r"\s+"," ",re.sub(r"<[^>]+>"," ",s))); print(t[:1200])
+          s=txt("smp.html"); print("===== smp.html"); print(re.findall(r'href="([^"]*smp[^"]*)"',s)[:12])
+          print(open("rss.xml",encoding="utf-8",errors="replace").read()[:1500])
+          PY
