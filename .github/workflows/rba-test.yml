@@ -1,0 +1,21 @@
+name: RBA Erreichbarkeit testen
+on:
+  workflow_dispatch:
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - name: RBA-Seiten abrufen
+        run: |
+          for u in \
+            "https://www.rba.gov.au/statistics/tables/csv/f1.1-data.csv" \
+            "https://www.rba.gov.au/statistics/tables/csv/a1-data.csv" \
+            "https://www.rba.gov.au/statistics/cash-rate/" \
+            "https://www.rba.gov.au/schedules-events/calendar.html" \
+            "https://www.rba.gov.au/monetary-policy/rba-board-minutes/" \
+            "https://www.rba.gov.au/publications/smp/" \
+            "https://www.rba.gov.au/rss/rss-cb-bulletin.xml" ; do
+            code=$(curl -s -m 40 -A "Mozilla/5.0" -o out.txt -w "%{http_code} %{size_download}" -L "$u")
+            echo "$code  $u"
+            head -c 150 out.txt | tr '\n' ' '; echo
+          done
