@@ -1,0 +1,531 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>JPM Prozess · Länderanalyse Australien · Zentralbank (Reserve Bank of Australia)</title>
+<script src="infokasten.js?v=1"></script>
+<style>
+:root{
+  --flaeche:#fcfcfb; --ebene:#f9f9f7; --text:#0b0b0b; --text2:#52514e; --stumm:#898781;
+  --raster:#e1e0d9; --achse:#c3c2b7; --rand:rgba(11,11,11,.10);
+  --c1:#2f6f9f; --c2:#6b4f8a; --c3:#3d7a56; --c4:#8a5a2b; --cb:#52514e;
+  --h1:#e6f0f7; --hb:#efeee9;
+  --gut:#006300; --warn:#b97a00; --schatten:0 1px 2px rgba(11,11,11,.04),0 4px 16px rgba(11,11,11,.06);
+  color-scheme:light;
+}
+:root[data-theme="dark"]{
+  --flaeche:#1a1a19; --ebene:#0d0d0d; --text:#fff; --text2:#c3c2b7; --stumm:#898781;
+  --raster:#2c2c2a; --achse:#383835; --rand:rgba(255,255,255,.12);
+  --c1:#5fa0d3; --c2:#ab8fd0; --c3:#56b27d; --c4:#d39a5a; --cb:#c3c2b7;
+  --h1:#16222c; --hb:#232321;
+  --gut:#0ca30c; --warn:#fab219; --schatten:none; color-scheme:dark;
+}
+*{box-sizing:border-box}
+body{margin:0;padding:0 20px 56px;background:var(--ebene);color:var(--text);font-family:system-ui,-apple-system,"Segoe UI",sans-serif;font-size:15px;line-height:1.5}
+.wrap{max-width:1280px;margin:0 auto}
+header{padding:20px 0 6px;display:flex;gap:16px;justify-content:space-between;align-items:flex-start;flex-wrap:wrap}
+h1{margin:0;font-size:21px;font-weight:650}
+.unter{color:var(--text2);font-size:13px}
+.entwurf{display:inline-block;margin-left:8px;padding:1px 8px;border-radius:99px;border:1px solid var(--warn);color:var(--warn);font-size:12px;font-weight:600;vertical-align:middle}
+.tool{font:inherit;font-size:13px;background:var(--flaeche);color:var(--text);border:1px solid var(--rand);border-radius:8px;padding:6px 12px;cursor:pointer}
+.zurueck-knopf{display:inline-flex;align-items:center;gap:8px;font-size:14.5px;font-weight:600;color:var(--text);text-decoration:none;background:var(--flaeche);border:1.5px solid var(--achse);border-radius:12px;padding:8px 16px;margin-bottom:10px;box-shadow:var(--schatten)}
+.zurueck-knopf:hover{border-color:var(--text)}
+.legende{display:flex;gap:16px;flex-wrap:wrap;font-size:12px;color:var(--text2);margin:6px 0 12px}
+.pkt{width:8px;height:8px;border-radius:50%;display:inline-block;margin-right:5px}.pkt.auto{background:var(--gut)}.pkt.man{background:var(--stumm)}
+/* Wichtig-Kasten */
+.wichtig{display:flex;gap:12px;background:var(--flaeche);border:1px solid var(--rand);border-left:6px solid var(--warn);border-radius:10px;padding:10px 14px;margin:10px 0 14px;box-shadow:var(--schatten)}
+.wichtig .wi{flex:none;width:26px;height:26px;border-radius:50%;background:var(--warn);color:#fff;font-weight:800;display:flex;align-items:center;justify-content:center;font-size:15px;margin-top:2px}
+:root[data-theme="dark"] .wichtig .wi{color:#111}
+.wichtig b.wt{display:block;font-size:12px;text-transform:uppercase;letter-spacing:.06em;color:var(--warn);margin-bottom:2px}
+.wichtig p{margin:0;font-size:14px}
+.wichtig .qq{font-size:11.5px;color:var(--stumm);margin-top:3px}
+/* Kacheln */
+.k{all:unset;box-sizing:border-box;display:block;width:100%;cursor:pointer;background:var(--flaeche);border:1px solid var(--rand);border-radius:9px;padding:9px 11px 8px;box-shadow:var(--schatten);transition:transform .15s,border-color .15s}
+.k:hover{transform:translateY(-1px);border-color:var(--c)}.k:focus-visible{outline:2px solid var(--c);outline-offset:2px}
+.kt{display:flex;justify-content:space-between;align-items:baseline;gap:6px}
+.kn{font-size:12.5px;color:var(--text2);font-weight:600}
+.kd{font-size:11px;color:var(--stumm);white-space:nowrap}
+.kw{font-size:23px;font-weight:700;line-height:1.15;font-variant-numeric:tabular-nums;margin-top:1px}
+.ks{font-size:11.8px;color:var(--text2);margin-top:1px}
+.spark{display:block;width:100%;height:30px;margin-top:3px}
+.k.offen{opacity:.8;border-style:dashed;cursor:default}.k.offen .kw{font-size:15px;color:var(--stumm)}
+.c1{--c:var(--c1)}.c2{--c:var(--c2)}.c3{--c:var(--c3)}.c4{--c:var(--c4)}.cb{--c:var(--cb)}
+.band{background:var(--hb);border:1px solid var(--rand);border-radius:12px;padding:8px 10px 10px;margin-bottom:14px}
+.bandkopf{font-size:12px;font-weight:700;color:var(--text2);text-transform:uppercase;letter-spacing:.05em;margin:2px 2px 6px}
+.bandinhalt{display:grid;grid-template-columns:repeat(4,1fr);gap:10px}
+/* Verstaendnis */
+.versteh{background:var(--flaeche);border:1px solid var(--rand);border-radius:12px;padding:6px 18px 14px;box-shadow:var(--schatten);margin-bottom:14px}
+.versteh>h2{margin:12px 0 2px;font-size:17px}
+.versteh .lead{margin:0 0 8px;color:var(--text2);font-size:13.5px}
+.versteh details{border-top:1px solid var(--raster);padding:6px 0}
+.versteh details:first-of-type{border-top:0}
+.versteh summary{cursor:pointer;font-weight:650;font-size:14.5px;padding:4px 0;list-style:none}
+.versteh summary::-webkit-details-marker{display:none}
+.versteh summary:before{content:"▸";display:inline-block;width:18px;color:var(--text2);transition:transform .15s}
+.versteh details[open]>summary:before{transform:rotate(90deg)}
+.versteh summary:focus-visible{outline:2px solid var(--text);outline-offset:2px;border-radius:4px}
+.versteh .inh{padding:2px 0 6px 18px;font-size:14px}
+.versteh ul{margin:4px 0;padding-left:20px}.versteh li{margin:3px 0}
+.dia{background:#0c1220;border:1px solid #26334b;border-radius:14px;padding:8px;margin:8px 0 4px}
+.dia svg{width:100%;height:auto;display:block}
+.dia text{font-family:inherit}
+.dia .nt{font-size:13px;font-weight:700;fill:#0b1620}.dia .ns{font-size:11px;fill:#16303f}
+.dia .lab{font-size:11.5px;fill:#eaf0fb;paint-order:stroke;stroke:#0c1220;stroke-width:5px;stroke-linejoin:round}
+.dia .zt{font-size:12px;fill:#9fb0c8;letter-spacing:.08em;text-transform:uppercase}
+.dia .nd,.dia .fl{cursor:pointer;outline:none}
+.dia .nd:hover rect,.dia .nd:hover polygon,.dia .nd:focus-visible rect,.dia .nd.on rect,.dia .nd.on polygon{stroke:#fff;stroke-width:3.5}
+.dia .fl:hover .l,.dia .fl.on .l{stroke-width:6}
+.leg{font-size:12.5px;color:var(--text2);margin:2px 0 4px}
+.info{background:var(--ebene);border:1px solid var(--rand);border-left:4px solid var(--c1);border-radius:8px;padding:8px 12px;font-size:13.5px;min-height:44px;margin-top:6px}
+/* Unterthemen */
+.ut{display:grid;grid-template-columns:repeat(2,1fr);gap:12px;margin-bottom:14px}
+.ut section{background:var(--flaeche);border:1px solid var(--rand);border-top:4px solid var(--c);border-radius:10px;padding:10px 14px 12px;box-shadow:var(--schatten)}
+.ut h3{margin:0 0 4px;font-size:15px}.ut h3 span{color:var(--c);margin-right:6px}
+.ut p,.ut li{font-size:13.5px;margin:3px 0}.ut ul{margin:4px 0;padding-left:18px}
+.tb{width:100%;border-collapse:collapse;font-size:13px;margin-top:6px}.tb th{text-align:left;font-size:11.5px;color:var(--text2);border-bottom:1px solid var(--rand);padding:3px 6px 3px 0}.tb td{padding:4px 6px 4px 0;border-bottom:1px solid var(--raster)}.tb td.hk{font-weight:700;color:var(--warn)}
+.ut .offenhin{font-size:12.5px;color:var(--warn);border-left:3px solid var(--warn);padding:2px 8px;margin-top:6px}
+.ut .wichtig{margin:8px 0 2px;padding:7px 10px}.ut .wichtig p{font-size:13px}
+/* Gilt-Kachel */
+.gilt{all:unset;box-sizing:border-box;display:block;width:100%;cursor:pointer;background:var(--flaeche);border:1px solid var(--rand);border-left:8px solid var(--c4);border-radius:12px;padding:16px 20px;box-shadow:var(--schatten);margin-bottom:14px;transition:transform .15s,border-color .15s}
+.gilt:hover{transform:translateY(-1px);border-color:var(--c4)}.gilt:focus-visible{outline:2px solid var(--c4);outline-offset:2px}
+.gilt h2{margin:0 0 2px;font-size:19px}.gilt .gs{color:var(--text2);font-size:13.5px}
+.gilt .gz{display:flex;gap:28px;flex-wrap:wrap;margin:10px 0 6px}
+.gilt .gz div b{display:block;font-size:26px;font-variant-numeric:tabular-nums}.gilt .gz div span{font-size:12px;color:var(--text2)}
+.gilt .oeffnen{display:inline-block;background:var(--text);color:var(--flaeche);border-radius:8px;padding:5px 14px;font-size:13px;font-weight:650}
+/* Zeitstrahl */
+.panel{background:var(--flaeche);border:1px solid var(--rand);border-radius:12px;padding:10px 16px 14px;box-shadow:var(--schatten);margin-bottom:14px}
+.panel h2{margin:4px 0 2px;font-size:17px}
+.ev{display:flex;gap:10px;padding:5px 0;border-top:1px solid var(--raster);font-size:13px}
+.ev:first-of-type{border-top:0}.ev .d{width:92px;font-weight:650;flex:none}
+.termine{background:var(--flaeche);border:1px solid var(--rand);border-radius:10px;padding:10px 14px;box-shadow:var(--schatten);margin-bottom:14px}
+.termine h2{margin:0 0 4px;font-size:13px;color:var(--text2);text-transform:uppercase;letter-spacing:.05em}
+.fuss{margin-top:6px;font-size:11.5px;color:var(--stumm)}
+/* Drawer + Overlay */
+#schatten{position:fixed;inset:0;background:rgba(0,0,0,.35);opacity:0;pointer-events:none;transition:opacity .2s;z-index:20}
+#schatten.offen{opacity:1;pointer-events:auto}
+#drawer{position:fixed;top:0;right:0;height:100%;width:min(580px,100%);background:var(--flaeche);border-left:1px solid var(--rand);box-shadow:-8px 0 30px rgba(0,0,0,.18);transform:translateX(100%);transition:transform .22s ease;z-index:21;overflow-y:auto}
+#drawer.offen{transform:none}
+#gp{position:fixed;inset:3vh 3vw;background:var(--flaeche);border:1px solid var(--rand);border-radius:14px;box-shadow:0 20px 60px rgba(0,0,0,.4);z-index:22;overflow-y:auto;display:none}
+#gp.offen{display:block}
+.dk{position:sticky;top:0;background:var(--flaeche);border-bottom:1px solid var(--rand);border-top:4px solid var(--c,var(--c1));padding:14px 18px 10px;display:flex;justify-content:space-between;gap:10px;align-items:flex-start;z-index:2}
+.dk h2{margin:0;font-size:18px}.dk .gr{font-size:12px;color:var(--c,var(--c1));text-transform:uppercase;letter-spacing:.05em;font-weight:700}
+.zu{all:unset;cursor:pointer;font-size:24px;line-height:1;padding:2px 10px;border-radius:6px;color:var(--text2)}.zu:hover{background:var(--raster)}.zu:focus-visible{outline:2px solid var(--text)}
+.db{padding:14px 18px 40px}
+.gross{font-size:34px;font-weight:700;font-variant-numeric:tabular-nums;line-height:1.1}
+.gsub{font-size:13px;color:var(--text2);margin-bottom:8px}
+.btns{display:flex;gap:6px;margin:6px 0 4px;flex-wrap:wrap}
+.btn{font:inherit;font-size:12px;background:var(--ebene);color:var(--text);border:1px solid var(--rand);border-radius:7px;padding:3px 10px;cursor:pointer}
+.btn[aria-pressed="true"]{background:var(--text);color:var(--flaeche);border-color:var(--text)}
+svg.chart{width:100%;height:auto;display:block;touch-action:none}
+.tip{font-size:12.5px;color:var(--text2);min-height:18px;margin-bottom:4px;font-variant-numeric:tabular-nums}
+.db h3{font-size:12px;text-transform:uppercase;letter-spacing:.05em;color:var(--text2);margin:18px 0 4px}
+.db p{margin:0 0 8px;font-size:14px}
+.db table{width:100%;border-collapse:collapse;font-size:13px}
+.db td{padding:5px 8px 5px 0;border-bottom:1px solid var(--raster);vertical-align:top}
+.db .hin{background:var(--ebene);border-left:3px solid var(--warn);border-radius:4px;padding:6px 10px;font-size:13px;color:var(--text2)}
+.db a{color:inherit}
+.tabs{display:flex;gap:6px;margin:0 0 10px;flex-wrap:wrap}
+.tab{font:inherit;font-size:13.5px;font-weight:600;background:var(--ebene);color:var(--text);border:1px solid var(--rand);border-radius:8px;padding:6px 14px;cursor:pointer}
+.tab[aria-selected="true"]{background:var(--text);color:var(--flaeche)}
+.schritt{all:unset;box-sizing:border-box;display:block;width:100%;cursor:pointer;background:var(--ebene);border:1px solid var(--rand);border-left:5px solid var(--c4);border-radius:9px;padding:8px 12px;margin:8px 0}
+.schritt:hover,.schritt[aria-expanded="true"]{border-color:var(--c4)}
+.schritt b{display:block;font-size:14px}.schritt .sd{font-size:12px;color:var(--c4);font-weight:700}
+.schritt .st{display:none;font-size:13.5px;margin-top:4px;color:var(--text2)}.schritt[aria-expanded="true"] .st{display:block}
+@media (max-width:980px){.bandinhalt{grid-template-columns:repeat(2,1fr)}.ut{grid-template-columns:1fr}}
+@media (prefers-reduced-motion:reduce){#drawer,#schatten,.k{transition:none}}
+.entwurf{display:inline-block;margin-left:8px;padding:1px 8px;border-radius:99px;border:1px solid var(--warn);color:var(--warn);font-size:12px;font-weight:600;vertical-align:middle}
+.leer{color:var(--stumm);font-size:12.5px;border-left:3px solid var(--warn);padding:2px 8px;margin:6px 0}
+.zit{font-size:12.5px;color:var(--text2);border-left:3px solid var(--rand);padding:2px 10px;margin:6px 0;font-style:italic}
+</style>
+</head>
+<body data-flagge="../bilder/flaggen/australien.jpg">
+<div class="wrap">
+<header>
+  <div>
+    <a href="index.html" class="zurueck-knopf">← Länderübersicht</a>
+    <h1>Australien – Zentralbank (Reserve Bank of Australia) <span class="entwurf">Entwurf</span></h1>
+    <div class="unter" id="unter">Länderanalyse, Oberthema 3 · Daten und Fakten, keine Bewertung · Daten und Termine werden automatisch abgerufen (RBA, ABS, OECD, BIS), Stand in jeder Kachel</div>
+  </div>
+  <button class="tool" id="theme" type="button">Dunkel / Hell</button>
+</header>
+<div class="legende">
+  <span><i class="pkt auto"></i>aus Abruf (RBA, ABS, OECD, BIS), Datum in jeder Kachel</span>
+  <span><i class="pkt man"></i>fester Erklärtext oder noch offen</span>
+  <span>Bausteine, Pfeile und Kacheln anklicken: Erklärung, Chart mit Historie, Quellen</span>
+</div>
+
+<div id="ik1"></div>
+<script>infokasten("#ik1",{
+ titel:"Charakter Australiens",
+ satz:"Die Zinsentscheide trifft das Monetary Policy Board der RBA. Australische Hypotheken laufen überwiegend mit variablem Zins, deshalb wirkt eine Änderung der Cash Rate schnell auf die Haushalte.",
+ kacheln:[["9","Mitglieder im Monetary Policy Board (3 von Amts wegen, 6 extern)"],["8","Sitzungen im Jahr, Beschluss jeweils 14:30 Uhr Sydney"],["rund 80 %","der ausstehenden Wohnbaukredite mit variablem Zins (Stand Dezember 2023)"]],
+ quelle:"Quellen: RBA, Monetary Policy Board (Zusammensetzung, Sitzungen), RBA Q&amp;A-Transkript vom 08.12.2023 (Anteil variabel, rund 20 % fix). Der Anteil wird noch mit einer aktuelleren RBA-Angabe belegt."
+});</script>
+
+<section class="versteh" aria-labelledby="vt">
+  <h2 id="vt">Zuerst verstehen: Wie die Reserve Bank of Australia aufgebaut ist und wirkt</h2>
+  <p class="lead">Zwei Schaubilder: die Institutionen mit ihren Beziehungen und der Weg vom Datenbild zum Zinsentscheid. Alles ist anklickbar.</p>
+  <details open>
+    <summary>1 · Die Institutionen: wer setzt was, wer prüft wen</summary>
+    <div class="inh">
+      <p class="leg"><b style="color:#6cb8f2">Blau</b>: Ziele, Aufsicht, Berichte · <b style="color:#ffd166">Gold</b>: Geld und Staatsanleihen · <b style="color:#b48ae6">Lila</b>: Wirkung auf Haushalte und Firmen</p>
+      <div class="dia"><svg id="b" viewBox="0 0 1100 600" role="group" aria-label="Institutionen-Landkarte der Reserve Bank of Australia"></svg></div>
+      <div class="info" id="bi">Klicke auf einen Baustein oder einen Pfeil.</div>
+      <div class="fuss">Die Rollen von APRA, ASIC und AOFM sind aus allgemeinem Wissen beschrieben, die Quellenprüfung steht noch aus (Entwurf).</div>
+    </div>
+  </details>
+  <details open>
+    <summary>2 · Der Weg eines Zinsentscheids (Prozessdiagramm)</summary>
+    <div class="inh">
+      <p class="leg">Rechtecke sind Schritte, Kapseln sind Ergebnisse. <b style="color:#5aa9e6">Blau</b>: RBA · <b style="color:#9aa7b5">Grau</b>: Märkte · <b style="color:#4cc38a">Grün</b>: Haushalte, Firmen, Preise</p>
+      <div class="dia"><svg id="a" viewBox="0 0 1100 800" role="group" aria-label="Prozessdiagramm: Weg eines Zinsentscheids der RBA"></svg></div>
+      <div class="info" id="ai">Klicke auf einen Schritt.</div>
+    </div>
+  </details>
+  <details>
+    <summary>3 · Rahmenwerk im Wortlaut (automatisch von der RBA gelesen)</summary>
+    <div class="inh" id="rahmen"></div>
+  </details>
+</section>
+
+<div class="band"><div class="bandkopf">Kennzahlen (Klick öffnet Chart und Quelle)</div><div class="bandinhalt" id="kachel"></div></div>
+
+<div class="ut" id="ut"></div>
+
+<button class="gilt" id="giltk" type="button" aria-label="Staatsanleihen öffnen">
+  <h2>Staatsanleihen und Staatsfinanzen</h2>
+  <div class="gs">Rendite der zehnjährigen australischen Staatsanleihe und ihr Zusammenhang mit der Cash Rate. Der Kreislauf der Staatsfinanzen folgt bei Oberthema 2 und 4.</div>
+  <div class="gz" id="giltz"></div>
+  <span class="oeffnen">Öffnen: Rendite und Cash Rate im Vergleich</span>
+</button>
+
+<div class="panel" id="zs">
+  <h2>Zeitstrahl seit 1990: Cash Rate und Inflation</h2>
+  <p class="leg">Ereignisse unter dem Chart anklicken oder die Linien mit der Maus verfolgen. Cash Rate Target in Prozent (vor August 1990: Mitte der Zielspanne), Inflation (CPI) zum Vorjahr in Prozent, quartalsweise (OECD). Gestrichelt: 2 und 3 Prozent.</p>
+  <div class="btns" id="zsb"></div>
+  <div class="tip" id="zst"></div>
+  <div id="zsc"></div>
+  <div id="zse"></div>
+</div>
+
+<div class="termine"><h2>Termine: Zinsbeschlüsse der RBA (Beschluss jeweils 14:30 Uhr Sydney)</h2><div id="trm"></div><div class="fuss">Quelle: RBA, Veranstaltungskalender (Monetary Policy Board Meeting). Mit Statement on Monetary Policy: Februar, Mai, August, November. Die Veröffentlichungstermine der ABS (CPI, Arbeitsmarkt) werden noch ergänzt.</div></div>
+
+<div class="fuss">Die Bundesstaaten werden bei Politik (1), Gesundheit (10) und Immobilien (11) einzeln ausgewiesen, nicht bei der Zentralbank. Quellen: RBA (Statistiktabellen A1, A2, D1, F1, F2, F5, F11.1), ABS (Data API), OECD, BIS. Alle Angaben ohne Bewertung.</div>
+</div>
+
+<div id="schatten"></div>
+<aside id="drawer" aria-hidden="true"></aside>
+<div id="gp" role="dialog" aria-modal="true" aria-label="Staatsanleihen"></div>
+
+<script src="daten/aus.js?v=1"></script>
+<script>
+"use strict";
+const $=s=>document.querySelector(s);
+const NS="http://www.w3.org/2000/svg";
+function el(n,a,p){const e=document.createElementNS(NS,n);for(const k in a)e.setAttribute(k,a[k]);if(p)p.appendChild(e);return e}
+function esc(s){return String(s).replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]))}
+const nf=(v,d)=>v.toLocaleString("de-DE",{minimumFractionDigits:d,maximumFractionDigits:d});
+const dts=iso=>{const p=iso.slice(0,10).split("-");return p[2]+"."+p[1]+"."+p[0]};
+const mon=iso=>{const M=["Jan","Feb","Mär","Apr","Mai","Jun","Jul","Aug","Sep","Okt","Nov","Dez"];return M[+iso.slice(5,7)-1]+" "+iso.slice(0,4)};
+const last=a=>a[a.length-1];
+const stufe=(a,iso)=>{let v=null;for(const p of a){if(p[0]<=iso)v=p[1];else break}return v};
+
+/* ---------- Chart ---------- */
+function chart(host,serien,opt){
+ opt=opt||{};const W=640,H=opt.h||280,L=46,R=10,T=10,B=24;
+ const svg=el("svg",{class:"chart",viewBox:"0 0 "+W+" "+H,role:"img","aria-label":opt.label||"Chart"});host.innerHTML="";host.appendChild(svg);
+ let von=opt.von?Date.parse(opt.von):Math.min(...serien.map(s=>Date.parse(s.pts[0][0])));
+ const bis=Math.max(...serien.map(s=>Date.parse(last(s.pts)[0])));
+ let vals=[];serien.forEach(s=>s.pts.forEach(p=>{if(Date.parse(p[0])>=von)vals.push(p[1])}));
+ if(!vals.length)return;
+ let mn=Math.min(...vals),mx=Math.max(...vals);if(opt.nullAn&&mn>0)mn=0;if(mn===mx){mn-=1;mx+=1}
+ const span=mx-mn,roh=span/5,pot=Math.pow(10,Math.floor(Math.log10(roh))),f=roh/pot,stp=(f<=1?1:f<=2?2:f<=5?5:10)*pot;
+ mn=Math.floor(mn/stp)*stp;mx=Math.ceil(mx/stp)*stp;
+ const X=t=>L+(t-von)/(bis-von||1)*(W-L-R),Y=v=>T+(1-(v-mn)/(mx-mn))*(H-T-B);
+ for(let v=mn;v<=mx+stp/2;v+=stp){el("line",{x1:L,x2:W-R,y1:Y(v),y2:Y(v),stroke:"var(--raster)"},svg);const t=el("text",{x:L-6,y:Y(v)+4,"text-anchor":"end","font-size":10.5,fill:"var(--stumm)"},svg);t.textContent=nf(v,stp<1?1:0)}
+ const j0=new Date(von).getUTCFullYear(),j1=new Date(bis).getUTCFullYear(),sj=Math.max(1,Math.ceil((j1-j0)/8));
+ for(let j=j0+1;j<=j1;j+=sj){const x=X(Date.UTC(j,0,1));if(x<L||x>W-R)continue;const t=el("text",{x:x,y:H-7,"text-anchor":"middle","font-size":10.5,fill:"var(--stumm)"},svg);t.textContent=j}
+ (opt.ziele||[]).forEach(z=>{if(z>=mn&&z<=mx)el("line",{x1:L,x2:W-R,y1:Y(z),y2:Y(z),stroke:"var(--stumm)","stroke-dasharray":"5 4"},svg)});
+ if(opt.ziel!==undefined&&opt.ziel>=mn&&opt.ziel<=mx){el("line",{x1:L,x2:W-R,y1:Y(opt.ziel),y2:Y(opt.ziel),stroke:"var(--stumm)","stroke-dasharray":"5 4"},svg);const t=el("text",{x:W-R,y:Y(opt.ziel)-4,"text-anchor":"end","font-size":10.5,fill:"var(--stumm)"},svg);t.textContent=opt.zielName||"Ziel"}
+ serien.forEach(s=>{let d="",p0=null;s.pts.forEach(p=>{const t=Date.parse(p[0]);if(t<von)return;const x=X(t),y=Y(p[1]);
+   if(d==="")d="M"+x+","+y;else if(s.step)d+=" L"+x+","+Y(p0[1])+" L"+x+","+y;else d+=" L"+x+","+y;p0=p});
+  if(d&&s.step&&p0)d+=" L"+X(bis)+","+Y(p0[1]);
+  el("path",{d:d,fill:"none",stroke:s.farbe,"stroke-width":2.2,"stroke-linejoin":"round"},svg)});
+ (opt.marken||[]).forEach(m=>{const t=Date.parse(m);if(t<von||t>bis)return;el("line",{x1:X(t),x2:X(t),y1:T,y2:H-B,stroke:"var(--warn)","stroke-dasharray":"2 3",opacity:.7},svg)});
+ const cur=el("line",{y1:T,y2:H-B,stroke:"var(--text)","stroke-width":1,opacity:0},svg);
+ const ov=el("rect",{x:L,y:T,width:W-L-R,height:H-T-B,fill:"transparent"},svg);
+ const tip=opt.tip;
+ function zeig(ev){const r=svg.getBoundingClientRect(),x=(ev.clientX-r.left)/r.width*W;let t=von+(x-L)/(W-L-R)*(bis-von);t=Math.max(von,Math.min(bis,t));
+   const iso=new Date(t).toISOString().slice(0,10);cur.setAttribute("x1",X(t));cur.setAttribute("x2",X(t));cur.setAttribute("opacity",.6);
+   if(tip)tip.textContent=dts(iso)+" · "+serien.map(s=>{const v=stufe(s.pts,iso);return s.n+": "+(v===null?"–":nf(v,s.dez===undefined?2:s.dez)+(s.einh||""))}).join(" · ")}
+ ov.addEventListener("pointermove",zeig);ov.addEventListener("pointerdown",zeig);
+ ov.addEventListener("pointerleave",()=>{cur.setAttribute("opacity",0)});
+}
+function bereich(btnHost,haupt,opts){ // opts: [[label,jahre|0]]
+ btnHost.innerHTML="";let aktiv=opts.length-1;
+ const bs=opts.map((o,i)=>{const b=document.createElement("button");b.className="btn";b.type="button";b.textContent=o[0];b.setAttribute("aria-pressed",i===aktiv);b.onclick=()=>{aktiv=i;bs.forEach((x,j)=>x.setAttribute("aria-pressed",j===i));draw()};btnHost.appendChild(b);return b});
+ function draw(){const j=opts[aktiv][1];let von=null;if(j){const e=new Date();e.setUTCFullYear(e.getUTCFullYear()-j);von=e.toISOString().slice(0,10)}haupt(von)}
+ draw();
+}
+const Z=(window.AUS_DATEN&&window.AUS_DATEN.zb)||null;
+const DATA=Z;
+const ABRUF=(window.AUS_DATEN&&window.AUS_DATEN._abruf)||"";
+const FEHL=(window.AUS_DATEN&&window.AUS_DATEN._fehler)||{};
+const qlab=iso=>"Q"+(Math.floor((+iso.slice(5,7)-1)/3)+1)+" "+iso.slice(0,4);
+const pr=(v,d)=>nf(v,d===undefined?2:d);
+const get=(o,pfad)=>pfad.split(".").reduce((a,k)=>a&&a[k],o);
+const reihePts=r=>r&&r.r&&r.r.length?r.r:null;
+
+/* ---------- Kacheln (Kennzahlen) ---------- */
+const KACH=[
+ {id:"cash",n:"Cash Rate Target",c:"c1",pts:()=>Z.beschluesse?Z.beschluesse.map(b=>[b[0],b[1]]):null,e:" %",d:2,step:true,gr:"Zins",fmt:"d",
+  was:"Der Leitzins der RBA. Das Monetary Policy Board legt ein Ziel für den Zins fest, zu dem sich Banken über Nacht Geld leihen (Cash Rate). Eine Änderung gilt ab dem Tag nach dem Beschluss. Die Kachel zeigt die Beschlüsse (Änderungspunkte) seit 1990.",
+  q:"RBA, Statistiktabelle A2 (Changes in Monetary Policy and Administered Rates)",u:"https://www.rba.gov.au/statistics/cash-rate/",art:"Änderungspunkte, seit 1990"},
+ {id:"cpi",n:"Inflation (CPI, zum Vorjahr)",c:"c4",pts:()=>reihePts({r:Z.cpi}),e:" %",d:1,gr:"Mandat",fmt:"m",band:[2,3],
+  was:"Verbraucherpreisindex (CPI), Veränderung zum Vorjahresmonat (monatlicher, vollständiger CPI der ABS, verfügbar seit April 2025). Die lange Reihe seit 1990 (quartalsweise) steht im Zeitstrahl unten. Das Inflationsziel der RBA ist eine Spanne von 2 bis 3 Prozent (Wortlaut im Rahmenwerk oben).",
+  q:"ABS, Consumer Price Index (CPI), Data API, Messgröße „Percentage change from previous year“, alle Gruppen",u:"https://www.abs.gov.au/statistics/economy/price-indexes-and-inflation/consumer-price-index-australia/latest-release",art:"Monatswert"},
+ {id:"alq",n:"Arbeitslosenquote",c:"c3",pts:()=>reihePts({r:Z.alq}),e:" %",d:1,gr:"Arbeitsmarkt",fmt:"m",
+  was:"Anteil der Arbeitslosen an den Erwerbspersonen (ABS Labour Force Survey), saisonbereinigt, monatlich. Neben der Inflation ein zentrales Thema der Beschlüsse, weil das Board Preisstabilität und Beschäftigung zusammen betrachtet.",
+  q:"ABS, Labour Force, Australia (Data API LF, Messgröße M13, saisonbereinigt)",u:"https://www.abs.gov.au/statistics/labour/employment-and-unemployment/labour-force-australia/latest-release",art:"Monatswert"},
+ {id:"aud",n:"AUD in US-Dollar",c:"c2",pts:()=>reihePts(Z.aud),e:" USD",d:4,gr:"Wechselkurs",fmt:"m",
+  was:"Wie viele US-Dollar ein australischer Dollar kostet (Monatsende). Ein schwächerer AUD verteuert Importe. Der Zusammenhang mit den Rohstoffpreisen steht bei Handel (5).",
+  q:"RBA, Statistiktabelle F11.1 (Exchange Rates, daily)",u:"https://www.rba.gov.au/statistics/frequency/exchange-rates.html",art:"Monatsende"},
+ {id:"y10",n:"Staatsanleihe-Rendite, 10 Jahre",c:"c4",pts:()=>reihePts(Z.rendite),e:" %",d:2,gr:"Staatsanleihen",fmt:"m",
+  was:"Rendite der zehnjährigen Anleihe der australischen Regierung (Monatswert). Sie beeinflusst Hypothekenzinsen und die Zinskosten des Staates.",
+  q:"RBA, Statistiktabelle F2 (Capital Market Yields, Government Bonds)",u:"https://www.rba.gov.au/statistics/tables/",art:"Monatswert"},
+ {id:"hyp",n:"Hypothekenzins, variabel (Eigennutzer)",c:"c1",pts:()=>reihePts(Z.kreditzins&&Z.kreditzins.var_eigen),e:" %",d:2,gr:"Zins",fmt:"m",
+  was:"Variabler Zins für Wohnbaukredite von Eigennutzern bei Banken, Standardsatz (Indikatorzins der RBA). Zeigt, wie die Cash Rate bei den Haushalten ankommt.",
+  q:"RBA, Statistiktabelle F5 (Indicator Lending Rates)",u:"https://www.rba.gov.au/statistics/tables/",art:"Monatswert"},
+ {id:"kred",n:"Wohnbaukredit, Wachstum zum Vorjahr",c:"c3",pts:()=>reihePts(Z.kredit&&Z.kredit.haus12),e:" %",d:1,gr:"Kredit",fmt:"m",
+  was:"Wachstum der Wohnbaukredite im Bestand zum Vorjahresmonat (saisonbereinigt). Zeigt, wie schnell Haushaltsschulden zunehmen.",
+  q:"RBA, Statistiktabelle D1 (Growth in Selected Financial Aggregates)",u:"https://www.rba.gov.au/statistics/tables/",art:"Monatswert"},
+ {id:"schuld",n:"Haushaltsschulden in % des BIP",c:"c3",pts:()=>reihePts({r:Z.schulden_bis&&Z.schulden_bis.H}),e:" %",d:1,gr:"Kredit",fmt:"q",
+  was:"Kredit an private Haushalte im Verhältnis zur jährlichen Wirtschaftsleistung (BIS, Total Credit Statistics, Marktwert, quartalsweise).",
+  q:"BIS, Total Credit Statistics (WS_TC), Australien, private Haushalte",u:"https://data.bis.org/topics/TOTAL_CREDIT",art:"Quartalswert"}
+];
+const byId={};
+const lab=(k,iso)=>k.fmt==="q"?qlab(iso):k.fmt==="m"?mon(iso):dts(iso);
+function spark(a,farbe,step){const n=a.slice(-48);const sv=el("svg",{class:"spark",viewBox:"0 0 100 30",preserveAspectRatio:"none"});
+ const v=n.map(p=>p[1]),mn=Math.min(...v),mx=Math.max(...v),sp=(mx-mn)||1;
+ let d="";n.forEach((p,i)=>{const x=i/(n.length-1||1)*100,y=28-(p[1]-mn)/sp*26;d+=(i?" L":"M")+x.toFixed(1)+","+y.toFixed(1)});
+ el("path",{d:d,fill:"none",stroke:farbe,"stroke-width":1.6,"vector-effect":"non-scaling-stroke"},sv);return sv}
+function kacheln(){
+ const host=$("#kachel");
+ KACH.forEach(k=>{byId[k.id]=k;const a=Z?k.pts():null;
+  const b=document.createElement("button");b.className="k "+k.c+(a?"":" offen");b.type="button";
+  if(!a){b.innerHTML='<div class="kt"><span class="kn">'+esc(k.n)+'</span></div><div class="kw">noch kein Abruf</div><div class="ks">'+esc(FEHL[k.id]||"wartet auf den nächsten Datenabruf")+'</div>';host.appendChild(b);return}
+  k.a=a;const l=last(a),vor=a.length>1?a[a.length-2]:null;
+  b.innerHTML='<div class="kt"><span class="kn">'+esc(k.n)+'</span><span class="kd">'+lab(k,l[0])+'</span></div><div class="kw">'+nf(l[1],k.d)+esc(k.e)+'</div><div class="ks"></div>';
+  const ks=b.querySelector(".ks");
+  if(k.id==="cash"){ks.textContent="seit "+dts(l[0])+(vor?" (davor "+nf(vor[1],2)+" %)":"")}
+  else if(k.band)ks.textContent="Zielspanne "+k.band[0]+" bis "+k.band[1]+" %, Vormonat "+nf(vor[1],1)+" %";
+  else if(vor)ks.textContent="Vorwert "+nf(vor[1],k.d)+esc(k.e);
+  b.appendChild(spark(a,"var(--c)"));b.onclick=()=>oeffnen(k.id);host.appendChild(b)});
+ infoKarten().forEach(o=>{byId[o.id]=o;const b=document.createElement("button");b.type="button";b.className="k "+o.c;b.innerHTML='<div class="kt"><span class="kn">'+esc(o.n)+'</span><span class="kd">'+esc(o.datum)+'</span></div><div class="kw">'+esc(o.wert)+'</div><div class="ks">'+esc(o.sub)+'</div>';b.onclick=()=>oeffnenInfo(o.id);host.appendChild(b)});
+}
+function oeffnen(id){const k=byId[id],a=k.a,l=last(a);const dr=$("#drawer");
+ dr.style.setProperty("--c","var(--"+k.c+")");
+ dr.innerHTML='<div class="dk"><div><div class="gr">'+esc(k.gr)+'</div><h2>'+esc(k.n)+'</h2></div><button class="zu" type="button" aria-label="Schließen">×</button></div><div class="db"><div class="gross">'+nf(l[1],k.d)+esc(k.e)+'</div><div class="gsub">Stand '+lab(k,l[0])+' · '+esc(k.art)+'</div><div class="btns" id="db-b"></div><div class="tip" id="db-t"></div><div id="db-c"></div><h3>Was ist das?</h3><p>'+esc(k.was)+'</p><h3>Quelle</h3><table><tr><td>Reihe</td><td>'+esc(k.q)+'</td></tr><tr><td>Link</td><td><a href="'+esc(k.u)+'" target="_blank" rel="noopener">'+esc(k.u)+'</a></td></tr><tr><td>Datenabruf</td><td>'+dts(ABRUF)+'</td></tr></table></div>';
+ dr.classList.add("offen");$("#schatten").classList.add("offen");dr.setAttribute("aria-hidden","false");
+ dr.querySelector(".zu").onclick=schliessen;dr.querySelector(".zu").focus();
+ bereich($("#db-b"),von=>chart($("#db-c"),[{n:k.n,farbe:"var(--c)",pts:a,step:k.step,dez:k.d,einh:k.e}],{von:von,tip:$("#db-t"),ziele:k.band,label:k.n}),[["2 Jahre",2],["5 Jahre",5],["10 Jahre",10],["Max",0]]);
+}
+function oeffnenInfo(id){const k=byId[id];const dr=$("#drawer");dr.style.setProperty("--c","var(--"+k.c+")");
+ dr.innerHTML='<div class="dk"><div><div class="gr">'+esc(k.gr)+'</div><h2>'+esc(k.n)+'</h2></div><button class="zu" type="button" aria-label="Schließen">×</button></div><div class="db"><div class="gross">'+esc(k.wert)+'</div><div class="gsub">'+esc(k.sub)+'</div><h3>Was ist das?</h3><p>'+esc(k.was)+'</p><h3>Einzelheiten</h3><table>'+k.rows.map(r=>'<tr><td>'+esc(r[0])+'</td><td>'+esc(r[1])+'</td></tr>').join("")+'</table>'+(k.hin?'<h3>Hinweis</h3><div class="hin">'+esc(k.hin)+'</div>':'')+'<h3>Quelle</h3><table><tr><td>Dokument</td><td>'+esc(k.q)+'</td></tr><tr><td>Link</td><td><a href="'+esc(k.u)+'" target="_blank" rel="noopener">'+esc(k.u)+'</a></td></tr></table></div>';
+ dr.classList.add("offen");$("#schatten").classList.add("offen");dr.setAttribute("aria-hidden","false");dr.querySelector(".zu").onclick=schliessen;dr.querySelector(".zu").focus()}
+function schliessen(){$("#drawer").classList.remove("offen");$("#gp").classList.remove("offen");$("#schatten").classList.remove("offen");$("#drawer").setAttribute("aria-hidden","true")}
+$("#schatten").onclick=schliessen;document.addEventListener("keydown",e=>{if(e.key==="Escape")schliessen()});
+
+/* ---------- Info-Karten: Abstimmung, Bilanz, nächster Termin ---------- */
+const ABS_MONATE=["Jan","Feb","Mär","Apr","Mai","Jun","Jul","Aug","Sep","Okt","Nov","Dez"];
+function naechster(){const heute=new Date().toISOString().slice(0,10);const t=(Z&&Z.termine||[]).find(x=>x.bis>=heute);return t||null}
+function infoKarten(){
+ const out=[];
+ const ab=Z&&Z.abstimmung;
+ out.push({id:"vote",n:"Abstimmung im Board",c:"c1",gr:"Zinsbeschluss",
+  wert:ab?"siehe Statement":"–",sub:ab?"Beschluss "+dts(ab.d):"Angabe im Statement noch nicht gelesen",datum:ab?dts(ab.d):"offen",
+  was:"Seit Juli 2025 veröffentlicht das Board in seinem Statement nach der Sitzung eine nicht personenbezogene Aufzeichnung der Stimmen (Rahmenwerk der RBA). Der Satz wird automatisch aus dem Statement des letzten Beschlusses gelesen und hier im Wortlaut gezeigt.",
+  rows:ab?[["Wortlaut (englisch)",ab.satz],["Beschluss",dts(ab.d)]]:[["Stand","Im Statement wurde noch keine Angabe gefunden. Es wird nichts geschätzt."]],
+  hin:"Die Stimmen sind nicht einzelnen Mitgliedern zugeordnet.",q:"RBA, Monetary Policy Decision Statement",u:ab?ab.url:"https://www.rba.gov.au/monetary-policy/rba-board-minutes/"});
+ const bl=Z&&Z.bilanz&&Z.bilanz.aktiva&&Z.bilanz.aktiva.r.length?Z.bilanz:null;
+ if(bl){const l=last(bl.aktiva.r);const z=(r)=>r&&r.r.length?[last(r.r)[1],last(r.r)[0]]:null;
+  const fm=v=>v===null?"–":nf(v/1000,1)+" Mrd. AUD";
+  const rows=[["Aktiva insgesamt",fm(l[1])]];
+  [["wertpapiere","Wertpapiere in AUD"],["banknoten","Banknotenumlauf"],["es","Guthaben der Banken bei der RBA (Exchange Settlement)"],["regierung","Einlagen der Regierung"]].forEach(p=>{const s=z(bl[p[0]]);if(s)rows.push([p[1],fm(s[0])])});
+  out.push({id:"bil",n:"Bilanz der RBA",c:"c1",gr:"Bilanz",wert:fm(l[1]),sub:"Aktiva insgesamt, Stand "+dts(l[0]),datum:dts(l[0]),
+   was:"Die Bilanz der Zentralbank (wöchentlich veröffentlicht). Sie zeigt, wie viel die RBA an Wertpapieren hält, wie viel Banknoten im Umlauf sind und wie viel Guthaben Banken und Regierung bei ihr haben.",
+   rows:rows,hin:"Die Zeilen werden direkt aus der Tabelle A1 der RBA gelesen, Beträge in Mrd. australischen Dollar.",q:"RBA, Statistiktabelle A1 (Balance Sheet, weekly)",u:"https://www.rba.gov.au/statistics/tables/"})}
+ else out.push({id:"bil",n:"Bilanz der RBA",c:"c1",gr:"Bilanz",wert:"–",sub:"wartet auf den nächsten Datenabruf",datum:"offen",was:"Die Bilanz der Zentralbank (RBA-Tabelle A1, wöchentlich).",rows:[["Stand","noch kein Abruf"]],q:"RBA, Tabelle A1",u:"https://www.rba.gov.au/statistics/tables/"});
+ const n=naechster();
+ out.push({id:"next",n:"Nächste Sitzung",c:"c4",gr:"Termine",wert:n?dts(n.bis):"–",sub:n?"Beschluss um 14:30 Uhr Sydney, Sitzung "+dts(n.von)+" bis "+dts(n.bis):"Termine noch nicht gelesen",datum:n?"geplant":"offen",
+  was:"Das Board tagt achtmal im Jahr, jeweils über zwei Tage. Der Beschluss wird am zweiten Tag um 14:30 Uhr (Sydney) veröffentlicht, eine Änderung der Cash Rate gilt ab dem Folgetag.",
+  rows:n?[["Sitzung",dts(n.von)+" bis "+dts(n.bis)],["Beschluss",dts(n.bis)+", 14:30 Uhr Sydney"],["Mit Statement on Monetary Policy",[2,5,8,11].indexOf(+n.bis.slice(5,7))>=0?"ja":"nein"]]:[["Stand","Kalender noch nicht gelesen"]],
+  q:"RBA, Veranstaltungskalender",u:"https://www.rba.gov.au/schedules-events/calendar/"});
+ return out;
+}
+
+/* ---------- Unterthemen ---------- */
+function tabelleBeschluesse(){
+ const L=Z&&Z.cashseite;if(!L||!L.length)return '<div class="leer">Beschlussliste noch nicht gelesen (wartet auf den Datenabruf).</div>';
+ return '<table class="tb"><tr><th>Beschluss</th><th>Änderung</th><th>Cash Rate Target</th><th>Dokumente</th></tr>'+L.slice(0,8).map(b=>'<tr><td>'+dts(b.d)+'</td><td class="'+(b.aend>0?"hk":"")+'">'+(b.aend>0?"+":"")+nf(b.aend,2)+'</td><td>'+nf(b.satz,2)+' %</td><td>'+(b.statement?'<a href="'+esc(b.statement)+'" target="_blank" rel="noopener">Statement</a>':'')+(b.minutes?' · <a href="'+esc(b.minutes)+'" target="_blank" rel="noopener">Minutes</a>':'')+'</td></tr>').join("")+'</table><div class="fuss">Quelle: RBA, Seite „Cash Rate Target“ (Änderung in Prozentpunkten).</div>';
+}
+function bilanzTab(){
+ const bl=Z&&Z.bilanz;if(!bl||!bl.aktiva||!bl.aktiva.r.length)return '<div class="leer">Bilanzzeilen noch nicht gelesen (wartet auf den Datenabruf).</div>';
+ const fm=v=>nf(v/1000,1)+" Mrd. AUD",l=last(bl.aktiva.r);
+ const rows=[["Aktiva insgesamt",l[1]]];[["wertpapiere","Wertpapiere in AUD"],["banknoten","Banknotenumlauf"],["es","Guthaben der Banken (Exchange Settlement)"],["regierung","Einlagen der Regierung"]].forEach(p=>{if(bl[p[0]]&&bl[p[0]].r.length)rows.push([p[1],last(bl[p[0]].r)[1]])});
+ return '<table class="tb"><tr><th>Position (Stand '+dts(l[0])+')</th><th>Betrag</th></tr>'+rows.map(r=>'<tr><td>'+esc(r[0])+'</td><td>'+fm(r[1])+'</td></tr>').join("")+'</table><div class="fuss">Quelle: RBA, Tabelle A1, wöchentlich.</div>';
+}
+function smpBlock(){
+ const s=Z&&Z.smp;if(!s)return '<div class="leer">Statement on Monetary Policy noch nicht gelesen.</div>';
+ return '<p><b>'+esc(s.titel)+'</b> (Kurzfassung der RBA, englischer Originaltext):</p><div class="zit">'+esc(s.kurz)+'</div><div class="fuss">Quelle: <a href="'+esc(s.url)+'" target="_blank" rel="noopener">RBA, Statement on Monetary Policy</a>. Erscheint viermal im Jahr (Februar, Mai, August, November).</div>';
+}
+const UT=[
+ {c:"c1",t:"Mandat und Aufbau",f:()=>`<p>Die Reserve Bank of Australia (RBA) ist die Zentralbank Australiens und gibt die Banknoten aus. Grundlage ist der Reserve Bank Act 1959, seit 1960 übt sie die Zentralbankfunktionen aus.</p><ul><li><b>Monetary Policy Board</b> (seit 01.03.2025): entscheidet über die Geldpolitik. Es löste das frühere Reserve Bank Board ab, das von 1960 bis zur letzten Sitzung am 18.02.2025 bestand.</li><li><b>Payments System Board</b>: entscheidet über die Zahlungsverkehrspolitik der Bank.</li><li><b>Rahmenwerk:</b> „Statement on the Conduct of Monetary Policy“, eine Vereinbarung zwischen Board und Regierung (zuletzt Juli 2025). Der Wortlaut steht oben unter Punkt 3.</li></ul><div class="fuss">Quelle: RBA, Minutes (Monetary Policy Board seit 01.03.2025, Reserve Bank Board 1960 bis 18.02.2025), Reserve Bank Act 1959.</div>`},
+ {c:"c1",t:"Monetary Policy Board und Personen",f:()=>`<ul><li><b>9 Mitglieder:</b> drei von Amts wegen (Governor als Vorsitzende oder Vorsitzender, Deputy Governor als Stellvertretung, Secretary to the Treasury) und sechs externe Mitglieder, die der Schatzminister (Treasurer) ernennt.</li><li><b>Beschlussfähig</b> ist das Board mit mindestens fünf Mitgliedern.</li><li><b>Rhythmus:</b> acht Sitzungen im Jahr, jeweils nach der Veröffentlichung wichtiger Daten zu Inflation und Wirtschaftsaktivität. Beschluss um 14:30 Uhr Sydney, Minutes zwei Wochen später.</li><li><b>Abstimmung:</b> Seit Juli 2025 steht eine nicht personenbezogene Aufzeichnung der Stimmen im Statement nach der Sitzung (siehe Kachel „Abstimmung im Board“).</li></ul><table class="tb"><tr><th>Mitglied</th><th>Funktion</th></tr><tr><td>Michele Bullock</td><td>Governor, Vorsitz</td></tr><tr><td>Andrew Hauser</td><td>Deputy Governor</td></tr><tr><td>Carolyn Hewson</td><td>externes Mitglied</td></tr><tr><td>Ian Harper</td><td>externes Mitglied</td></tr></table><div class="fuss">Genannt sind die Personen, die in den RBA-Veröffentlichungen 2026 als Governor, Deputy Governor und externe Mitglieder auftreten. Die vollständige Mitgliederliste steht auf der <a href="https://www.rba.gov.au/about-rba/boards/monetary-policy-board/" target="_blank" rel="noopener">Seite des Boards</a> und wird beim nächsten Ausbau automatisch gelesen. Quelle: RBA, Monetary Policy Board; Kalender 2026.</div>`},
+ {c:"c1",t:"Zins und Erwartungen",f:()=>`<p>Die letzten Beschlüsse der RBA:</p>`+tabelleBeschluesse()+smpBlock()+`<ul><li><b>Cash Rate Target</b> und <b>Hypothekenzins</b> siehe Kennzahlen oben.</li><li><b>Erwartungen:</b> Eine kostenlose, automatisch abrufbare Quelle für Marktpreise künftiger Zinsschritte ist noch nicht gewählt. Der Abschnitt wird ergänzt, sobald eine verlässliche Quelle feststeht.</li></ul>`},
+ {c:"c1",t:"Instrumente und Bilanz",f:()=>`<ul><li><b>Cash Rate Target</b> als wichtigstes Instrument. Die Tabelle A2 der RBA führt daneben den <b>Zins auf Guthaben der Banken bei der RBA</b> (Exchange Settlement Rate) und den <b>Zins für Übernachtgeschäfte mit Wertpapieren</b> (Overnight Repo Rate) als weitere Zinssätze der Bank.</li><li><b>Bilanz:</b> Tabelle A1, wöchentlich:</li></ul>`+bilanzTab()+`<div class="leer">Anleihekäufe und andere Programme der RBA (Beschreibung, Umfang) folgen, sobald die Quelle für den Wortlaut gelesen ist.</div>`},
+ {c:"c1",t:"Finanzstabilität",f:()=>`<ul><li>Die RBA veröffentlicht zweimal im Jahr den <b>Financial Stability Review</b> (Stand der Veröffentlichungen: April und Oktober).</li><li><b>Haushaltskredit:</b> Kachel „Wohnbaukredit, Wachstum zum Vorjahr“ (RBA) und „Haushaltsschulden in % des BIP“ (BIS) oben.</li><li>Die Aufsicht über Banken liegt bei der APRA (Entwurf, Quellenprüfung offen). Zahlen zu Kapital, Stresstests und Zahlungsrückständen folgen bei Oberthema 2.</li></ul>`},
+ {c:"c2",t:"Wechselkurs und Verknüpfung",f:()=>`<p>Der Kurs des australischen Dollars wirkt über die Importpreise auf die Inflation. Die Kachel „AUD in US-Dollar“ zeigt den Verlauf. Die Verbindung zu den Rohstoffpreisen und zu China steht bei Handel (5), der Hypothekenkanal (von der Cash Rate zu den Haushalten) bei Immobilien (11).</p><div class="leer">Die Zinsdifferenz zu den USA wird ergänzt, sobald beide Reihen gemeinsam im Abruf stehen.</div>`}
+];
+function ut(){$("#ut").innerHTML=UT.map((u,i)=>'<section class="'+u.c+'"><h3><span>'+(i+1)+'</span>'+esc(u.t)+'</h3>'+u.f()+'</section>').join("")}
+
+/* ---------- Rahmenwerk im Wortlaut ---------- */
+function rahmenBlock(){
+ const r=Z&&Z.rahmen;
+ if(!r||!r.saetze||!r.saetze.length){$("#rahmen").innerHTML='<div class="leer">Der Wortlaut des Rahmenwerks wird beim nächsten Datenabruf gelesen.</div>';return}
+ $("#rahmen").innerHTML='<p>Auszug aus dem „Statement on the Conduct of Monetary Policy“ (englischer Originaltext, automatisch gelesen):</p>'+r.saetze.slice(0,10).map(s=>'<div class="zit">'+esc(s)+'</div>').join("")+'<div class="fuss">Quelle: <a href="'+esc(r.url)+'" target="_blank" rel="noopener">RBA, Statement on the Conduct of Monetary Policy (Juli 2025)</a>.</div>';
+}
+
+/* ---------- Diagramm B: Institutionen ---------- */
+const GK="#6cb8f2",GG="#ffd166",GL="#b48ae6";
+const BN={
+ tre:{t:"Treasurer",s:"Finanzministerium",c:"#9aa7b5",p:[450,90],was:"Der Schatzminister (Treasurer) ernennt die sechs externen Mitglieder des Monetary Policy Board. Der Secretary to the Treasury sitzt von Amts wegen im Board. Die Regierung schließt mit dem Board das Rahmenwerk (Statement on the Conduct of Monetary Policy) ab."},
+ rba:{t:"RBA",s:"Zentralbank, seit 1960",c:"#5aa9e6",p:[850,90],was:"Die Zentralbank Australiens. Sie gibt Banknoten aus, setzt die Geldpolitik um und führt die Bilanz. Zwei Gremien: Monetary Policy Board (Geldpolitik) und Payments System Board (Zahlungsverkehr)."},
+ aof:{t:"AOFM",s:"Bundesschulden",c:"#ffd166",p:[150,90],was:"Australian Office of Financial Management. Gibt im Auftrag der Regierung Staatsanleihen aus und verwaltet die Bundesschulden (aus allgemeinem Wissen, Quellenprüfung steht aus)."},
+ mpb:{t:"Policy Board",s:"Geldpolitik, 9 Mitglieder",c:"#5aa9e6",p:[500,290],was:"Beschließt das Cash Rate Target. Neun Mitglieder: Governor (Vorsitz), Deputy Governor, Secretary to the Treasury und sechs externe Mitglieder. Acht Sitzungen im Jahr, beschlussfähig ab fünf Mitgliedern."},
+ psb:{t:"Payments Board",s:"Zahlungsverkehr",c:"#5aa9e6",p:[760,290],was:"Entscheidet über die Zahlungsverkehrspolitik der RBA."},
+ apr:{t:"APRA",s:"Aufsicht Banken, Versicherer",c:"#9aa7b5",p:[150,290],was:"Australian Prudential Regulation Authority. Beaufsichtigt Banken, Versicherer und Pensionskassen (aus allgemeinem Wissen, Quellenprüfung steht aus). Eigenständig, nicht Teil der RBA."},
+ asc:{t:"ASIC",s:"Verhaltensaufsicht",c:"#9aa7b5",p:[940,470],was:"Australian Securities and Investments Commission. Beaufsichtigt das Verhalten von Finanzunternehmen und die Marktintegrität (aus allgemeinem Wissen, Quellenprüfung steht aus)."},
+ mkt:{t:"Märkte",s:"Anleihen, Cash Rate, AUD",c:"#ffd166",p:[300,490],was:"Hier treffen sich Staat und Zentralbank mit den Anlegern. Der Markt bildet Renditen, den Tageszins zwischen den Banken (Cash Rate) und den Wechselkurs des australischen Dollars."},
+ hh:{t:"Haushalte, Firmen",s:"Kredite, Hypotheken",c:"#b48ae6",p:[620,490],was:"Bei ihnen kommt die Politik an: über Kredit- und Hypothekenzinsen (überwiegend variabel), Sparzinsen, Löhne und Preise."}
+};
+const BF=[
+ ["tre","rba","Rahmenwerk, Ernennungen","Der Schatzminister ernennt die externen Mitglieder des Boards, die Regierung und das Board vereinbaren das Rahmenwerk der Geldpolitik.","k"],
+ ["rba","tre","Berichte, Statements","Die RBA veröffentlicht nach jeder Sitzung ein Statement, zwei Wochen später die Minutes, und viermal im Jahr das Statement on Monetary Policy.","k"],
+ ["tre","aof","Finanzierungsplan","Der Haushalt bestimmt den Kreditbedarf, die Schuldenagentur setzt ihn in Anleiheemissionen um.","g"],
+ ["rba","mpb","Geldpolitik","Das Monetary Policy Board ist das Gremium für die Zinsbeschlüsse.","k"],
+ ["rba","psb","Zahlungsverkehr","Das Payments System Board entscheidet über die Zahlungsverkehrspolitik.","k"],
+ ["apr","rba","Zusammenarbeit","Aufsicht und Zentralbank stimmen sich zur Stabilität des Finanzsystems ab (Entwurf).","k"],
+ ["rba","asc","Zusammenarbeit","Verhaltensaufsicht und Zentralbank arbeiten zusammen (Entwurf).","k"],
+ ["aof","mkt","gibt Anleihen aus","Die Schuldenagentur verkauft Staatsanleihen an Anleger. Daraus entstehen Renditen.","g"],
+ ["mpb","mkt","Cash Rate","Das Cash Rate Target bestimmt den Tageszins zwischen den Banken und beeinflusst die Renditen.","g"],
+ ["mpb","hh","Zinskanal","Die Zinsen wirken auf Kredite, Hypotheken, Sparen, Nachfrage und Preise.","l"]
+];
+function farbeK(a){return a==="g"?GG:a==="l"?GL:GK}
+function bBauen(){
+ const svg=$("#b"),info=$("#bi"),W=150,H=54;
+ const defs=el("defs",{},svg);
+ [["k",GK],["g",GG],["l",GL]].forEach(k=>{const m=el("marker",{id:"bm"+k[0],viewBox:"0 0 10 10",refX:9,refY:5,markerWidth:6,markerHeight:6,orient:"auto"},defs);el("path",{d:"M0 0L10 5L0 10z",fill:k[1]},m)});
+ BF.forEach(f=>{const a=BN[f[0]].p,b=BN[f[1]].p,dx=b[0]-a[0],dy=b[1]-a[1],Lg=Math.hypot(dx,dy),ux=dx/Lg,uy=dy/Lg;
+  const paar=BF.some(q=>q[0]===f[1]&&q[1]===f[0]),off=paar?18:0,px=-uy*off,py=ux*off;
+  const t=Math.min(Math.abs(ux)<1e-6?1e9:(W/2+5)/Math.abs(ux),Math.abs(uy)<1e-6?1e9:(H/2+5)/Math.abs(uy));
+  const x1=a[0]+px+ux*t,y1=a[1]+py+uy*t,x2=b[0]+px-ux*t,y2=b[1]+py-uy*t;
+  const g=el("g",{class:"fl",tabindex:0,role:"button","aria-label":f[2]},svg);
+  el("line",{x1:x1,y1:y1,x2:x2,y2:y2,stroke:"transparent","stroke-width":16},g);
+  el("line",{class:"l",x1:x1,y1:y1,x2:x2,y2:y2,stroke:farbeK(f[4]),"stroke-width":3.2,"marker-end":"url(#bm"+f[4]+")"},g);
+  let ang=Math.atan2(y2-y1,x2-x1)*180/Math.PI;if(ang>90)ang-=180;if(ang<-90)ang+=180;
+  const tx=el("text",{class:"lab",x:0,y:-6,"text-anchor":"middle",transform:"translate("+((x1+x2)/2)+","+((y1+y2)/2)+") rotate("+ang+")"},g);tx.textContent=f[2];
+  const sel=()=>{svg.querySelectorAll(".on").forEach(x=>x.classList.remove("on"));g.classList.add("on");info.innerHTML="<b>"+esc(f[2])+"</b> ("+esc(BN[f[0]].t)+" → "+esc(BN[f[1]].t)+"): "+esc(f[3])};
+  g.addEventListener("click",sel);g.addEventListener("keydown",e=>{if(e.key==="Enter"||e.key===" "){e.preventDefault();sel()}})});
+ Object.keys(BN).forEach(k=>{const n=BN[k],g=el("g",{class:"nd",tabindex:0,role:"button","aria-label":n.t},svg);
+  el("rect",{x:n.p[0]-W/2,y:n.p[1]-H/2,width:W,height:H,rx:H/2,fill:n.c,stroke:"#0c1220","stroke-width":2},g);
+  const a=el("text",{class:"nt",x:n.p[0],y:n.p[1]-3,"text-anchor":"middle"},g);a.textContent=n.t;
+  const b=el("text",{class:"ns",x:n.p[0],y:n.p[1]+14,"text-anchor":"middle"},g);b.textContent=n.s;
+  const sel=()=>{svg.querySelectorAll(".on").forEach(x=>x.classList.remove("on"));g.classList.add("on");
+   info.innerHTML="<b>"+esc(n.t)+":</b> "+esc(n.was)+"<br>Gibt ab: "+(BF.filter(f=>f[0]===k).map(f=>esc(f[2])).join(", ")||"nichts")+".<br>Bekommt: "+(BF.filter(f=>f[1]===k).map(f=>esc(f[2])).join(", ")||"nichts")+"."};
+  g.addEventListener("click",sel);g.addEventListener("keydown",e=>{if(e.key==="Enter"||e.key===" "){e.preventDefault();sel()}})})
+}
+
+/* ---------- Diagramm A: Zinsentscheid ---------- */
+function aBauen(){
+ const svg=$("#a"),info=$("#ai");
+ const defs=el("defs",{},svg);
+ const m=el("marker",{id:"am",viewBox:"0 0 10 10",refX:9,refY:5,markerWidth:6,markerHeight:6,orient:"auto"},defs);el("path",{d:"M0 0L10 5L0 10z",fill:"#9fb0c8"},m);
+ const COL={b:"#5aa9e6",m:"#9aa7b5",h:"#4cc38a"};
+ const K=[
+ {id:"a1",a:"s",x:420,y:50,c:"b",l:["Datenlage: Inflation,","Arbeitsmarkt, Wirtschaft"],e:"Die Sitzungen finden nach der Veröffentlichung wichtiger Daten zu Inflation und Wirtschaftsaktivität statt (Quelle: RBA, Minutes). Die Daten stammen unter anderem von der ABS."},
+ {id:"a2",a:"s",x:420,y:150,c:"b",l:["Prognosen der RBA-Mitarbeiter","(Statement on Monetary Policy)"],e:"Das Statement on Monetary Policy erscheint viermal im Jahr (Februar, Mai, August, November) und enthält die Einschätzung der Bank zur Wirtschaft."},
+ {id:"a3",a:"s",x:420,y:250,c:"b",l:["Sitzung des Boards","(zwei Tage)"],e:"Das Monetary Policy Board tagt achtmal im Jahr, jeweils über zwei Tage (zum Beispiel 15. bis 16. Juni 2026). Beschlussfähig ist es ab fünf der neun Mitglieder."},
+ {id:"a4",a:"s",x:420,y:350,c:"b",l:["Abstimmung über das","Cash Rate Target"],e:"Das Board entscheidet über das Cash Rate Target. Seit Juli 2025 steht im Statement eine nicht personenbezogene Aufzeichnung der Stimmen."},
+ {id:"a5",a:"t",x:420,y:450,c:"b",l:["Beschluss: 14:30 Uhr Sydney","(Änderung gilt ab Folgetag)"],e:"Nach jeder Sitzung erscheint um 14:30 Uhr ein Statement. Eine Änderung des Cash Rate Target gilt ab dem folgenden Tag. Danach folgt eine Pressekonferenz."},
+ {id:"a5b",a:"s",x:860,y:450,c:"b",l:["Minutes nach","zwei Wochen"],e:"Die Minutes der Sitzung werden zwei Wochen nach dem Beschluss veröffentlicht."},
+ {id:"a6",a:"s",x:420,y:550,c:"m",l:["Zinsen zwischen Banken und","Marktzinsen passen sich an"],e:"Das Cash Rate Target bestimmt den Tageszins am Geldmarkt. Die Erwartungen für künftige Beschlüsse stecken schon in den längeren Zinsen und den Renditen der Staatsanleihen."},
+ {id:"a7",a:"s",x:420,y:650,c:"h",l:["Kredit- und Hypothekenzinsen","ändern sich"],e:"Rund 80 Prozent der ausstehenden Wohnbaukredite sind variabel verzinst (RBA, Stand Dezember 2023). Deshalb wirkt eine Änderung der Cash Rate schnell auf die Haushalte."},
+ {id:"a8",a:"t",x:420,y:750,c:"h",l:["Nachfrage, Löhne, Preise","(Wirkung mit Verzögerung)"],e:"Höhere Zinsen dämpfen Nachfrage und Preisdruck, niedrigere stützen sie. Die genaue Zeitspanne bis zur vollen Wirkung wird noch mit einer RBA-Quelle belegt."}
+ ];
+ const P=[["a1","a2","",[[420,76],[420,122]]],["a2","a3","",[[420,176],[420,222]]],["a3","a4","",[[420,276],[420,322]]],
+ ["a4","a5","",[[420,376],[420,422]]],["a5","a5b","",[[576,450],[704,450]]],
+ ["a5","a6","",[[420,476],[420,522]]],["a6","a7","",[[420,576],[420,622]]],["a7","a8","",[[420,676],[420,722]]]];
+ P.forEach(p=>{const d="M"+p[3].map(q=>q.join(",")).join(" L");el("path",{d:d,fill:"none",stroke:"#9fb0c8","stroke-width":2.6,"marker-end":"url(#am)"},svg);
+  if(p[2]){const q=p[3][0];const t=el("text",{class:"lab",x:q[0]+(p[3][0][0]===p[3][1][0]?12:60),y:q[1]+(p[3][0][0]===p[3][1][0]?26:-8),"text-anchor":p[3][0][0]===p[3][1][0]?"start":"middle"},svg);t.textContent=p[2]}});
+ K.forEach(k=>{const g=el("g",{class:"nd",tabindex:0,role:"button","aria-label":k.l.join(" ")},svg),c=COL[k.c];
+  if(k.a==="d"){const w=130,h=46;el("polygon",{points:[[k.x,k.y-h],[k.x+w/2+30,k.y],[k.x,k.y+h],[k.x-w/2-30,k.y]].map(q=>q.join(",")).join(" "),fill:"#18233a",stroke:c,"stroke-width":2.6},g)}
+  else if(k.a==="s")el("rect",{x:k.x-155,y:k.y-26,width:310,height:52,rx:8,fill:"#18233a",stroke:c,"stroke-width":2.6},g);
+  else el("rect",{x:k.x-155,y:k.y-26,width:310,height:52,rx:26,fill:c,stroke:"#0c1220","stroke-width":2},g);
+  const dunkel=k.a==="t";k.l.forEach((s,i)=>{const t=el("text",{x:k.x,y:k.y+4+(i-(k.l.length-1)/2)*16,"text-anchor":"middle","font-weight":700},g);t.textContent=s;t.style.fill=dunkel?"#0b1620":"#eaf0fb";t.style.fontSize="12.5px"});
+  const sel=()=>{svg.querySelectorAll(".on").forEach(x=>x.classList.remove("on"));g.classList.add("on");info.innerHTML="<b>"+esc(k.l.join(" "))+":</b> "+esc(k.e)};
+  g.addEventListener("click",sel);g.addEventListener("keydown",e=>{if(e.key==="Enter"||e.key===" "){e.preventDefault();sel()}})});
+}
+
+/* ---------- Zeitstrahl ---------- */
+const EV0=[
+ ["2023-12-08","Rahmenwerk Dezember 2023","Die Regierung und die RBA veröffentlichen eine neue Fassung des „Statement on the Conduct of Monetary Policy“ (Quelle: RBA, Minutes, Liste der Rahmenwerke)."],
+ ["2025-02-18","Letzte Sitzung des Reserve Bank Board","Das Reserve Bank Board, das seit 1960 bestand, tagt zum letzten Mal."],
+ ["2025-03-01","Monetary Policy Board","Das Monetary Policy Board nimmt seine Arbeit auf."],
+ ["2025-07-10","Rahmenwerk Juli 2025","Neue Fassung des Rahmenwerks. Neu: Das Board veröffentlicht eine nicht personenbezogene Aufzeichnung der Stimmen im Statement."]
+];
+function evBeschl(){
+ const b=(Z&&Z.beschluesse)||[];
+ return b.filter(x=>x[0]>="2008-01-01"&&x[2]!==null&&x[2]!==0).map(x=>[x[0],(x[2]>0?"Erhöhung":"Senkung")+" auf "+nf(x[1],2)+" %","Das Cash Rate Target ändert sich um "+(x[2]>0?"+":"")+nf(x[2],2)+" Prozentpunkte auf "+nf(x[1],2)+" % (Quelle: RBA, Tabelle A2)."]);
+}
+function evAll(){return EV0.concat(evBeschl()).sort((a,b)=>a[0]<b[0]?-1:1)}
+function zeitstrahl(){
+ const host=$("#zsc");
+ if(!Z||!Z.beschluesse||!Z.cpi_q){host.innerHTML='<div class="leer">Zeitstrahl wartet auf den Datenabruf (Cash Rate und Inflation).</div>';return}
+ bereich($("#zsb"),von=>chart(host,[
+   {n:"Cash Rate Target",farbe:"var(--c1)",pts:Z.beschluesse.map(b=>[b[0],b[1]]),step:true,dez:2,einh:" %"},
+   {n:"CPI",farbe:"var(--c4)",pts:Z.cpi_q,dez:1,einh:" %"}],
+   {von:von,tip:$("#zst"),h:300,marken:evAll().map(e=>e[0]),ziele:[2,3],label:"Cash Rate und CPI seit 1990"}),
+   [["10 Jahre",10],["20 Jahre",20],["Max (ab 1990)",0]]);
+ $("#zse").innerHTML=evAll().slice().reverse().map(e=>'<div class="ev"><span class="d">'+dts(e[0])+'</span><span><b>'+esc(e[1])+'</b>: '+esc(e[2])+'</span></div>').join("");
+}
+
+/* ---------- Staatsanleihen ---------- */
+function giltZeilen(){
+ const y=Z&&reihePts(Z.rendite),c=Z&&Z.beschluesse;
+ $("#giltz").innerHTML=y&&c?'<div><b>'+nf(last(y)[1],2)+' %</b><span>Rendite 10 Jahre ('+mon(last(y)[0])+')</span></div><div><b>'+nf(last(c)[1],2)+' %</b><span>Cash Rate Target</span></div>':'<div><span>wartet auf den Datenabruf</span></div>';
+}
+function giltPanel(){
+ const gp=$("#gp");const y=Z&&reihePts(Z.rendite);
+ gp.innerHTML='<div class="dk" style="--c:var(--c4)"><div><div class="gr">Staatsfinanzen</div><h2>Staatsanleihen und Cash Rate</h2></div><button class="zu" type="button" aria-label="Schließen">×</button></div><div class="db"><p>Die Rendite der zehnjährigen Staatsanleihe zeigt, was Anleger für langfristige Kredite an den Staat verlangen. Sie folgt den Erwartungen zur Cash Rate, hängt aber auch von Inflation, Angebot an Anleihen und Auslandsnachfrage ab. Der Kreislauf der Staatsfinanzen (Haushalt, Schuldenagentur, Käufer) folgt bei Oberthema 2 und 4.</p><div class="btns" id="gp-b"></div><div class="tip" id="gp-t"></div><div id="gp-c"></div><div class="fuss">Quelle: RBA, Tabellen F2 und A2.</div></div>';
+ gp.classList.add("offen");$("#schatten").classList.add("offen");gp.querySelector(".zu").onclick=schliessen;
+ if(!y||!Z.beschluesse){$("#gp-c").innerHTML='<div class="leer">wartet auf den Datenabruf</div>';return}
+ bereich($("#gp-b"),von=>chart($("#gp-c"),[{n:"Cash Rate Target",farbe:"var(--c1)",pts:Z.beschluesse.map(b=>[b[0],b[1]]),step:true,dez:2,einh:" %"},{n:"Rendite 10 Jahre",farbe:"var(--c4)",pts:y,dez:2,einh:" %"}],{von:von,tip:$("#gp-t"),h:300,label:"Cash Rate und 10-Jahres-Rendite"}),[["5 Jahre",5],["10 Jahre",10],["Max",0]]);
+}
+$("#giltk").onclick=()=>giltPanel();
+
+function termine(){
+ const heute=new Date().toISOString().slice(0,10);
+ const alle=((Z&&Z.termine)||[]).filter(t=>t.bis>=heute);
+ $("#trm").innerHTML=alle.length?alle.map((t,i)=>'<div class="ev"><span class="d">'+dts(t.bis)+'</span><span>'+(i===0?'<b>Nächster Beschluss</b>':'Zinsbeschluss')+' (Sitzung '+dts(t.von)+' bis '+dts(t.bis)+')'+([2,5,8,11].indexOf(+t.bis.slice(5,7))>=0?' mit Statement on Monetary Policy':'')+'</span></div>').join(""):'<div class="leer">Termine werden beim nächsten Datenabruf aus dem RBA-Kalender gelesen.</div>';
+}
+/* ---------- Start ---------- */
+$("#theme").addEventListener("click",()=>{const r=document.documentElement;r.dataset.theme=r.dataset.theme==="dark"?"light":"dark";try{localStorage.setItem("dashboard-thema",r.dataset.theme)}catch(e){}});
+try{const t=localStorage.getItem("dashboard-thema");if(t)document.documentElement.dataset.theme=t}catch(e){}
+if(ABRUF)$("#unter").innerHTML+=" · Datenabruf: "+dts(ABRUF);
+kacheln();ut();bBauen();aBauen();rahmenBlock();zeitstrahl();giltZeilen();termine();
+</script>
+<script src="seitenhintergrund.js?v=20261023"></script>
+</body>
+</html>
