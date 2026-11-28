@@ -151,40 +151,66 @@ def cashseite():
 
 
 # ---------------- Sitzungstermine (Kalender) ----------------
-def termine():
-    t = text(get(RBA + "/schedules-events/calendar/"))
+def _sitzungen(t):
     res = []
-    for m in re.finditer(r"Monetary Policy Board Meeting Monetary Policy Decision (\d{1,2})(?: ([A-Z][a-z]+))?\s*[–-]\s*(\d{1,2}) ([A-Z][a-z]+) (20\d\d)", t):
+    for m in re.finditer(r"Monetary Policy Board Meeting(?: Monetary Policy Decision)? (\d{1,2})(?: ([A-Z][a-z]+))?\s*[–-]\s*(\d{1,2}) ([A-Z][a-z]+) (20\d\d)", t):
         m2 = MONEN.get(m.group(4).lower()); m1 = MONEN.get((m.group(2) or m.group(4)).lower())
         if not m1 or not m2: continue
         jahr = int(m.group(5))
         res.append({"von": "%04d-%02d-%02d" % (jahr, m1, int(m.group(1))), "bis": "%04d-%02d-%02d" % (jahr, m2, int(m.group(3)))})
+    return res
+
+
+def termine():
+    res = []
+    for u in ("/schedules-events/calendar/?topics=mone", "/schedules-events/calendar/"):
+        try:
+            t = text(get(RBA + u))
+            neu = _sitzungen(t)
+            print("TERMINE", u, "Seitenlaenge", len(t), "Sitzungen", len(neu), flush=True)
+            res += neu
+        except Exception as e:
+            print("TERMINE Fehler", u, e, flush=True)
+    # Fallback: kommende Protokoll-Daten (Datei heisst nach dem ersten Sitzungstag)
+    try:
+        s = get(RBA + "/monetary-policy/rba-board-minutes/%d/" % datetime.date.today().year)
+        for d in re.findall(r"/rba-board-minutes/20\d\d/(20\d\d-\d\d-\d\d)\.html", s):
+            von = datetime.date.fromisoformat(d)
+            res.append({"von": d, "bis": (von + datetime.timedelta(days=1)).isoformat()})
+    except Exception as e:
+        print("TERMINE Protokollliste Fehler", e, flush=True)
     seen, out = set(), []
-    for x in res:
+    for x in sorted(res, key=lambda x: x["bis"]):
         if x["bis"] not in seen: seen.add(x["bis"]); out.append(x)
-    print("TERMINE gefunden:", len(out), flush=True)
-    if not out:
-        print("KALENDER-Auszug:", t[:400], flush=True)
-        raise ValueError("keine Sitzungstermine erkannt")
-    return sorted(out, key=lambda x: x["bis"])
+    print("TERMINE gefunden:", len(out), [x["bis"] for x in out][-8:], flush=True)
+    if not out: raise ValueError("keine Sitzungstermine erkannt")
+    return out
 
 
 # ---------------- Abstimmung im Board (Statement des letzten Beschlusses) ----------------
 def abstimmung(cash):
-    """Sucht im Beschluss-Statement nach einer Angabe zur Abstimmung. Findet sich keine, bleibt das Feld leer."""
+    """Sucht im Beschluss-Statement nach der Aufzeichnung der Stimmen. Findet sich keine, bleibt das Feld leer."""
     for b in cash[:2]:
         if not b.get("statement"): continue
         t = text(get(b["statement"]))
-        m = re.search(r"[^.]*\b(voted|vote was|unanimous|dissent)[^.]*\.", t, re.I)
-        print("STATEMENT", b["d"], b["statement"], "Laenge", len(t), "| Abstimmung:", m.group(0)[:300] if m else "nicht gefunden", flush=True)
-        if m: return {"d": b["d"], "satz": m.group(0).strip(), "url": b["statement"]}
+        sat = re.split(r"(?<=[a-z%)])\.\s+(?=[A-Z“])", t)
+        i = next((k for k, x in enumerate(sat) if re.search(r"(?i)voted|by majority|unanimous|vote was", x)), None)
+        print("STATEMENT", b["d"], b["statement"], "Laenge", len(t), "| Abstimmung:", sat[i][:300] if i is not None else "nicht gefunden", flush=True)
+        if i is not None:
+            teil = [sat[i]]
+            for x in sat[i + 1:i + 4]:
+                if re.search(r"(?i)voted|members? (?:voted|preferred)", x): teil.append(x)
+                else: break
+            satz = ". ".join(x.strip().rstrip(".") for x in teil) + "."
+            return {"d": b["d"], "satz": satz, "url": b["statement"]}
     return None
 
 
 # ---------------- Statement on Monetary Policy ----------------
 def smp():
     s = get(RBA + "/publications/smp/")
-    links = sorted(set(re.findall(r'href="(/publications/smp/20\d\d/[a-z]{3}/)"', s)), key=lambda h: (h[17:21], MON.get(h[22:25], 0)), reverse=True)
+    links = sorted(set(re.findall(r'href="(/publications/smp/20\d\d/[a-z]{3}/)"', s)),
+                   key=lambda h: (int(re.search(r"/(20\d\d)/", h).group(1)), MON.get(re.search(r"/20\d\d/([a-z]{3})/", h).group(1), 0)), reverse=True)
     if not links: raise ValueError("kein SMP-Link")
     url = RBA + links[0]
     t = text(get(url))
@@ -209,6 +235,21 @@ def rahmen():
     except Exception as e:
         print("BOARD Fehler", e, flush=True)
     return {"saetze": wichtig, "board": board, "url": RBA + "/monetary-policy/framework/stmt-conduct-mp-9-2025-07-10.html"}
+
+
+# ---------------- Mitglieder des Boards (Statutory Appointments) ----------------
+def mitglieder():
+    t = text(get(RBA + "/about-rba/statutory-appointments.html"))
+    heute = datetime.date.today().isoformat()
+    out = []
+    for m in re.finditer(r"([A-Z][A-Za-z.’' -]{3,45}?(?: A[MOC])?) (Governor|Deputy Governor|Secretary to the Treasury|Monetary Policy Board Member)[^0-9]{0,160}?(\d{1,2} [A-Z][a-z]{2} 20\d\d)\s+(\d{1,2} [A-Z][a-z]{2} 20\d\d)", t):
+        von, bis = datum(m.group(3)), datum(m.group(4))
+        out.append({"name": m.group(1).strip(), "rolle": m.group(2), "von": von, "bis": bis, "aktuell": bool(bis and bis >= heute)})
+    print("MITGLIEDER gefunden:", [(x["name"], x["rolle"], x["bis"]) for x in out], flush=True)
+    if not out:
+        print("STATUTORY Auszug:", t[:1500], flush=True)
+        raise ValueError("keine Mitglieder erkannt")
+    return out
 
 
 # ---------------- ABS ----------------
@@ -292,17 +333,24 @@ def zentralbank(fehler):
         t = rba_tabelle("f5")
         return {"var_eigen": reihe(t, [], ["housing loans", "banks", "variable", "standard", "owner-occupier"], "1990-01-01", False)}
     def aud():
-        t = rba_tabelle("f11.1")
-        return reihe(t, ["FXRUSD"], ["a$1=usd"], "1990-01-01")
+        neu = reihe(rba_tabelle("f11.1"), ["FXRUSD"], ["a$1=usd"], "1990-01-01")
+        try:
+            alt = reihe(rba_tabelle("f11"), ["FXRUSD"], ["a$1=usd"], "1990-01-01")
+            m = {d[:7]: [d, v] for d, v in alt["r"]}
+            for d, v in neu["r"]: m[d[:7]] = [d, v]
+            neu["r"] = [m[k] for k in sorted(m)]
+        except Exception as e:
+            print("AUD Altreihe (F11) nicht verfuegbar:", e, flush=True)
+        return neu
     def rendite():
         t = rba_tabelle("f2")
-        return reihe(t, ["FCMYGBAG10"], ["10 year"], "1990-01-01", False)
+        return reihe(t, ["FCMYGBAG10D"], ["10 year"], "1990-01-01", True)
     def haushalt_bis():
         return {"H": bis_reihe("H", "M"), "N": bis_reihe("N", "M")}
 
     for n, f in [("beschluesse", beschluesse), ("cash_tag", cash_tag), ("bilanz", bilanz), ("kredit", kredit),
                  ("kreditzins", kreditzins), ("aud", aud), ("rendite", rendite),
-                 ("cashseite", cashseite), ("rahmen", rahmen), ("termine", termine), ("smp", smp), ("cpi", abs_cpi), ("cpi_q", oecd_cpi_q), ("alq", abs_alq),
+                 ("cashseite", cashseite), ("rahmen", rahmen), ("mitglieder", mitglieder), ("termine", termine), ("smp", smp), ("cpi", abs_cpi), ("cpi_q", oecd_cpi_q), ("alq", abs_alq),
                  ("schulden_bis", haushalt_bis)]:
         teil(n, f)
     try: zb["abstimmung"] = abstimmung(zb.get("cashseite") or [])
