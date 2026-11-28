@@ -242,16 +242,30 @@ def rahmen():
 
 # ---------------- Mitglieder des Boards (Statutory Appointments) ----------------
 def mitglieder():
+    """Liest die Amtszeiten der Board-Mitglieder aus der RBA-Seite 'Statutory Appointments'."""
     t = text(get(RBA + "/about-rba/statutory-appointments.html"))
+    k = t.find("Monetary Policy Board Name Position")
+    t = t[k:] if k >= 0 else t
+    k2 = t.find("Payments System Board")
+    t = t[:k2] if k2 > 0 else t[:6000]
     heute = datetime.date.today().isoformat()
+    ROLLEN = r"(Governor|Deputy Governor|Secretary to the Treasury|Monetary Policy Board Member|Member)"
     out = []
-    for m in re.finditer(r"([A-Z][A-Za-z.’' -]{3,45}?(?: A[MOC])?) (Governor|Deputy Governor|Secretary to the Treasury|Monetary Policy Board Member)[^0-9]{0,160}?(\d{1,2} [A-Z][a-z]{2,8} 20\d\d)\s+(\d{1,2} [A-Z][a-z]{2,8} 20\d\d)", t):
-        von, bis = datum(m.group(3)), datum(m.group(4))
-        out.append({"name": m.group(1).strip(), "rolle": m.group(2), "von": von, "bis": bis, "aktuell": bool(bis and bis >= heute)})
+    for m in re.finditer(r"(\d{1,2} [A-Z][a-z]{2,8} 20\d\d) (\d{1,2} [A-Z][a-z]{2,8} 20\d\d)", t):
+        vor = t[max(0, m.start() - 230):m.start()]
+        r = list(re.finditer(ROLLEN + r"(?= |$)", vor))
+        if not r: continue
+        rolle = r[-1].group(1)
+        worte = vor[:r[-1].start()].split()
+        name = []
+        while worte and len(name) < 4 and (re.fullmatch(r"[A-Z][a-zA-Z.’'-]+", worte[-1]) or worte[-1] in ("AM", "AO", "AC"))                 and worte[-1] not in ("Ends", "Act", "Position", "Name", "officio", "Ex", "Appointment", "Appointments", "Board", "Policy", "Monetary"):
+            name.insert(0, worte.pop())
+        if not name: continue
+        von, bis = datum(m.group(1)), datum(m.group(2))
+        out.append({"name": " ".join(name), "rolle": rolle if rolle != "Member" else "Monetary Policy Board Member", "von": von, "bis": bis, "aktuell": bool(bis and bis >= heute)})
     print("MITGLIEDER gefunden:", [(x["name"], x["rolle"], x["bis"]) for x in out], flush=True)
     if not out:
-        i = t.find("Monetary Policy Board Member")
-        print("STATUTORY Auszug:", t[max(0, i - 400):i + 900] if i >= 0 else t[-1200:], flush=True)
+        print("STATUTORY Auszug:", t[:2500], flush=True)
         raise ValueError("keine Mitglieder erkannt")
     return out
 
