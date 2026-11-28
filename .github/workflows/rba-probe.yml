@@ -1,0 +1,29 @@
+name: RBA Probe Inflation
+on:
+  workflow_dispatch:
+jobs:
+  p:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Probe
+        run: |
+          B=https://www.rba.gov.au
+          g(){ curl -s -m 60 -A "Mozilla/5.0" -L -o "$1" "$2"; }
+          g tab.html $B/statistics/tables/
+          for t in g1 g3 g2 h2 f16 e3; do g $t.csv $B/statistics/tables/csv/$t-data.csv; done
+          python3 - <<'PY'
+          import re,html,os
+          s=open("tab.html",encoding="utf-8",errors="replace").read()
+          print("@@@ TABELLEN mit Inflation/Erwartung/Preis:")
+          for m in re.finditer(r'<a[^>]*href="([^"]*)"[^>]*>(.*?)</a>',s,re.S):
+              t=html.unescape(re.sub(r"<[^>]+>"," ",m.group(2))); t=re.sub(r"\s+"," ",t).strip()
+              if re.search(r"(?i)inflation|expectation|price|cpi|wage|commodity",t) and len(t)<140: print("  ",t,"|",m.group(1))
+          for f in ("g1","g3","g2","h2","f16","e3"):
+              if not os.path.exists(f+".csv"): continue
+              L=open(f+".csv",encoding="utf-8-sig",errors="replace").read().splitlines()
+              print("@@@",f,len(L),"Zeilen")
+              for l in L[:2]: print(l[:200])
+              ids=[l for l in L[:14] if l.startswith("Series ID")]; ti=[l for l in L[:14] if l.startswith("Title")]
+              for l in ti+ids: print(l[:700])
+              for l in L[-3:]: print(l[:240])
+          PY
