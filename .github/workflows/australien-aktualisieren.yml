@@ -1,0 +1,34 @@
+# Schneller Einzel-Workflow nur fuer Australien (ca. 30 Sekunden). Von Hand startbar.
+# Der normale Workflow "Daten aktualisieren" holt weiterhin alle Laender zweimal taeglich.
+name: Daten Australien
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  australien:
+    runs-on: ubuntu-latest
+    env:
+      LAENDER_DATEN: ${{ github.workspace }}/laender/daten
+    steps:
+      - name: Repository holen
+        uses: actions/checkout@v4
+
+      - name: Laenderanalyse Australien
+        run: python3 -X utf8 skripte/Laender_Abrufen_AUS.py
+
+      - name: Aktualisierte Daten zurueckschreiben
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add laender/daten/aus.js
+          if git diff --cached --quiet; then
+            echo "Keine Aenderungen."
+          else
+            git commit -m "Daten Australien aktualisiert ($(date -u '+%Y-%m-%d %H:%M') UTC)"
+            git pull --rebase origin main
+            git push
+          fi
