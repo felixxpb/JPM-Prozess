@@ -194,17 +194,17 @@ def abstimmung(cash):
         if not b.get("statement"): continue
         t = text(get(b["statement"]))
         sat = re.split(r"(?<=[a-z%)])\.\s+(?=[A-Z“])", t)
-        i = next((k for k, x in enumerate(sat) if re.search(r"(?i)voted|by majority|unanimous|vote was", x)), None)
+        i = next((k for k, x in enumerate(sat) if re.search(r"(?i)voted|by majority|unanimous|vote was", x)), None)
         print("STATEMENT", b["d"], b["statement"], "Laenge", len(t), "| Abstimmung:", sat[i][:300] if i is not None else "nicht gefunden", flush=True)
         if i is not None:
             teil = [sat[i]]
             for x in sat[i + 1:i + 4]:
-                if re.search(r"(?i)voted|members? (?:voted|preferred)", x): teil.append(x)
+                if re.search(r"(?i)voted|members? (?:voted|preferred)", x): teil.append(x)
                 else: break
             satz = ". ".join(x.strip().rstrip(".") for x in teil) + "."
             zahl = {"one": 1, "two": 2, "three": 3, "four": 4, "five": 5, "six": 6, "seven": 7, "eight": 8, "nine": 9}
             gruppen = [{"n": zahl[g.group(1).lower()], "text": g.group(2).strip()}
-                       for g in re.finditer(r"(?i)(one|two|three|four|five|six|seven|eight|nine) members? voted to ((?:[^;.]|\.(?=\d))+)", satz)]
+                       for g in re.finditer(r"(?i)(one|two|three|four|five|six|seven|eight|nine) members? voted to ((?:[^;.]|\.(?=\d))+)", satz)]
             return {"d": b["d"], "satz": satz, "url": b["statement"], "gruppen": gruppen}
     return None
 
