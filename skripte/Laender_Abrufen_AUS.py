@@ -244,10 +244,10 @@ def rahmen():
 def mitglieder():
     """Liest die Amtszeiten der Board-Mitglieder aus der RBA-Seite 'Statutory Appointments'."""
     t = text(get(RBA + "/about-rba/statutory-appointments.html"))
-    k = t.find("Monetary Policy Board Name Position")
+    k = t.find("Name Position Provision of Act")
     t = t[k:] if k >= 0 else t
     k2 = t.find("Payments System Board")
-    t = t[:k2] if k2 > 0 else t[:6000]
+    t = t[:k2] if k2 > 0 else t[:8000]
     heute = datetime.date.today().isoformat()
     ROLLEN = r"(Governor|Deputy Governor|Secretary to the Treasury|Monetary Policy Board Member|Member)"
     out = []
@@ -258,7 +258,7 @@ def mitglieder():
         rolle = r[-1].group(1)
         worte = vor[:r[-1].start()].split()
         name = []
-        while worte and len(name) < 4 and (re.fullmatch(r"[A-Z][a-zA-Z.’'-]+", worte[-1]) or worte[-1] in ("AM", "AO", "AC"))                 and worte[-1] not in ("Ends", "Act", "Position", "Name", "officio", "Ex", "Appointment", "Appointments", "Board", "Policy", "Monetary"):
+        while worte and len(name) < 4 and (re.fullmatch(r"[A-Z][\w.’'-]+", worte[-1]) or worte[-1] in ("AM", "AO", "AC"))                 and worte[-1] not in ("Ends", "Act", "Position", "Name", "officio", "Ex", "Appointment", "Appointments", "Board", "Policy", "Monetary"):
             name.insert(0, worte.pop())
         if not name: continue
         von, bis = datum(m.group(1)), datum(m.group(2))
