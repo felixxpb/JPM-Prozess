@@ -344,9 +344,9 @@ function infoKarten(){
  const out=[];
  const ab=Z&&Z.abstimmung;
  out.push({id:"vote",n:"Abstimmung im Board",c:"c1",gr:"Zinsbeschluss",
-  wert:ab?"siehe Statement":"–",sub:ab?"Beschluss "+dts(ab.d):"Angabe im Statement noch nicht gelesen",datum:ab?dts(ab.d):"offen",
+  wert:ab?(ab.gruppen&&ab.gruppen.length>1?ab.gruppen.map(g=>g.n).join(" : "):"siehe Statement"):"–",sub:ab?"Stimmen laut Statement, Zins wirksam ab "+dts(ab.d):"Angabe im Statement noch nicht gelesen",datum:ab?dts(ab.d):"offen",
   was:"Seit Juli 2025 veröffentlicht das Board in seinem Statement nach der Sitzung eine nicht personenbezogene Aufzeichnung der Stimmen (Rahmenwerk der RBA). Der Satz wird automatisch aus dem Statement des letzten Beschlusses gelesen und hier im Wortlaut gezeigt.",
-  rows:ab?[["Wortlaut (englisch)",ab.satz],["Beschluss",dts(ab.d)]]:[["Stand","Im Statement wurde noch keine Angabe gefunden. Es wird nichts geschätzt."]],
+  rows:ab?((ab.gruppen||[]).map(g=>[g.n+(g.n===1?" Mitglied":" Mitglieder"),g.text]).concat([["Wortlaut (englisch)",ab.satz],["Zins wirksam ab",dts(ab.d)]])):[["Stand","Im Statement wurde noch keine Angabe gefunden. Es wird nichts geschätzt."]],
   hin:"Die Stimmen sind nicht einzelnen Mitgliedern zugeordnet.",q:"RBA, Monetary Policy Decision Statement",u:ab?ab.url:"https://www.rba.gov.au/monetary-policy/rba-board-minutes/"});
  const bl=Z&&Z.bilanz&&Z.bilanz.aktiva&&Z.bilanz.aktiva.r.length?Z.bilanz:null;
  if(bl){const l=last(bl.aktiva.r);const z=(r)=>r&&r.r.length?[last(r.r)[1],last(r.r)[0]]:null;
@@ -368,7 +368,7 @@ function infoKarten(){
 /* ---------- Unterthemen ---------- */
 function tabelleBeschluesse(){
  const L=Z&&Z.cashseite;if(!L||!L.length)return '<div class="leer">Beschlussliste noch nicht gelesen (wartet auf den Datenabruf).</div>';
- return '<table class="tb"><tr><th>Beschluss</th><th>Änderung</th><th>Cash Rate Target</th><th>Dokumente</th></tr>'+L.slice(0,8).map(b=>'<tr><td>'+dts(b.d)+'</td><td class="'+(b.aend>0?"hk":"")+'">'+(b.aend>0?"+":"")+nf(b.aend,2)+'</td><td>'+nf(b.satz,2)+' %</td><td>'+(b.statement?'<a href="'+esc(b.statement)+'" target="_blank" rel="noopener">Statement</a>':'')+(b.minutes?' · <a href="'+esc(b.minutes)+'" target="_blank" rel="noopener">Minutes</a>':'')+'</td></tr>').join("")+'</table><div class="fuss">Quelle: RBA, Seite „Cash Rate Target“ (Änderung in Prozentpunkten).</div>';
+ return '<table class="tb"><tr><th>Wirksam ab</th><th>Änderung</th><th>Cash Rate Target</th><th>Dokumente</th></tr>'+L.slice(0,8).map(b=>'<tr><td>'+dts(b.d)+'</td><td class="'+(b.aend>0?"hk":"")+'">'+(b.aend>0?"+":"")+nf(b.aend,2)+'</td><td>'+nf(b.satz,2)+' %</td><td>'+(b.statement?'<a href="'+esc(b.statement)+'" target="_blank" rel="noopener">Statement</a>':'')+(b.minutes?' · <a href="'+esc(b.minutes)+'" target="_blank" rel="noopener">Minutes</a>':'')+'</td></tr>').join("")+'</table><div class="fuss">Quelle: RBA, Seite „Cash Rate Target“ (Datum = erster Tag, an dem der neue Zins gilt, also der Tag nach dem Beschluss; Änderung in Prozentpunkten).</div>';
 }
 function bilanzTab(){
  const bl=Z&&Z.bilanz;if(!bl||!bl.aktiva||!bl.aktiva.r.length)return '<div class="leer">Bilanzzeilen noch nicht gelesen (wartet auf den Datenabruf).</div>';
@@ -495,7 +495,7 @@ const EV0=[
 ];
 function evBeschl(){
  const b=(Z&&Z.beschluesse)||[];
- return b.filter(x=>x[0]>="2008-01-01"&&x[2]!==null&&x[2]!==0).map(x=>[x[0],(x[2]>0?"Erhöhung":"Senkung")+" auf "+nf(x[1],2)+" %","Das Cash Rate Target ändert sich um "+(x[2]>0?"+":"")+nf(x[2],2)+" Prozentpunkte auf "+nf(x[1],2)+" % (Quelle: RBA, Tabelle A2)."]);
+ return b.filter(x=>x[0]>="2008-01-01"&&x[2]!==null&&x[2]!==0).map(x=>[x[0],(x[2]>0?"Erhöhung":"Senkung")+" auf "+nf(x[1],2)+" %","Wirksam ab diesem Tag ändert sich das Cash Rate Target um "+(x[2]>0?"+":"")+nf(x[2],2)+" Prozentpunkte auf "+nf(x[1],2)+" % (Quelle: RBA, Tabelle A2)."]);
 }
 function evAll(){return EV0.concat(evBeschl()).sort((a,b)=>a[0]<b[0]?-1:1)}
 function zeitstrahl(){

@@ -175,8 +175,8 @@ def termine():
     try:
         s = get(RBA + "/monetary-policy/rba-board-minutes/%d/" % datetime.date.today().year)
         for d in re.findall(r"/rba-board-minutes/20\d\d/(20\d\d-\d\d-\d\d)\.html", s):
-            von = datetime.date.fromisoformat(d)
-            res.append({"von": d, "bis": (von + datetime.timedelta(days=1)).isoformat()})
+            bis = datetime.date.fromisoformat(d)   # Dateiname = Beschlusstag (zweiter Sitzungstag)
+            res.append({"von": (bis - datetime.timedelta(days=1)).isoformat(), "bis": d})
     except Exception as e:
         print("TERMINE Protokollliste Fehler", e, flush=True)
     seen, out = set(), []
@@ -202,7 +202,10 @@ def abstimmung(cash):
                 if re.search(r"(?i)voted|members? (?:voted|preferred)", x): teil.append(x)
                 else: break
             satz = ". ".join(x.strip().rstrip(".") for x in teil) + "."
-            return {"d": b["d"], "satz": satz, "url": b["statement"]}
+            zahl = {"one": 1, "two": 2, "three": 3, "four": 4, "five": 5, "six": 6, "seven": 7, "eight": 8, "nine": 9}
+            gruppen = [{"n": zahl[g.group(1).lower()], "text": g.group(2).strip()}
+                       for g in re.finditer(r"(?i)(one|two|three|four|five|six|seven|eight|nine) members? voted to ((?:[^;.]|\.(?=\d))+)", satz)]
+            return {"d": b["d"], "satz": satz, "url": b["statement"], "gruppen": gruppen}
     return None
 
 
@@ -242,12 +245,13 @@ def mitglieder():
     t = text(get(RBA + "/about-rba/statutory-appointments.html"))
     heute = datetime.date.today().isoformat()
     out = []
-    for m in re.finditer(r"([A-Z][A-Za-z.’' -]{3,45}?(?: A[MOC])?) (Governor|Deputy Governor|Secretary to the Treasury|Monetary Policy Board Member)[^0-9]{0,160}?(\d{1,2} [A-Z][a-z]{2} 20\d\d)\s+(\d{1,2} [A-Z][a-z]{2} 20\d\d)", t):
+    for m in re.finditer(r"([A-Z][A-Za-z.’' -]{3,45}?(?: A[MOC])?) (Governor|Deputy Governor|Secretary to the Treasury|Monetary Policy Board Member)[^0-9]{0,160}?(\d{1,2} [A-Z][a-z]{2,8} 20\d\d)\s+(\d{1,2} [A-Z][a-z]{2,8} 20\d\d)", t):
         von, bis = datum(m.group(3)), datum(m.group(4))
         out.append({"name": m.group(1).strip(), "rolle": m.group(2), "von": von, "bis": bis, "aktuell": bool(bis and bis >= heute)})
     print("MITGLIEDER gefunden:", [(x["name"], x["rolle"], x["bis"]) for x in out], flush=True)
     if not out:
-        print("STATUTORY Auszug:", t[:1500], flush=True)
+        i = t.find("Monetary Policy Board Member")
+        print("STATUTORY Auszug:", t[max(0, i - 400):i + 900] if i >= 0 else t[-1200:], flush=True)
         raise ValueError("keine Mitglieder erkannt")
     return out
 
